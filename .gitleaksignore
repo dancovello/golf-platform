@@ -1,0 +1,9 @@
+# Reviewed false positives, one fingerprint per finding (commit:file:rule:line).
+# Placeholder 'dev-token' in example curl commands from a third-party review skill:
+eec57fc15d8f8a20e88ba045da128c279d182a35:.claude/skills/infosec-review/SKILL.md:curl-auth-header:282
+eec57fc15d8f8a20e88ba045da128c279d182a35:.claude/skills/infosec-review/SKILL.md:curl-auth-header:315
+eec57fc15d8f8a20e88ba045da128c279d182a35:.claude/skills/infosec-review/SKILL.md:curl-auth-header:318
+eec57fc15d8f8a20e88ba045da128c279d182a35:.claude/skills/infosec-review/SKILL.md:curl-auth-header:334
+eec57fc15d8f8a20e88ba045da128c279d182a35:.claude/skills/infosec-review/SKILL.md:curl-auth-header:315
+# Figma file key in CLAUDE.md: a file identifier, not a credential:
+22cfc4bcfd3d9cb180c8e1a85361f0bf5c9cfcd5:CLAUDE.md:generic-api-key:30

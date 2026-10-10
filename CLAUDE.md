@@ -63,4 +63,22 @@ Member login, the booking portal, and billing/payments. They are documented for 
 - If something needs a human expert (security, production infrastructure), say so plainly.
 
 ## Commands
-_To be filled in once the project is scaffolded (dev, test, lint, typecheck, migrate)._
+Node 24 and pnpm (via corepack: `corepack pnpm …` if `pnpm` isn't on PATH). Local Postgres runs in Docker.
+
+| Task | Command |
+|---|---|
+| Start local database | `docker compose up -d` (dev DB `golf_dev`, test DB `golf_test`, port 54329) |
+| Dev server | `pnpm dev` (schema auto-sync is on here only) |
+| Typecheck | `pnpm typecheck` |
+| Lint + formatting | `pnpm lint` and `pnpm format:check` |
+| Tests | `pnpm test` (applies migrations to `golf_test`, then runs Vitest) |
+| Build | `pnpm build` |
+| New migration | `pnpm migrate:create <name>`, then review the generated SQL |
+| Apply migrations | `pnpm migrate` |
+
+- Copy `.env.example` to `.env` and `.env.test.example` to `.env.test` for local work.
+- Every collection must be listed in `src/collections/index.ts` and define create/read/update/delete access. `tests/unit/access-guard.spec.ts` enforces this.
+- Accounts are created only by trusted scripts that pass `allowAccountCreation` context (`src/access/accountCreation.ts`).
+- `pnpm format` must never touch `docs/`, `.claude/` or Markdown. `.prettierignore` covers this.
+- Vercel runs `pnpm vercel-build` (`scripts/vercel-build.sh`). It migrates staging only and refuses to build production until step 3.
+- Decisions made after doc 04 are in `docs/architecture/decisions.md`.
