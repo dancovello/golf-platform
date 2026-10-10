@@ -1,0 +1,8 @@
+# Hand-written docs, skills and generated files are not reformatted.
+*.md
+.claude/
+docs/
+pnpm-lock.yaml
+src/payload-types.ts
+src/migrations/
+src/app/(payload)/

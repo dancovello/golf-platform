@@ -1,0 +1,17 @@
+allowBuilds:
+  esbuild: true
+  unrs-resolver: true
+
+overrides:
+  # payload@3.90.2 pins undici 7.29.0, which has two high-severity advisories.
+  # Remove once Payload ships with undici >=7.29.1.
+  undici: 7.29.1
+  # Pulled in by the admin's code editor (via @payloadcms/ui). Patch release with security fixes.
+  dompurify: 3.4.16
+
+auditConfig:
+  ignoreGhsas:
+    # braces (stack exhaustion, no fixed release). Only reached through build-time
+    # tooling (sass -> chokidar, vite) with patterns from our own code, never user input.
+    # Mirrored in osv-scanner.toml with an expiry date. Review by 2026-11-10.
+    - GHSA-vfj7-8cjw-p6xm

@@ -1,0 +1,48 @@
+import { postgresAdapter } from '@payloadcms/db-postgres'
+import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import path from 'path'
+import { buildConfig } from 'payload'
+import { fileURLToPath } from 'url'
+
+import { collections } from './collections'
+
+const filename = fileURLToPath(import.meta.url)
+const dirname = path.dirname(filename)
+
+const requireEnv = (name: string): string => {
+  const value = process.env[name]
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${name}`)
+  }
+  return value
+}
+
+export default buildConfig({
+  admin: {
+    user: 'users',
+    importMap: {
+      baseDir: path.resolve(dirname),
+    },
+  },
+  // Copied so Payload adding its own collections at startup never changes our list.
+  collections: [...collections],
+  editor: lexicalEditor(),
+  // GraphQL is off until it is covered by the tenant-isolation suite (see docs/architecture/decisions.md).
+  graphQL: {
+    disable: true,
+  },
+  secret: requireEnv('PAYLOAD_SECRET'),
+  typescript: {
+    outputFile: path.resolve(dirname, 'payload-types.ts'),
+  },
+  db: postgresAdapter({
+    pool: {
+      connectionString: requireEnv('DATABASE_URL'),
+    },
+    // Schema auto-sync ("push") is for local development only. Every other environment,
+    // including tests and CI, changes the schema through committed migrations.
+    push: process.env.NODE_ENV === 'development',
+    migrationDir: path.resolve(dirname, 'migrations'),
+  }),
+  telemetry: false,
+})

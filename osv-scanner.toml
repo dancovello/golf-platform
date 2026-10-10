@@ -1,0 +1,12 @@
+# Documented exceptions for the dependency scan. Each one needs a reason and an expiry.
+# When ignoreUntil passes, the scan fails again until someone reviews it.
+
+[[IgnoredVulns]]
+id = "GHSA-vfj7-8cjw-p6xm"
+ignoreUntil = 2026-11-10
+reason = "braces: no fixed release. Reached only via build-time tooling (sass -> chokidar, vite) with patterns from our own code, never user input."
+
+[[IgnoredVulns]]
+id = "GHSA-67mh-4wv8-2f99"
+ignoreUntil = 2026-11-10
+reason = "esbuild 0.18 dev-server issue. Only pulled in by drizzle-kit (migration generator, developer machines only), which never starts esbuild's dev server."

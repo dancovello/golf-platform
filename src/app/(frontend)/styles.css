@@ -1,0 +1,10 @@
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+}
+
+.placeholder {
+  max-width: 40rem;
+  margin: 20vh auto;
+  padding: 0 1.5rem;
+}
