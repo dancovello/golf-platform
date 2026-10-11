@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto'
 import type { CollectionBeforeOperationHook, CollectionConfig } from 'payload'
 
 import { loggedIn } from '../access/roles'
-import { randomServerUploadName } from '../media/randomFileNames'
+import { randomServerUploadName } from '../media/uploadGuards'
 import { MEDIA_PREFIX } from '../media/storage'
 
 /** Photos and videos a club can use in its blocks. Images are checked by their actual

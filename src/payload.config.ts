@@ -12,7 +12,8 @@ import { guardTenantSelection } from './admin/guardTenantSelection'
 import { encryptTotpSecrets } from './auth/totpSecretEncryption'
 import { collections } from './collections'
 import { usersAccess } from './collections/Users'
-import { randomFileNames } from './media/randomFileNames'
+import { MEDIA_TYPES } from './collections/Media'
+import { guardBrowserUploads } from './media/uploadGuards'
 import { mediaStorageSettings } from './media/storage'
 import { clubOwnedCollections } from './tenancy'
 
@@ -109,7 +110,10 @@ export default buildConfig({
       },
     }),
     // Must come after s3Storage, whose signed-link endpoint it wraps.
-    randomFileNames('/storage-s3-generate-signed-url'),
+    guardBrowserUploads('/storage-s3-generate-signed-url', {
+      collectionSlug: 'media',
+      mimeTypes: MEDIA_TYPES,
+    }),
     // Keeps the club list from loading before the two-factor code is entered.
     guardTenantSelection,
     // Two-factor login, required for every account (docs/architecture/decisions.md).

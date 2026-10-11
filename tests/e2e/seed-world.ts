@@ -43,6 +43,12 @@ writeFileSync(
     pageB: { id: w.pageB.id, title: w.pageB.title },
     settingsA: { id: w.settingsA.id },
     settingsB: { id: w.settingsB.id },
+    mediaB: {
+      id: w.mediaB.id,
+      prefix: w.mediaB.prefix,
+      filename: w.mediaB.filename,
+      url: w.mediaB.url,
+    },
     editorNotSetUp,
     editorToReset,
     editorLoginOnly,
