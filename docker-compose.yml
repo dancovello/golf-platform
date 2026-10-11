@@ -1,7 +1,7 @@
 # Local development database only. Never used for staging or production.
 services:
   postgres:
-    image: postgres:17-alpine
+    image: postgres:18-alpine
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
@@ -10,7 +10,7 @@ services:
     ports:
       - '127.0.0.1:54329:5432'
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql
       - ./docker/postgres-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
 
 volumes:

@@ -53,7 +53,7 @@ jobs:
     timeout-minutes: 15
     services:
       postgres:
-        image: postgres:17-alpine
+        image: postgres:18-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -151,7 +151,7 @@ jobs:
     timeout-minutes: 25
     services:
       postgres:
-        image: postgres:17-alpine
+        image: postgres:18-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -178,10 +178,16 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm test:isolation
+      # The website runs as the limited golf_app account (read/write data only). The migration
+      # created it without a login; give it one for this throwaway CI database only.
+      - name: Let golf_app log in (CI database only)
+        run: psql "$DATABASE_URL" -c "ALTER ROLE golf_app WITH LOGIN PASSWORD 'ci-only-golf-app'"
       # Admin screens, in a real browser, against a production build.
       - run: pnpm build
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm exec playwright test
+        env:
+          APP_DATABASE_URL: postgres://golf_app:ci-only-golf-app@localhost:5432/golf_test
       - name: Keep the browser test report if anything failed
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
