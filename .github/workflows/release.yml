@@ -156,8 +156,11 @@ jobs:
           DEPLOY_URL: ${{ steps.deploy.outputs.url }}
         run: |
           set -euo pipefail
+          # The CLI reads VERCEL_TOKEN from the environment. `vercel curl` hands any `--token` flag
+          # on to curl itself, and `--deployment` with a token reaches the wrong site, so neither
+          # is used here: the full address of the new deployment is passed instead.
           for attempt in 1 2 3 4 5; do
-            body=$(npx --yes "$VERCEL_CLI" curl /health --deployment "$DEPLOY_URL" --yes --token="$VERCEL_TOKEN" 2>/dev/null || true)
+            body=$(npx --yes "$VERCEL_CLI" curl "${DEPLOY_URL}/health" --yes -- --silent 2>/dev/null || true)
             if echo "$body" | grep -q '"status":"ok"'; then echo "Healthy" >> "$GITHUB_STEP_SUMMARY"; exit 0; fi
             sleep 10
           done
