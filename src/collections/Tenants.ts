@@ -23,5 +23,19 @@ export const Tenants: CollectionConfig = {
     update: superAdminOnly,
     delete: superAdminOnly,
   },
+  hooks: {
+    // Every club gets its Club Settings record straight away (one per club).
+    afterChange: [
+      async ({ doc, operation, req }) => {
+        if (operation !== 'create') return doc
+        await req.payload.create({
+          collection: 'club-settings',
+          data: { clubName: doc.name, tenant: doc.id },
+          req,
+        })
+        return doc
+      },
+    ],
+  },
   fields: [{ name: 'name', label: 'Club name', type: 'text', required: true }],
 }

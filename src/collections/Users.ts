@@ -1,8 +1,15 @@
-import type { Access, CollectionBeforeValidateHook, CollectionConfig, Where } from 'payload'
-import { ValidationError } from 'payload'
+import type {
+  Access,
+  CollectionBeforeOperationHook,
+  CollectionBeforeValidateHook,
+  CollectionConfig,
+  Where,
+} from 'payload'
+import { APIError, ValidationError } from 'payload'
 
 import { enforceAccountCreationRules } from '../access/accountCreation'
 import { editorTenantID, isSuperAdmin } from '../access/roles'
+import { inviteEndpoint, passwordLinkEndpoint } from '../accounts/endpoints'
 import { resetTwoFactorEndpoint } from '../auth/resetTwoFactor'
 
 export const MIN_PASSWORD_LENGTH = 12
@@ -61,6 +68,29 @@ const enforcePasswordLength: CollectionBeforeValidateHook = ({ collection, data 
   return data
 }
 
+/**
+ * - Payload's public "Forgot password?" is off until an email provider is chosen: with none,
+ *   Payload writes reset links into the server logs. Only the platform's own "set your
+ *   password" links (src/accounts/passwordLinks.ts) are allowed.
+ * - Setting a password through a link skips beforeValidate's view of the new password, so the
+ *   minimum length is checked here as well.
+ */
+const passwordOperationRules: CollectionBeforeOperationHook = ({ args, operation, req }) => {
+  if (operation === 'forgotPassword' && req.context?.passwordLinkByAdmin !== true) {
+    throw new APIError(
+      'Password reset by email is not available yet. Ask your platform administrator for a new link.',
+      403,
+    )
+  }
+  if (operation === 'resetPassword') {
+    const password = (args as { data?: { password?: unknown } }).data?.password
+    if (typeof password !== 'string' || password.length < MIN_PASSWORD_LENGTH) {
+      throw new APIError(`Passwords must be at least ${MIN_PASSWORD_LENGTH} characters.`, 400)
+    }
+  }
+  return args
+}
+
 const visibleToSuperAdmins = (_data: unknown, _sibling: unknown, { user }: { user: unknown }) =>
   isSuperAdmin(user)
 
@@ -71,6 +101,7 @@ export const Users: CollectionConfig = {
   admin: {
     useAsTitle: 'email',
     defaultColumns: ['email', 'updatedAt'],
+    components: { beforeListTable: ['/admin/InviteEditorButton#InviteEditorButton'] },
   },
   auth: {
     // Locks the account for 10 minutes after 5 wrong passwords.
@@ -81,8 +112,9 @@ export const Users: CollectionConfig = {
   // payload-totp would refuse even reading your own account before the code is entered; our
   // `read` rule above applies the two-factor check itself, with that one exception.
   custom: { totp: { disableAccessWrapper: { read: true } } },
-  endpoints: [resetTwoFactorEndpoint],
+  endpoints: [inviteEndpoint, passwordLinkEndpoint, resetTwoFactorEndpoint],
   hooks: {
+    beforeOperation: [passwordOperationRules],
     beforeValidate: [enforcePasswordLength],
     beforeChange: [enforceAccountCreationRules],
     // The multi-tenant plugin reads a user's clubs from a `tenants` list. We store exactly one
@@ -96,6 +128,16 @@ export const Users: CollectionConfig = {
     ],
   },
   fields: [
+    {
+      // Super-admin buttons on a club editor's page: new password link, reset two-factor.
+      name: 'accountActions',
+      type: 'ui',
+      admin: {
+        components: { Field: '/admin/AccountActions#AccountActions' },
+        condition: (data, sibling, ctx) =>
+          visibleToSuperAdmins(data, sibling, ctx) && data?.role === 'editor' && Boolean(data?.id),
+      },
+    },
     {
       name: 'role',
       label: 'Account type',

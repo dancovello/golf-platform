@@ -65,19 +65,36 @@ test.describe("club A's editor", () => {
   // Typing another club's addresses straight into the browser. Each must look exactly like
   // the same address with a made-up ID, so the editor can't even tell the record exists.
   const MADE_UP_ID = '00000000-0000-4000-8000-000000000000'
-  // What the editor ends up looking at: the response status, the address they land on, and the
-  // main content. The side menu is left out because it can finish drawing at slightly different
-  // moments, which made the comparison flaky on slower machines. Waiting for the network to go
-  // quiet (rather than a fixed delay) means each screen is fully drawn before it's read.
-  const screenText = async (page: Page, path: string, id: string) => {
+  // What the editor ends up looking at once the screen has settled: the response status, the
+  // address (ignoring the admin's own list settings, added after loading), and the main content.
+  // The admin keeps updating the page after the network goes quiet (addresses, "Loading..."
+  // placeholders, the side menu), so the screen is re-read until it stops changing.
+  const settledScreen = async (page: Page, path: string, id: string) => {
     const response = await page.goto(path)
-    await page.waitForLoadState('networkidle')
-    const main = page.getByRole('main')
-    const content =
-      (await main.count()) > 0 ? await main.innerText() : await page.locator('body').innerText()
-    return [response?.status(), new URL(page.url()).pathname + new URL(page.url()).search, content]
-      .join('\n')
-      .replaceAll(id, '<ID>')
+    const read = async () => {
+      const url = new URL(page.url())
+      url.searchParams.delete('depth')
+      url.searchParams.delete('limit')
+      const main = page.getByRole('main')
+      const content =
+        (await main.count()) > 0 ? await main.innerText() : await page.locator('body').innerText()
+      return [response?.status(), url.pathname + url.search, content]
+        .join('\n')
+        .replaceAll(id, '<ID>')
+    }
+    let previous = ''
+    await expect
+      .poll(
+        async () => {
+          const now = await read()
+          const settled = now === previous && !now.includes('Loading...')
+          previous = now
+          return settled
+        },
+        { timeout: 20_000, intervals: [250, 500, 500, 1_000] },
+      )
+      .toBe(true)
+    return previous
   }
 
   for (const target of [
@@ -94,8 +111,8 @@ test.describe("club A's editor", () => {
     }) => {
       const id = target.id(world)
       echoed.add(id)
-      const real = await screenText(page, `/admin/collections/${target.collection}/${id}`, id)
-      const madeUp = await screenText(
+      const real = await settledScreen(page, `/admin/collections/${target.collection}/${id}`, id)
+      const madeUp = await settledScreen(
         page,
         `/admin/collections/${target.collection}/${MADE_UP_ID}`,
         MADE_UP_ID,
