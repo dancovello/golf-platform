@@ -1,0 +1,70 @@
+import { test as base, expect, type Page } from '@playwright/test'
+
+import { clubBSecrets, loadWorld, STATE_DIR, type World } from './world'
+
+type Leak = { url: string; secret: string }
+
+/**
+ * Watches every response the app sends to the browser during a test (pages, data requests,
+ * server-component payloads) and fails the test if any of them contains a club B secret.
+ * Static script and style files are skipped: they're built once and can't hold club data.
+ */
+const watchForLeaks = (page: Page, secrets: string[], echoed: Set<string>) => {
+  const leaks: Leak[] = []
+  const pending: Promise<void>[] = []
+  page.on('response', (response) => {
+    const url = response.url()
+    if (!url.startsWith('http://localhost') || /\/_next\/static\//.test(url)) return
+    pending.push(
+      response
+        .text()
+        .then((body) => {
+          for (const secret of secrets) {
+            if (body.includes(secret) && !echoed.has(secret)) leaks.push({ url, secret })
+          }
+        })
+        .catch(() => {}), // redirects and aborted requests have no body
+    )
+  })
+  return async () => {
+    await Promise.all(pending)
+    return leaks
+  }
+}
+
+type Fixtures = {
+  world: World
+  /**
+   * IDs the test itself types into the address bar. Payload repeats a typed ID back in its
+   * "could not be found" message, exactly as it does for an ID that doesn't exist, so these
+   * aren't leaks. Tests that use this must also prove the page matches a made-up ID.
+   */
+  echoed: Set<string>
+  editorPage: Page
+  superAdminPage: Page
+}
+
+export const test = base.extend<Fixtures>({
+  world: async ({}, use) => {
+    await use(loadWorld())
+  },
+  // Logged in as club A's editor, with every response checked for club B data.
+  echoed: async ({}, use) => {
+    await use(new Set())
+  },
+  editorPage: async ({ browser, world, echoed }, use) => {
+    const context = await browser.newContext({ storageState: `${STATE_DIR}/editorA.json` })
+    const page = await context.newPage()
+    const leaksSoFar = watchForLeaks(page, clubBSecrets(world), echoed)
+    await use(page)
+    expect(await leaksSoFar(), 'club B data reached club A’s editor').toEqual([])
+    await context.close()
+  },
+  superAdminPage: async ({ browser }, use) => {
+    const context = await browser.newContext({ storageState: `${STATE_DIR}/superAdmin.json` })
+    await use(await context.newPage())
+    await context.close()
+  },
+})
+
+export { expect }
