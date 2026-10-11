@@ -2,6 +2,7 @@ import { postgresAdapter } from '@payloadcms/db-postgres'
 import { multiTenantPlugin } from '@payloadcms/plugin-multi-tenant'
 import { payloadTotp } from 'payload-totp'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { s3Storage } from '@payloadcms/storage-s3'
 import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
@@ -11,7 +12,11 @@ import { guardTenantSelection } from './admin/guardTenantSelection'
 import { encryptTotpSecrets } from './auth/totpSecretEncryption'
 import { collections } from './collections'
 import { usersAccess } from './collections/Users'
+import { randomFileNames } from './media/randomFileNames'
+import { mediaStorageSettings } from './media/storage'
 import { clubOwnedCollections } from './tenancy'
+
+const media = mediaStorageSettings()
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -68,6 +73,8 @@ export default buildConfig({
     migrationDir: path.resolve(dirname, 'migrations'),
   }),
   telemetry: false,
+  // Largest photo or video an editor can add (50 MB). Checked before the upload starts.
+  upload: { limits: { fileSize: 50 * 1024 * 1024 } },
   plugins: [
     multiTenantPlugin({
       tenantsSlug: 'tenants',
@@ -86,6 +93,23 @@ export default buildConfig({
       // Deleting a club is refused by the database while it has accounts or content.
       cleanupAfterTenantDelete: false,
     }),
+    // Photos and videos go straight from the browser to storage (Vercel refuses request
+    // bodies over 4.5 MB), each in its own random folder (src/collections/Media.ts).
+    s3Storage({
+      bucket: media.bucket,
+      config: media.config,
+      clientUploads: true,
+      collections: {
+        media: {
+          prefix: 'media',
+          // Served from the public storage domain, not through the app.
+          disablePayloadAccessControl: true,
+          generateFileURL: ({ filename, prefix }) => `${media.publicURL}/${prefix}/${filename}`,
+        },
+      },
+    }),
+    // Must come after s3Storage, whose signed-link endpoint it wraps.
+    randomFileNames('/storage-s3-generate-signed-url'),
     // Keeps the club list from loading before the two-factor code is entered.
     guardTenantSelection,
     // Two-factor login, required for every account (docs/architecture/decisions.md).

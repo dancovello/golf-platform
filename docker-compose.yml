@@ -1,4 +1,4 @@
-# Local development database only. Never used for staging or production.
+# Local development and test services only. Never used for staging or production.
 services:
   postgres:
     image: postgres:18-alpine
@@ -13,5 +13,18 @@ services:
       - pgdata:/var/lib/postgresql
       - ./docker/postgres-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
 
+  # Stands in for Cloudflare R2 (photos and videos). Same S3 interface. Files can be read
+  # without logging in, like R2's public address; the bucket can't be listed.
+  media:
+    image: chrislusf/seaweedfs:4.48
+    restart: unless-stopped
+    command: server -s3 -s3.config=/etc/seaweedfs/s3.json -dir=/data
+    ports:
+      - '127.0.0.1:8333:8333'
+    volumes:
+      - mediadata:/data
+      - ./docker/seaweedfs-s3.json:/etc/seaweedfs/s3.json:ro
+
 volumes:
   pgdata:
+  mediadata:

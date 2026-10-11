@@ -67,7 +67,7 @@ Node 24 and pnpm (via corepack: `corepack pnpm …` if `pnpm` isn't on PATH). Lo
 
 | Task | Command |
 |---|---|
-| Start local database | `docker compose up -d` (dev DB `golf_dev`, test DB `golf_test`, port 54329) |
+| Start local services | `docker compose up -d` (Postgres: dev DB `golf_dev`, test DB `golf_test`, port 54329; photo storage stand-in on port 8333) |
 | Dev server | `pnpm dev` (schema auto-sync is on here only) |
 | Typecheck | `pnpm typecheck` |
 | Lint + formatting | `pnpm lint` and `pnpm format:check` |

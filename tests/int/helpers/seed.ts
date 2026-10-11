@@ -4,8 +4,9 @@ import { getPayload } from 'payload'
 import { allowAccountCreation } from '@/access/accountCreation'
 import { createSuperAdmin } from '@/accounts/createSuperAdmin'
 import config from '@/payload.config'
-import type { ClubSetting, Page, Tenant, User } from '@/payload-types'
+import type { ClubSetting, Media, Page, Tenant, User } from '@/payload-types'
 
+import { ensureMediaBucket, pngFile } from '../../shared/media'
 import { TEST_TOTP_SECRET } from '../../shared/totp'
 
 export const PASSWORD = 'a-long-test-password'
@@ -35,6 +36,8 @@ export type World = {
   pageB: Page
   settingsA: ClubSetting
   settingsB: ClubSetting
+  mediaA: Media
+  mediaB: Media
 }
 
 /** Refuses to run against anything but the golf_test database. */
@@ -52,6 +55,7 @@ export const getTestPayload = async () => {
 export const resetDatabase = async (payload: Payload) => {
   const all = { id: { exists: true } }
   await payload.delete({ collection: 'pages', where: all })
+  await payload.delete({ collection: 'media', where: all })
   await payload.delete({ collection: 'club-settings', where: all })
   await payload.delete({ collection: 'payload-preferences', where: all })
   await payload.delete({ collection: 'users', where: all })
@@ -88,6 +92,7 @@ const createEditor = async (payload: Payload, email: string, tenant: string) => 
 /** Two test clubs, an editor in each (two in club A), and a super-admin. */
 export const seedWorld = async (): Promise<World> => {
   const payload = await getTestPayload()
+  await ensureMediaBucket()
   await resetDatabase(payload)
 
   const clubA = await payload.create({ collection: 'tenants', data: { name: 'Test Club A' } })
@@ -106,6 +111,9 @@ export const seedWorld = async (): Promise<World> => {
     (await payload.find({ collection: 'club-settings', where: { tenant: { equals: tenant } } }))
       .docs[0]
 
+  const media = (alt: string, tenant: string) =>
+    payload.create({ collection: 'media', data: { alt, tenant }, file: pngFile('photo.png') })
+
   return {
     payload,
     clubA,
@@ -118,5 +126,8 @@ export const seedWorld = async (): Promise<World> => {
     pageB: await page('Membership (Club B)', clubB.id),
     settingsA: await settings('Test Club A', clubA.id),
     settingsB: await settings('Test Club B', clubB.id),
+    // Same file name in both clubs: each is stored in its own random folder.
+    mediaA: await media('Club A photo', clubA.id),
+    mediaB: await media('Club B photo', clubB.id),
   }
 }

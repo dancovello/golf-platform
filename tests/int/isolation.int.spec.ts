@@ -11,6 +11,7 @@ import { beforeAll, describe, expect, it } from 'vitest'
 
 import { clubOwnedCollections, type ClubOwnedSlug } from '@/tenancy'
 
+import { pngFile } from '../shared/media'
 import { seedWorld, type World } from './helpers/seed'
 
 let w: World
@@ -41,6 +42,8 @@ type Fixture = {
   read: (doc: unknown) => unknown
   /** Club-global collections (one record per club) can't be created by editors at all. */
   editorsCanCreate: boolean
+  /** Upload collections: the file to send with a new record. */
+  file?: () => ReturnType<typeof pngFile>
 }
 
 const fixtures: Record<ClubOwnedSlug, Fixture> = {
@@ -57,6 +60,14 @@ const fixtures: Record<ClubOwnedSlug, Fixture> = {
     change: { clubName: 'Changed' },
     read: (doc) => (doc as { clubName?: unknown }).clubName,
     editorsCanCreate: false,
+  },
+  media: {
+    ids: (w) => ({ a: w.mediaA.id, b: w.mediaB.id }),
+    newRecord: (tenant) => ({ alt: 'Planted', tenant }),
+    change: { alt: 'Changed' },
+    read: (doc) => (doc as { alt?: unknown }).alt,
+    editorsCanCreate: true,
+    file: () => pngFile('planted.png'),
   },
 }
 
@@ -124,7 +135,12 @@ describe.each(slugs)('%s: editor A gets nothing from club B', (slug) => {
       await p().count({ collection: slug, where: { tenant: { equals: w.clubB.id } } })
     ).totalDocs
     await errorOf(() =>
-      p().create({ collection: slug, data: f.newRecord(w.clubB.id) as never, ...asEditorA() }),
+      p().create({
+        collection: slug,
+        data: f.newRecord(w.clubB.id) as never,
+        file: f.file?.(),
+        ...asEditorA(),
+      }),
     )
     const after = (await p().count({ collection: slug, where: { tenant: { equals: w.clubB.id } } }))
       .totalDocs
@@ -133,7 +149,12 @@ describe.each(slugs)('%s: editor A gets nothing from club B', (slug) => {
 
   it('creating in club A behaves as configured', async () => {
     const result = await errorOf(() =>
-      p().create({ collection: slug, data: f.newRecord(w.clubA.id) as never, ...asEditorA() }),
+      p().create({
+        collection: slug,
+        data: f.newRecord(w.clubA.id) as never,
+        file: f.file?.(),
+        ...asEditorA(),
+      }),
     )
     if (f.editorsCanCreate) expect(result).toBeNull()
     else expect(result).not.toBeNull()
@@ -196,6 +217,9 @@ describe('the database enforces club ownership on its own', () => {
     ).rejects.toThrow()
     await expect(
       db().execute(sql`INSERT INTO club_settings (club_name) VALUES ('orphan')`),
+    ).rejects.toThrow()
+    await expect(
+      db().execute(sql`INSERT INTO media (alt, prefix) VALUES ('orphan', 'media/orphan')`),
     ).rejects.toThrow()
   })
 
