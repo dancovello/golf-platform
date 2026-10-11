@@ -16,12 +16,27 @@ on:
         type: choice
         options: [staging, production]
         default: staging
+  # The Release workflow takes a backup before every release.
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
+      label:
+        description: Prefix for the file name, e.g. pre-release
+        type: string
+        default: nightly
 
 permissions:
   contents: read
 
+# bash with pipefail: a failure inside a pipe must fail the step.
+defaults:
+  run:
+    shell: bash
+
 concurrency:
-  group: backup
+  group: backup-${{ github.workflow }}-${{ inputs.environment || 'all' }}
   cancel-in-progress: false
 
 jobs:
@@ -31,7 +46,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        environment: ${{ github.event_name == 'workflow_dispatch' && fromJSON(format('["{0}"]', inputs.environment)) || fromJSON('["staging","production"]') }}
+        environment: ${{ inputs.environment && fromJSON(format('["{0}"]', inputs.environment)) || fromJSON('["staging","production"]') }}
     env:
       ENVIRONMENT: ${{ matrix.environment }}
       DATABASE_URL: ${{ matrix.environment == 'production' && secrets.PRODUCTION_DATABASE_URL_DIRECT || secrets.STAGING_DATABASE_URL_DIRECT }}
@@ -40,6 +55,7 @@ jobs:
       AWS_DEFAULT_REGION: auto
       R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
       BUCKET: golf-platform-backups
+      LABEL: ${{ inputs.label || (github.event_name == 'schedule' && 'nightly') || 'manual' }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -66,7 +82,7 @@ jobs:
         run: |
           set -euo pipefail
           stamp=$(date -u +%Y-%m-%dT%H%MZ)
-          key="${ENVIRONMENT}/${stamp}.dump.age"
+          key="${ENVIRONMENT}/${stamp}-${LABEL}.dump.age"
           # Stream: database -> encryption -> file. The file on disk is already encrypted.
           "${PG_BIN}/pg_dump" --format=custom --no-owner --no-privileges "$DATABASE_URL" \
             | age --encrypt --recipients-file ops/backup-recipient.txt > backup.dump.age
