@@ -22,18 +22,21 @@
     "test": "cross-env NODE_ENV=test NODE_OPTIONS=--no-deprecation payload migrate && cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
     "vercel-build": "sh ./scripts/vercel-build.sh",
     "create-super-admin": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/create-super-admin.ts",
-    "test:isolation": "cross-env NODE_ENV=test NODE_OPTIONS=--no-deprecation payload migrate && cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts tests/int/isolation.int.spec.ts tests/int/api-isolation.int.spec.ts tests/int/accounts.int.spec.ts tests/unit/tenancy-guard.spec.ts"
+    "test:isolation": "cross-env NODE_ENV=test NODE_OPTIONS=--no-deprecation payload migrate && cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts tests/int/isolation.int.spec.ts tests/int/accounts.int.spec.ts tests/unit/tenancy-guard.spec.ts",
+    "reset-two-factor": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/reset-two-factor.ts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "3.90.2",
     "@payloadcms/next": "3.90.2",
     "@payloadcms/plugin-multi-tenant": "3.90.2",
     "@payloadcms/richtext-lexical": "3.90.2",
+    "@payloadcms/translations": "3.90.2",
     "@payloadcms/ui": "3.90.2",
     "cross-env": "7.0.3",
     "graphql": "16.8.1",
     "next": "16.3.8",
     "payload": "3.90.2",
+    "payload-totp": "3.0.6",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
@@ -45,6 +48,7 @@
     "dotenv": "16.4.7",
     "eslint": "9.39.5",
     "eslint-config-next": "16.3.8",
+    "otpauth": "9.5.2",
     "prettier": "3.4.2",
     "typescript": "5.7.3",
     "vite-tsconfig-paths": "6.0.5",

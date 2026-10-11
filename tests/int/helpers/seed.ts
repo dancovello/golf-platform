@@ -6,9 +6,22 @@ import { createSuperAdmin } from '@/accounts/createSuperAdmin'
 import config from '@/payload.config'
 import type { ClubSetting, Page, Tenant, User } from '@/payload-types'
 
+import { TEST_TOTP_SECRET } from '../../shared/totp'
+
 export const PASSWORD = 'a-long-test-password'
 
-export type LoggedInUser = User & { collection: 'users' }
+export { TEST_TOTP_SECRET }
+
+/** Gives an account two-factor, as if they'd scanned the QR code. Stored encrypted. */
+export const enrolTwoFactor = (payload: Payload, id: string) =>
+  payload.update({
+    collection: 'users',
+    id,
+    data: { totpSecret: TEST_TOTP_SECRET } as never,
+    overrideAccess: true,
+  })
+
+export type LoggedInUser = User & { collection: 'users'; _strategy?: string }
 
 export type World = {
   payload: Payload
@@ -52,7 +65,14 @@ export const resetDatabase = async (payload: Payload) => {
  */
 export const asUser = async (payload: Payload, id: string): Promise<LoggedInUser> => {
   const user = await payload.findByID({ collection: 'users', id, depth: 0 })
-  return { ...user, collection: 'users' }
+  // `_strategy: 'totp'` is how payload-totp marks a session whose code has been entered.
+  return { ...user, collection: 'users', _strategy: 'totp' }
+}
+
+/** The same user part-way through logging in: password accepted, no code entered yet. */
+export const withoutCode = (user: LoggedInUser): LoggedInUser => {
+  const { _strategy: _ignored, ...rest } = user as LoggedInUser & { _strategy?: string }
+  return { ...rest, _strategy: 'local-jwt' } as LoggedInUser
 }
 
 const createEditor = async (payload: Payload, email: string, tenant: string) => {
@@ -61,6 +81,7 @@ const createEditor = async (payload: Payload, email: string, tenant: string) => 
     data: { email, password: PASSWORD, role: 'editor', tenant },
     context: allowAccountCreation,
   })
+  await enrolTwoFactor(payload, created.id)
   return asUser(payload, created.id)
 }
 
@@ -71,10 +92,11 @@ export const seedWorld = async (): Promise<World> => {
 
   const clubA = await payload.create({ collection: 'tenants', data: { name: 'Test Club A' } })
   const clubB = await payload.create({ collection: 'tenants', data: { name: 'Test Club B' } })
-  const superAdmin = await asUser(
-    payload,
-    (await createSuperAdmin(payload, { email: 'super@example.com', password: PASSWORD })).id,
-  )
+  const superAdminID = (
+    await createSuperAdmin(payload, { email: 'super@example.com', password: PASSWORD })
+  ).id
+  await enrolTwoFactor(payload, superAdminID)
+  const superAdmin = await asUser(payload, superAdminID)
 
   // Both clubs have a page with the same slug: slugs are unique per club, not globally.
   const page = (title: string, tenant: string) =>

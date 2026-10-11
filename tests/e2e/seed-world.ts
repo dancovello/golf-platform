@@ -4,9 +4,25 @@
  */
 import { mkdirSync, writeFileSync } from 'node:fs'
 
-import { seedWorld } from '../int/helpers/seed'
+import { allowAccountCreation } from '@/access/accountCreation'
+
+import { enrolTwoFactor, PASSWORD, seedWorld } from '../int/helpers/seed'
 
 const w = await seedWorld()
+
+// Two extra club A editors for the two-factor tests: one who hasn't set it up yet, and one
+// whose two-factor the super-admin will reset.
+const extraEditor = async (email: string, enrol: boolean) => {
+  const user = await w.payload.create({
+    collection: 'users',
+    data: { email, password: PASSWORD, role: 'editor', tenant: w.clubA.id },
+    context: allowAccountCreation,
+  })
+  if (enrol) await enrolTwoFactor(w.payload, user.id)
+  return { id: user.id, email }
+}
+const editorNotSetUp = await extraEditor('editor-not-set-up@example.com', false)
+const editorToReset = await extraEditor('editor-to-reset@example.com', true)
 mkdirSync('tests/e2e/.state', { recursive: true })
 writeFileSync(
   'tests/e2e/.state/world.json',
@@ -21,6 +37,8 @@ writeFileSync(
     pageB: { id: w.pageB.id, title: w.pageB.title },
     settingsA: { id: w.settingsA.id },
     settingsB: { id: w.settingsB.id },
+    editorNotSetUp,
+    editorToReset,
   }),
 )
 process.exit(0)

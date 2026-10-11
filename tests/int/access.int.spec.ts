@@ -6,13 +6,32 @@ import config from '@/payload.config'
 
 import { getTestPayload, resetDatabase } from './helpers/seed'
 
+// Collections added by plugins for their own bookkeeping. Each must refuse every operation.
+const PLUGIN_INTERNAL = ['totp-attempts']
+
 describe('collection registry', () => {
   it('every collection in the Payload config is listed in src/collections', async () => {
     const payloadConfig = await config
     const registered = payloadConfig.collections
       .map((c) => c.slug)
       .filter((slug) => !slug.startsWith('payload-'))
+      .filter((slug) => !PLUGIN_INTERNAL.includes(slug))
     expect(registered.sort()).toEqual(collections.map((c) => c.slug).sort())
+  })
+
+  it('plugin-internal collections refuse every operation', async () => {
+    const payloadConfig = await config
+    for (const slug of PLUGIN_INTERNAL) {
+      const collection = payloadConfig.collections.find((c) => c.slug === slug)
+      expect(collection, slug).toBeDefined()
+      for (const op of ['create', 'read', 'update', 'delete'] as const) {
+        const access = collection!.access[op] as (args: unknown) => unknown
+        expect(
+          await access({ req: { user: { id: 'x', role: 'super-admin' } } }),
+          `${slug}.${op}`,
+        ).toBe(false)
+      }
+    }
   })
 
   it('document locking stays off (its records are readable across clubs)', async () => {

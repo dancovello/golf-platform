@@ -3,11 +3,16 @@ import { ValidationError } from 'payload'
 
 import { enforceAccountCreationRules } from '../access/accountCreation'
 import { editorTenantID, isSuperAdmin } from '../access/roles'
+import { resetTwoFactorEndpoint } from '../auth/resetTwoFactor'
 
 export const MIN_PASSWORD_LENGTH = 12
 
 const read: Access = ({ req: { user } }): boolean | Where => {
   if (!user) return false
+  // Password accepted but two-factor code not entered yet: own account only. Payload re-reads
+  // the logged-in account on every admin page, and without this nobody could reach the code
+  // screen. Everything else stays refused until the code is entered.
+  if ((user as { _strategy?: string })._strategy !== 'totp') return { id: { equals: user.id } }
   if (isSuperAdmin(user)) return true
   const tenantID = editorTenantID(user)
   if (tenantID === null) return { id: { equals: user.id } }
@@ -73,6 +78,10 @@ export const Users: CollectionConfig = {
     lockTime: 10 * 60 * 1000,
   },
   access: { ...usersAccess },
+  // payload-totp would refuse even reading your own account before the code is entered; our
+  // `read` rule above applies the two-factor check itself, with that one exception.
+  custom: { totp: { disableAccessWrapper: { read: true } } },
+  endpoints: [resetTwoFactorEndpoint],
   hooks: {
     beforeValidate: [enforcePasswordLength],
     beforeChange: [enforceAccountCreationRules],
