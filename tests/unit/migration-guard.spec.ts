@@ -80,14 +80,22 @@ export async function up() { await db.execute(sql\`DROP TABLE "pages";\`) }`
     expect(findDestructive(migration(sql))).toEqual([])
   })
 
-  it('every migration merged so far only adds things', () => {
+  // Migrations Dan approved with the approved-destructive-migration label, and what they do.
+  const APPROVED: Record<string, string[]> = {
+    // PR #38: fills in each existing club's new short name from its name.
+    '20261011_201540_branding_and_club_short_name.ts': ['UPDATE … SET'],
+  }
+
+  it('every merged migration only adds things, apart from the ones Dan approved', () => {
     for (const file of readdirSync('src/migrations').filter((f) => /^\d{8}_.*\.ts$/.test(f))) {
       expect({
         file,
-        findings: findDestructive(readFileSync(`src/migrations/${file}`, 'utf8')),
+        findings: findDestructive(readFileSync(`src/migrations/${file}`, 'utf8')).map(
+          (f) => f.pattern,
+        ),
       }).toEqual({
         file,
-        findings: [],
+        findings: APPROVED[file] ?? [],
       })
     }
   })

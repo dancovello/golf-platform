@@ -158,6 +158,10 @@ export interface User {
 export interface Tenant {
   id: string;
   name: string;
+  /**
+   * Lower-case letters, numbers and dashes, e.g. "royal-example". Filled in from the club name if left empty. Used in staging preview addresses.
+   */
+  slug?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -184,6 +188,32 @@ export interface ClubSetting {
   id: string;
   tenant?: (string | null) | Tenant;
   clubName: string;
+  /**
+   * Five colours set the whole site. Every block works out its own shades from these, and colours that would make text hard to read are refused.
+   */
+  branding: {
+    /**
+     * Brand bands, headers and solid buttons. Six-digit colour code, e.g. #1B2A22.
+     */
+    primary: string;
+    /**
+     * A softer supporting colour, mixed into subtle backgrounds and eyebrow text. Six-digit colour code, e.g. #717E6A.
+     */
+    secondary: string;
+    /**
+     * The main call-to-action colour. Used sparingly. Six-digit colour code, e.g. #B39462.
+     */
+    accent: string;
+    /**
+     * The page background. Usually a near-white. Six-digit colour code, e.g. #FAF7F1.
+     */
+    light: string;
+    /**
+     * Body text and headings. Usually a near-black. Six-digit colour code, e.g. #111814.
+     */
+    dark: string;
+    fontSet: 'heritage' | 'editorial' | 'contemporary';
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -280,6 +310,7 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface TenantsSelect<T extends boolean = true> {
   name?: T;
+  slug?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -301,6 +332,16 @@ export interface PagesSelect<T extends boolean = true> {
 export interface ClubSettingsSelect<T extends boolean = true> {
   tenant?: T;
   clubName?: T;
+  branding?:
+    | T
+    | {
+        primary?: T;
+        secondary?: T;
+        accent?: T;
+        light?: T;
+        dark?: T;
+        fontSet?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }

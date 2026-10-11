@@ -34,6 +34,10 @@ export default defineConfig({
     timeout: 120_000,
     // When APP_DATABASE_URL is set (CI does), the website runs as the limited golf_app account,
     // proving it can do everything it needs without owner rights. Seeding still uses the owner.
-    env: process.env.APP_DATABASE_URL ? { DATABASE_URL: process.env.APP_DATABASE_URL } : undefined,
+    // SITE_PREVIEW turns on the staging-only club preview pages (src/site/preview.ts).
+    env: {
+      SITE_PREVIEW: 'on',
+      ...(process.env.APP_DATABASE_URL ? { DATABASE_URL: process.env.APP_DATABASE_URL } : {}),
+    },
   },
 })

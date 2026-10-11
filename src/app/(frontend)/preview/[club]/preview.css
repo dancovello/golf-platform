@@ -1,0 +1,110 @@
+.pv {
+  background: var(--color-surface-canvas);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  min-height: 100vh;
+}
+.pv-band {
+  background: var(--color-surface-brand);
+  color: var(--color-text-on-inverse);
+  padding: var(--space-24) var(--space-40);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-24);
+  flex-wrap: wrap;
+}
+.pv-band-tall {
+  display: block;
+  padding: var(--space-96) var(--space-40);
+}
+.pv-nav {
+  display: flex;
+  gap: var(--space-32);
+}
+.pv-hero,
+.pv-section {
+  max-width: var(--size-container);
+  margin: 0 auto;
+  padding: var(--space-96) var(--space-40);
+}
+.pv-hero {
+  display: grid;
+  gap: var(--space-24);
+}
+.pv-eyebrow {
+  color: var(--color-text-brand);
+  margin-bottom: var(--space-16);
+}
+.pv-eyebrow-inverse {
+  color: var(--color-text-accent);
+  margin-bottom: var(--space-16);
+}
+.pv-muted {
+  color: var(--color-text-secondary);
+}
+.pv-inverse-muted {
+  color: var(--color-text-on-inverse-muted);
+  margin-top: var(--space-16);
+}
+.pv-buttons {
+  display: flex;
+  gap: var(--space-16);
+  flex-wrap: wrap;
+}
+.pv-button {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--size-control);
+  padding: 0 var(--space-24);
+  border-radius: var(--radius-sm);
+}
+.pv-accent {
+  background: var(--color-action-accent);
+  color: var(--color-action-on-accent);
+}
+.pv-solid {
+  background: var(--color-action-solid);
+  color: var(--color-action-on-solid);
+}
+.pv-outline {
+  border: 1px solid var(--color-border-strong);
+}
+.pv-type {
+  margin-top: var(--space-40);
+  border-top: 1px solid var(--color-border-subtle);
+}
+.pv-type-row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  align-items: baseline;
+  gap: var(--space-24);
+  padding: var(--space-24) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.pv-swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--space-24);
+}
+.pv-swatch {
+  display: grid;
+  gap: var(--space-8);
+}
+.pv-swatch span:first-child {
+  height: 72px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+}
+@media (max-width: 767px) {
+  .pv-band,
+  .pv-hero,
+  .pv-section {
+    padding-left: var(--space-24);
+    padding-right: var(--space-24);
+  }
+  .pv-type-row {
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+}
