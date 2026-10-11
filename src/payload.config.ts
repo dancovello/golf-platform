@@ -42,6 +42,9 @@ export default buildConfig({
     // Schema auto-sync ("push") is for local development only. Every other environment,
     // including tests and CI, changes the schema through committed migrations.
     push: process.env.NODE_ENV === 'development',
+    // Random IDs, so record numbers never reveal how many clubs or pages exist
+    // (docs/plans/step-2-spike-findings.md, finding 3).
+    idType: 'uuid',
     migrationDir: path.resolve(dirname, 'migrations'),
   }),
   telemetry: false,
