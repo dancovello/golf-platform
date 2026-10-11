@@ -25,10 +25,18 @@ describe('destructive database changes are spotted', () => {
     ['TRUNCATE "pages";', 'TRUNCATE'],
     ["DELETE FROM pages WHERE slug = 'x';", 'DELETE FROM'],
     ['UPDATE "pages" SET "title" = upper("title");', 'UPDATE … SET'],
+    ['UPDATE "tenants" t SET "slug" = s.slug FROM s;', 'UPDATE … SET'],
+    ['UPDATE ONLY "public"."tenants" AS t SET "slug" = 1;', 'UPDATE … SET'],
     ['ALTER TABLE "pages" ALTER COLUMN "slug" SET DATA TYPE integer;', 'change column type'],
     ['ALTER TABLE "pages" RENAME COLUMN "slug" TO "path";', 'RENAME'],
   ])('%s', (sql, rule) => {
     expect(findDestructive(migration(sql)).map((f) => f.pattern)).toContain(rule)
+  })
+
+  it('does not mistake a foreign key rule for an update', () => {
+    const fk =
+      'ALTER TABLE "a" ADD CONSTRAINT "f" FOREIGN KEY ("b") REFERENCES "b"("id") ON DELETE set null ON UPDATE SET NULL;'
+    expect(findDestructive(migration(fk))).toEqual([])
   })
 
   it('only looks at the "apply" half, not the "undo" half', () => {
