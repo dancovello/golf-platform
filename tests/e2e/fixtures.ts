@@ -67,4 +67,14 @@ export const test = base.extend<Fixtures>({
   },
 })
 
+/**
+ * Opens a page and waits until it has finished loading its interactive code. Clicking a form
+ * before then submits it as a plain page load and nothing reaches the API, which made logins
+ * flaky when the machine was busy.
+ */
+export const openReady = async (page: Page, url: string) => {
+  await page.goto(url)
+  await page.waitForLoadState('networkidle')
+}
+
 export { expect }

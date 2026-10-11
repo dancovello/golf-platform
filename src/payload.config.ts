@@ -32,6 +32,14 @@ if (!/^[0-9a-f]{64}$/i.test(process.env.TOTP_ENCRYPTION_KEY ?? '')) {
 export default buildConfig({
   admin: {
     user: 'users',
+    components: {
+      views: {
+        inviteEditor: {
+          Component: '/admin/InviteEditorView#InviteEditorView',
+          path: '/invite-editor',
+        },
+      },
+    },
     importMap: {
       baseDir: path.resolve(dirname),
     },
