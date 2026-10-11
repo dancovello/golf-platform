@@ -35,3 +35,15 @@ Use Payload's official multi-tenant plugin, hardened so that editors cannot disc
 - Vercel's production branch is set to `production`, which won't exist until step 3. Vercel always makes a new project's first deployment a "production" one. That deployment has no database or secrets.
 - No platform name or domain yet, so staging uses a placeholder `*.vercel.app` address.
 - Production releases (from step 3 onwards) happen only when Dan merges a release PR from `main` into `production`.
+
+## 2026-10-11 — Step 2 decisions (after the 2.1 spike)
+
+- **Two-factor login is required for every account**, super-admins and editors alike. It uses a free, open-source option, with no paid service. The recommended choice is `payload-totp`, with two-factor secrets encrypted at rest; the final pick goes past the devops contact.
+- **No backup codes in v1.** A lost phone is handled by the super-admin resetting that editor's two-factor. A super-admin's own reset is done from the command line, and needs Dan's approval on production.
+- **Editor invites:** the super-admin copies a one-time "set your password" link and sends it to the editor, until an email provider is chosen.
+- **Document locking is off** (no "X is editing this page" warning). Payload's lock records are readable by every logged-in user across clubs, and their access rules can't be changed. A test fails if locking comes back.
+- **Every record gets a random ID (UUID v4)**, never a counting number, so IDs don't reveal how many clubs or records exist.
+- **Account creation rules:**
+  - Editors are created by a super-admin in the admin screens, or by a trusted script.
+  - Super-admins are created only by `pnpm create-super-admin`.
+  - Payload's "create first user" screen is replaced with an explanation page.
