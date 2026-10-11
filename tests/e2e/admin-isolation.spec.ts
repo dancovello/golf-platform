@@ -65,10 +65,19 @@ test.describe("club A's editor", () => {
   // Typing another club's addresses straight into the browser. Each must look exactly like
   // the same address with a made-up ID, so the editor can't even tell the record exists.
   const MADE_UP_ID = '00000000-0000-4000-8000-000000000000'
+  // What the editor ends up looking at: the response status, the address they land on, and the
+  // main content. The side menu is left out because it can finish drawing at slightly different
+  // moments, which made the comparison flaky on slower machines. Waiting for the network to go
+  // quiet (rather than a fixed delay) means each screen is fully drawn before it's read.
   const screenText = async (page: Page, path: string, id: string) => {
-    await page.goto(path)
-    await expect(page.locator('body')).toBeVisible()
-    return (await page.locator('body').innerText()).replaceAll(id, '<ID>')
+    const response = await page.goto(path)
+    await page.waitForLoadState('networkidle')
+    const main = page.getByRole('main')
+    const content =
+      (await main.count()) > 0 ? await main.innerText() : await page.locator('body').innerText()
+    return [response?.status(), new URL(page.url()).pathname + new URL(page.url()).search, content]
+      .join('\n')
+      .replaceAll(id, '<ID>')
   }
 
   for (const target of [
