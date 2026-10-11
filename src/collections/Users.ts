@@ -76,6 +76,15 @@ export const Users: CollectionConfig = {
   hooks: {
     beforeValidate: [enforcePasswordLength],
     beforeChange: [enforceAccountCreationRules],
+    // The multi-tenant plugin reads a user's clubs from a `tenants` list. We store exactly one
+    // club in `tenant` (enforced by the database) and present it in the plugin's shape.
+    afterRead: [
+      ({ doc }) => {
+        const tenant = doc.tenant ?? null
+        doc.tenants = tenant === null ? [] : [{ tenant }]
+        return doc
+      },
+    ],
   },
   fields: [
     {

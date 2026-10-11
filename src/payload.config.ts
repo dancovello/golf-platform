@@ -1,10 +1,14 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
+import { multiTenantPlugin } from '@payloadcms/plugin-multi-tenant'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 
+import { isSuperAdmin } from './access/roles'
 import { collections } from './collections'
+import { usersAccess } from './collections/Users'
+import { clubOwnedCollections } from './tenancy'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -48,4 +52,23 @@ export default buildConfig({
     migrationDir: path.resolve(dirname, 'migrations'),
   }),
   telemetry: false,
+  plugins: [
+    multiTenantPlugin({
+      tenantsSlug: 'tenants',
+      collections: { ...clubOwnedCollections },
+      // Accounts store exactly one club in `tenant`; see src/collections/Users.ts.
+      tenantsArrayField: { includeDefaultField: false },
+      userHasAccessToAllTenants: (user) => isSuperAdmin(user),
+      // Our own account rules already limit editors to their club. Call the frozen originals:
+      // the plugin replaces Users.access in place, so calling that would loop forever
+      // (docs/plans/step-2-spike-findings.md, finding 1).
+      usersAccessResultOverride: (args) => {
+        const fn = usersAccess[args.accessKey as keyof typeof usersAccess]
+        return typeof fn === 'function' ? fn(args as never) : false
+      },
+      useUsersTenantFilter: false,
+      // Deleting a club is refused by the database while it has accounts or content.
+      cleanupAfterTenantDelete: false,
+    }),
+  ],
 })
