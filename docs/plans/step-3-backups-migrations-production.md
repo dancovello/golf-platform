@@ -1,6 +1,6 @@
 # Step 3 plan: backups, safe database changes and production
 
-**Status:** proposed, waiting for Dan's and the devops contact's approval. Nothing here has been created or paid for yet.
+**Status:** approved by Dan on 2026-10-11 (answers at the end). The devops contact reviews the release pipeline (3.3) and owns the restore drill (3.6).
 **Goal:** before any real club data exists, the platform can **survive losing its database**, and **no database change can reach production untested**. Doc 04 §6 and §10 step 3: "proven with a real restore drill".
 
 ---
@@ -88,10 +88,7 @@ The usual six required checks plus tenant isolation. From 3.4, `migration-dry-ru
   - the backup encryption approach.
 - **Agrees with you:** the recovery targets below.
 
-## Questions for Dan
-1. **Spending:** OK to move Neon to the **Launch** plan (estimated £5–£20 a month) and to create a **Cloudflare** account?
-2. **Recovery targets** (they set what the drill must prove). My suggestion:
-   - **at most 24 hours of data lost in the worst case** (in practice minutes, with point-in-time restore);
-   - **back up within 4 hours**.
-   Too strict or too loose?
-3. **Production URL until step 4:** keep production on its `*.vercel.app` address behind Vercel's login, as above, until the first club's domain is connected?
+## Dan's answers (2026-10-11)
+1. **Spending:** yes. Move Neon to the **Launch** plan (estimated £5–£20 a month) and create a **Cloudflare** account.
+2. **Recovery targets:** **at most 24 hours of data lost in the worst case** (in practice minutes, with point-in-time restore); **back up within 4 hours**.
+3. **Production address:** stays on its `*.vercel.app` address, behind Vercel's login, until the first club's domain in step 4.
