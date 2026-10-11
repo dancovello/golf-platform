@@ -21,7 +21,8 @@ const RULES: { pattern: RegExp; name: string; explanation: string }[] = [
   { name: 'DELETE FROM', pattern: /\bDELETE\s+FROM\b/i, explanation: 'deletes records' },
   {
     name: 'UPDATE … SET',
-    pattern: /\bUPDATE\s+["\w.]+\s+SET\b/i,
+    // The table may carry an alias: UPDATE "tenants" t SET … / UPDATE ONLY x AS t SET …
+    pattern: /\bUPDATE\s+(?:ONLY\s+)?["\w.]+(?:\s+(?:AS\s+)?["\w]+)?\s+SET\b/i,
     explanation: 'rewrites existing records',
   },
   {
