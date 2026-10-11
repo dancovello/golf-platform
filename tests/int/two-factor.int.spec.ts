@@ -77,7 +77,7 @@ describe('two-factor secrets are stored encrypted', () => {
 
   it("a secret of someone's own choosing, planted unencrypted in the database, is refused", async () => {
     const victim = w.editorA2.id
-    const attackersSecret = 'KRUGS4ZANFZSAYJAONSWG4TFOQQGC5DUMFRWW4TS'
+    const attackersSecret = 'A'.repeat(32) // valid format, obviously not a real secret
     await w.payload.db.drizzle.execute(
       sql`UPDATE users SET totp_secret = ${attackersSecret} WHERE id = ${victim}`,
     )
