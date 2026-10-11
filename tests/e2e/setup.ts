@@ -19,6 +19,7 @@ for (const who of ['editorA', 'superAdmin'] as const) {
   setup(`log in through the admin screen as ${who}`, async ({ page }) => {
     const w = loadWorld()
     await page.goto('/admin/login')
+    await page.waitForLoadState('networkidle')
     await page.getByLabel('Email').fill(w[who].email)
     await page.getByLabel('Password').fill(PASSWORD)
     await page.getByRole('button', { name: 'Login' }).click()

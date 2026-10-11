@@ -32,6 +32,14 @@ if (!/^[0-9a-f]{64}$/i.test(process.env.TOTP_ENCRYPTION_KEY ?? '')) {
 export default buildConfig({
   admin: {
     user: 'users',
+    components: {
+      views: {
+        inviteEditor: {
+          Component: '/admin/InviteEditorView#InviteEditorView',
+          path: '/invite-editor',
+        },
+      },
+    },
     importMap: {
       baseDir: path.resolve(dirname),
     },
@@ -87,6 +95,9 @@ export default buildConfig({
       collection: 'users',
       forceSetup: true,
       totp: { issuer: 'Golf Platform' },
+      // In a dark admin theme the QR code was drawn light-on-dark with no white border, which
+      // many authenticator apps can't scan. Always draw it dark-on-white.
+      forceWhiteBackgroundOnQrCode: true,
     }),
     // Must come after payloadTotp, which adds the secret field it encrypts.
     encryptTotpSecrets('users'),

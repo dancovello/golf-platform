@@ -6,18 +6,18 @@ import type { Page } from '@playwright/test'
 
 import { currentCode } from '../shared/totp'
 
-import { expect, test } from './fixtures'
+import { expect, openReady, test } from './fixtures'
 import { PASSWORD } from './world'
 
 const logInWithPassword = async (page: Page, email: string) => {
-  await page.goto('/admin/login')
+  await openReady(page, '/admin/login')
   await page.getByLabel('Email').fill(email)
   await page.getByLabel('Password').fill(PASSWORD)
   await page.getByRole('button', { name: 'Login' }).click()
 }
 
 test('a password alone reaches only the code screen', async ({ page, world }) => {
-  await logInWithPassword(page, world.editorA.email)
+  await logInWithPassword(page, world.editorLoginOnly.email)
   await expect(page).toHaveURL(/\/admin\/verify-totp/)
   // Opening an admin screen before entering the code sends you back to the code or login
   // screen; either way nothing is shown.
@@ -30,18 +30,21 @@ test('a password alone reaches only the code screen', async ({ page, world }) =>
 })
 
 test('typing the code from the authenticator app logs you in', async ({ page, world }) => {
-  await logInWithPassword(page, world.editorA.email)
+  await logInWithPassword(page, world.editorTypesCode.email)
   await expect(page).toHaveURL(/\/admin\/verify-totp/)
+  await page.waitForLoadState('networkidle')
   // The plugin's six digit boxes have no labels (an accessibility gap, noted for follow-up),
   // and the first textbox is its hidden combined field, so the first visible box is the second.
   await page.getByRole('textbox').nth(1).click()
   await page.keyboard.type(currentCode())
-  await expect(page).toHaveURL(/\/admin$/)
+  // After the code, the plugin sends you back where you came from (sometimes the login page,
+  // which then forwards to the dashboard), so allow for the extra hop when the machine is busy.
+  await expect(page).toHaveURL(/\/admin$/, { timeout: 15_000 })
   expect((await page.request.get('/api/pages')).status()).toBe(200)
 })
 
 test('a wrong code is refused', async ({ page, world }) => {
-  await logInWithPassword(page, world.editorA2.email)
+  await logInWithPassword(page, world.editorWrongCode.email)
   await expect(page).toHaveURL(/\/admin\/verify-totp/)
   const wrong = currentCode() === '000000' ? '111111' : '000000'
   const response = await page.request.post('/api/verify-totp', { data: { token: wrong } })

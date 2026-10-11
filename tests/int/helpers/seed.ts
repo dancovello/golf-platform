@@ -101,8 +101,10 @@ export const seedWorld = async (): Promise<World> => {
   // Both clubs have a page with the same slug: slugs are unique per club, not globally.
   const page = (title: string, tenant: string) =>
     payload.create({ collection: 'pages', data: { title, slug: 'membership', tenant } })
-  const settings = (clubName: string, tenant: string) =>
-    payload.create({ collection: 'club-settings', data: { clubName, tenant } })
+  // Created automatically with each club (src/collections/Tenants.ts).
+  const settings = async (_clubName: string, tenant: string) =>
+    (await payload.find({ collection: 'club-settings', where: { tenant: { equals: tenant } } }))
+      .docs[0]
 
   return {
     payload,

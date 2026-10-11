@@ -47,3 +47,26 @@ Use Payload's official multi-tenant plugin, hardened so that editors cannot disc
   - Editors are created by a super-admin in the admin screens, or by a trusted script.
   - Super-admins are created only by `pnpm create-super-admin`.
   - Payload's "create first user" screen is replaced with an explanation page.
+
+## 2026-10-11 — Devops review of step 2
+
+Dan's devops contact checked and approved the review items raised in PRs #18, #23 and #25:
+
+- **Account types:**
+  - database-enforced account type and club, set once and never changeable;
+  - super-admins created only by script;
+  - editors only by a super-admin.
+- **Two-factor login:**
+  - `payload-totp`, required for everyone;
+  - secrets encrypted at rest with `TOTP_ENCRYPTION_KEY`, kept in Vercel and the password manager;
+  - the plugin has a single maintainer, so its version is pinned and each update is reviewed.
+- **Known limitations, accepted for now:**
+  - a code can be reused within its 30-second window (the plugin has no replay protection);
+  - two simultaneous logins to one account can overwrite each other's session (Payload behaviour);
+  - the plugin's code boxes have no screen-reader labels (accessibility follow-up);
+  - the "Reset Password" wording on invite links (follow-up).
+- **Invites:** one-time set-your-password links, valid for 72 hours. Public "Forgot password?" is off until an email provider is chosen.
+
+**Still open (actions, not covered by this approval):**
+- **A less-powerful database account for the app**, instead of `neondb_owner`. Due in build step 3, before production exists.
+- **An independent security review / penetration test before launch** (doc 04 §7). Dan's condition on the account design also requires it. A devops review isn't a substitute.
