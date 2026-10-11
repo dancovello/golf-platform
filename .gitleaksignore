@@ -7,3 +7,5 @@ eec57fc15d8f8a20e88ba045da128c279d182a35:.claude/skills/infosec-review/SKILL.md:
 eec57fc15d8f8a20e88ba045da128c279d182a35:.claude/skills/infosec-review/SKILL.md:curl-auth-header:315
 # Figma file key in CLAUDE.md: a file identifier, not a credential:
 22cfc4bcfd3d9cb180c8e1a85361f0bf5c9cfcd5:CLAUDE.md:generic-api-key:30
+# Made-up "attacker's secret" in a two-factor test (later replaced with a placeholder):
+f8356e5f97ac70c46654c062a94e3271f2b04bd5:tests/int/two-factor.int.spec.ts:generic-api-key:80

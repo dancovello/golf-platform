@@ -71,6 +71,7 @@ export interface Config {
     tenants: Tenant;
     pages: Page;
     'club-settings': ClubSetting;
+    'totp-attempts': TotpAttempt;
     'payload-kv': PayloadKv;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -81,6 +82,7 @@ export interface Config {
     tenants: TenantsSelect<false> | TenantsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     'club-settings': ClubSettingsSelect<false> | ClubSettingsSelect<true>;
+    'totp-attempts': TotpAttemptsSelect<false> | TotpAttemptsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -127,6 +129,8 @@ export interface User {
   id: string;
   role?: ('editor' | 'super-admin') | null;
   tenant?: (string | null) | Tenant;
+  totpSecret?: string | null;
+  hasTotp?: boolean | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -182,6 +186,15 @@ export interface ClubSetting {
   clubName: string;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "totp-attempts".
+ */
+export interface TotpAttempt {
+  id: string;
+  attempts: number;
+  lockUntil?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -241,6 +254,8 @@ export interface PayloadMigration {
 export interface UsersSelect<T extends boolean = true> {
   role?: T;
   tenant?: T;
+  totpSecret?: T;
+  hasTotp?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -288,6 +303,15 @@ export interface ClubSettingsSelect<T extends boolean = true> {
   clubName?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "totp-attempts_select".
+ */
+export interface TotpAttemptsSelect<T extends boolean = true> {
+  id?: T;
+  attempts?: T;
+  lockUntil?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
