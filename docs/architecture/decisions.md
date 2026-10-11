@@ -35,3 +35,43 @@ Use Payload's official multi-tenant plugin, hardened so that editors cannot disc
 - Vercel's production branch is set to `production`, which won't exist until step 3. Vercel always makes a new project's first deployment a "production" one. That deployment has no database or secrets.
 - No platform name or domain yet, so staging uses a placeholder `*.vercel.app` address.
 - Production releases (from step 3 onwards) happen only when Dan merges a release PR from `main` into `production`.
+
+## 2026-10-11 — Step 2 decisions (after the 2.1 spike)
+
+- **Two-factor login is required for every account**, super-admins and editors alike. It uses a free, open-source option, with no paid service. The recommended choice is `payload-totp`, with two-factor secrets encrypted at rest; the final pick goes past the devops contact.
+- **No backup codes in v1.** A lost phone is handled by the super-admin resetting that editor's two-factor. A super-admin's own reset is done from the command line, and needs Dan's approval on production.
+- **Editor invites:** the super-admin copies a one-time "set your password" link and sends it to the editor, until an email provider is chosen.
+- **Document locking is off** (no "X is editing this page" warning). Payload's lock records are readable by every logged-in user across clubs, and their access rules can't be changed. A test fails if locking comes back.
+- **Every record gets a random ID (UUID v4)**, never a counting number, so IDs don't reveal how many clubs or records exist.
+- **Account creation rules:**
+  - Editors are created by a super-admin in the admin screens, or by a trusted script.
+  - Super-admins are created only by `pnpm create-super-admin`.
+  - Payload's "create first user" screen is replaced with an explanation page.
+
+## 2026-10-11 — Devops review of step 2
+
+Dan's devops contact checked and approved the review items raised in PRs #18, #23 and #25:
+
+- **Account types:**
+  - database-enforced account type and club, set once and never changeable;
+  - super-admins created only by script;
+  - editors only by a super-admin.
+- **Two-factor login:**
+  - `payload-totp`, required for everyone;
+  - secrets encrypted at rest with `TOTP_ENCRYPTION_KEY`, kept in Vercel and the password manager;
+  - the plugin has a single maintainer, so its version is pinned and each update is reviewed.
+- **Known limitations, accepted for now:**
+  - a code can be reused within its 30-second window (the plugin has no replay protection);
+  - two simultaneous logins to one account can overwrite each other's session (Payload behaviour);
+  - the plugin's code boxes have no screen-reader labels (accessibility follow-up);
+  - the "Reset Password" wording on invite links (follow-up).
+- **Invites:** one-time set-your-password links, valid for 72 hours. Public "Forgot password?" is off until an email provider is chosen.
+
+**Still open (actions, not covered by this approval):**
+- **A less-powerful database account for the app**, instead of `neondb_owner`. Due in build step 3, before production exists.
+- **An independent security review / penetration test before launch** (doc 04 §7). Dan's condition on the account design also requires it. A devops review isn't a substitute.
+
+## 2026-10-11 — Neon plan
+
+- Neon **stays on the free plan** until the first club's data (step 4). Production is empty until then.
+- **Step 4 can't start onboarding a club until** Neon is upgraded to Launch, production has 7-day history, daily snapshots and branch protection, and the Neon parts of the restore drill have been rerun.

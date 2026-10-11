@@ -1,0 +1,168 @@
+# Releases (docs/plans/step-3-backups-migrations-production.md, 3.3).
+#
+#   merge into main        -> releases to STAGING
+#   merge into production  -> releases to PRODUCTION (Dan merges the release PR: that's the approval)
+#
+# In order, stopping at the first failure:
+#   1. backup     encrypted copy of the database to Cloudflare R2, labelled pre-release
+#   2. dry run    the database's structure is copied into a throwaway database here, and the new
+#                 database changes are applied to that copy first
+#   3. migrate    the same changes applied to the real database, with the owner account (only
+#                 GitHub has it; the website itself uses the limited golf_app account)
+#   4. deploy     Vercel builds and publishes the new code (Vercel never changes the database)
+#   5. check      /health must answer "ok" on the new deployment
+#
+# GitHub emails Dan if any step fails. docs/operations/restore-runbook.md covers rolling back.
+name: Release
+
+on:
+  push:
+    branches: [main, production]
+
+permissions:
+  contents: read
+
+# bash with pipefail: a failure inside `cmd | tee` must fail the step. GitHub's default shell
+# only reports the last command in a pipe, which would let a failed migration look successful.
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  NEXT_TELEMETRY_DISABLED: '1'
+  VERCEL_TELEMETRY_DISABLED: '1'
+  VERCEL_CLI: vercel@63.1.2
+
+jobs:
+  target:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      environment: ${{ steps.pick.outputs.environment }}
+    steps:
+      - id: pick
+        run: |
+          if [ "${GITHUB_REF_NAME}" = "production" ]; then env=production; else env=staging; fi
+          echo "environment=${env}" >> "$GITHUB_OUTPUT"
+          echo "Releasing to ${env}" >> "$GITHUB_STEP_SUMMARY"
+
+  backup:
+    needs: target
+    uses: ./.github/workflows/backup.yml
+    with:
+      environment: ${{ needs.target.outputs.environment }}
+      label: pre-release
+    secrets: inherit
+
+  dry-run:
+    needs: target
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: dry_run
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      TARGET_DATABASE_URL: ${{ needs.target.outputs.environment == 'production' && secrets.PRODUCTION_DATABASE_URL_DIRECT || secrets.STAGING_DATABASE_URL_DIRECT }}
+      DRY_RUN_URL: postgres://postgres:postgres@localhost:5432/dry_run
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Install a Postgres client matching the database
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-common > /dev/null
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y > /dev/null
+          major=$(psql "$TARGET_DATABASE_URL" -Atc 'SHOW server_version_num' | cut -c1-2)
+          sudo apt-get install -y -qq "postgresql-client-${major}" > /dev/null
+          echo "PG_BIN=/usr/lib/postgresql/${major}/bin" >> "$GITHUB_ENV"
+      # Only the structure, plus the list of changes already applied. No club data is copied.
+      - name: Copy the database's structure into a throwaway database
+        run: |
+          set -euo pipefail
+          "$PG_BIN/pg_dump" --schema-only --no-owner --no-privileges "$TARGET_DATABASE_URL" | psql -q -v ON_ERROR_STOP=1 "$DRY_RUN_URL"
+          if [ "$(psql "$TARGET_DATABASE_URL" -Atc "SELECT to_regclass('public.payload_migrations') IS NOT NULL")" = "t" ]; then
+            "$PG_BIN/pg_dump" --data-only --no-owner --table=payload_migrations "$TARGET_DATABASE_URL" | psql -q -v ON_ERROR_STOP=1 "$DRY_RUN_URL"
+          fi
+      - name: Apply the new database changes to the copy
+        env:
+          DATABASE_URL: ${{ env.DRY_RUN_URL }}
+          # Loading the app's settings needs these; database changes never use them.
+          PAYLOAD_SECRET: release-dry-run-only
+          TOTP_ENCRYPTION_KEY: '0000000000000000000000000000000000000000000000000000000000000000'
+        run: pnpm migrate 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
+
+  migrate:
+    needs: [target, backup, dry-run]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Apply database changes (owner account)
+        env:
+          DATABASE_URL: ${{ needs.target.outputs.environment == 'production' && secrets.PRODUCTION_DATABASE_URL_DIRECT || secrets.STAGING_DATABASE_URL_DIRECT }}
+          PAYLOAD_SECRET: release-migrate-only
+          TOTP_ENCRYPTION_KEY: '0000000000000000000000000000000000000000000000000000000000000000'
+        run: pnpm migrate 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
+
+  deploy:
+    needs: [target, migrate]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      ENVIRONMENT: ${{ needs.target.outputs.environment }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+      - name: Deploy with Vercel
+        id: deploy
+        run: |
+          set -euo pipefail
+          if [ "$ENVIRONMENT" = "production" ]; then target=production; else target=staging; fi
+          url=$(npx --yes "$VERCEL_CLI" deploy --yes --target="$target" --token="$VERCEL_TOKEN")
+          echo "url=${url}" >> "$GITHUB_OUTPUT"
+          echo "Deployed ${ENVIRONMENT}: ${url}" >> "$GITHUB_STEP_SUMMARY"
+      - name: Check the new deployment is healthy
+        env:
+          DEPLOY_URL: ${{ steps.deploy.outputs.url }}
+        run: |
+          set -euo pipefail
+          # The CLI reads VERCEL_TOKEN from the environment. `vercel curl` hands any `--token` flag
+          # on to curl itself, and `--deployment` with a token reaches the wrong site, so neither
+          # is used here: the full address of the new deployment is passed instead.
+          for attempt in 1 2 3 4 5; do
+            body=$(npx --yes "$VERCEL_CLI" curl "${DEPLOY_URL}/health" --yes -- --silent 2>/dev/null || true)
+            if echo "$body" | grep -q '"status":"ok"'; then echo "Healthy" >> "$GITHUB_STEP_SUMMARY"; exit 0; fi
+            sleep 10
+          done
+          echo "The new deployment did not answer /health. See docs/operations/restore-runbook.md." | tee -a "$GITHUB_STEP_SUMMARY"
+          exit 1
