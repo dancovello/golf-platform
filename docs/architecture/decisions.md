@@ -70,3 +70,8 @@ Dan's devops contact checked and approved the review items raised in PRs #18, #2
 **Still open (actions, not covered by this approval):**
 - **A less-powerful database account for the app**, instead of `neondb_owner`. Due in build step 3, before production exists.
 - **An independent security review / penetration test before launch** (doc 04 §7). Dan's condition on the account design also requires it. A devops review isn't a substitute.
+
+## 2026-10-11 — Neon plan
+
+- Neon **stays on the free plan** until the first club's data (step 4). Production is empty until then.
+- **Step 4 can't start onboarding a club until** Neon is upgraded to Launch, production has 7-day history, daily snapshots and branch protection, and the Neon parts of the restore drill have been rerun.
