@@ -13,6 +13,10 @@ export type World = {
   settingsB: { id: string }
   editorNotSetUp: { id: string; email: string }
   editorToReset: { id: string; email: string }
+  editorLoginOnly: { id: string; email: string }
+  editorTypesCode: { id: string; email: string }
+  editorWrongCode: { id: string; email: string }
+  editorLinkTarget: { id: string; email: string }
 }
 
 export const STATE_DIR = 'tests/e2e/.state'
