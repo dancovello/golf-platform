@@ -89,6 +89,18 @@ The usual six required checks plus tenant isolation. From 3.4, `migration-dry-ru
 - **Agrees with you:** the recovery targets below.
 
 ## Dan's answers (2026-10-11)
-1. **Spending:** yes. Move Neon to the **Launch** plan (estimated £5–£20 a month) and create a **Cloudflare** account.
+1. **Spending:** create a **Cloudflare** account. Neon **stays on the free plan for now** (changed 2026-10-11, see below).
+
+### Change: Neon stays free until the first club (Dan, 2026-10-11)
+Production holds no real data until the first club in step 4, so the paid plan's longer history and daily snapshots protect nothing yet.
+- **Now (free plan):**
+  - production is created on the free plan, with point-in-time restore at the free maximum (6 hours) and one manual snapshot;
+  - everything else in this plan works the same: the release pipeline, dry-run copies, the limited database account, and the nightly encrypted off-site copy to Cloudflare R2;
+  - the 3.6 drill proves the procedure using the 6-hour window and the off-site copy.
+- **Before any club data goes in (first item on the step 4 checklist):**
+  - upgrade Neon to **Launch** (a billing switch: same databases and connection details, no downtime);
+  - set history to **7 days**, turn on **daily snapshots** (14 days), and **protect** the production branch;
+  - the devops contact reruns the Neon parts of the restore drill (about 30 minutes) on the upgraded setup.
+- **Until then, the off-site nightly copy is the main backup**, which is fine while production is empty.
 2. **Recovery targets:** **at most 24 hours of data lost in the worst case** (in practice minutes, with point-in-time restore); **back up within 4 hours**.
 3. **Production address:** stays on its `*.vercel.app` address, behind Vercel's login, until the first club's domain in step 4.
