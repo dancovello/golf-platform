@@ -16,3 +16,7 @@ export const editorTenantID = (user: unknown): string | null => {
 }
 
 export const superAdminOnly: Access = ({ req: { user } }) => isSuperAdmin(user)
+
+/** Any logged-in account. For club-owned collections the multi-tenant plugin then narrows
+ * editors to their own club's records (src/tenancy.ts). */
+export const loggedIn: Access = ({ req: { user } }) => Boolean(user)
