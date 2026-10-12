@@ -54,6 +54,7 @@ export const Tenants: CollectionConfig = {
             clubName: doc.name,
             tenant: doc.id,
             branding: { ...DEFAULT_BRAND, fontSet: DEFAULT_FONT_SET },
+            header: { style: 'classic' },
           },
           req,
         })

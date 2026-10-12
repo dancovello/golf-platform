@@ -215,6 +215,74 @@ export interface ClubSetting {
      */
     dark: string;
     fontSet: 'heritage' | 'editorial' | 'contemporary';
+    /**
+     * Shown on the page background. A dark logo, PNG or WebP with a transparent background.
+     */
+    logoOnLight?: (string | null) | Media;
+    /**
+     * Shown over photos and on the brand colour. A light logo. Falls back to the club name in the heading font.
+     */
+    logoOnDark?: (string | null) | Media;
+    /**
+     * Used when there is no logo, e.g. "Golf Club · 1926".
+     */
+    strapline?: string | null;
+  };
+  header: {
+    style: 'classic' | 'transparent' | 'appBar';
+    /**
+     * The "Book a tee time" button on every page. Usually your booking provider’s web address. Leave the text empty to hide the button.
+     */
+    booking?: {
+      label?: string | null;
+      type?: ('page' | 'url') | null;
+      page?: (string | null) | Page;
+      /**
+       * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+       */
+      url?: string | null;
+    };
+    /**
+     * Shown in header style A and in the mobile menu.
+     */
+    phone?: string | null;
+    /**
+     * Up to 6 items. An item with link groups opens a drop-down menu instead of going straight to a page.
+     */
+    menu?:
+      | {
+          label: string;
+          link?: {
+            type?: ('page' | 'url') | null;
+            page?: (string | null) | Page;
+            /**
+             * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+             */
+            url?: string | null;
+          };
+          groups?:
+            | {
+                heading: string;
+                links?:
+                  | {
+                      link: {
+                        label: string;
+                        type?: ('page' | 'url') | null;
+                        page?: (string | null) | Page;
+                        /**
+                         * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+                         */
+                        url?: string | null;
+                      };
+                      id?: string | null;
+                    }[]
+                  | null;
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
   };
   updatedAt: string;
   createdAt: string;
@@ -368,6 +436,55 @@ export interface ClubSettingsSelect<T extends boolean = true> {
         light?: T;
         dark?: T;
         fontSet?: T;
+        logoOnLight?: T;
+        logoOnDark?: T;
+        strapline?: T;
+      };
+  header?:
+    | T
+    | {
+        style?: T;
+        booking?:
+          | T
+          | {
+              label?: T;
+              type?: T;
+              page?: T;
+              url?: T;
+            };
+        phone?: T;
+        menu?:
+          | T
+          | {
+              label?: T;
+              link?:
+                | T
+                | {
+                    type?: T;
+                    page?: T;
+                    url?: T;
+                  };
+              groups?:
+                | T
+                | {
+                    heading?: T;
+                    links?:
+                      | T
+                      | {
+                          link?:
+                            | T
+                            | {
+                                label?: T;
+                                type?: T;
+                                page?: T;
+                                url?: T;
+                              };
+                          id?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+            };
       };
   updatedAt?: T;
   createdAt?: T;

@@ -90,7 +90,8 @@ describe('public site loader', () => {
     const b = await loadClubBySlug('test-club-b')
     expect(a).toMatchObject({ tenantID: w.clubA.id, name: 'Test Club A' })
     expect(b).toMatchObject({ tenantID: w.clubB.id, name: 'Test Club B' })
-    expect(Object.keys(a!).sort()).toEqual(['brand', 'fontSet', 'name', 'tenantID'])
+    expect(JSON.stringify(a)).not.toContain(w.clubB.id)
+    expect(JSON.stringify(a)).not.toContain('Test Club B')
   })
 
   it('returns nothing for an unknown club', async () => {

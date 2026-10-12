@@ -4,6 +4,7 @@ import * as migration_20261011_083631_two_factor from './20261011_083631_two_fac
 import * as migration_20261011_173431_app_role_grants from './20261011_173431_app_role_grants';
 import * as migration_20261011_201540_branding_and_club_short_name from './20261011_201540_branding_and_club_short_name';
 import * as migration_20261011_210310_media_library from './20261011_210310_media_library';
+import * as migration_20261012_100706_header_and_menu from './20261012_100706_header_and_menu';
 
 export const migrations = [
   {
@@ -34,6 +35,11 @@ export const migrations = [
   {
     up: migration_20261011_210310_media_library.up,
     down: migration_20261011_210310_media_library.down,
-    name: '20261011_210310_media_library'
+    name: '20261011_210310_media_library',
+  },
+  {
+    up: migration_20261012_100706_header_and_menu.up,
+    down: migration_20261012_100706_header_and_menu.down,
+    name: '20261012_100706_header_and_menu'
   },
 ];

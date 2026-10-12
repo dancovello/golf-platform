@@ -9,9 +9,8 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en-GB">
-      <body>
-        <main>{children}</main>
-      </body>
+      {/* Each page provides its own <main>, so a club's header can sit outside it. */}
+      <body>{children}</body>
     </html>
   )
 }
