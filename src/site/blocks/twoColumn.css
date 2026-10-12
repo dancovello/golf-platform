@@ -198,3 +198,9 @@
     margin: 0;
   }
 }
+/* Collage and key-facts photos take their shape from aspect-ratio, never from the file's own
+   size (which would make the layout jump while the photo loads). */
+.tc-collage .tc-img,
+.tc-keyFacts .tc-img {
+  height: auto;
+}
