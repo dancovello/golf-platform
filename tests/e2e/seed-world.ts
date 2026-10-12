@@ -10,6 +10,35 @@ import { enrolTwoFactor, PASSWORD, seedWorld } from '../int/helpers/seed'
 
 const w = await seedWorld()
 
+// Club A's header and menu, for the public site tests (tests/e2e/site-header.spec.ts).
+await w.payload.update({
+  collection: 'club-settings',
+  id: w.settingsA.id,
+  data: {
+    branding: { strapline: 'Golf Club · 1926' },
+    header: {
+      style: 'classic',
+      phone: '01932 704 500',
+      booking: { label: 'Book a tee time', type: 'url', url: 'https://booking.example.com' },
+      menu: [
+        {
+          label: 'Golf',
+          groups: [
+            {
+              heading: 'Play',
+              links: [
+                { link: { label: 'Green fees', type: 'url', url: 'https://example.com/fees' } },
+                { link: { label: 'Membership', type: 'page', page: w.pageA.id } },
+              ],
+            },
+          ],
+        },
+        { label: 'Membership', link: { type: 'page', page: w.pageA.id } },
+      ],
+    },
+  } as never,
+})
+
 // Two extra club A editors for the two-factor tests: one who hasn't set it up yet, and one
 // whose two-factor the super-admin will reset.
 const extraEditor = async (email: string, enrol: boolean) => {

@@ -1,14 +1,10 @@
-import type { CSSProperties } from 'react'
 import { notFound } from 'next/navigation'
 
-import { fontSetVariables } from '../../fonts'
 import { loadClubBySlug } from '@/site/loadClub'
 import { sitePreviewEnabled } from '@/site/preview'
-import { brandCSSVariables } from '@/theme/colour'
 import { FONT_SETS } from '@/theme/fontSets'
 
-import '@/theme/theme.css'
-import './preview.css'
+import { ClubShell } from './ClubShell'
 
 export const dynamic = 'force-dynamic'
 
@@ -41,29 +37,15 @@ const typeStyles: [string, string][] = [
   ['t-data-sans', 'Data'],
 ]
 
-/** A club's colours and fonts on one page, so a font set or palette can be judged on screen. */
+/** The club's home on staging. Until blocks arrive: its colours and fonts on one page, so a
+ * font set or palette can be judged on screen. */
 export default async function ClubPreview({ params }: { params: Promise<{ club: string }> }) {
   if (!sitePreviewEnabled()) notFound()
   const club = await loadClubBySlug((await params).club)
   if (!club) notFound()
 
-  const theme = {
-    ...brandCSSVariables(club.brand),
-    ...fontSetVariables(club.fontSet),
-  } as CSSProperties
-
   return (
-    <div className="club-theme pv" style={theme}>
-      <header className="pv-band">
-        <p className="t-heading-caps">{club.name}</p>
-        <nav className="t-nav pv-nav">
-          <span>The Course</span>
-          <span>Visitors</span>
-          <span>Membership</span>
-          <span>Contact</span>
-        </nav>
-      </header>
-
+    <ClubShell club={club} currentPath={`/preview/${club.slug}`}>
       <section className="pv-hero">
         <p className="t-eyebrow pv-eyebrow">Founded 1892 · Heathland</p>
         <h1 className="t-display-xl">A round worth travelling for</h1>
@@ -112,6 +94,6 @@ export default async function ClubPreview({ params }: { params: Promise<{ club: 
           ))}
         </div>
       </section>
-    </div>
+    </ClubShell>
   )
 }
