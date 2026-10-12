@@ -74,3 +74,20 @@ test.describe('mobile header', () => {
     await expect(menuButton).toBeFocused()
   })
 })
+
+test('the footer shows club A details and nothing of club B', async ({ page, world }) => {
+  await page.goto(home)
+  const footer = page.getByRole('contentinfo')
+  await expect(footer.getByText('Heathland golf since 1926.')).toBeVisible()
+  await expect(footer.getByRole('link', { name: 'Membership' })).toHaveAttribute(
+    'href',
+    `${home}/membership`,
+  )
+  await expect(footer.getByRole('link', { name: 'hello@club-a.example' })).toHaveAttribute(
+    'href',
+    'mailto:hello@club-a.example',
+  )
+  await expect(footer.getByText('Clubhouse')).toBeVisible()
+  await expect(footer.getByText(`© ${new Date().getFullYear()} Test Club A`)).toBeVisible()
+  expect(await page.content()).not.toContain(world.clubB.name)
+})

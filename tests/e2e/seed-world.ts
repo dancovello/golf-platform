@@ -36,6 +36,20 @@ await w.payload.update({
         { label: 'Membership', link: { type: 'page', page: w.pageA.id } },
       ],
     },
+    footer: {
+      style: 'brandColumns',
+      about: 'Heathland golf since 1926.',
+      linkColumns: [
+        {
+          heading: 'Explore',
+          links: [{ link: { label: 'Membership', type: 'page', page: w.pageA.id } }],
+        },
+      ],
+      hours: [{ place: 'Clubhouse', times: '7am – 9pm' }],
+      email: 'hello@club-a.example',
+      address: 'Heath Lane, Club A Town',
+      legalLinks: [{ link: { label: 'Privacy', type: 'url', url: 'https://example.com/privacy' } }],
+    },
   } as never,
 })
 

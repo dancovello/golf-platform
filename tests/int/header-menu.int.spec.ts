@@ -82,6 +82,58 @@ describe('header and menu settings', () => {
     expect(errorPaths(error)).toContain('branding.logoOnLight')
   })
 
+  it("refuses a footer link to club B's page", async () => {
+    const error = await w.payload
+      .update({
+        collection: 'club-settings',
+        id: w.settingsA.id,
+        data: {
+          footer: {
+            linkColumns: [
+              {
+                heading: 'Explore',
+                links: [{ link: { label: 'B', type: 'page', page: w.pageB.id } }],
+              },
+            ],
+          },
+        } as never,
+        ...asEditorA(),
+      })
+      .catch((e: unknown) => e)
+    expect(errorPaths(error)).toContain('footer.linkColumns.0.links.0.link.page')
+  })
+
+  it('footer details reach the public site; unsafe social and directions links do not', async () => {
+    await w.payload.update({
+      collection: 'club-settings',
+      id: w.settingsA.id,
+      data: {
+        footer: {
+          style: 'editorial',
+          hours: [{ place: 'Clubhouse', times: '7am – 9pm' }],
+          email: 'hello@club-a.example',
+          social: [{ network: 'instagram', url: 'https://instagram.com/club-a' }],
+        },
+      } as never,
+      ...asEditorA(),
+    })
+    const club = await loadClubBySlug('test-club-a')
+    expect(club?.footer).toMatchObject({
+      style: 'editorial',
+      hours: [{ place: 'Clubhouse', times: '7am – 9pm' }],
+      email: 'hello@club-a.example',
+      social: [{ network: 'instagram', url: 'https://instagram.com/club-a' }],
+    })
+    await expect(
+      w.payload.update({
+        collection: 'club-settings',
+        id: w.settingsA.id,
+        data: { footer: { social: [{ network: 'x', url: 'javascript:alert(1)' }] } } as never,
+        ...asEditorA(),
+      }),
+    ).rejects.toThrow()
+  })
+
   it('refuses unsafe web addresses', async () => {
     for (const url of ['javascript:alert(1)', 'data:text/html,hi', 'example.com']) {
       await expect(

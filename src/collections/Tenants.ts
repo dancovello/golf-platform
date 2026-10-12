@@ -55,6 +55,7 @@ export const Tenants: CollectionConfig = {
             tenant: doc.id,
             branding: { ...DEFAULT_BRAND, fontSet: DEFAULT_FONT_SET },
             header: { style: 'classic' },
+            footer: { style: 'brandColumns' },
           },
           req,
         })

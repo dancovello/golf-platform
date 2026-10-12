@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from 'react'
 
+import { SiteFooter } from '@/site/components/SiteFooter'
 import { SiteHeader } from '@/site/components/SiteHeader'
 import type { ClubSite } from '@/site/loadClub'
 import { brandCSSVariables } from '@/theme/colour'
@@ -8,9 +9,10 @@ import { fontSetVariables } from '../../fonts'
 
 import '@/theme/theme.css'
 import '@/site/components/header.css'
+import '@/site/components/footer.css'
 import './preview.css'
 
-/** A club's page frame on staging: its colours and fonts, header, and the page content. */
+/** A club's page frame on staging: its colours and fonts, header, page content and footer. */
 export const ClubShell = ({
   club,
   currentPath,
@@ -31,6 +33,7 @@ export const ClubShell = ({
       <main id="main" tabIndex={-1}>
         {children}
       </main>
+      <SiteFooter club={club} base={base} />
     </div>
   )
 }
