@@ -12,7 +12,8 @@ export type ResolvedLink = { label: string; link: SiteLink }
 /** What a block's website component gets: its own data, with pages and photos looked up. */
 export type BlockContext = {
   media: (value: unknown) => SiteMedia | null
-  link: (value: unknown) => ResolvedLink | null
+  /** `fallbackLabel` for links whose text is fixed by the design (e.g. a whole card). */
+  link: (value: unknown, fallbackLabel?: string) => ResolvedLink | null
 }
 
 /**
@@ -48,14 +49,14 @@ export const loadBlockContext = async (
 
   return {
     media: (value) => media.get(idOf(value) ?? '') ?? null,
-    link: (value) => {
+    link: (value, fallbackLabel) => {
       const raw = (value ?? {}) as {
         label?: string | null
         type?: string
         page?: unknown
         url?: string
       }
-      const label = raw.label?.trim()
+      const label = raw.label?.trim() || fallbackLabel
       if (!label) return null
       if (raw.type === 'url') {
         return isSafeURL(raw.url) ? { label, link: { kind: 'url', href: raw.url.trim() } } : null

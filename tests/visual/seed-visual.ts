@@ -53,6 +53,12 @@ for (const [slug, p] of Object.entries(palettes)) {
       payload.create({ collection: 'media', data: { alt, tenant: club.id }, file }),
     )
   const wide = await photo('Fairway at first light', 2400, 1200)
+  const cards = [
+    await photo('The course', 1600, 1200),
+    await photo('Visitors', 1600, 1200),
+    await photo('Membership', 1600, 1200),
+    await photo('Heritage', 1600, 1200),
+  ]
 
   const pages: Record<string, string> = {}
   const page = async (pageSlug: string, title: string, layout: unknown[]) => {
@@ -147,6 +153,61 @@ for (const [slug, p] of Object.entries(palettes)) {
       image: wide.id,
       eyebrow: 'Visitors welcome · 7 days a week',
       headline: 'Your morning on the Championship course',
+    },
+  ])
+
+  const card = (title: string, i: number, extra: Record<string, unknown> = {}) => ({
+    title,
+    image: cards[i].id,
+    link: { type: 'page', page: about.id },
+    ...extra,
+  })
+  await page('cta-card-grid', 'Card grid', [
+    {
+      blockType: 'ctaCardGrid',
+      style: 'editorial',
+      eyebrow: 'Explore the club',
+      heading: 'Everything begins on the first tee',
+      viewAll: link('View all'),
+      cards: [
+        card('The Course', 0, {
+          description: 'Two championship layouts through heathland and pine.',
+        }),
+        card('Visitors', 1, { description: 'Green fees, dress code and how to book a round.' }),
+        card('Membership', 2, {
+          description: 'Full, flexible and junior categories, with a guided tour.',
+        }),
+      ],
+    },
+    {
+      blockType: 'ctaCardGrid',
+      style: 'immersive',
+      eyebrow: 'Explore the club',
+      heading: 'Find your way around the club',
+      cards: [
+        card('The Course', 0, { eyebrow: '36 holes · Heathland' }),
+        card('Visitors', 1, { eyebrow: 'Tee times daily' }),
+        card('Membership', 2, { eyebrow: 'Enquiries open' }),
+      ],
+    },
+    {
+      blockType: 'ctaCardGrid',
+      style: 'index',
+      heading: 'A club for every kind of golfer',
+      intro:
+        'From a first lesson to a lifetime membership — start with the part of the club that matters to you.',
+      cards: [
+        card('The Course', 0, {
+          description: 'Two championship layouts through heathland and pine.',
+        }),
+        card('Visitors', 1, { description: 'Green fees, dress code and how to book a round.' }),
+        card('Membership', 2, {
+          description: 'Full, flexible and junior categories, with a guided tour.',
+        }),
+        card('Heritage', 3, {
+          description: 'A century of championships, architects and characters.',
+        }),
+      ],
     },
   ])
 }
