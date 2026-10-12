@@ -9,16 +9,26 @@ import { VISUAL_CLUBS, VISUAL_PAGES, VISUAL_VIEWPORTS } from './pages'
  * Approved pictures are made on GitHub's Linux machines (workflow "Update block pictures"),
  * never on a Mac, because fonts render slightly differently.
  */
-const settle = async (page: Page) => {
-  // The sticky header has its own picture; keep it from being printed over the page's.
-  await page.addStyleTag({ content: 'header.sh { position: static !important; }' })
+const settle = async (page: Page, { hideHeader = true } = {}) => {
+  // Block pictures leave the header out (it has its own picture): it reacts to scrolling, and
+  // the camera scrolls to photograph long pages.
+  await page.addStyleTag({
+    content: hideHeader
+      ? 'header.sh { display: none !important; }'
+      : 'header.sh { position: static !important; }',
+  })
   await page.evaluate(async () => {
+    // Photos further down load lazily; load them all before the picture is taken.
+    for (const img of document.images) img.loading = 'eager'
     await document.fonts.ready
     await Promise.all(
       [...document.images].map((img) =>
-        img.complete
-          ? null
-          : new Promise((done) => img.addEventListener('load', done, { once: true })),
+        img.complete && img.naturalWidth > 0
+          ? img.decode().catch(() => null)
+          : new Promise((done) => {
+              img.addEventListener('load', done, { once: true })
+              img.addEventListener('error', done, { once: true })
+            }),
       ),
     )
   })
@@ -42,7 +52,7 @@ for (const club of VISUAL_CLUBS) {
 
       test('header and footer', async ({ page }) => {
         await page.goto(`/preview/${club.slug}/about`)
-        await settle(page)
+        await settle(page, { hideHeader: false })
         await expect(page.locator('header.sh')).toHaveScreenshot(
           `header--${club.slug}--${viewport.name}.png`,
           { animations: 'disabled' },

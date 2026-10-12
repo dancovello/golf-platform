@@ -77,3 +77,22 @@ describe('card grid', () => {
     ).rejects.toThrow()
   })
 })
+
+describe('image and text', () => {
+  it("refuses club B's photos or page", async () => {
+    const error = await save([
+      {
+        blockType: 'twoColumn',
+        style: 'collage',
+        image: w.mediaB.id,
+        insetImage: w.mediaB.id,
+        heading: 'Heading',
+        body: 'Body',
+        link: { label: 'More', type: 'page', page: w.pageB.id },
+      },
+    ]).catch((e: unknown) => e)
+    expect(errorPaths(error)).toEqual(
+      expect.arrayContaining(['layout.0.image', 'layout.0.insetImage', 'layout.0.link.page']),
+    )
+  })
+})

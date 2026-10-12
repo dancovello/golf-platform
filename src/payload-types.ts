@@ -179,7 +179,7 @@ export interface Page {
    * The page address, e.g. "membership" for /membership. Use "home" for the home page.
    */
   slug: string;
-  layout?: (HeroBlock | CtaCardGridBlock)[] | null;
+  layout?: (HeroBlock | CtaCardGridBlock | TwoColumnBlock)[] | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -329,6 +329,48 @@ export interface CtaCardGridBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'ctaCardGrid';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TwoColumnBlock".
+ */
+export interface TwoColumnBlock {
+  style: 'split' | 'collage' | 'keyFacts';
+  /**
+   * Alternate sides when two of these follow each other.
+   */
+  imageSide?: ('left' | 'right') | null;
+  tone?: ('canvas' | 'brand') | null;
+  image: string | Media;
+  insetImage?: (string | null) | Media;
+  eyebrow?: string | null;
+  heading: string;
+  /**
+   * 60–90 words reads best (40–70 with key facts). A blank line starts a new paragraph.
+   */
+  body: string;
+  /**
+   * e.g. Opened · 1926
+   */
+  facts?:
+    | {
+        label: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  link?: {
+    label?: string | null;
+    type?: ('page' | 'url') | null;
+    page?: (string | null) | Page;
+    /**
+     * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+     */
+    url?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'twoColumn';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -639,6 +681,7 @@ export interface PagesSelect<T extends boolean = true> {
     | {
         hero?: T | HeroBlockSelect<T>;
         ctaCardGrid?: T | CtaCardGridBlockSelect<T>;
+        twoColumn?: T | TwoColumnBlockSelect<T>;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -706,6 +749,37 @@ export interface CtaCardGridBlockSelect<T extends boolean = true> {
               url?: T;
             };
         id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TwoColumnBlock_select".
+ */
+export interface TwoColumnBlockSelect<T extends boolean = true> {
+  style?: T;
+  imageSide?: T;
+  tone?: T;
+  image?: T;
+  insetImage?: T;
+  eyebrow?: T;
+  heading?: T;
+  body?: T;
+  facts?:
+    | T
+    | {
+        label?: T;
+        value?: T;
+        id?: T;
+      };
+  link?:
+    | T
+    | {
+        label?: T;
+        type?: T;
+        page?: T;
+        url?: T;
       };
   id?: T;
   blockName?: T;

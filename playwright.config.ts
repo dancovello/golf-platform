@@ -44,6 +44,9 @@ export default defineConfig({
   ],
   // Approved pictures, one set, made on Linux (see tests/visual/blocks.spec.ts).
   snapshotPathTemplate: 'tests/visual/__screenshots__/{arg}{ext}',
+  // Never write approved pictures as a side effect (e.g. a missing one on a Mac): only the
+  // "Update block pictures" workflow makes them, with an explicit --update-snapshots.
+  updateSnapshots: 'none',
   expect: {
     toHaveScreenshot: { maxDiffPixelRatio: 0.002 },
   },
