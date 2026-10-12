@@ -181,7 +181,7 @@
   }
 }
 @media (max-width: 767px) {
-  .rt-note {
+  .rt-prose .rt-note {
     float: none;
     width: auto;
     margin: 0 0 var(--space-24);
