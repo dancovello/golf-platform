@@ -108,6 +108,12 @@ jobs:
           # Loading the app's settings needs these; database changes never use them.
           PAYLOAD_SECRET: release-dry-run-only
           TOTP_ENCRYPTION_KEY: '0000000000000000000000000000000000000000000000000000000000000000'
+          # Migrations load the app's settings but never touch photo storage. Not real values.
+          MEDIA_S3_ENDPOINT: http://127.0.0.1:1
+          MEDIA_S3_BUCKET: unused
+          MEDIA_S3_ACCESS_KEY_ID: unused
+          MEDIA_S3_SECRET_ACCESS_KEY: unused
+          MEDIA_PUBLIC_URL: http://127.0.0.1:1/unused
         run: pnpm migrate 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
 
   migrate:
@@ -127,6 +133,12 @@ jobs:
           DATABASE_URL: ${{ needs.target.outputs.environment == 'production' && secrets.PRODUCTION_DATABASE_URL_DIRECT || secrets.STAGING_DATABASE_URL_DIRECT }}
           PAYLOAD_SECRET: release-migrate-only
           TOTP_ENCRYPTION_KEY: '0000000000000000000000000000000000000000000000000000000000000000'
+          # Migrations load the app's settings but never touch photo storage. Not real values.
+          MEDIA_S3_ENDPOINT: http://127.0.0.1:1
+          MEDIA_S3_BUCKET: unused
+          MEDIA_S3_ACCESS_KEY_ID: unused
+          MEDIA_S3_SECRET_ACCESS_KEY: unused
+          MEDIA_PUBLIC_URL: http://127.0.0.1:1/unused
         run: pnpm migrate 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
 
   deploy:

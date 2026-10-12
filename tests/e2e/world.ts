@@ -11,6 +11,7 @@ export type World = {
   pageB: { id: string; title: string }
   settingsA: { id: string }
   settingsB: { id: string }
+  mediaB: { id: string; prefix: string; filename: string; url: string }
   editorNotSetUp: { id: string; email: string }
   editorToReset: { id: string; email: string }
   editorLoginOnly: { id: string; email: string }

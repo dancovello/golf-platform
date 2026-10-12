@@ -71,6 +71,7 @@ export interface Config {
     tenants: Tenant;
     pages: Page;
     'club-settings': ClubSetting;
+    media: Media;
     'totp-attempts': TotpAttempt;
     'payload-kv': PayloadKv;
     'payload-preferences': PayloadPreference;
@@ -82,6 +83,7 @@ export interface Config {
     tenants: TenantsSelect<false> | TenantsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     'club-settings': ClubSettingsSelect<false> | ClubSettingsSelect<true>;
+    media: MediaSelect<false> | MediaSelect<true>;
     'totp-attempts': TotpAttemptsSelect<false> | TotpAttemptsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -219,6 +221,31 @@ export interface ClubSetting {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  /**
+   * What the photo shows, for people using screen readers, e.g. "The 7th green at sunset". Required.
+   */
+  alt: string;
+  prefix?: string | null;
+  _objectKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "totp-attempts".
  */
 export interface TotpAttempt {
@@ -344,6 +371,27 @@ export interface ClubSettingsSelect<T extends boolean = true> {
       };
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media_select".
+ */
+export interface MediaSelect<T extends boolean = true> {
+  tenant?: T;
+  alt?: T;
+  prefix?: T;
+  _objectKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

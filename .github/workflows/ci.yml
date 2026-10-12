@@ -71,6 +71,12 @@ jobs:
       PAYLOAD_SECRET: ci-only-not-a-real-secret
       # Test-only two-factor encryption key (all zeros). Not a real secret.
       TOTP_ENCRYPTION_KEY: '0000000000000000000000000000000000000000000000000000000000000000'
+      # Local photo storage stand-in started below (docker/seaweedfs-s3.json). Not real secrets.
+      MEDIA_S3_ENDPOINT: http://127.0.0.1:8333
+      MEDIA_S3_BUCKET: golf-media-test
+      MEDIA_S3_ACCESS_KEY_ID: localdev
+      MEDIA_S3_SECRET_ACCESS_KEY: localdev-secret
+      MEDIA_PUBLIC_URL: http://127.0.0.1:8333/golf-media-test
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
@@ -79,6 +85,15 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # Stands in for Cloudflare R2, so tests never touch real storage. Pinned by digest.
+      - name: Start the photo storage stand-in
+        run: |
+          docker run -d --name media -p 127.0.0.1:8333:8333 \
+            -v "$PWD/docker/seaweedfs-s3.json:/etc/seaweedfs/s3.json:ro" \
+            chrislusf/seaweedfs@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d \
+            server -s3 -s3.config=/etc/seaweedfs/s3.json -dir=/data
+          for _ in $(seq 1 60); do curl -s -o /dev/null http://127.0.0.1:8333/ && exit 0; sleep 1; done
+          docker logs media; exit 1
       # Applies every committed migration to an empty database, then runs the tests.
       - run: pnpm test
 
@@ -90,6 +105,11 @@ jobs:
       DATABASE_URL: postgres://ci:ci@127.0.0.1:1/ci_build
       PAYLOAD_SECRET: ci-build-only-not-a-real-secret
       TOTP_ENCRYPTION_KEY: '0000000000000000000000000000000000000000000000000000000000000000'
+      MEDIA_S3_ENDPOINT: http://127.0.0.1:1
+      MEDIA_S3_BUCKET: ci-build
+      MEDIA_S3_ACCESS_KEY_ID: unused
+      MEDIA_S3_SECRET_ACCESS_KEY: unused
+      MEDIA_PUBLIC_URL: http://127.0.0.1:1/ci-build
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
@@ -169,6 +189,12 @@ jobs:
       PAYLOAD_SECRET: ci-only-not-a-real-secret
       # Test-only two-factor encryption key (all zeros). Not a real secret.
       TOTP_ENCRYPTION_KEY: '0000000000000000000000000000000000000000000000000000000000000000'
+      # Local photo storage stand-in started below (docker/seaweedfs-s3.json). Not real secrets.
+      MEDIA_S3_ENDPOINT: http://127.0.0.1:8333
+      MEDIA_S3_BUCKET: golf-media-test
+      MEDIA_S3_ACCESS_KEY_ID: localdev
+      MEDIA_S3_SECRET_ACCESS_KEY: localdev-secret
+      MEDIA_PUBLIC_URL: http://127.0.0.1:8333/golf-media-test
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
@@ -177,6 +203,15 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # Stands in for Cloudflare R2, so tests never touch real storage. Pinned by digest.
+      - name: Start the photo storage stand-in
+        run: |
+          docker run -d --name media -p 127.0.0.1:8333:8333 \
+            -v "$PWD/docker/seaweedfs-s3.json:/etc/seaweedfs/s3.json:ro" \
+            chrislusf/seaweedfs@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d \
+            server -s3 -s3.config=/etc/seaweedfs/s3.json -dir=/data
+          for _ in $(seq 1 60); do curl -s -o /dev/null http://127.0.0.1:8333/ && exit 0; sleep 1; done
+          docker logs media; exit 1
       - run: pnpm test:isolation
       # The website runs as the limited golf_app account (read/write data only). The migration
       # created it without a login; give it one for this throwaway CI database only.
