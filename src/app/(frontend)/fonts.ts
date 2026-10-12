@@ -1,43 +1,80 @@
-// next/font downloads these at build time and serves them from our own domain.
-// preload is off: each page only uses the two fonts of its club's set.
-import { Archivo, Cormorant_Garamond, DM_Sans, Fraunces, Inter, Manrope } from 'next/font/google'
+// The font files live in ./font-files (latin subset, from Fontsource 5.3.0, SIL Open Font
+// License: see the .LICENSE.txt files). Served from our own domain, and builds never need to
+// reach Google. preload is off: each page only uses the two fonts of its club's set.
+import localFont from 'next/font/local'
 
 import type { FontSetID } from '@/theme/fontSets'
 
-const cormorant = Cormorant_Garamond({
-  subsets: ['latin'],
-  weight: ['300', '400'],
-  style: ['normal', 'italic'],
+const cormorant = localFont({
+  src: [
+    {
+      path: './font-files/cormorant-garamond-latin-300-normal.woff2',
+      weight: '300',
+      style: 'normal',
+    },
+    {
+      path: './font-files/cormorant-garamond-latin-400-normal.woff2',
+      weight: '400',
+      style: 'normal',
+    },
+    {
+      path: './font-files/cormorant-garamond-latin-300-italic.woff2',
+      weight: '300',
+      style: 'italic',
+    },
+  ],
   display: 'swap',
   preload: false,
+  fallback: ['Georgia', 'serif'],
 })
-const dmSans = DM_Sans({
-  subsets: ['latin'],
-  weight: ['400', '500'],
+const dmSans = localFont({
+  src: [
+    { path: './font-files/dm-sans-latin-400-normal.woff2', weight: '400', style: 'normal' },
+    { path: './font-files/dm-sans-latin-500-normal.woff2', weight: '500', style: 'normal' },
+  ],
   display: 'swap',
   preload: false,
+  fallback: ['system-ui', 'sans-serif'],
 })
-const fraunces = Fraunces({
-  subsets: ['latin'],
-  weight: ['300', '400'],
-  style: ['normal', 'italic'],
+const fraunces = localFont({
+  src: [
+    { path: './font-files/fraunces-latin-300-normal.woff2', weight: '300', style: 'normal' },
+    { path: './font-files/fraunces-latin-400-normal.woff2', weight: '400', style: 'normal' },
+    { path: './font-files/fraunces-latin-300-italic.woff2', weight: '300', style: 'italic' },
+  ],
   display: 'swap',
   preload: false,
+  fallback: ['Georgia', 'serif'],
 })
-const manrope = Manrope({
-  subsets: ['latin'],
-  weight: ['400', '500'],
+const manrope = localFont({
+  src: [
+    { path: './font-files/manrope-latin-400-normal.woff2', weight: '400', style: 'normal' },
+    { path: './font-files/manrope-latin-500-normal.woff2', weight: '500', style: 'normal' },
+  ],
   display: 'swap',
   preload: false,
+  fallback: ['system-ui', 'sans-serif'],
 })
-const archivo = Archivo({
-  subsets: ['latin'],
-  weight: ['300', '400', '500'],
-  style: ['normal', 'italic'],
+const archivo = localFont({
+  src: [
+    { path: './font-files/archivo-latin-300-normal.woff2', weight: '300', style: 'normal' },
+    { path: './font-files/archivo-latin-400-normal.woff2', weight: '400', style: 'normal' },
+    { path: './font-files/archivo-latin-500-normal.woff2', weight: '500', style: 'normal' },
+    { path: './font-files/archivo-latin-300-italic.woff2', weight: '300', style: 'italic' },
+  ],
   display: 'swap',
   preload: false,
+  fallback: ['system-ui', 'sans-serif'],
 })
-const inter = Inter({ subsets: ['latin'], weight: ['400', '500'], display: 'swap', preload: false })
+const inter = localFont({
+  src: [
+    { path: './font-files/inter-latin-400-normal.woff2', weight: '400', style: 'normal' },
+    { path: './font-files/inter-latin-500-normal.woff2', weight: '500', style: 'normal' },
+  ],
+  display: 'swap',
+  preload: false,
+  fallback: ['system-ui', 'sans-serif'],
+})
 
 const sets: Record<FontSetID, { display: string; body: string }> = {
   heritage: { display: cormorant.style.fontFamily, body: dmSans.style.fontFamily },
