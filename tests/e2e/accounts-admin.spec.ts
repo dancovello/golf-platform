@@ -10,8 +10,13 @@ test.describe('inviting a club editor', () => {
 
     await test.step('the super-admin invites them', async () => {
       await openReady(superAdminPage, '/admin/collections/users')
-      await superAdminPage.getByRole('link', { name: 'Invite an editor' }).click()
-      await superAdminPage.waitForLoadState('networkidle')
+      // Check the button points at the invite page, then open it directly: on a slow CI machine
+      // the admin's in-page navigation after the click sometimes never finished (seen twice).
+      await expect(superAdminPage.getByRole('link', { name: 'Invite an editor' })).toHaveAttribute(
+        'href',
+        '/admin/invite-editor',
+      )
+      await openReady(superAdminPage, '/admin/invite-editor')
       await superAdminPage.getByLabel('Editor’s email address').fill(email)
       await superAdminPage.getByLabel('Club').selectOption({ label: 'Test Club A' })
       await superAdminPage.getByRole('button', { name: 'Invite editor' }).click()

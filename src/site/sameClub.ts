@@ -1,17 +1,11 @@
 import type { CollectionBeforeValidateHook } from 'payload'
 import { ValidationError } from 'payload'
 
-type Ref = { collection: 'pages' | 'media'; id: string; path: string }
-
-const idOf = (value: unknown): string | null => {
-  if (typeof value === 'string' && value) return value
-  if (value && typeof value === 'object' && 'id' in value)
-    return String((value as { id: unknown }).id)
-  return null
-}
+import { layoutRefs } from '../blocks'
+import { type BlockRef as Ref, idOf } from '../blocks/types'
 
 /** Every page and photo a club's settings point at, with where it was found. */
-const collectRefs = (data: Record<string, unknown>): Ref[] => {
+const settingsRefs = (data: Record<string, unknown>): Ref[] => {
   const refs: Ref[] = []
   const branding = (data.branding ?? {}) as Record<string, unknown>
   for (const key of ['logoOnLight', 'logoOnDark']) {
@@ -53,43 +47,46 @@ const collectRefs = (data: Record<string, unknown>): Ref[] => {
 }
 
 /**
- * Refuses club settings that point at another club's pages or photos. Editors' pickers are
+ * Refuses a record that points at another club's pages or photos. Editors' pickers are
  * already limited to their own club, but the API accepts any ID, and the public site must
  * never show another club's content. The message doesn't say whether the item exists.
  */
-export const checkSameClub: CollectionBeforeValidateHook = async ({
-  collection,
-  data,
-  originalDoc,
-  req,
-}) => {
-  const merged = { ...originalDoc, ...data } as Record<string, unknown>
-  const tenant = idOf(merged.tenant)
-  const refs = collectRefs(merged)
-  if (!tenant || refs.length === 0) return data
+const sameClubCheck =
+  (collect: (data: Record<string, unknown>) => Ref[]): CollectionBeforeValidateHook =>
+  async ({ collection, data, originalDoc, req }) => {
+    const merged = { ...originalDoc, ...data } as Record<string, unknown>
+    const tenant = idOf(merged.tenant)
+    const refs = collect(merged)
+    if (!tenant || refs.length === 0) return data
 
-  const errors: { path: string; message: string }[] = []
-  for (const name of ['pages', 'media'] as const) {
-    const wanted = [...new Set(refs.filter((r) => r.collection === name).map((r) => r.id))]
-    if (wanted.length === 0) continue
-    const { docs } = await req.payload.find({
-      collection: name,
-      where: { and: [{ id: { in: wanted } }, { tenant: { equals: tenant } }] },
-      select: {},
-      limit: wanted.length,
-      depth: 0,
-      overrideAccess: true,
-      req,
-    })
-    const found = new Set(docs.map((d) => String(d.id)))
-    for (const ref of refs.filter((r) => r.collection === name && !found.has(r.id))) {
-      errors.push({
-        path: ref.path,
-        message:
-          name === 'pages' ? 'Choose one of your own pages.' : 'Choose one of your own photos.',
+    const errors: { path: string; message: string }[] = []
+    for (const name of ['pages', 'media'] as const) {
+      const wanted = [...new Set(refs.filter((r) => r.collection === name).map((r) => r.id))]
+      if (wanted.length === 0) continue
+      const { docs } = await req.payload.find({
+        collection: name,
+        where: { and: [{ id: { in: wanted } }, { tenant: { equals: tenant } }] },
+        select: {},
+        limit: wanted.length,
+        depth: 0,
+        overrideAccess: true,
+        req,
       })
+      const found = new Set(docs.map((d) => String(d.id)))
+      for (const ref of refs.filter((r) => r.collection === name && !found.has(r.id))) {
+        errors.push({
+          path: ref.path,
+          message:
+            name === 'pages' ? 'Choose one of your own pages.' : 'Choose one of your own photos.',
+        })
+      }
     }
+    if (errors.length > 0) throw new ValidationError({ collection: collection.slug, errors })
+    return data
   }
-  if (errors.length > 0) throw new ValidationError({ collection: collection.slug, errors })
-  return data
-}
+
+/** Club Settings: logos, header and footer links. */
+export const checkSameClub = sameClubCheck(settingsRefs)
+
+/** Pages: everything the page's blocks point at. */
+export const checkPageSameClub = sameClubCheck((data) => layoutRefs(data.layout))

@@ -28,3 +28,14 @@ export const pngFile = (name: string, data: Buffer = TINY_PNG) => ({
   name,
   size: data.length,
 })
+
+/** A real JPEG photo of the given size: a soft two-colour gradient, so resizing has work to do. */
+export const photoFile = async (name: string, width = 1800, height = 1000) => {
+  const { default: sharp } = await import('sharp')
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
+    <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5d7a52"/><stop offset="1" stop-color="#c9b48a"/>
+    </linearGradient></defs><rect width="100%" height="100%" fill="url(#g)"/></svg>`
+  const data = await sharp(Buffer.from(svg)).jpeg({ quality: 80 }).toBuffer()
+  return { data, mimetype: 'image/jpeg', name, size: data.length }
+}

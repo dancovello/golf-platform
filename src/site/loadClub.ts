@@ -1,7 +1,10 @@
 import config from '@payload-config'
 import { getPayload, type Payload } from 'payload'
 
+import type { Page } from '@/payload-types'
+
 import { isSafeURL } from '@/fields/link'
+import { loadBlockContext } from '@/site/blocks/resolve'
 import { type Brand, BRAND_INPUTS, DEFAULT_BRAND, isHex } from '@/theme/colour'
 import { DEFAULT_FONT_SET, type FontSetID, isFontSetID } from '@/theme/fontSets'
 
@@ -243,7 +246,7 @@ const clubImages = async (payload: Payload, tenantID: string, ids: (string | nul
   const { docs } = await payload.find({
     collection: 'media',
     where: { and: [{ id: { in: wanted } }, { tenant: { equals: tenantID } }] },
-    select: { url: true, alt: true, width: true, height: true, mimeType: true },
+    // No `select`: a file's address is worked out from its folder and stored name.
     limit: wanted.length,
     depth: 0,
     overrideAccess: true,
@@ -258,16 +261,24 @@ const clubImages = async (payload: Payload, tenantID: string, ids: (string | nul
   )
 }
 
-/** One of the club's pages by its address, or null. */
+/** One of the club's pages by its address, with its blocks ready to draw, or null. */
 export const loadClubPage = async (tenantID: string, slug: string) => {
   const payload = await getPayload({ config })
   const { docs } = await payload.find({
     collection: 'pages',
     where: { and: [{ slug: { equals: slug } }, { tenant: { equals: tenantID } }] },
-    select: { title: true, slug: true },
+    select: { title: true, slug: true, layout: true },
     limit: 1,
     depth: 0,
     overrideAccess: true,
   })
-  return docs[0] ? { title: String(docs[0].title), slug: String(docs[0].slug) } : null
+  const doc = docs[0]
+  if (!doc) return null
+  const layout = (doc.layout ?? []) as NonNullable<Page['layout']>
+  return {
+    title: String(doc.title),
+    slug: String(doc.slug),
+    layout,
+    ctx: await loadBlockContext(payload, tenantID, layout),
+  }
 }
