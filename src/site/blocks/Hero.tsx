@@ -71,7 +71,7 @@ export const Hero = ({
             <h1 className="t-display-l hero-headline">{block.headline}</h1>
             {primary || secondary ? (
               <div className="hero-actions">
-                {primary ? <Button {...primary} base={base} style="accent" /> : null}
+                {primary ? <Button {...primary} base={base} style="accent" arrow /> : null}
                 {secondary ? <Button {...secondary} base={base} style="link" onDark /> : null}
               </div>
             ) : null}
@@ -107,7 +107,7 @@ export const Hero = ({
             ) : null
           ) : (
             <>
-              {primary ? <Button {...primary} base={base} style="outline" onDark /> : null}
+              {primary ? <Button {...primary} base={base} style="outline" onDark arrow /> : null}
               {secondary ? <Button {...secondary} base={base} style="link" onDark /> : null}
             </>
           )}
