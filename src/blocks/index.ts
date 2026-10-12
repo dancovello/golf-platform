@@ -1,10 +1,11 @@
 import { ctaCardGrid } from './ctaCardGrid/config'
 import { hero } from './hero/config'
+import { richText } from './richText/config'
 import { twoColumn } from './twoColumn/config'
 import type { BlockDefinition, BlockRef } from './types'
 
 /** Every block a club can add to a page. The website side is in src/site/blocks. */
-export const blockDefinitions: BlockDefinition[] = [hero, ctaCardGrid, twoColumn]
+export const blockDefinitions: BlockDefinition[] = [hero, ctaCardGrid, twoColumn, richText]
 
 export const pageBlocks = blockDefinitions.map((b) => b.config)
 

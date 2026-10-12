@@ -3,6 +3,7 @@ import type { Page } from '@/payload-types'
 import type { ClubSite } from '../loadClub'
 import { CtaCardGrid } from './CtaCardGrid'
 import { Hero } from './Hero'
+import { RichText } from './RichText'
 import { TwoColumn } from './TwoColumn'
 import type { BlockContext } from './resolve'
 
@@ -10,6 +11,7 @@ import './blocks.css'
 import './hero.css'
 import './ctaCardGrid.css'
 import './twoColumn.css'
+import './richText.css'
 import '../components/buttons.css'
 
 type LayoutBlock = NonNullable<Page['layout']>[number]
@@ -34,6 +36,8 @@ export const RenderBlocks = ({
         return <CtaCardGrid key={block.id ?? i} block={block} ctx={ctx} base={base} />
       case 'twoColumn':
         return <TwoColumn key={block.id ?? i} block={block} ctx={ctx} base={base} />
+      case 'richText':
+        return <RichText key={block.id ?? i} block={block} ctx={ctx} base={base} />
       default:
         return null
     }

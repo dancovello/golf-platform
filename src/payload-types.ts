@@ -179,7 +179,7 @@ export interface Page {
    * The page address, e.g. "membership" for /membership. Use "home" for the home page.
    */
   slug: string;
-  layout?: (HeroBlock | CtaCardGridBlock | TwoColumnBlock)[] | null;
+  layout?: (HeroBlock | CtaCardGridBlock | TwoColumnBlock | RichTextBlock)[] | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -371,6 +371,37 @@ export interface TwoColumnBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'twoColumn';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "RichTextBlock".
+ */
+export interface RichTextBlock {
+  style: 'article' | 'contents' | 'editorial';
+  eyebrow?: string | null;
+  /**
+   * Headings, paragraphs, lists, quotes, links and photos. Style B lists every main heading (H2) in "On this page" once there are three or more. Style C shows the first paragraph larger.
+   */
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  noteTitle?: string | null;
+  noteText?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'richText';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -682,6 +713,7 @@ export interface PagesSelect<T extends boolean = true> {
         hero?: T | HeroBlockSelect<T>;
         ctaCardGrid?: T | CtaCardGridBlockSelect<T>;
         twoColumn?: T | TwoColumnBlockSelect<T>;
+        richText?: T | RichTextBlockSelect<T>;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -781,6 +813,19 @@ export interface TwoColumnBlockSelect<T extends boolean = true> {
         page?: T;
         url?: T;
       };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "RichTextBlock_select".
+ */
+export interface RichTextBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  content?: T;
+  noteTitle?: T;
+  noteText?: T;
   id?: T;
   blockName?: T;
 }
