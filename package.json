@@ -40,7 +40,8 @@
     "payload": "3.90.2",
     "payload-totp": "3.0.6",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "sharp": "0.34.5"
   },
   "devDependencies": {
     "@playwright/test": "1.64.0",

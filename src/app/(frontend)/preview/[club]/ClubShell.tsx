@@ -16,10 +16,13 @@ import './preview.css'
 export const ClubShell = ({
   club,
   currentPath,
+  overHero = false,
   children,
 }: {
   club: ClubSite
   currentPath: string
+  /** The page starts with a full-bleed hero (header style B sits over it). */
+  overHero?: boolean
   children: ReactNode
 }) => {
   const theme = {
@@ -29,7 +32,7 @@ export const ClubShell = ({
   const base = `/preview/${club.slug}`
   return (
     <div className="club-theme pv" style={theme}>
-      <SiteHeader club={club} base={base} currentPath={currentPath} />
+      <SiteHeader club={club} base={base} currentPath={currentPath} overHero={overHero} />
       <main id="main" tabIndex={-1}>
         {children}
       </main>

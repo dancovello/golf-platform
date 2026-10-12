@@ -1,0 +1,184 @@
+/* Hero. Figma page "Hero (image or video)"; specs in docs/design/07 and 13. Roles only. */
+.hero {
+  position: relative;
+  color: var(--color-text-on-inverse);
+}
+.hero *,
+.hero *::before,
+.hero *::after {
+  box-sizing: border-box;
+}
+.hero-container {
+  position: relative;
+  width: 100%;
+  max-width: calc(var(--size-container) + 2 * var(--space-40));
+  margin: 0 auto;
+  padding: 0 var(--space-40);
+}
+.hero-media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.hero-eyebrow {
+  color: var(--color-text-accent);
+  margin-bottom: var(--space-16);
+}
+.hero-headline {
+  margin: 0;
+  max-width: 16ch;
+  text-wrap: balance;
+}
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-24);
+  margin-top: var(--space-32);
+}
+.hero-actions:empty {
+  display: none;
+}
+
+/* A and C: full-bleed, copy bottom-left, legibility scrim (never a colour tint) */
+.hero-full {
+  min-height: clamp(640px, 85vh, 960px);
+  display: flex;
+  align-items: flex-end;
+  padding: var(--space-80) 0;
+  overflow: hidden;
+  background: var(--color-surface-brand);
+}
+.hero-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--brand-dark) 55%, transparent) 0%,
+    color-mix(in srgb, var(--brand-dark) 15%, transparent) 22%,
+    color-mix(in srgb, var(--brand-dark) 45%, transparent) 45%,
+    color-mix(in srgb, var(--brand-dark) 90%, transparent) 100%
+  );
+}
+.hero-copy {
+  z-index: 1;
+}
+.hero-heritage .hero-headline {
+  /* Wide capitals: limit by width, not character count (two lines at most on desktop) */
+  max-width: 960px;
+}
+.hero-bookingLed .hero-headline {
+  max-width: 900px;
+}
+.hero-rule {
+  width: min(480px, 100%);
+  margin: var(--space-24) 0 0;
+  border: 0;
+  border-top: 1px solid var(--color-border-on-inverse);
+}
+.hero-media-control {
+  position: absolute;
+  z-index: 2;
+  right: var(--space-40);
+  bottom: var(--space-40);
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border-on-inverse);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-glass);
+  backdrop-filter: blur(16px);
+  color: var(--color-text-on-inverse);
+  cursor: pointer;
+}
+.hero-media-control:focus-visible {
+  outline: 2px solid var(--color-action-accent);
+  outline-offset: 2px;
+}
+
+/* Under a transparent header (style B) the hero starts at the top of the page and keeps
+   clear of the header's height. */
+.sh-transparent.is-over-hero ~ main > .hero-full:first-child {
+  padding-top: var(--size-nav-clearance);
+}
+
+/* B · Resort: brand band, centred copy, inset media straddling into the page */
+.hero-resort {
+  background: linear-gradient(
+    180deg,
+    var(--color-surface-brand) 0,
+    var(--color-surface-brand) calc(100% - 240px),
+    var(--color-surface-canvas) calc(100% - 240px)
+  );
+}
+.hero-resort-band {
+  padding: var(--space-96) 0 var(--space-64);
+}
+.hero-resort-copy {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+}
+.hero-resort-copy .hero-headline {
+  max-width: 18ch;
+}
+.hero-resort-figure {
+  margin: 0 auto;
+  padding-bottom: var(--space-48);
+}
+.hero-resort-frame {
+  position: relative;
+  aspect-ratio: 21 / 9;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+}
+.hero-resort .hero-media-control {
+  right: var(--space-24);
+  bottom: var(--space-24);
+}
+.hero-caption {
+  margin-top: var(--space-16);
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 1023px) {
+  .hero-container {
+    padding: 0 var(--space-24);
+  }
+  .hero-full {
+    min-height: max(480px, 100svh - 64px);
+    padding: var(--space-80) 0 var(--space-40);
+  }
+  .hero-scrim {
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--brand-dark) 60%, transparent) 0%,
+      color-mix(in srgb, var(--brand-dark) 25%, transparent) 22%,
+      color-mix(in srgb, var(--brand-dark) 55%, transparent) 45%,
+      color-mix(in srgb, var(--brand-dark) 92%, transparent) 100%
+    );
+  }
+  .hero-resort-band {
+    padding: var(--space-48) 0 var(--space-40);
+  }
+  .hero-resort-frame {
+    aspect-ratio: 4 / 3;
+  }
+  .hero-media-control {
+    right: var(--space-24);
+    bottom: var(--space-24);
+  }
+  /* Mobile spec: full-width buttons, no pause control on C */
+  .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-12);
+  }
+  .hero-bookingLed .hero-media-control {
+    display: none;
+  }
+}

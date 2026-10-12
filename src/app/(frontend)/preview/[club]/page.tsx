@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation'
 
-import { loadClubBySlug } from '@/site/loadClub'
+import { heroIsFullBleed } from '@/site/blocks/Hero'
+import { RenderBlocks } from '@/site/blocks/RenderBlocks'
+import { loadClubBySlug, loadClubPage } from '@/site/loadClub'
 import { sitePreviewEnabled } from '@/site/preview'
 import { FONT_SETS } from '@/theme/fontSets'
 
@@ -37,12 +39,30 @@ const typeStyles: [string, string][] = [
   ['t-data-sans', 'Data'],
 ]
 
-/** The club's home on staging. Until blocks arrive: its colours and fonts on one page, so a
- * font set or palette can be judged on screen. */
+/** The club's home on staging: its "home" page, or until it has one, its colours and fonts
+ * on one page so a font set or palette can be judged on screen. */
 export default async function ClubPreview({ params }: { params: Promise<{ club: string }> }) {
   if (!sitePreviewEnabled()) notFound()
   const club = await loadClubBySlug((await params).club)
   if (!club) notFound()
+
+  const home = await loadClubPage(club.tenantID, 'home')
+  if (home) {
+    return (
+      <ClubShell
+        club={club}
+        currentPath={`/preview/${club.slug}`}
+        overHero={home.layout[0] ? heroIsFullBleed(home.layout[0]) : false}
+      >
+        <RenderBlocks
+          layout={home.layout}
+          ctx={home.ctx}
+          club={club}
+          base={`/preview/${club.slug}`}
+        />
+      </ClubShell>
+    )
+  }
 
   return (
     <ClubShell club={club} currentPath={`/preview/${club.slug}`}>

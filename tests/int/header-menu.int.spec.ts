@@ -70,6 +70,18 @@ describe('header and menu settings', () => {
     expect(JSON.stringify(error)).not.toContain('Club B')
   })
 
+  it("the club's own logo reaches the public site with a working address", async () => {
+    await w.payload.update({
+      collection: 'club-settings',
+      id: w.settingsA.id,
+      data: { branding: { logoOnLight: w.mediaA.id } } as never,
+      ...asEditorA(),
+    })
+    const club = await loadClubBySlug('test-club-a')
+    expect(club?.logoOnLight?.url).toBe(w.mediaA.url)
+    expect((await fetch(club!.logoOnLight!.url)).status).toBe(200)
+  })
+
   it("refuses club B's photo as a logo", async () => {
     const error = await w.payload
       .update({

@@ -46,6 +46,16 @@ export const Media: CollectionConfig = {
     // A file name only has to be unique inside its own random folder. A site-wide unique name
     // would rename club A's "hero.jpg" to "hero-1.jpg" if club B had one, hinting club B exists.
     filenameCompoundIndex: ['filename', 'prefix'],
+    // Smaller copies of every photo, so phones don't download the full-size file. WebP, never
+    // larger than the original. Videos are stored as uploaded.
+    imageSizes: [640, 1024, 1600, 2400].map((width) => ({
+      name: `w${width}`,
+      width,
+      withoutEnlargement: true,
+      formatOptions: { format: 'webp' as const, options: { quality: 80 } },
+    })),
+    adminThumbnail: 'w640',
+    focalPoint: true,
   },
   fields: [
     {

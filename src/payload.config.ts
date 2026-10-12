@@ -5,6 +5,7 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { s3Storage } from '@payloadcms/storage-s3'
 import path from 'path'
 import { buildConfig } from 'payload'
+import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
 import { isSuperAdmin } from './access/roles'
@@ -74,6 +75,8 @@ export default buildConfig({
     migrationDir: path.resolve(dirname, 'migrations'),
   }),
   telemetry: false,
+  // Makes the smaller photo copies (src/collections/Media.ts).
+  sharp,
   // Largest photo or video an editor can add (50 MB). Checked before the upload starts.
   upload: { limits: { fileSize: 50 * 1024 * 1024 } },
   plugins: [

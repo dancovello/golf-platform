@@ -6,9 +6,37 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 
 import { allowAccountCreation } from '@/access/accountCreation'
 
+import { photoFile } from '../shared/media'
 import { enrolTwoFactor, PASSWORD, seedWorld } from '../int/helpers/seed'
 
 const w = await seedWorld()
+
+// Club A's home page: a Heritage hero (tests/e2e/site-hero.spec.ts).
+const heroPhoto = await w.payload.create({
+  collection: 'media',
+  data: { alt: 'Heathland fairway at dawn', tenant: w.clubA.id },
+  file: await photoFile('fairway.jpg', 2400, 1200),
+})
+const homeA = await w.payload.create({
+  collection: 'pages',
+  data: {
+    title: 'Home',
+    slug: 'home',
+    tenant: w.clubA.id,
+    layout: [
+      {
+        blockType: 'hero',
+        style: 'heritage',
+        mediaType: 'image',
+        image: heroPhoto.id,
+        eyebrow: 'Founded 1926',
+        headline: 'A round worth travelling for',
+        primaryButton: { label: 'Visitors', type: 'page', page: w.pageA.id },
+        secondaryLink: { label: 'Membership', type: 'url', url: 'https://example.com/join' },
+      },
+    ],
+  } as never,
+})
 
 // Club A's header and menu, for the public site tests (tests/e2e/site-header.spec.ts).
 await w.payload.update({
@@ -84,6 +112,7 @@ writeFileSync(
     editorB: { id: w.editorB.id, email: w.editorB.email },
     pageA: { id: w.pageA.id, title: w.pageA.title },
     pageB: { id: w.pageB.id, title: w.pageB.title },
+    homeA: { id: homeA.id },
     settingsA: { id: w.settingsA.id },
     settingsB: { id: w.settingsB.id },
     mediaB: {
