@@ -8,8 +8,10 @@
  */
 import type { S3ClientConfig } from '@aws-sdk/client-s3'
 
+// Trimmed: values pasted into Vercel can carry invisible line breaks, and a key ID with a
+// trailing newline makes every upload link invalid (seen on staging, 2026-10-12).
 const required = (name: string): string => {
-  const value = process.env[name]
+  const value = process.env[name]?.trim()
   if (!value) throw new Error(`Missing required environment variable: ${name}`)
   return value
 }
