@@ -1,0 +1,226 @@
+/* CTA Card Grid. Figma page "CTA Card Grid"; docs/design/09 and 13. Roles only. */
+.cg-grid {
+  display: grid;
+  gap: var(--space-24);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.cg-grid.cols-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.cg-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+.cg-media {
+  position: relative;
+  overflow: hidden;
+}
+.cg-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 400ms ease-out;
+}
+.cg-title {
+  margin: 0;
+}
+.cg-description {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+.cg-all,
+.cg-viewall-mobile {
+  display: none;
+}
+
+/* A · Editorial: raised cards, 4:3 photo, link pinned to the bottom */
+.cg-editorial {
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.cg-editorial .cg-media {
+  aspect-ratio: 4 / 3;
+}
+.cg-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-12);
+  padding: var(--space-24) var(--space-24) var(--space-32);
+}
+.cg-body .cg-more {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  align-self: flex-start;
+  margin-top: auto;
+  padding: var(--space-8) 0;
+  border-bottom: 1px solid currentColor;
+}
+.cg-editorial:hover .cg-img {
+  transform: scale(1.04);
+}
+.cg-editorial:hover .cg-title {
+  text-decoration: underline;
+  text-underline-offset: 6px;
+  text-decoration-thickness: 1px;
+}
+
+/* B · Immersive: 4:5 photo fills the card, scrim, copy bottom-left, glass arrow */
+.cg-immersive {
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-on-inverse);
+}
+.cg-immersive .cg-media {
+  position: absolute;
+  inset: 0;
+}
+.cg-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 35%,
+    color-mix(in srgb, var(--brand-dark) 78%, transparent) 100%
+  );
+}
+.cg-copy {
+  position: relative;
+  margin-top: auto;
+  padding: var(--space-24) var(--space-80) var(--space-24) var(--space-24);
+}
+.cg-immersive .cg-eyebrow {
+  color: var(--color-text-accent);
+  margin-bottom: var(--space-8);
+}
+.cg-glass {
+  position: absolute;
+  right: var(--space-24);
+  bottom: var(--space-24);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--color-border-on-inverse);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-glass);
+  backdrop-filter: blur(16px);
+  transition: background-color 200ms ease-out;
+}
+.cg-immersive:hover .cg-img {
+  transform: scale(1.05);
+}
+.cg-immersive:hover .cg-glass {
+  background: color-mix(in srgb, var(--brand-light) 20%, transparent);
+}
+
+/* C · Index: square photo (4:3 at 3-up), numbered title on a hairline rule */
+.cg-index .cg-media {
+  aspect-ratio: 4 / 3;
+  margin-bottom: var(--space-16);
+}
+.cols-4 .cg-index .cg-media {
+  aspect-ratio: 1 / 1;
+}
+.cg-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-12);
+  padding-top: var(--space-12);
+  border-top: 1px solid var(--color-border-strong);
+  transition: border-color 200ms ease-out;
+}
+.cg-number {
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.cg-arrow {
+  margin-left: auto;
+  align-self: center;
+  transition: transform 200ms ease-out;
+}
+.cg-index .cg-description {
+  margin-top: var(--space-8);
+}
+.cg-index:hover .cg-row {
+  border-top-color: var(--color-action-accent);
+}
+.cg-index:hover .cg-arrow {
+  transform: translateX(4px);
+}
+
+@media (max-width: 1023px) {
+  .cg-grid,
+  .cg-grid.cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 767px) {
+  .cg-grid,
+  .cg-grid.cols-4 {
+    grid-template-columns: 1fr;
+  }
+  .cg-viewall-desktop {
+    display: none;
+  }
+  .cg-viewall-mobile {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-8);
+    margin-top: var(--space-16);
+    padding: var(--space-8) 0;
+    border-bottom: 1px solid currentColor;
+    color: inherit;
+    text-decoration: none;
+  }
+  .cg-all {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--space-16);
+    padding: var(--space-32);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-sm);
+  }
+  /* B: image strips */
+  .cg-immersive {
+    aspect-ratio: 5 / 2;
+  }
+  .cg-immersive .cg-copy {
+    padding: var(--space-16) var(--space-64) var(--space-16) var(--space-16);
+  }
+  .cg-glass {
+    right: var(--space-16);
+    bottom: var(--space-16);
+  }
+  /* C: numbered list */
+  .cg-index .cg-media,
+  .cols-4 .cg-index .cg-media {
+    aspect-ratio: 16 / 9;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cg-img,
+  .cg-row,
+  .cg-arrow,
+  .cg-glass {
+    transition: none;
+  }
+}
+/* Cards in a row are equal height, so each "Explore" line sits at the same level. */
+.cg-grid > [role='listitem'] {
+  display: flex;
+}
+.cg-grid > [role='listitem'] > .cg-card {
+  flex: 1;
+}

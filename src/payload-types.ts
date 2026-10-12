@@ -179,7 +179,7 @@ export interface Page {
    * The page address, e.g. "membership" for /membership. Use "home" for the home page.
    */
   slug: string;
-  layout?: HeroBlock[] | null;
+  layout?: (HeroBlock | CtaCardGridBlock)[] | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -287,6 +287,48 @@ export interface Media {
       filename?: string | null;
     };
   };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CtaCardGridBlock".
+ */
+export interface CtaCardGridBlock {
+  style: 'editorial' | 'immersive' | 'index';
+  eyebrow?: string | null;
+  heading: string;
+  intro?: string | null;
+  viewAll?: {
+    label?: string | null;
+    type?: ('page' | 'url') | null;
+    page?: (string | null) | Page;
+    /**
+     * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+     */
+    url?: string | null;
+  };
+  /**
+   * 3 to 6 cards. Titles of 2–4 words read best.
+   */
+  cards?:
+    | {
+        title: string;
+        description?: string | null;
+        eyebrow?: string | null;
+        image: string | Media;
+        link?: {
+          type?: ('page' | 'url') | null;
+          page?: (string | null) | Page;
+          /**
+           * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+           */
+          url?: string | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'ctaCardGrid';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -596,6 +638,7 @@ export interface PagesSelect<T extends boolean = true> {
     | T
     | {
         hero?: T | HeroBlockSelect<T>;
+        ctaCardGrid?: T | CtaCardGridBlockSelect<T>;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -627,6 +670,42 @@ export interface HeroBlockSelect<T extends boolean = true> {
         type?: T;
         page?: T;
         url?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CtaCardGridBlock_select".
+ */
+export interface CtaCardGridBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  intro?: T;
+  viewAll?:
+    | T
+    | {
+        label?: T;
+        type?: T;
+        page?: T;
+        url?: T;
+      };
+  cards?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        eyebrow?: T;
+        image?: T;
+        link?:
+          | T
+          | {
+              type?: T;
+              page?: T;
+              url?: T;
+            };
+        id?: T;
       };
   id?: T;
   blockName?: T;
