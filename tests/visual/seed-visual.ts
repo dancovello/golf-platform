@@ -8,6 +8,7 @@ import { getPayload } from 'payload'
 import config from '@/payload.config'
 
 import { photoFile } from '../shared/media'
+import { rt } from '../shared/richText'
 
 const payload = await getPayload({ config: await config })
 
@@ -261,6 +262,57 @@ for (const [slug, p] of Object.entries(palettes)) {
         { label: 'Length', value: '7,174 yds' },
       ],
       link: link('Explore the course'),
+    },
+  ])
+
+  const history = (withMoreHeadings: boolean) =>
+    rt.doc(
+      rt.h2('A short history of the club'),
+      rt.p(
+        'The club was founded in 1926 by a group of members from the London Stock Exchange who wanted heathland golf within an hour of the City. They hired Harry Colt, fresh from his work at Sunningdale, and gave him one instruction: keep the heather.',
+      ),
+      rt.h3('The early years'),
+      rt.p(
+        'Colt routed the Championship course along the natural ridges, which is why the 2nd and 13th still play into the prevailing wind. You can see the ',
+        rt.pageLink('original routing plan', about.id),
+        ' in the clubhouse library.',
+      ),
+      rt.ul(
+        '1926 — Club founded; Championship course opens',
+        '1931 — Heathland course added for members’ families',
+        '1953 — First county championship hosted',
+        '2019 — Bunker restoration to Colt’s original plans',
+      ),
+      ...(withMoreHeadings ? [rt.h2('Championship golf')] : []),
+      rt.image(
+        cards[3].id,
+        'The Swilcan-style bridge on the 18th, rebuilt in 1987 to the original drawings.',
+      ),
+      ...(withMoreHeadings ? [rt.h2('The club today')] : []),
+      rt.p(
+        'Today the club has 900 members and welcomes around 12,000 visitor rounds a year — but the heather, and Colt’s instruction, remain.',
+      ),
+    )
+  await page('rich-text', 'Text', [
+    { blockType: 'richText', style: 'article', content: history(false) },
+    { blockType: 'richText', style: 'contents', content: history(true) },
+    {
+      blockType: 'richText',
+      style: 'editorial',
+      eyebrow: 'Our story',
+      noteTitle: 'Did you know?',
+      noteText: 'Colt charged the club £150 for both courses — about £9,000 today.',
+      content: rt.doc(
+        rt.p(
+          'Ninety-nine years ago, a group of stockbrokers asked a young architect for heathland golf within an hour of the City. He gave them two courses and one rule: keep the heather.',
+        ),
+        rt.p(
+          'The club was founded in 1926 by members of the London Stock Exchange. They hired Harry Colt, fresh from Sunningdale, who routed the Championship course along the natural ridges — which is why the 2nd and 13th still play into the prevailing wind.',
+        ),
+        rt.p(
+          'The Heathland course followed in 1931 for members’ families, and in 1953 the club hosted its first county championship. In 2019 the bunkers were restored to Colt’s original drawings, found in the clubhouse library during a refurbishment.',
+        ),
+      ),
     },
   ])
 }
