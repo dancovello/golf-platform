@@ -52,7 +52,7 @@
   color: var(--color-text-on-inverse);
 }
 @media (max-width: 767px) {
-  .btn {
+  .btn:not(.btn-link) {
     min-height: 48px;
     padding: var(--space-12) var(--space-24);
   }

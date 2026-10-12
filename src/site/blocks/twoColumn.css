@@ -1,0 +1,200 @@
+/* Two-Column Image + Text. Figma page "Two-Column Image + Text"; docs/design/10 and 13. */
+.tc {
+  font-family: var(--font-body);
+}
+.tc *,
+.tc *::before,
+.tc *::after {
+  box-sizing: border-box;
+}
+.tc-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.tc-copy .tc-heading {
+  margin-bottom: var(--space-24);
+}
+.tc-body {
+  display: grid;
+  gap: var(--space-16);
+  color: var(--color-text-secondary);
+}
+.tc-body p {
+  margin: 0;
+}
+.tc-copy .tc-link {
+  margin-top: var(--space-32);
+}
+
+/* A · Split: edge-to-edge 50/50, min-height 640, panel padding 96, copy max 480 */
+.tc-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 640px;
+  background: var(--color-surface-canvas);
+  color: var(--color-text-primary);
+}
+.tc-split.on-brand {
+  background: var(--color-surface-brand);
+  color: var(--color-text-on-inverse);
+}
+.tc-split.on-brand .tc-body {
+  color: var(--color-text-on-inverse-muted);
+}
+.tc-split.on-brand .blk-eyebrow {
+  color: var(--color-text-accent);
+}
+.tc-split.is-right .tc-split-media {
+  order: 2;
+}
+.tc-split-media {
+  position: relative;
+  min-height: 100%;
+}
+.tc-split-media .tc-img {
+  position: absolute;
+  inset: 0;
+}
+.tc-split-panel {
+  display: flex;
+  align-items: center;
+  padding: var(--space-96);
+}
+.tc-split-panel .tc-copy {
+  max-width: 480px;
+}
+
+/* B · Collage: 7/5 grid, gap 96; 4:5 primary with a 4:3 inset over its lower corner */
+.tc-collage {
+  padding-top: var(--space-128);
+  padding-bottom: var(--space-128);
+}
+.tc-grid {
+  display: grid;
+  grid-template-columns: 7fr 5fr;
+  gap: var(--space-96);
+  align-items: center;
+}
+.tc-collage.is-right .tc-media,
+.tc-keyFacts.is-right .tc-media {
+  order: 2;
+}
+.tc-collage .tc-grid {
+  grid-template-columns: 7fr 5fr;
+}
+.tc-collage.is-right .tc-grid {
+  grid-template-columns: 5fr 7fr;
+}
+.tc-collage .tc-media {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-template-rows: repeat(5, auto);
+}
+.tc-collage .tc-primary {
+  grid-column: 1 / 6;
+  grid-row: 1 / 5;
+  aspect-ratio: 4 / 5;
+}
+.tc-collage .tc-inset {
+  grid-column: 4 / 8;
+  grid-row: 3 / 6;
+  align-self: end;
+  aspect-ratio: 4 / 3;
+  outline: 10px solid var(--color-surface-canvas);
+}
+.tc-collage.is-right .tc-primary {
+  grid-column: 3 / 8;
+}
+.tc-collage.is-right .tc-inset {
+  grid-column: 1 / 5;
+}
+
+/* C · Key facts: 4:3 image (7 cols) beside copy, gap 80; facts 3-up on a hairline rule */
+.tc-keyFacts .tc-grid {
+  gap: var(--space-80);
+}
+.tc-keyFacts.is-right .tc-grid {
+  grid-template-columns: 5fr 7fr;
+}
+.tc-keyFacts .tc-primary {
+  aspect-ratio: 4 / 3;
+}
+.tc-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-24);
+  margin: var(--space-32) 0 0;
+  padding-top: var(--space-24);
+  border-top: 1px solid var(--color-border-subtle);
+}
+.tc-fact dt {
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-8);
+}
+.tc-fact dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 1023px) {
+  .tc-split-panel {
+    padding: 56px;
+  }
+  .tc-grid {
+    gap: var(--space-48);
+  }
+  .tc-keyFacts .tc-grid,
+  .tc-keyFacts.is-right .tc-grid {
+    grid-template-columns: 6fr 6fr;
+  }
+}
+@media (max-width: 767px) {
+  .tc-split {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+  .tc-split.is-right .tc-split-media {
+    order: 0;
+  }
+  .tc-split-media {
+    aspect-ratio: 4 / 3;
+  }
+  .tc-split-panel {
+    padding: var(--space-32) 20px;
+  }
+  .tc-grid,
+  .tc-collage .tc-grid,
+  .tc-collage.is-right .tc-grid,
+  .tc-keyFacts .tc-grid,
+  .tc-keyFacts.is-right .tc-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-32);
+  }
+  .tc-collage.is-right .tc-media,
+  .tc-keyFacts.is-right .tc-media {
+    order: 0;
+  }
+  .tc-collage {
+    padding-top: 56px;
+    padding-bottom: 56px;
+  }
+  /* Mobile C: facts as a list, label left and value right */
+  .tc-facts {
+    grid-template-columns: 1fr;
+    gap: 0;
+    padding-top: 0;
+  }
+  .tc-fact {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-16);
+    padding: var(--space-12) 0;
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+  .tc-fact dt {
+    margin: 0;
+  }
+}

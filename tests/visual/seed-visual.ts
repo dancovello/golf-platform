@@ -210,6 +210,59 @@ for (const [slug, p] of Object.entries(palettes)) {
       ],
     },
   ])
+
+  const body =
+    'Our PGA professionals shape every programme around your swing, not a template. TrackMan bays, a dedicated short-game area and on-course lessons mean what you practise on Tuesday shows up on Saturday.\n\nBeginners, juniors and low handicappers all start the same way: with a free assessment.'
+  await page('two-column', 'Image and text', [
+    {
+      blockType: 'twoColumn',
+      style: 'split',
+      imageSide: 'left',
+      tone: 'canvas',
+      image: cards[1].id,
+      eyebrow: 'The academy',
+      heading: 'Coaching built around how you play',
+      body,
+      link: link('Meet the coaches'),
+    },
+    {
+      blockType: 'twoColumn',
+      style: 'split',
+      imageSide: 'right',
+      tone: 'brand',
+      image: cards[2].id,
+      eyebrow: 'The academy',
+      heading: 'Coaching built around how you play',
+      body,
+      link: link('Meet the coaches'),
+    },
+    {
+      blockType: 'twoColumn',
+      style: 'collage',
+      imageSide: 'left',
+      image: cards[0].id,
+      insetImage: cards[3].id,
+      eyebrow: 'Stay & play',
+      heading: 'Ten rooms above the eighteenth green',
+      body: 'Wake to the groundstaff cutting the first fairway, breakfast on the terrace, and a tee time held for you at eight. Our lodge rooms sit a short walk from the first tee, with drying rooms, club storage and a late-night bar that knows its whisky.',
+      link: link('Explore stay & play'),
+    },
+    {
+      blockType: 'twoColumn',
+      style: 'keyFacts',
+      imageSide: 'right',
+      image: cards[0].id,
+      eyebrow: 'The Championship course',
+      heading: "Colt's heathland, still unforgiving",
+      body: 'Laid out in 1926 and barely touched since, the Championship plays across open heather and through Scots pine, with greens that reward an approach from the right side of the fairway.',
+      facts: [
+        { label: 'Opened', value: '1926' },
+        { label: 'Architect', value: 'H.S. Colt' },
+        { label: 'Length', value: '7,174 yds' },
+      ],
+      link: link('Explore the course'),
+    },
+  ])
 }
 
 process.exit(0)
