@@ -48,3 +48,15 @@ export const Phone = ({ size = 16 }: IconProps) => (
     <path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a1 1 0 01-1 1A16 16 0 014 5a1 1 0 011-1z" />
   </svg>
 )
+export const Mail = ({ size = 16 }: IconProps) => (
+  <svg {...base(size)}>
+    <rect x="3" y="5" width="18" height="14" rx="1" />
+    <path d="M3 7l9 6 9-6" />
+  </svg>
+)
+export const Pin = ({ size = 16 }: IconProps) => (
+  <svg {...base(size)}>
+    <path d="M12 21s-7-6.2-7-11a7 7 0 0114 0c0 4.8-7 11-7 11z" />
+    <circle cx="12" cy="10" r="2.5" />
+  </svg>
+)

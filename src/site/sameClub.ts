@@ -35,6 +35,20 @@ const collectRefs = (data: Record<string, unknown>): Ref[] => {
       ),
     )
   })
+  const footer = (data.footer ?? {}) as {
+    linkColumns?: { links?: { link?: { page?: unknown } }[] }[]
+    hoursLink?: { page?: unknown }
+    secondaryButton?: { page?: unknown }
+    legalLinks?: { link?: { page?: unknown } }[]
+  }
+  footer.linkColumns?.forEach((col, c) =>
+    col.links?.forEach((l, k) =>
+      page(l.link?.page, `footer.linkColumns.${c}.links.${k}.link.page`),
+    ),
+  )
+  page(footer.hoursLink?.page, 'footer.hoursLink.page')
+  page(footer.secondaryButton?.page, 'footer.secondaryButton.page')
+  footer.legalLinks?.forEach((l, k) => page(l.link?.page, `footer.legalLinks.${k}.link.page`))
   return refs
 }
 

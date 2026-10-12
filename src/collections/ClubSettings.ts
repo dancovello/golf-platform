@@ -2,7 +2,7 @@ import type { CollectionBeforeValidateHook, CollectionConfig, Field } from 'payl
 import { ValidationError } from 'payload'
 
 import { loggedIn, superAdminOnly } from '../access/roles'
-import { linkField } from '../fields/link'
+import { isSafeURL, linkField } from '../fields/link'
 import { checkSameClub } from '../site/sameClub'
 import { BRAND_INPUTS, type Brand, contrastProblems, DEFAULT_BRAND, isHex } from '../theme/colour'
 import { DEFAULT_FONT_SET, FONT_SETS } from '../theme/fontSets'
@@ -166,7 +166,9 @@ export const ClubSettings: CollectionConfig = {
                   label: 'Phone number',
                   type: 'text',
                   maxLength: 30,
-                  admin: { description: 'Shown in header style A and in the mobile menu.' },
+                  admin: {
+                    description: 'Shown in the header (style A), the mobile menu and the footer.',
+                  },
                   validate: (value: unknown) =>
                     !value || (typeof value === 'string' && /^\+?[0-9 ()-]{6,30}$/.test(value))
                       ? true
@@ -216,6 +218,187 @@ export const ClubSettings: CollectionConfig = {
                       ],
                     },
                   ],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'Footer',
+          fields: [
+            {
+              name: 'footer',
+              type: 'group',
+              label: false,
+              fields: [
+                {
+                  name: 'style',
+                  label: 'Footer style',
+                  type: 'select',
+                  required: true,
+                  defaultValue: 'brandColumns',
+                  options: [
+                    {
+                      label:
+                        'A · Brand columns: on the brand colour, logo, links, hours and contact',
+                      value: 'brandColumns',
+                    },
+                    {
+                      label: 'B · Light columns: on the page background, up to two link columns',
+                      value: 'lightColumns',
+                    },
+                    {
+                      label:
+                        'C · Editorial: large club name, hours, contact, social and two buttons',
+                      value: 'editorial',
+                    },
+                  ],
+                },
+                {
+                  name: 'about',
+                  label: 'Short description',
+                  type: 'textarea',
+                  maxLength: 160,
+                  admin: {
+                    description:
+                      'One or two lines under the logo (styles A and B), e.g. "Heathland golf since 1926, twenty minutes from Heathrow."',
+                  },
+                },
+                {
+                  name: 'linkColumns',
+                  label: 'Link columns',
+                  type: 'array',
+                  maxRows: 2,
+                  labels: { singular: 'Column', plural: 'Columns' },
+                  admin: {
+                    description:
+                      'Style A shows the first column; style B shows both. Style C has none.',
+                    initCollapsed: true,
+                  },
+                  fields: [
+                    {
+                      name: 'heading',
+                      label: 'Heading',
+                      type: 'text',
+                      required: true,
+                      maxLength: 30,
+                    },
+                    {
+                      name: 'links',
+                      label: 'Links',
+                      type: 'array',
+                      minRows: 1,
+                      maxRows: 8,
+                      fields: [linkField({ name: 'link', label: 'Link' })],
+                    },
+                  ],
+                },
+                {
+                  name: 'hours',
+                  label: 'Opening hours',
+                  type: 'array',
+                  maxRows: 6,
+                  labels: { singular: 'Row', plural: 'Rows' },
+                  admin: { initCollapsed: true },
+                  fields: [
+                    {
+                      type: 'row',
+                      fields: [
+                        {
+                          name: 'place',
+                          label: 'What',
+                          type: 'text',
+                          required: true,
+                          maxLength: 30,
+                          admin: { description: 'e.g. Clubhouse' },
+                        },
+                        {
+                          name: 'times',
+                          label: 'Hours',
+                          type: 'text',
+                          required: true,
+                          maxLength: 30,
+                          admin: { description: 'e.g. 7am – 9pm' },
+                        },
+                      ],
+                    },
+                  ],
+                },
+                linkField({
+                  name: 'hoursLink',
+                  label: 'Link under the hours (optional)',
+                  required: false,
+                }),
+                {
+                  type: 'row',
+                  fields: [
+                    { name: 'email', label: 'Email address', type: 'email' },
+                    {
+                      name: 'directions',
+                      label: 'Directions link',
+                      type: 'text',
+                      admin: { description: 'e.g. a Google Maps link. Optional.' },
+                      validate: (value: unknown) =>
+                        !value || isSafeURL(value)
+                          ? true
+                          : 'Use a full web address starting with https://.',
+                    },
+                  ],
+                },
+                { name: 'address', label: 'Address', type: 'textarea', maxLength: 200 },
+                {
+                  name: 'social',
+                  label: 'Social media',
+                  type: 'array',
+                  maxRows: 6,
+                  admin: { description: 'Shown in style C.', initCollapsed: true },
+                  fields: [
+                    {
+                      type: 'row',
+                      fields: [
+                        {
+                          name: 'network',
+                          label: 'Network',
+                          type: 'select',
+                          required: true,
+                          options: [
+                            'Instagram',
+                            'Facebook',
+                            'X',
+                            'YouTube',
+                            'LinkedIn',
+                            'TikTok',
+                          ].map((n) => ({ label: n, value: n.toLowerCase() })),
+                        },
+                        {
+                          name: 'url',
+                          label: 'Web address',
+                          type: 'text',
+                          required: true,
+                          validate: (value: unknown) =>
+                            typeof value === 'string' && /^https:\/\/\S+$/.test(value.trim())
+                              ? true
+                              : 'Use a full web address starting with https://.',
+                        },
+                      ],
+                    },
+                  ],
+                },
+                linkField({
+                  name: 'secondaryButton',
+                  label: 'Second button (style C, optional)',
+                  required: false,
+                }),
+                {
+                  name: 'legalLinks',
+                  label: 'Bottom row links',
+                  type: 'array',
+                  maxRows: 6,
+                  admin: {
+                    description: 'e.g. Privacy, Terms, Accessibility.',
+                    initCollapsed: true,
+                  },
+                  fields: [linkField({ name: 'link', label: 'Link' })],
                 },
               ],
             },

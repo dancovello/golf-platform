@@ -243,7 +243,7 @@ export interface ClubSetting {
       url?: string | null;
     };
     /**
-     * Shown in header style A and in the mobile menu.
+     * Shown in the header (style A), the mobile menu and the footer.
      */
     phone?: string | null;
     /**
@@ -280,6 +280,100 @@ export interface ClubSetting {
                 id?: string | null;
               }[]
             | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  footer: {
+    style: 'brandColumns' | 'lightColumns' | 'editorial';
+    /**
+     * One or two lines under the logo (styles A and B), e.g. "Heathland golf since 1926, twenty minutes from Heathrow."
+     */
+    about?: string | null;
+    /**
+     * Style A shows the first column; style B shows both. Style C has none.
+     */
+    linkColumns?:
+      | {
+          heading: string;
+          links?:
+            | {
+                link: {
+                  label: string;
+                  type?: ('page' | 'url') | null;
+                  page?: (string | null) | Page;
+                  /**
+                   * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+                   */
+                  url?: string | null;
+                };
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+    hours?:
+      | {
+          /**
+           * e.g. Clubhouse
+           */
+          place: string;
+          /**
+           * e.g. 7am – 9pm
+           */
+          times: string;
+          id?: string | null;
+        }[]
+      | null;
+    hoursLink?: {
+      label?: string | null;
+      type?: ('page' | 'url') | null;
+      page?: (string | null) | Page;
+      /**
+       * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+       */
+      url?: string | null;
+    };
+    email?: string | null;
+    /**
+     * e.g. a Google Maps link. Optional.
+     */
+    directions?: string | null;
+    address?: string | null;
+    /**
+     * Shown in style C.
+     */
+    social?:
+      | {
+          network: 'instagram' | 'facebook' | 'x' | 'youtube' | 'linkedin' | 'tiktok';
+          url: string;
+          id?: string | null;
+        }[]
+      | null;
+    secondaryButton?: {
+      label?: string | null;
+      type?: ('page' | 'url') | null;
+      page?: (string | null) | Page;
+      /**
+       * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+       */
+      url?: string | null;
+    };
+    /**
+     * e.g. Privacy, Terms, Accessibility.
+     */
+    legalLinks?:
+      | {
+          link: {
+            label: string;
+            type?: ('page' | 'url') | null;
+            page?: (string | null) | Page;
+            /**
+             * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+             */
+            url?: string | null;
+          };
           id?: string | null;
         }[]
       | null;
@@ -482,6 +576,77 @@ export interface ClubSettingsSelect<T extends boolean = true> {
                           id?: T;
                         };
                     id?: T;
+                  };
+              id?: T;
+            };
+      };
+  footer?:
+    | T
+    | {
+        style?: T;
+        about?: T;
+        linkColumns?:
+          | T
+          | {
+              heading?: T;
+              links?:
+                | T
+                | {
+                    link?:
+                      | T
+                      | {
+                          label?: T;
+                          type?: T;
+                          page?: T;
+                          url?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+            };
+        hours?:
+          | T
+          | {
+              place?: T;
+              times?: T;
+              id?: T;
+            };
+        hoursLink?:
+          | T
+          | {
+              label?: T;
+              type?: T;
+              page?: T;
+              url?: T;
+            };
+        email?: T;
+        directions?: T;
+        address?: T;
+        social?:
+          | T
+          | {
+              network?: T;
+              url?: T;
+              id?: T;
+            };
+        secondaryButton?:
+          | T
+          | {
+              label?: T;
+              type?: T;
+              page?: T;
+              url?: T;
+            };
+        legalLinks?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    label?: T;
+                    type?: T;
+                    page?: T;
+                    url?: T;
                   };
               id?: T;
             };

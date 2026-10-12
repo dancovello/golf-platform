@@ -14,6 +14,8 @@ export type MenuItem = {
 }
 export type SiteImage = { url: string; alt: string; width: number | null; height: number | null }
 export type HeaderStyle = 'classic' | 'transparent' | 'appBar'
+export type FooterStyle = 'brandColumns' | 'lightColumns' | 'editorial'
+export type LabelledLink = { label: string; link: SiteLink }
 
 export type ClubSite = {
   tenantID: string
@@ -29,6 +31,19 @@ export type ClubSite = {
     booking: { label: string; link: SiteLink } | null
     phone: string | null
     menu: MenuItem[]
+  }
+  footer: {
+    style: FooterStyle
+    about: string | null
+    linkColumns: { heading: string; links: LabelledLink[] }[]
+    hours: { place: string; times: string }[]
+    hoursLink: LabelledLink | null
+    email: string | null
+    address: string | null
+    directions: string | null
+    social: { network: string; url: string }[]
+    secondaryButton: LabelledLink | null
+    legalLinks: LabelledLink[]
   }
 }
 
@@ -53,12 +68,27 @@ type RawSettings = {
         }[]
       | null
   }
+  footer?: {
+    style?: string | null
+    about?: string | null
+    linkColumns?: { heading?: string | null; links?: { link?: RawLink | null }[] | null }[] | null
+    hours?: { place?: string | null; times?: string | null }[] | null
+    hoursLink?: RawLink | null
+    email?: string | null
+    address?: string | null
+    directions?: string | null
+    social?: { network?: string | null; url?: string | null }[] | null
+    secondaryButton?: RawLink | null
+    legalLinks?: { link?: RawLink | null }[] | null
+  }
 }
 
 const idOf = (v: unknown) =>
   typeof v === 'string' ? v : v && typeof v === 'object' && 'id' in v ? String(v.id) : null
 
 const HEADER_STYLES: HeaderStyle[] = ['classic', 'transparent', 'appBar']
+const FOOTER_STYLES: FooterStyle[] = ['brandColumns', 'lightColumns', 'editorial']
+const SOCIAL = ['instagram', 'facebook', 'x', 'youtube', 'linkedin', 'tiktok']
 
 /**
  * Reads what the public site needs for one club. Visitors aren't logged in, so access rules
@@ -83,7 +113,7 @@ export const loadClubBySlug = async (slug: string): Promise<ClubSite | null> => 
   const { docs } = await payload.find({
     collection: 'club-settings',
     where: { tenant: { equals: tenantID } },
-    select: { clubName: true, branding: true, header: true },
+    select: { clubName: true, branding: true, header: true, footer: true },
     limit: 1,
     depth: 0,
     overrideAccess: true,
@@ -91,6 +121,7 @@ export const loadClubBySlug = async (slug: string): Promise<ClubSite | null> => 
   const s = (docs[0] ?? {}) as RawSettings
   const b = s.branding ?? {}
   const h = s.header ?? {}
+  const f = s.footer ?? {}
 
   const rawLinks: RawLink[] = [
     ...(h.booking ? [h.booking] : []),
@@ -98,6 +129,10 @@ export const loadClubBySlug = async (slug: string): Promise<ClubSite | null> => 
       ...(m.link ? [m.link] : []),
       ...(m.groups ?? []).flatMap((g) => (g.links ?? []).map((l) => l.link ?? {})),
     ]),
+    ...(f.linkColumns ?? []).flatMap((c) => (c.links ?? []).map((l) => l.link ?? {})),
+    ...(f.hoursLink ? [f.hoursLink] : []),
+    ...(f.secondaryButton ? [f.secondaryButton] : []),
+    ...(f.legalLinks ?? []).map((l) => l.link ?? {}),
   ]
   const pageSlugs = await clubPageSlugs(
     payload,
@@ -112,6 +147,13 @@ export const loadClubBySlug = async (slug: string): Promise<ClubSite | null> => 
     const pageSlug = pageSlugs.get(idOf(raw.page) ?? '')
     return pageSlug ? { kind: 'page', slug: pageSlug } : null
   }
+
+  const labelled = (raw: RawLink | null | undefined): LabelledLink | null => {
+    const link = toLink(raw)
+    const label = raw?.label?.trim()
+    return link && label ? { label, link } : null
+  }
+  const text = (v: string | null | undefined) => v?.trim() || null
 
   const bookingLink = toLink(h.booking)
   const bookingLabel = h.booking?.label?.trim()
@@ -147,6 +189,34 @@ export const loadClubBySlug = async (slug: string): Promise<ClubSite | null> => 
             .filter((g) => g.heading && g.links.length > 0),
         }))
         .filter((m) => m.label && (m.link || m.groups.length > 0)),
+    },
+    footer: {
+      style: FOOTER_STYLES.includes(f.style as FooterStyle)
+        ? (f.style as FooterStyle)
+        : 'brandColumns',
+      about: text(f.about),
+      linkColumns: (f.linkColumns ?? [])
+        .map((c) => ({
+          heading: c.heading?.trim() ?? '',
+          links: (c.links ?? []).flatMap((l) => labelled(l.link) ?? []),
+        }))
+        .filter((c) => c.heading && c.links.length > 0),
+      hours: (f.hours ?? []).flatMap((r) =>
+        r.place?.trim() && r.times?.trim()
+          ? [{ place: r.place.trim(), times: r.times.trim() }]
+          : [],
+      ),
+      hoursLink: labelled(f.hoursLink),
+      email: text(f.email),
+      address: text(f.address),
+      directions: isSafeURL(f.directions) ? f.directions.trim() : null,
+      social: (f.social ?? []).flatMap((x) =>
+        x.network && SOCIAL.includes(x.network) && x.url && /^https:\/\/\S+$/.test(x.url.trim())
+          ? [{ network: x.network, url: x.url.trim() }]
+          : [],
+      ),
+      secondaryButton: labelled(f.secondaryButton),
+      legalLinks: (f.legalLinks ?? []).flatMap((l) => labelled(l.link) ?? []),
     },
   }
 }
