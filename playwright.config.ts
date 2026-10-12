@@ -23,10 +23,30 @@ export default defineConfig({
     { name: 'setup', testMatch: /setup\.ts$/ },
     {
       name: 'chromium',
+      testIgnore: /tests\/visual\//,
       use: { ...devices['Desktop Chrome'] },
       dependencies: ['setup'],
     },
+    // The picture check (CI job "block-regression"): pnpm exec playwright test --project=visual
+    {
+      name: 'visual-setup',
+      testDir: './tests/visual',
+      testMatch: /setup-visual\.ts$/,
+      dependencies: ['setup'],
+    },
+    {
+      name: 'visual',
+      testDir: './tests/visual',
+      testMatch: /\.spec\.ts$/,
+      use: { ...devices['Desktop Chrome'], deviceScaleFactor: 1 },
+      dependencies: ['visual-setup'],
+    },
   ],
+  // Approved pictures, one set, made on Linux (see tests/visual/blocks.spec.ts).
+  snapshotPathTemplate: 'tests/visual/__screenshots__/{arg}{ext}',
+  expect: {
+    toHaveScreenshot: { maxDiffPixelRatio: 0.002 },
+  },
   webServer: {
     command: `node_modules/.bin/next start -p ${port}`,
     url: `${baseURL}/health`,
