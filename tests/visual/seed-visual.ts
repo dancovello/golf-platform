@@ -315,6 +315,153 @@ for (const [slug, p] of Object.entries(palettes)) {
       ),
     },
   ])
+
+  const rate = (label: string, subLabel: string | null, ...p: string[]) => ({
+    label,
+    subLabel,
+    price1: p[0],
+    price2: p[1],
+    price3: p[2],
+    price4: p[3],
+  })
+  const seasonsTab = (label: string, bump: number) => ({
+    label,
+    sections: [
+      {
+        name: 'Winter',
+        period: 'November – March',
+        startMonth: '11',
+        endMonth: '3',
+        note: 'Winter greens possible after frost',
+        rows: [
+          rate('Championship', null, `£${110 + bump}`),
+          rate('Twilight', null, `£${75 + bump}`),
+          rate('Heathland', null, `£${60 + bump}`),
+        ],
+      },
+      {
+        name: 'Spring & autumn',
+        period: 'April, May & October',
+        startMonth: '4',
+        endMonth: '5',
+        note: 'Fri–Sun & bank holidays +£30 per player',
+        rows: [
+          rate('Championship', null, `£${150 + bump}`),
+          rate('Twilight', null, `£${95 + bump}`),
+          rate('Heathland', null, `£${80 + bump}`),
+        ],
+      },
+      {
+        name: 'Summer',
+        period: '1 June – 30 September',
+        startMonth: '6',
+        endMonth: '9',
+        note: 'Fri–Sun & bank holidays +£40 per player',
+        rows: [
+          rate('Championship', null, `£${185 + bump}`),
+          rate('Twilight', null, `£${120 + bump}`),
+          rate('Heathland', null, `£${95 + bump}`),
+        ],
+      },
+    ],
+  })
+  await page('rate-table', 'Green fees', [
+    {
+      blockType: 'rateTable',
+      style: 'classic',
+      eyebrow: 'Visitors',
+      heading: 'Green fees',
+      intro:
+        'Per player, per round. Book online up to 60 days ahead; groups of 12 or more see society rates.',
+      columns: [{ label: 'Mon–Thu' }, { label: 'Fri–Sun & BH' }],
+      tabs: [
+        {
+          label: '2026 season',
+          sections: [
+            {
+              rows: [
+                rate('Championship — 18 holes', 'Tee times from 7.30am', '£185', '£225'),
+                rate(
+                  'Championship — Twilight',
+                  'From 3pm (Apr–Sep), 12pm (Oct–Mar)',
+                  '£120',
+                  '£145',
+                ),
+                rate('Heathland — 18 holes', null, '£95', '£115'),
+                rate('Heathland — Twilight', 'From 2pm', '£65', '£75'),
+                rate('Junior (under 18)', 'With a paying adult', '£45', '£55'),
+                rate('Buggy hire', 'Subject to course conditions', '£40', '£40'),
+              ],
+            },
+          ],
+        },
+        {
+          label: '2027 season',
+          sections: [{ rows: [rate('Championship — 18 holes', null, '£195', '£235')] }],
+        },
+      ],
+      footnote:
+        'Bank holidays charged at weekend rates. Handicap certificate required on the Championship course.',
+    },
+    {
+      blockType: 'rateTable',
+      style: 'seasons',
+      eyebrow: 'Green fees 2026',
+      heading: 'Pay for the season you play',
+      tabs: [
+        seasonsTab('Visitor', 0),
+        seasonsTab('Member’s guest', -40),
+        seasonsTab('Society', -20),
+      ],
+      button: link('Check availability'),
+    },
+    {
+      blockType: 'rateTable',
+      style: 'matrix',
+      eyebrow: 'Rates 2026',
+      heading: 'Choose your round',
+      columns: [
+        { label: 'Weekday AM' },
+        { label: 'Weekday PM' },
+        { label: 'Weekend AM' },
+        { label: 'Weekend PM' },
+      ],
+      tabs: [
+        {
+          label: 'Visitor',
+          sections: [
+            {
+              rows: [
+                rate('Championship', '18 holes · Handicap 24 max', '£185', '£120', '£225', '£145'),
+                rate('Heathland', '18 holes', '£95', '£65', '£115', '£75'),
+                rate('Heathland — 9 holes', 'Evenings from 5pm', '£50', '£40', '£60', '£45'),
+                rate('Junior (under 18)', 'Any course, with an adult', '£45', '£30', '£55', '£35'),
+              ],
+            },
+          ],
+        },
+        {
+          label: 'Member’s guest',
+          sections: [{ rows: [rate('Championship', null, '£95', '£70', '£110', '£80')] }],
+        },
+        {
+          label: 'Society',
+          sections: [{ rows: [rate('Championship', null, '£150', '£110', '—', '—')] }],
+        },
+      ],
+      footnote:
+        'AM = before 12pm. Weekend rates apply on bank holidays. All prices per player and include VAT.',
+      asideEyebrow: 'Book direct',
+      asideHeading: 'Best rate, always online',
+      included: [
+        { item: 'Range balls before your round' },
+        { item: 'Locker, towel and changing rooms' },
+        { item: 'Yardage book for the course' },
+        { item: 'Free cancellation up to 48 hours' },
+      ],
+      showPhone: true,
+    },
+  ])
 }
 
 process.exit(0)

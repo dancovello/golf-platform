@@ -14,4 +14,10 @@ export const VISUAL_VIEWPORTS = [
 ] as const
 
 /** Page slugs, one per block. */
-export const VISUAL_PAGES = ['hero', 'cta-card-grid', 'two-column', 'rich-text'] as const
+export const VISUAL_PAGES = [
+  'hero',
+  'cta-card-grid',
+  'two-column',
+  'rich-text',
+  'rate-table',
+] as const

@@ -59,6 +59,7 @@ export default async function ClubPreview({ params }: { params: Promise<{ club: 
           ctx={home.ctx}
           club={club}
           base={`/preview/${club.slug}`}
+          pageUpdatedAt={home.updatedAt}
         />
       </ClubShell>
     )

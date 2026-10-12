@@ -38,7 +38,13 @@ export default async function ClubPagePreview({
           <h1 className="t-display-l">{page.title}</h1>
         </section>
       )}
-      <RenderBlocks layout={page.layout} ctx={page.ctx} club={club} base={base} />
+      <RenderBlocks
+        layout={page.layout}
+        ctx={page.ctx}
+        club={club}
+        base={base}
+        pageUpdatedAt={page.updatedAt}
+      />
     </ClubShell>
   )
 }

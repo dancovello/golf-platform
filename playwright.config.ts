@@ -60,6 +60,8 @@ export default defineConfig({
     // SITE_PREVIEW turns on the staging-only club preview pages (src/site/preview.ts).
     env: {
       SITE_PREVIEW: 'on',
+      // Pins "today" for date-dependent blocks (src/site/today.ts), so pictures are stable.
+      SITE_FIXED_TODAY: '2026-07-15',
       ...(process.env.APP_DATABASE_URL ? { DATABASE_URL: process.env.APP_DATABASE_URL } : {}),
     },
   },
