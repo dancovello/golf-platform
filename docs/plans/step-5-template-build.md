@@ -21,4 +21,5 @@ Every block is **one block with a Design style choice (A / B / C)** from the Fig
 - All header, footer and Hero styles on staging, in both colour themes
 - Font sets: Heritage, Editorial, Contemporary (swap any later)
 - Hero C uses the club's booking button instead of the tee-time search bar
+- Editorial font set: Fraunces headings look heavier than Cormorant at the same size
 - Open decisions: email provider (newsletter, contact form), site search (wanted?)

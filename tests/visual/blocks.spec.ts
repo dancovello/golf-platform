@@ -45,7 +45,8 @@ for (const club of VISUAL_CLUBS) {
           await settle(page)
           await expect(page.locator('main')).toHaveScreenshot(
             `${slug}--${club.slug}--${viewport.name}.png`,
-            { animations: 'disabled', caret: 'hide' },
+            // Dates that change by themselves (e.g. "Prices last updated") are masked.
+            { animations: 'disabled', caret: 'hide', mask: [page.locator('[data-volatile]')] },
           )
         })
       }

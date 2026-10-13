@@ -267,7 +267,7 @@ export const loadClubPage = async (tenantID: string, slug: string) => {
   const { docs } = await payload.find({
     collection: 'pages',
     where: { and: [{ slug: { equals: slug } }, { tenant: { equals: tenantID } }] },
-    select: { title: true, slug: true, layout: true },
+    select: { title: true, slug: true, layout: true, updatedAt: true },
     limit: 1,
     depth: 0,
     overrideAccess: true,
@@ -278,6 +278,7 @@ export const loadClubPage = async (tenantID: string, slug: string) => {
   return {
     title: String(doc.title),
     slug: String(doc.slug),
+    updatedAt: doc.updatedAt ? String(doc.updatedAt) : null,
     layout,
     ctx: await loadBlockContext(payload, tenantID, layout),
   }

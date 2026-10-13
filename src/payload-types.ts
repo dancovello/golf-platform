@@ -179,7 +179,7 @@ export interface Page {
    * The page address, e.g. "membership" for /membership. Use "home" for the home page.
    */
   slug: string;
-  layout?: (HeroBlock | CtaCardGridBlock | TwoColumnBlock | RichTextBlock)[] | null;
+  layout?: (HeroBlock | CtaCardGridBlock | TwoColumnBlock | RichTextBlock | RateTableBlock)[] | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -402,6 +402,86 @@ export interface RichTextBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'richText';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "RateTableBlock".
+ */
+export interface RateTableBlock {
+  style: 'classic' | 'seasons' | 'matrix';
+  eyebrow?: string | null;
+  heading: string;
+  intro?: string | null;
+  /**
+   * e.g. "Mon–Thu" and "Fri–Sun & BH" (A), or Weekday AM / PM, Weekend AM / PM (C).
+   */
+  columns?:
+    | {
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Style A: one tab per season (e.g. "2026 season"). Styles B and C: one per audience (e.g. "Visitor", "Member’s guest", "Society"). One tab shows no tabs.
+   */
+  tabs?:
+    | {
+        label: string;
+        /**
+         * Style B: one per season. Styles A and C: usually one.
+         */
+        sections?:
+          | {
+              name?: string | null;
+              /**
+               * e.g. "1 June – 30 September"
+               */
+              period?: string | null;
+              startMonth?: ('1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12') | null;
+              endMonth?: ('1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12') | null;
+              rows?:
+                | {
+                    label: string;
+                    subLabel?: string | null;
+                    price1?: string | null;
+                    price2?: string | null;
+                    price3?: string | null;
+                    price4?: string | null;
+                    id?: string | null;
+                  }[]
+                | null;
+              note?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  footnote?: string | null;
+  /**
+   * Leave empty to use the club’s "Book a tee time" button.
+   */
+  button?: {
+    label?: string | null;
+    type?: ('page' | 'url') | null;
+    page?: (string | null) | Page;
+    /**
+     * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+     */
+    url?: string | null;
+  };
+  asideEyebrow?: string | null;
+  asideHeading?: string | null;
+  included?:
+    | {
+        item: string;
+        id?: string | null;
+      }[]
+    | null;
+  showPhone?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'rateTable';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -714,6 +794,7 @@ export interface PagesSelect<T extends boolean = true> {
         ctaCardGrid?: T | CtaCardGridBlockSelect<T>;
         twoColumn?: T | TwoColumnBlockSelect<T>;
         richText?: T | RichTextBlockSelect<T>;
+        rateTable?: T | RateTableBlockSelect<T>;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -826,6 +907,69 @@ export interface RichTextBlockSelect<T extends boolean = true> {
   content?: T;
   noteTitle?: T;
   noteText?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "RateTableBlock_select".
+ */
+export interface RateTableBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  intro?: T;
+  columns?:
+    | T
+    | {
+        label?: T;
+        id?: T;
+      };
+  tabs?:
+    | T
+    | {
+        label?: T;
+        sections?:
+          | T
+          | {
+              name?: T;
+              period?: T;
+              startMonth?: T;
+              endMonth?: T;
+              rows?:
+                | T
+                | {
+                    label?: T;
+                    subLabel?: T;
+                    price1?: T;
+                    price2?: T;
+                    price3?: T;
+                    price4?: T;
+                    id?: T;
+                  };
+              note?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  footnote?: T;
+  button?:
+    | T
+    | {
+        label?: T;
+        type?: T;
+        page?: T;
+        url?: T;
+      };
+  asideEyebrow?: T;
+  asideHeading?: T;
+  included?:
+    | T
+    | {
+        item?: T;
+        id?: T;
+      };
+  showPhone?: T;
   id?: T;
   blockName?: T;
 }
