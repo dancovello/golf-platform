@@ -60,7 +60,7 @@ const sameClubCheck =
     if (!tenant || refs.length === 0) return data
 
     const errors: { path: string; message: string }[] = []
-    for (const name of ['pages', 'media', 'documents', 'staff'] as const) {
+    for (const name of ['pages', 'media', 'documents', 'staff', 'courses'] as const) {
       const wanted = [...new Set(refs.filter((r) => r.collection === name).map((r) => r.id))]
       if (wanted.length === 0) continue
       const { docs } = await req.payload.find({
@@ -83,7 +83,9 @@ const sameClubCheck =
                 ? 'Choose one of your own photos.'
                 : name === 'documents'
                   ? 'Choose one of your own documents.'
-                  : 'Choose people from your own team.',
+                  : name === 'staff'
+                    ? 'Choose people from your own team.'
+                    : 'Choose one of your own courses.',
         })
       }
     }
@@ -102,3 +104,13 @@ export const checkStaffSameClub = sameClubCheck((data) => {
   const id = idOf(data.photo)
   return id ? [{ collection: 'media', id, path: 'photo' }] : []
 })
+
+/** Courses: each hole's photo. */
+export const checkCourseSameClub = sameClubCheck((data) =>
+  (Array.isArray(data.holes) ? (data.holes as Record<string, unknown>[]) : []).flatMap(
+    (hole, i) => {
+      const id = idOf(hole.image)
+      return id ? [{ collection: 'media' as const, id, path: `holes.${i}.image` }] : []
+    },
+  ),
+)

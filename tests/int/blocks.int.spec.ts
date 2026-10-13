@@ -265,3 +265,38 @@ describe('membership', () => {
     ).rejects.toThrow()
   })
 })
+
+describe('hole by hole', () => {
+  it("refuses club B's course", async () => {
+    const error = await save([
+      { blockType: 'holeGrid', style: 'cards', heading: 'Holes', course: w.courseB.id },
+    ]).catch((e: unknown) => e)
+    expect(errorPaths(error)).toContain('layout.0.course')
+  })
+
+  it("a course can't use club B's photos, and has 9 or 18 holes", async () => {
+    const update = (data: Record<string, unknown>) =>
+      w.payload.update({
+        collection: 'courses',
+        id: w.courseA.id,
+        data: data as never,
+        overrideAccess: false,
+        user: w.editorA,
+      })
+    const holes = (n: number, image?: string) =>
+      Array.from({ length: n }, () => ({ par: 4, ...(image ? { image } : {}) }))
+    const error = await update({ holes: holes(9, w.mediaB.id) }).catch((e: unknown) => e)
+    expect(errorPaths(error)).toContain('holes.0.image')
+    await expect(update({ holes: holes(10) })).rejects.toThrow()
+  })
+
+  it('the website gets the course with yards for each tee', async () => {
+    await save([{ blockType: 'holeGrid', style: 'guide', heading: 'Holes', course: w.courseA.id }])
+    const page = await loadClubPage(w.clubA.id, 'membership')
+    const course = page!.ctx.course(w.courseA.id)
+    expect(course?.tees.map((t) => t.name)).toEqual(['White'])
+    expect(course?.holes).toHaveLength(9)
+    expect(course?.holes[0]).toMatchObject({ number: 1, par: 4, yards: [400] })
+    expect(page!.ctx.course(w.courseB.id)).toBeNull()
+  })
+})

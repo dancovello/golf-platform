@@ -15,6 +15,7 @@ import { LogoStrip } from './LogoStrip'
 import { Faq } from './Faq'
 import { Team } from './Team'
 import { Membership } from './Membership'
+import { HoleGrid } from './HoleGrid'
 import type { BlockContext } from './resolve'
 
 import './blocks.css'
@@ -32,6 +33,7 @@ import './logoStrip.css'
 import './faq.css'
 import './team.css'
 import './membership.css'
+import './holes.css'
 import '../components/buttons.css'
 
 type LayoutBlock = NonNullable<Page['layout']>[number]
@@ -90,6 +92,8 @@ export const RenderBlocks = ({
         return <Team key={block.id ?? i} block={block} ctx={ctx} base={base} />
       case 'membership':
         return <Membership key={block.id ?? i} block={block} ctx={ctx} base={base} />
+      case 'holeGrid':
+        return <HoleGrid key={block.id ?? i} block={block} ctx={ctx} />
       default:
         return null
     }

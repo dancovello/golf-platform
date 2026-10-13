@@ -2,7 +2,7 @@ import type { Block } from 'payload'
 
 /** A page or photo a block points at, with where it was found (for error messages). */
 export type BlockRef = {
-  collection: 'pages' | 'media' | 'documents' | 'staff'
+  collection: 'pages' | 'media' | 'documents' | 'staff' | 'courses'
   id: string
   path: string
 }

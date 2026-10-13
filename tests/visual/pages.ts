@@ -29,4 +29,5 @@ export const VISUAL_PAGES = [
   'faq',
   'team',
   'membership',
+  'holes',
 ] as const

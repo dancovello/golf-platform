@@ -84,6 +84,18 @@ const fixtures: Record<ClubOwnedSlug, Fixture> = {
     read: (doc) => (doc as { name?: unknown }).name,
     editorsCanCreate: true,
   },
+  courses: {
+    ids: (w) => ({ a: w.courseA.id, b: w.courseB.id }),
+    newRecord: (tenant) => ({
+      name: 'Planted',
+      tenant,
+      tees: [{ colour: 'white' }],
+      holes: Array.from({ length: 9 }, () => ({ par: 4 })),
+    }),
+    change: { name: 'Changed' },
+    read: (doc) => (doc as { name?: unknown }).name,
+    editorsCanCreate: true,
+  },
 }
 
 const slugs = Object.keys(clubOwnedCollections) as ClubOwnedSlug[]
@@ -244,6 +256,7 @@ describe('the database enforces club ownership on its own', () => {
     await expect(
       db().execute(sql`INSERT INTO staff (name, role, department) VALUES ('o', 'o', 'golf')`),
     ).rejects.toThrow()
+    await expect(db().execute(sql`INSERT INTO courses (name) VALUES ('orphan')`)).rejects.toThrow()
   })
 
   it('refuses to delete a club that still has content', async () => {
