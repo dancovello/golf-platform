@@ -77,6 +77,13 @@ const fixtures: Record<ClubOwnedSlug, Fixture> = {
     editorsCanCreate: true,
     file: () => pdfFile('planted.pdf'),
   },
+  staff: {
+    ids: (w) => ({ a: w.staffA.id, b: w.staffB.id }),
+    newRecord: (tenant) => ({ name: 'Planted', role: 'Planted', department: 'golf', tenant }),
+    change: { name: 'Changed' },
+    read: (doc) => (doc as { name?: unknown }).name,
+    editorsCanCreate: true,
+  },
 }
 
 const slugs = Object.keys(clubOwnedCollections) as ClubOwnedSlug[]
@@ -233,6 +240,9 @@ describe('the database enforces club ownership on its own', () => {
       db().execute(
         sql`INSERT INTO documents (title, prefix) VALUES ('orphan', 'documents/orphan')`,
       ),
+    ).rejects.toThrow()
+    await expect(
+      db().execute(sql`INSERT INTO staff (name, role, department) VALUES ('o', 'o', 'golf')`),
     ).rejects.toThrow()
   })
 

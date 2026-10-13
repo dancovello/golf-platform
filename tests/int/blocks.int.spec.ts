@@ -195,3 +195,41 @@ describe('logo strip', () => {
     ).rejects.toThrow()
   })
 })
+
+describe('team', () => {
+  it("refuses club B's team members", async () => {
+    const error = await save([
+      {
+        blockType: 'team',
+        style: 'featured',
+        heading: 'Team',
+        featured: w.staffB.id,
+        people: [w.staffA.id, w.staffB.id],
+      },
+    ]).catch((e: unknown) => e)
+    expect(errorPaths(error)).toEqual(
+      expect.arrayContaining(['layout.0.featured', 'layout.0.people']),
+    )
+  })
+
+  it("a team member can't use club B's photo, or a phone number that isn't one", async () => {
+    const update = (data: Record<string, unknown>) =>
+      w.payload.update({
+        collection: 'staff',
+        id: w.staffA.id,
+        data: data as never,
+        overrideAccess: false,
+        user: w.editorA,
+      })
+    const error = await update({ photo: w.mediaB.id }).catch((e: unknown) => e)
+    expect(errorPaths(error)).toContain('photo')
+    await expect(update({ phone: '<script>' })).rejects.toThrow()
+  })
+
+  it('the website gets only the chosen, same-club people', async () => {
+    await save([{ blockType: 'team', style: 'grid', heading: 'Team', people: [w.staffA.id] }])
+    const page = await loadClubPage(w.clubA.id, 'membership')
+    expect(page!.ctx.person(w.staffA.id)).toMatchObject({ name: 'Alex Pro', photo: null })
+    expect(page!.ctx.person(w.staffB.id)).toBeNull()
+  })
+})

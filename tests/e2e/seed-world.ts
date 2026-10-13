@@ -139,6 +139,25 @@ await w.payload.create({
   } as never,
 })
 
+// Club A's team page (tests/e2e/site-team.spec.ts).
+await w.payload.update({
+  collection: 'staff',
+  id: w.staffA.id,
+  data: { bio: 'Alex has coached here for ten years.', email: 'alex@club-a.example' },
+})
+await w.payload.create({
+  collection: 'pages',
+  data: {
+    title: 'Team',
+    slug: 'team',
+    tenant: w.clubA.id,
+    layout: [
+      { blockType: 'team', style: 'grid', heading: 'The team', people: [w.staffA.id] },
+      { blockType: 'team', style: 'directory', heading: 'Who to ask', people: [w.staffA.id] },
+    ],
+  } as never,
+})
+
 // Club A's header and menu, for the public site tests (tests/e2e/site-header.spec.ts).
 await w.payload.update({
   collection: 'club-settings',

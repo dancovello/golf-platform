@@ -73,6 +73,7 @@ export interface Config {
     'club-settings': ClubSetting;
     media: Media;
     documents: Document;
+    staff: Staff;
     'totp-attempts': TotpAttempt;
     'payload-kv': PayloadKv;
     'payload-preferences': PayloadPreference;
@@ -86,6 +87,7 @@ export interface Config {
     'club-settings': ClubSettingsSelect<false> | ClubSettingsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     documents: DocumentsSelect<false> | DocumentsSelect<true>;
+    staff: StaffSelect<false> | StaffSelect<true>;
     'totp-attempts': TotpAttemptsSelect<false> | TotpAttemptsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -195,6 +197,7 @@ export interface Page {
         | TimelineBlock
         | LogoStripBlock
         | FaqBlock
+        | TeamBlock
       )[]
     | null;
   updatedAt: string;
@@ -720,6 +723,82 @@ export interface FaqBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TeamBlock".
+ */
+export interface TeamBlock {
+  style: 'grid' | 'directory' | 'featured';
+  eyebrow?: string | null;
+  heading: string;
+  /**
+   * e.g. the Head Professional. Their bio and email are shown.
+   */
+  featured?: (string | null) | Staff;
+  /**
+   * In the order you want them. Style B groups them by department; style C lists up to 4 beside the featured person.
+   */
+  people?: (string | Staff)[] | null;
+  /**
+   * e.g. "General enquiries" (B) or "Book a lesson" (C).
+   */
+  action?: {
+    label?: string | null;
+    type?: ('page' | 'url') | null;
+    page?: (string | null) | Page;
+    /**
+     * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+     */
+    url?: string | null;
+  };
+  /**
+   * e.g. "All professionals".
+   */
+  viewAll?: {
+    label?: string | null;
+    type?: ('page' | 'url') | null;
+    page?: (string | null) | Page;
+    /**
+     * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+     */
+    url?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'team';
+}
+/**
+ * People shown by Team blocks. A missing photo shows their initials instead.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "staff".
+ */
+export interface Staff {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  name: string;
+  /**
+   * e.g. "Head Professional"
+   */
+  role: string;
+  department: 'golf' | 'course' | 'club' | 'clubhouse' | 'committee';
+  /**
+   * A short tag, e.g. "PGA Advanced" or "BIGGA".
+   */
+  qualification?: string | null;
+  /**
+   * Portrait, ideally 4:5 with the same background for everyone.
+   */
+  photo?: (string | null) | Media;
+  /**
+   * A few sentences. Leave a blank line between paragraphs.
+   */
+  bio?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "club-settings".
  */
 export interface ClubSetting {
@@ -1058,6 +1137,7 @@ export interface PagesSelect<T extends boolean = true> {
         timeline?: T | TimelineBlockSelect<T>;
         logoStrip?: T | LogoStripBlockSelect<T>;
         faq?: T | FaqBlockSelect<T>;
+        team?: T | TeamBlockSelect<T>;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -1381,6 +1461,35 @@ export interface FaqBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TeamBlock_select".
+ */
+export interface TeamBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  featured?: T;
+  people?: T;
+  action?:
+    | T
+    | {
+        label?: T;
+        type?: T;
+        page?: T;
+        url?: T;
+      };
+  viewAll?:
+    | T
+    | {
+        label?: T;
+        type?: T;
+        page?: T;
+        url?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "club-settings_select".
  */
 export interface ClubSettingsSelect<T extends boolean = true> {
@@ -1614,6 +1723,23 @@ export interface DocumentsSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "staff_select".
+ */
+export interface StaffSelect<T extends boolean = true> {
+  tenant?: T;
+  name?: T;
+  role?: T;
+  department?: T;
+  qualification?: T;
+  photo?: T;
+  bio?: T;
+  email?: T;
+  phone?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

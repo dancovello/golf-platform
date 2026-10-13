@@ -32,6 +32,69 @@ const formatSize = (bytes: number | null | undefined) =>
       ? `${Math.max(1, Math.round(bytes / 1024))} KB`
       : `${(bytes / 1024 / 1024).toFixed(1)} MB`
 
+/** An email address in two halves, so it is never whole in the page (ProtectedEmail). */
+export type EmailParts = { user: string; domain: string }
+
+const emailParts = (email: string | null | undefined): EmailParts | null => {
+  const at = email?.trim().lastIndexOf('@') ?? -1
+  return email && at > 0
+    ? { user: email.trim().slice(0, at), domain: email.trim().slice(at + 1) }
+    : null
+}
+
+/** A team member (Team & staff), as the website shows them. */
+export type SitePerson = {
+  id: string
+  name: string
+  role: string
+  department: string
+  qualification: string | null
+  photo: SiteMedia | null
+  bio: string | null
+  email: EmailParts | null
+  phone: string | null
+}
+
+/** Team members by ID, only if they belong to this club, with their (same-club) photos. */
+const loadClubStaff = async (
+  payload: Payload,
+  tenantID: string,
+  ids: string[],
+): Promise<Map<string, SitePerson>> => {
+  if (ids.length === 0) return new Map()
+  const { docs } = await payload.find({
+    collection: 'staff',
+    where: { and: [{ id: { in: ids } }, { tenant: { equals: tenantID } }] },
+    limit: ids.length,
+    depth: 0,
+    overrideAccess: true,
+  })
+  const photos = await loadClubMedia(
+    payload,
+    tenantID,
+    docs.map((d) => idOf(d.photo)).filter((id): id is string => Boolean(id)),
+  )
+  return new Map(
+    docs.map((d) => {
+      const photo = photos.get(idOf(d.photo) ?? '') ?? null
+      return [
+        String(d.id),
+        {
+          id: String(d.id),
+          name: d.name,
+          role: d.role,
+          department: d.department,
+          qualification: d.qualification?.trim() || null,
+          photo: photo?.mimeType.startsWith('image/') ? photo : null,
+          bio: d.bio?.trim() || null,
+          email: emailParts(d.email),
+          phone: d.phone?.trim() || null,
+        },
+      ]
+    }),
+  )
+}
+
 /** What a block's website component gets: its own data, with pages and photos looked up. */
 export type BlockContext = {
   media: (value: unknown) => SiteMedia | null
@@ -39,6 +102,8 @@ export type BlockContext = {
   link: (value: unknown, fallbackLabel?: string) => ResolvedLink | null
   /** One of the club's documents, or null. */
   document: (value: unknown) => SiteDocument | null
+  /** One of the club's team members, or null. */
+  person: (value: unknown) => SitePerson | null
 }
 
 /**
@@ -55,7 +120,8 @@ export const loadBlockContext = async (
   const documentIDs = [
     ...new Set(refs.filter((r) => r.collection === 'documents').map((r) => r.id)),
   ]
-  const [media, pages, documents] = await Promise.all([
+  const staffIDs = [...new Set(refs.filter((r) => r.collection === 'staff').map((r) => r.id))]
+  const [media, pages, documents, staff] = await Promise.all([
     loadClubMedia(
       payload,
       tenantID,
@@ -103,11 +169,13 @@ export const loadBlockContext = async (
                   ]),
               ),
           ),
+    loadClubStaff(payload, tenantID, staffIDs),
   ])
 
   return {
     media: (value) => media.get(idOf(value) ?? '') ?? null,
     document: (value) => documents.get(idOf(value) ?? '') ?? null,
+    person: (value) => staff.get(idOf(value) ?? '') ?? null,
     link: (value, fallbackLabel) => {
       const raw = (value ?? {}) as {
         label?: string | null

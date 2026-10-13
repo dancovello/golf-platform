@@ -775,6 +775,80 @@ for (const [slug, p] of Object.entries(palettes)) {
       contactLink: link('Ask the pro shop'),
     },
   ])
+
+  const person = (
+    name: string,
+    role: string,
+    department: string,
+    extra: Record<string, string> = {},
+  ) =>
+    payload.create({
+      collection: 'staff',
+      data: { name, role, department, tenant: club.id, ...extra } as never,
+    })
+  const first = (name: string) => name.split(' ')[0].toLowerCase()
+  const contact = (name: string, phone: string) => ({ phone, email: `${first(name)}@club.co.uk` })
+  const team = [
+    await person('James Morrison', 'Head Professional', 'golf', {
+      qualification: 'PGA Advanced',
+      ...contact('James Morrison', '01932 704 510'),
+      bio:
+        'James has run the Academy for twelve years, after a decade on the European Challenge Tour. ' +
+        'He coaches every level from first lesson to county squad, and still holds the ' +
+        'Championship course record of 64.',
+    }),
+    await person('Sarah Whitfield', 'Course Manager', 'course', { qualification: 'BIGGA' }),
+    await person('Tom Ashworth', 'Teaching Professional', 'golf', {
+      qualification: 'PGA',
+      ...contact('Tom Ashworth', '01932 704 511'),
+    }),
+    await person('Priya Nair', 'General Manager', 'club', contact('Priya Nair', '01932 704 500')),
+    await person('Ed Lyle', 'Head Chef', 'clubhouse', contact('Ed Lyle', '01932 704 520')),
+    await person(
+      'Claire Benson',
+      'Membership Secretary',
+      'club',
+      contact('Claire Benson', '01932 704 501'),
+    ),
+    await person('Owen Price', 'Assistant Professional', 'golf', {
+      qualification: 'PGA Trainee',
+      ...contact('Owen Price', '01932 704 512'),
+    }),
+    await person(
+      'Hannah Cole',
+      'Events Manager',
+      'clubhouse',
+      contact('Hannah Cole', '01932 704 521'),
+    ),
+  ]
+  const staffIDs = (...i: number[]) => i.map((n) => team[n].id)
+  await page('team', 'Our team', [
+    {
+      blockType: 'team',
+      style: 'grid',
+      eyebrow: 'The team',
+      heading: 'The people behind the club',
+      people: staffIDs(0, 1, 2, 3, 4, 5, 6, 7),
+    },
+    {
+      blockType: 'team',
+      style: 'directory',
+      eyebrow: 'Contact',
+      heading: 'Who to speak to',
+      people: staffIDs(0, 2, 6, 3, 5, 4, 7),
+      action: link('General enquiries'),
+    },
+    {
+      blockType: 'team',
+      style: 'featured',
+      eyebrow: 'The Academy',
+      heading: 'Meet the professionals',
+      featured: team[0].id,
+      people: staffIDs(2, 6),
+      action: link('Book a lesson'),
+      viewAll: link('All professionals'),
+    },
+  ])
 }
 
 process.exit(0)
