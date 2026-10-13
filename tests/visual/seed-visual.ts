@@ -712,6 +712,69 @@ for (const [slug, p] of Object.entries(palettes)) {
       partners: [...partners, ...partners.slice(0, 2)],
     },
   ])
+
+  const faqs = [
+    {
+      question: 'Do visitors need a handicap certificate?',
+      answer:
+        'Yes on the Championship course — a handicap of 24 (men) or 36 (women) or below. The Heathland course is open to all golfers, and our professionals can arrange a playing lesson if you’re new to the game.',
+      topic: 'Visitors',
+    },
+    {
+      question: 'What is the dress code?',
+      answer:
+        'Smart golf attire on the course; tailored shorts are fine in summer. Jeans and trainers are not permitted in the clubhouse.',
+      topic: 'Visitors',
+    },
+    {
+      question: 'Can I hire clubs and a trolley?',
+      answer: 'Yes — book them with your tee time or ask at the pro shop on the day.',
+      topic: 'Visitors',
+    },
+    {
+      question: 'Are buggies available?',
+      answer:
+        'Buggies are available on the Heathland course all year and on the Championship course from April to October.',
+      topic: 'The course',
+    },
+    {
+      question: 'Is there a driving range?',
+      answer: 'A 20-bay grass range with TrackMan, open from 7am.',
+      topic: 'The course',
+    },
+    {
+      question: 'Can I book a society day?',
+      answer: 'Groups of 12 or more can book society packages from March to October.',
+      topic: 'Events & societies',
+    },
+  ]
+  await page('faq', 'Questions', [
+    {
+      blockType: 'faq',
+      style: 'centred',
+      eyebrow: 'Visitors',
+      heading: 'Before you play',
+      items: faqs,
+      contactLink: link('Contact the pro shop'),
+    },
+    {
+      blockType: 'faq',
+      style: 'withContact',
+      eyebrow: 'Questions',
+      heading: 'Visiting the club',
+      items: faqs,
+      cardHeading: 'Talk to the pro shop',
+      contactLink: link('Send a message'),
+    },
+    {
+      blockType: 'faq',
+      style: 'searchTopics',
+      eyebrow: 'Help centre',
+      heading: 'How can we help?',
+      items: faqs,
+      contactLink: link('Ask the pro shop'),
+    },
+  ])
 }
 
 process.exit(0)
