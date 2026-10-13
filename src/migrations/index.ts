@@ -20,6 +20,7 @@ import * as migration_20261013_074738_timeline from './20261013_074738_timeline'
 import * as migration_20261013_075847_logo_strip from './20261013_075847_logo_strip';
 import * as migration_20261013_081117_faq from './20261013_081117_faq';
 import * as migration_20261013_082830_team from './20261013_082830_team';
+import * as migration_20261013_084416_membership from './20261013_084416_membership';
 
 export const migrations = [
   {
@@ -130,6 +131,11 @@ export const migrations = [
   {
     up: migration_20261013_082830_team.up,
     down: migration_20261013_082830_team.down,
-    name: '20261013_082830_team'
+    name: '20261013_082830_team',
+  },
+  {
+    up: migration_20261013_084416_membership.up,
+    down: migration_20261013_084416_membership.down,
+    name: '20261013_084416_membership'
   },
 ];

@@ -849,6 +849,122 @@ for (const [slug, p] of Object.entries(palettes)) {
       viewAll: link('All professionals'),
     },
   ])
+
+  const tierLink = { type: 'page', page: about.id }
+  const yes = 'yes'
+  const vals = (...v: string[]) => v.map((value) => ({ value }))
+  const benefits = (...t: string[]) => t.map((text) => ({ text }))
+  const tiers = [
+    {
+      name: 'Five-day',
+      price: '£1,780',
+      period: 'per year',
+      description: 'Weekday golf on both courses for those who play around the working week.',
+      benefits: benefits(
+        'Monday–Friday golf',
+        'Book 14 days ahead',
+        'Club competitions & handicap',
+        'Three guest rounds at member rate',
+        'Locker and bag storage',
+      ),
+      values: vals('Mon–Fri', '14 days', yes, '3', yes, yes),
+      availability: 'Places available',
+      link: tierLink,
+    },
+    {
+      name: 'Full',
+      price: '£2,450',
+      period: 'per year',
+      description:
+        'Seven-day playing rights on both courses, with priority booking and full competition access.',
+      benefits: benefits(
+        'Unlimited golf, 7 days',
+        'Book 21 days ahead',
+        'Club competitions & handicap',
+        'Six guest rounds at member rate',
+        'Locker and bag storage',
+      ),
+      values: vals('7 days', '21 days', yes, '6', yes, yes),
+      availability: 'Waiting list · c. 6 months',
+      recommended: true,
+      link: tierLink,
+    },
+    {
+      name: 'Intermediate',
+      price: '£1,150',
+      period: 'per year · ages 18–29',
+      description:
+        'Full playing rights at a reduced rate, rising each year to full membership by 30.',
+      benefits: benefits(
+        'Unlimited golf, 7 days',
+        'Book 14 days ahead',
+        'Club competitions & handicap',
+        'Two guest rounds at member rate',
+        'Social events programme',
+      ),
+      values: vals('7 days', '14 days', yes, '2', '', ''),
+      availability: 'Places available',
+      link: tierLink,
+    },
+  ]
+  const junior = {
+    name: 'Junior',
+    price: '£240',
+    period: 'per year',
+    description: 'Under 18s, through the Academy pathway.',
+    values: vals('7 days', '7 days', yes, '', '', yes),
+    availability: 'Academy assessment',
+    link: tierLink,
+  }
+  await page('membership', 'Membership', [
+    {
+      blockType: 'membership',
+      style: 'cards',
+      eyebrow: 'Membership',
+      heading: 'Find your place at the club',
+      tiers,
+      note: 'Joining fee equal to one year’s subscription, payable over three years. Prices for 2026/27, including VAT.',
+    },
+    {
+      blockType: 'membership',
+      style: 'compare',
+      eyebrow: 'Membership',
+      heading: 'Compare categories',
+      tiers: [tiers[1], tiers[0], tiers[2], junior],
+      features: [
+        'Playing days',
+        'Advance booking',
+        'Competitions',
+        'Guest rounds at member rate',
+        'Locker',
+        'Practice ground balls',
+      ].map((label) => ({ label })),
+      action: link('Book a tour'),
+    },
+    {
+      blockType: 'membership',
+      style: 'enquire',
+      eyebrow: 'Membership',
+      heading: 'Joining the club',
+      intro:
+        'We welcome new members throughout the year. Every application starts with a conversation and a round with the Captain.',
+      tiers: [
+        {
+          ...tiers[1],
+          description: 'Seven-day golf for those who want the club at the centre of their week.',
+        },
+        { ...tiers[0], description: 'Weekday golf with weekend competitions twice a month.' },
+        { ...tiers[2], description: 'Ages 18–29, with fees that step up each year.' },
+        junior,
+      ],
+      card: {
+        heading: 'Not sure which fits?',
+        text: 'Tell us how often you expect to play and the Membership Secretary will call you back.',
+        link: link('Request a call back'),
+        note: 'The Membership Secretary replies within two working days.',
+      },
+    },
+  ])
 }
 
 process.exit(0)

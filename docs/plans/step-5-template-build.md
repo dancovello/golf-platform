@@ -30,4 +30,6 @@ Every block is **one block with a Design style choice (A / B / C)** from the Fig
 - FAQ answers are plain text inside the block (no links yet; spec suggested a shared FAQ collection with rich text)
 - Team: people live in a new "Team & staff" list (name, role, department, photo, bio, email, phone, one qualification tag). Departments are a fixed list (Golf, Course, Club & membership, Clubhouse, Committee); say if clubs need their own
 - Team: staff emails never appear whole in the page source (the "@" is added in the browser), to limit spam scraping
+- Membership: categories are typed into the block (like the price table), not a separate shared list. Doc 02 suggested a "Membership Tiers" collection; worth it only if the same categories appear on several pages
+- Membership C: the enquiry card links to the contact page for now. Figma's built-in form (qualifying question, email, "Request a call back") waits for the email provider decision
 - Open decisions: email provider (newsletter, contact form), site search (wanted?)

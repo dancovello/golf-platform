@@ -1,0 +1,318 @@
+/* Membership Tier Cards (Figma page "Membership", docs/design/10 and 13). */
+
+.mb .mb-heading {
+  max-width: 640px;
+}
+.mb .mb-intro {
+  margin-top: var(--space-16);
+  color: var(--color-text-secondary);
+}
+.mb .mb-note {
+  margin: var(--space-32) 0 0;
+  color: var(--color-text-secondary);
+}
+.mb .mb-description {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+.mb .mb-tag {
+  display: inline-block;
+  padding: var(--space-4) var(--space-12);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-full);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+/* A: cards. Equal heights, gap 24, button pinned to the bottom. */
+.mb-tiers {
+  display: grid;
+  gap: var(--space-24);
+}
+.mb-tiers.cols-1 {
+  grid-template-columns: minmax(0, 420px);
+}
+.mb-tiers.cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.mb-tiers.cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.mb-tiers.cols-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.mb-tiers > [role='listitem'] {
+  display: flex;
+}
+.mb-tier {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+  width: 100%;
+  padding: var(--space-40) var(--space-32);
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-surface-raised);
+}
+.mb-tier.is-recommended {
+  border-color: var(--color-surface-brand);
+  background: var(--color-surface-brand);
+  color: var(--color-text-on-inverse);
+}
+.mb .mb-tier-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12);
+}
+.mb .mb-popular {
+  padding: var(--space-4) var(--space-12);
+  border-radius: var(--radius-full);
+  background: var(--color-action-accent);
+  color: var(--color-action-on-accent);
+  white-space: nowrap;
+}
+.mb .mb-price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-8);
+  margin: 0;
+}
+.mb .mb-period {
+  color: var(--color-text-secondary);
+}
+.mb-tier.is-recommended .mb-period,
+.mb-tier.is-recommended .mb-description {
+  color: var(--color-text-on-inverse-muted);
+}
+.mb .mb-benefits {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  margin: 0;
+  padding: var(--space-24) 0 0;
+  border-top: 1px solid var(--color-border-subtle);
+  list-style: none;
+}
+.mb-tier.is-recommended .mb-benefits {
+  border-top-color: var(--color-border-on-inverse-subtle);
+}
+.mb .mb-benefits li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-12);
+}
+.mb .mb-benefits svg {
+  flex: none;
+  margin-top: 1px;
+  color: var(--color-text-brand);
+}
+.mb-tier.is-recommended .mb-benefits svg {
+  color: var(--color-text-accent);
+}
+.mb-tier .btn {
+  justify-content: space-between;
+  width: 100%;
+  margin-top: auto;
+}
+
+/* B: compare. Label column 280, tier columns equal, recommended column tinted. */
+.mb-compare .mb-table-narrow {
+  display: none;
+}
+.mb-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-surface-raised);
+  table-layout: fixed;
+}
+.mb-table-wide .mb-table th[scope='row'],
+.mb-table-wide .mb-corner {
+  width: 280px;
+}
+.mb-table thead th,
+.mb-table thead td {
+  padding: var(--space-24) var(--space-12);
+  border-bottom: 1px solid var(--color-border-strong);
+  font-weight: 400;
+  text-align: center;
+  vertical-align: top;
+}
+.mb .mb-corner {
+  padding-left: var(--space-32);
+  color: var(--color-text-secondary);
+  text-align: left;
+  vertical-align: middle;
+}
+.mb .mb-tier-name,
+.mb .mb-tier-price {
+  display: block;
+}
+.mb .mb-tier-price {
+  margin-top: var(--space-4);
+  color: var(--color-text-secondary);
+}
+.mb-table tbody th,
+.mb-table tbody td {
+  padding: var(--space-16) var(--space-12);
+  border-bottom: 1px solid var(--color-border-subtle);
+  font-weight: 400;
+  text-align: center;
+}
+.mb-table tbody th {
+  padding-left: var(--space-32);
+  text-align: left;
+}
+.mb-table tfoot td {
+  padding: var(--space-24) var(--space-12);
+  text-align: center;
+}
+.mb-table .is-recommended {
+  background: var(--color-surface-subtle);
+}
+.mb .mb-tick {
+  display: inline-flex;
+  color: var(--color-text-brand);
+}
+
+/* C: enquire. Category list + 400px card, gap 64; card sticky on desktop. */
+.mb-enquire-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 400px;
+  gap: var(--space-64);
+  align-items: start;
+}
+.mb-categories {
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--color-border-strong);
+  list-style: none;
+}
+.mb-category {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-32);
+  padding: var(--space-24) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.mb .mb-category-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  max-width: 420px;
+}
+.mb .mb-category-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-16);
+  margin: 0;
+}
+.mb-category .btn {
+  flex: none;
+}
+.mb-card {
+  position: sticky;
+  top: calc(var(--size-nav-clearance) + var(--space-24));
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-16);
+  padding: var(--space-32);
+  background: var(--color-surface-subtle);
+}
+.mb .mb-card p {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+.mb-card .btn {
+  justify-content: space-between;
+  margin-top: var(--space-8);
+}
+
+@media (max-width: 1023px) {
+  .mb-tiers.cols-3,
+  .mb-tiers.cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .mb-compare .mb-table-wide {
+    display: none;
+  }
+  .mb-compare .mb-table-narrow {
+    display: block;
+  }
+  .mb-narrow-panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-24);
+    margin-top: var(--space-24);
+  }
+  .mb-narrow-panel .mb-table thead th {
+    text-align: right;
+    padding-right: var(--space-24);
+  }
+  .mb-narrow-panel .mb-table tbody td {
+    text-align: right;
+    padding-right: var(--space-24);
+  }
+  .mb-narrow-panel .mb-table th[scope='row'],
+  .mb-narrow-panel .mb-corner {
+    width: 60%;
+    padding-left: var(--space-24);
+  }
+  .mb-narrow-panel .btn {
+    justify-content: center;
+  }
+  .mb-enquire-layout {
+    grid-template-columns: 1fr;
+    gap: var(--space-48);
+  }
+  .mb-card {
+    position: static;
+  }
+}
+
+@media (max-width: 767px) {
+  .mb-tier {
+    padding: var(--space-24);
+    height: 100%;
+  }
+  .mb-compare .blk-header .btn {
+    align-self: stretch;
+    justify-content: center;
+  }
+  .mb-category {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-24);
+  }
+  .mb-category .btn {
+    justify-content: center;
+  }
+  .mb-card {
+    margin: 0 -20px;
+    padding: var(--space-32) 20px;
+  }
+}
+
+/* B on tablets and phones: category pills scroll sideways to the screen edge (Figma
+   "Pills (scroll-x)"), never wrapping. */
+.mb-table-narrow .tabs-segments {
+  display: flex;
+  gap: var(--space-8);
+  max-width: none;
+  margin: 0 -20px;
+  padding: 0 20px;
+  border: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.mb-table-narrow .tabs-segments .tab {
+  flex: none;
+  padding: var(--space-8) var(--space-16);
+  white-space: nowrap;
+}
+.mb-table-narrow .tabs-segments::-webkit-scrollbar {
+  display: none;
+}
