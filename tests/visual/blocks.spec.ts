@@ -10,11 +10,12 @@ import { VISUAL_CLUBS, VISUAL_PAGES, VISUAL_VIEWPORTS } from './pages'
  * never on a Mac, because fonts render slightly differently.
  */
 const settle = async (page: Page, { hideHeader = true } = {}) => {
-  // Block pictures leave the header out (it has its own picture): it reacts to scrolling, and
-  // the camera scrolls to photograph long pages.
+  // Block pictures leave the header and announcement bar out (each has its own picture): the
+  // header reacts to scrolling, the camera scrolls to photograph long pages, and the bar's
+  // height can land on a fraction of a pixel, which would shift every block picture.
   await page.addStyleTag({
     content: hideHeader
-      ? 'header.sh { display: none !important; }'
+      ? 'header.sh, .ab { display: none !important; }'
       : 'header.sh { position: static !important; }',
   })
   await page.evaluate(async () => {
