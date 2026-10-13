@@ -1,10 +1,8 @@
-import { randomUUID } from 'node:crypto'
-
-import type { CollectionBeforeOperationHook, CollectionConfig } from 'payload'
+import type { CollectionConfig } from 'payload'
 
 import { loggedIn } from '../access/roles'
 import { randomServerUploadName } from '../media/uploadGuards'
-import { MEDIA_PREFIX } from '../media/storage'
+import { uploadFolder } from '../media/folders'
 
 /** Photos and videos a club can use in its blocks. Images are checked by their actual
  * contents, not their name; anything not on this list is refused. No SVG: it can carry code. */
@@ -17,17 +15,7 @@ export const MEDIA_TYPES = [
   'video/webm',
 ]
 
-const newPrefix = () => `media/${randomUUID()}`
-
-/** Gives a new file its random folder before Payload picks the file name, so the name is only
- * compared with files in that folder (see filenameCompoundIndex below). */
-const assignFolder: CollectionBeforeOperationHook = ({ args, operation }) => {
-  if (operation === 'create') {
-    const data = (args.data ?? {}) as { prefix?: string }
-    args.data = { ...data, prefix: data.prefix ?? newPrefix() } as typeof args.data
-  }
-  return args
-}
+const folder = uploadFolder('media')
 
 // Club-owned (src/tenancy.ts): the multi-tenant plugin adds the required club and limits
 // editors to their own club's files. Visitors never read this collection; the public site
@@ -38,7 +26,7 @@ export const Media: CollectionConfig = {
   lockDocuments: false,
   admin: { useAsTitle: 'alt', defaultColumns: ['filename', 'alt', 'updatedAt'] },
   access: { create: loggedIn, read: loggedIn, update: loggedIn, delete: loggedIn },
-  hooks: { beforeOperation: [assignFolder, randomServerUploadName] },
+  hooks: { beforeOperation: [folder.assignFolder, randomServerUploadName] },
   upload: {
     mimeTypes: MEDIA_TYPES,
     // Files live in R2, never on the app's disk.
@@ -68,17 +56,6 @@ export const Media: CollectionConfig = {
           'What the photo shows, for people using screen readers, e.g. "The 7th green at sunset". Required.',
       },
     },
-    {
-      // The file's random folder. Set when the file is added and never changed, so no one can
-      // point their record at another club's file. The database also requires it to be unique.
-      name: 'prefix',
-      type: 'text',
-      unique: true,
-      defaultValue: newPrefix,
-      access: { update: () => false },
-      admin: { hidden: true },
-      validate: (value: unknown) =>
-        typeof value === 'string' && MEDIA_PREFIX.test(value) ? true : 'Invalid file folder.',
-    },
+    folder.prefixField,
   ],
 }

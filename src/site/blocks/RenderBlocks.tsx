@@ -2,6 +2,7 @@ import type { Page } from '@/payload-types'
 
 import type { ClubSite } from '../loadClub'
 import { CtaCardGrid } from './CtaCardGrid'
+import { DocumentList } from './DocumentList'
 import { Gallery } from './Gallery'
 import { Hero } from './Hero'
 import { RateTable } from './RateTable'
@@ -16,6 +17,7 @@ import './twoColumn.css'
 import './richText.css'
 import './rateTable.css'
 import './gallery.css'
+import './documentList.css'
 import '../components/buttons.css'
 
 type LayoutBlock = NonNullable<Page['layout']>[number]
@@ -58,6 +60,8 @@ export const RenderBlocks = ({
         )
       case 'gallery':
         return <Gallery key={block.id ?? i} block={block} ctx={ctx} />
+      case 'documentList':
+        return <DocumentList key={block.id ?? i} block={block} ctx={ctx} base={base} />
       default:
         return null
     }

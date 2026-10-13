@@ -9,11 +9,36 @@ import { loadClubMedia, type SiteMedia } from './media'
 
 export type ResolvedLink = { label: string; link: SiteLink }
 
+export type SiteDocument = {
+  id: string
+  title: string
+  category: string
+  url: string
+  /** e.g. "PDF" or "DOCX" */
+  type: string
+  /** e.g. "240 KB" */
+  size: string
+  lastReviewed: string | null
+}
+
+const TYPE_NAMES: Record<string, string> = {
+  'application/pdf': 'PDF',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'DOCX',
+}
+const formatSize = (bytes: number | null | undefined) =>
+  !bytes
+    ? ''
+    : bytes < 1024 * 1024
+      ? `${Math.max(1, Math.round(bytes / 1024))} KB`
+      : `${(bytes / 1024 / 1024).toFixed(1)} MB`
+
 /** What a block's website component gets: its own data, with pages and photos looked up. */
 export type BlockContext = {
   media: (value: unknown) => SiteMedia | null
   /** `fallbackLabel` for links whose text is fixed by the design (e.g. a whole card). */
   link: (value: unknown, fallbackLabel?: string) => ResolvedLink | null
+  /** One of the club's documents, or null. */
+  document: (value: unknown) => SiteDocument | null
 }
 
 /**
@@ -27,7 +52,10 @@ export const loadBlockContext = async (
 ): Promise<BlockContext> => {
   const refs = layoutRefs(layout)
   const pageIDs = [...new Set(refs.filter((r) => r.collection === 'pages').map((r) => r.id))]
-  const [media, pages] = await Promise.all([
+  const documentIDs = [
+    ...new Set(refs.filter((r) => r.collection === 'documents').map((r) => r.id)),
+  ]
+  const [media, pages, documents] = await Promise.all([
     loadClubMedia(
       payload,
       tenantID,
@@ -45,10 +73,41 @@ export const loadBlockContext = async (
             overrideAccess: true,
           })
           .then(({ docs }) => new Map(docs.map((d) => [String(d.id), String(d.slug)]))),
+    documentIDs.length === 0
+      ? Promise.resolve(new Map<string, SiteDocument>())
+      : payload
+          .find({
+            // No `select`: a file's address is worked out from its folder and stored name.
+            collection: 'documents',
+            where: { and: [{ id: { in: documentIDs } }, { tenant: { equals: tenantID } }] },
+            limit: documentIDs.length,
+            depth: 0,
+            overrideAccess: true,
+          })
+          .then(
+            ({ docs }) =>
+              new Map(
+                docs
+                  .filter((d) => typeof d.url === 'string' && TYPE_NAMES[d.mimeType ?? ''])
+                  .map((d) => [
+                    String(d.id),
+                    {
+                      id: String(d.id),
+                      title: String(d.title),
+                      category: String(d.category ?? 'other'),
+                      url: String(d.url),
+                      type: TYPE_NAMES[d.mimeType ?? ''],
+                      size: formatSize(d.filesize),
+                      lastReviewed: d.lastReviewed ? String(d.lastReviewed) : null,
+                    },
+                  ]),
+              ),
+          ),
   ])
 
   return {
     media: (value) => media.get(idOf(value) ?? '') ?? null,
+    document: (value) => documents.get(idOf(value) ?? '') ?? null,
     link: (value, fallbackLabel) => {
       const raw = (value ?? {}) as {
         label?: string | null

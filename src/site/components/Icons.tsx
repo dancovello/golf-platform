@@ -65,3 +65,20 @@ export const Expand = ({ size = 16 }: IconProps) => (
     <path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7" />
   </svg>
 )
+export const FileIcon = ({ size = 20 }: IconProps) => (
+  <svg {...base(size)}>
+    <path d="M7 3h7l4 4v14H7z" />
+    <path d="M14 3v4h4" />
+  </svg>
+)
+export const Download = ({ size = 16 }: IconProps) => (
+  <svg {...base(size)}>
+    <path d="M12 4v11M7 10l5 5 5-5M5 20h14" />
+  </svg>
+)
+export const Search = ({ size = 18 }: IconProps) => (
+  <svg {...base(size)}>
+    <circle cx="11" cy="11" r="6" />
+    <path d="M20 20l-4.5-4.5" />
+  </svg>
+)

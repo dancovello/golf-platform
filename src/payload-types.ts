@@ -72,6 +72,7 @@ export interface Config {
     pages: Page;
     'club-settings': ClubSetting;
     media: Media;
+    documents: Document;
     'totp-attempts': TotpAttempt;
     'payload-kv': PayloadKv;
     'payload-preferences': PayloadPreference;
@@ -84,6 +85,7 @@ export interface Config {
     pages: PagesSelect<false> | PagesSelect<true>;
     'club-settings': ClubSettingsSelect<false> | ClubSettingsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    documents: DocumentsSelect<false> | DocumentsSelect<true>;
     'totp-attempts': TotpAttemptsSelect<false> | TotpAttemptsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -179,7 +181,17 @@ export interface Page {
    * The page address, e.g. "membership" for /membership. Use "home" for the home page.
    */
   slug: string;
-  layout?: (HeroBlock | CtaCardGridBlock | TwoColumnBlock | RichTextBlock | RateTableBlock | GalleryBlock)[] | null;
+  layout?:
+    | (
+        | HeroBlock
+        | CtaCardGridBlock
+        | TwoColumnBlock
+        | RichTextBlock
+        | RateTableBlock
+        | GalleryBlock
+        | DocumentListBlock
+      )[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -508,6 +520,58 @@ export interface GalleryBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DocumentListBlock".
+ */
+export interface DocumentListBlock {
+  style: 'grouped' | 'cards' | 'table';
+  eyebrow?: string | null;
+  heading: string;
+  /**
+   * In the order you want them. Style A groups them by category.
+   */
+  documents: (string | Document)[];
+  viewAll?: {
+    label?: string | null;
+    type?: ('page' | 'url') | null;
+    page?: (string | null) | Page;
+    /**
+     * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+     */
+    url?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'documentList';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documents".
+ */
+export interface Document {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  title: string;
+  category: 'course' | 'policies' | 'forms' | 'minutes' | 'visitors' | 'other';
+  /**
+   * Required for policies. Shown on the site; flagged after 12 months.
+   */
+  lastReviewed?: string | null;
+  prefix?: string | null;
+  _objectKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "club-settings".
  */
 export interface ClubSetting {
@@ -819,6 +883,7 @@ export interface PagesSelect<T extends boolean = true> {
         richText?: T | RichTextBlockSelect<T>;
         rateTable?: T | RateTableBlockSelect<T>;
         gallery?: T | GalleryBlockSelect<T>;
+        documentList?: T | DocumentListBlockSelect<T>;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -1012,6 +1077,26 @@ export interface GalleryBlockSelect<T extends boolean = true> {
         caption?: T;
         album?: T;
         id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DocumentListBlock_select".
+ */
+export interface DocumentListBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  documents?: T;
+  viewAll?:
+    | T
+    | {
+        label?: T;
+        type?: T;
+        page?: T;
+        url?: T;
       };
   id?: T;
   blockName?: T;
@@ -1220,6 +1305,29 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documents_select".
+ */
+export interface DocumentsSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  category?: T;
+  lastReviewed?: T;
+  prefix?: T;
+  _objectKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -1,0 +1,287 @@
+/* Document List. Figma page "Document List"; docs/design/11 and 13. Roles only. */
+.dl a {
+  color: inherit;
+  text-decoration: none;
+}
+.dl-tag {
+  display: inline-block;
+  padding: 2px var(--space-8);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-subtle);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 10px;
+}
+.on-subtle .dl-tag {
+  background: var(--color-surface-canvas);
+}
+.dl-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4) var(--space-12);
+  color: var(--color-text-secondary);
+}
+.dl-type {
+  padding: 2px var(--space-8);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+}
+.dl-cards .dl-type {
+  padding: 0;
+  border: 0;
+}
+.dl-overdue {
+  /* The status colour is too light for text on its own (about 2:1); mixed with the club's
+     Dark it reads at about 5:1 and still looks like a warning. */
+  color: color-mix(in srgb, var(--color-status-restricted) 55%, var(--brand-dark));
+}
+.dl-download {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+/* A · Grouped: 280px category column, rows on the right starting with a strong rule */
+.dl-groups {
+  display: grid;
+  gap: var(--space-48);
+}
+.dl-group {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: var(--space-48);
+}
+.dl-group-head h3 {
+  margin: 0;
+}
+.dl-group-head .dl-count {
+  display: none;
+  margin: var(--space-4) 0 0;
+  color: var(--color-text-secondary);
+}
+.dl-rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--color-border-strong);
+}
+.dl-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+  padding: var(--space-16) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.dl-row:hover .dl-title {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.dl-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-subtle);
+  color: var(--color-text-brand);
+}
+.dl-row-text {
+  display: grid;
+  gap: var(--space-4);
+  flex: 1;
+}
+.dl-row .dl-download {
+  margin-left: auto;
+}
+
+/* B · Cards: 3-up raised cards */
+.dl-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-24);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dl-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: var(--space-24);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+}
+.dl-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-24);
+}
+.dl-icon-plain {
+  color: var(--color-text-brand);
+}
+.dl-card .dl-card-title {
+  margin-bottom: var(--space-24);
+}
+.dl-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: var(--space-16);
+  border-top: 1px solid var(--color-border-subtle);
+}
+.dl-card:hover .dl-card-title {
+  text-decoration: underline;
+  text-underline-offset: 6px;
+  text-decoration-thickness: 1px;
+}
+
+/* C · Library: search right of the heading, category tabs with counts, real table */
+.dl-table-block .blk-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  column-gap: var(--space-24);
+}
+.dl-table-block .blk-header {
+  flex: 1 1 320px;
+}
+.dl-table-block .blk-container > :not(.blk-header):not(.dl-search) {
+  flex: 1 1 100%;
+}
+.dl-search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  width: 360px;
+  margin-bottom: var(--space-48);
+  padding: 0 var(--space-16);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  color: var(--color-text-secondary);
+}
+.dl-search input {
+  flex: 1;
+  min-height: var(--size-control);
+  border: 0;
+  background: none;
+  color: var(--color-text-primary);
+  font-family: inherit;
+}
+.dl-search input:focus {
+  outline: none;
+}
+.dl-search:focus-within {
+  outline: 2px solid var(--color-action-accent);
+  outline-offset: 2px;
+}
+.dl-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.dl-table th,
+.dl-table td {
+  padding: var(--space-16) var(--space-16) var(--space-16) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+  text-align: left;
+  font-weight: 400;
+}
+.dl-table thead th {
+  padding-top: var(--space-12);
+  padding-bottom: var(--space-12);
+  border-bottom-color: var(--color-border-strong);
+  color: var(--color-text-secondary);
+}
+.dl-download-cell {
+  text-align: right !important;
+  padding-right: 0 !important;
+}
+.dl-empty {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+.dl-clear {
+  border: 0;
+  background: none;
+  color: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+@media (max-width: 1023px) {
+  .dl-group {
+    grid-template-columns: 200px minmax(0, 1fr);
+  }
+  .dl-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 767px) {
+  .dl-group {
+    grid-template-columns: 1fr;
+    gap: var(--space-16);
+  }
+  .dl-group-head .dl-count {
+    display: block;
+  }
+  .dl-row .dl-download {
+    font-size: 0;
+    gap: 0;
+  }
+  .dl-cards {
+    grid-template-columns: 1fr;
+  }
+  .dl-search {
+    width: 100%;
+    margin-bottom: var(--space-24);
+  }
+  /* Library rows collapse to stacked cards */
+  .dl-table thead {
+    display: none;
+  }
+  .dl-table,
+  .dl-table tbody,
+  .dl-table tr {
+    display: block;
+  }
+  .dl-table tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--space-8);
+    padding: var(--space-16) 0;
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+  .dl-table th,
+  .dl-table td {
+    display: block;
+    padding: 0;
+    border: 0;
+  }
+  .dl-table th {
+    grid-column: 1 / -1;
+  }
+  .dl-table .dl-download-cell {
+    grid-column: 2;
+    grid-row: 2 / span 3;
+    align-self: center;
+  }
+}
+/* Phones: category tabs scroll sideways rather than wrap (docs/design/13) */
+.dl-tabs .tab {
+  flex: none;
+  white-space: nowrap;
+}
+@media (max-width: 767px) {
+  .dl-tabs {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+}
