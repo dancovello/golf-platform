@@ -38,6 +38,34 @@ const homeA = await w.payload.create({
   } as never,
 })
 
+// Club A's gallery page (tests/e2e/site-gallery.spec.ts): 13 photos, so "Load more" shows.
+const galleryPhotos = []
+for (let i = 1; i <= 13; i++) {
+  galleryPhotos.push(
+    await w.payload.create({
+      collection: 'media',
+      data: { alt: `Gallery photo ${i}`, tenant: w.clubA.id },
+      file: await photoFile(`gallery-${i}.jpg`, 800, 600),
+    }),
+  )
+}
+await w.payload.create({
+  collection: 'pages',
+  data: {
+    title: 'Gallery',
+    slug: 'gallery',
+    tenant: w.clubA.id,
+    layout: [
+      {
+        blockType: 'gallery',
+        style: 'grid',
+        heading: 'Around the club',
+        images: galleryPhotos.map((m) => ({ image: m.id })),
+      },
+    ],
+  } as never,
+})
+
 // Club A's header and menu, for the public site tests (tests/e2e/site-header.spec.ts).
 await w.payload.update({
   collection: 'club-settings',

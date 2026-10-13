@@ -60,3 +60,8 @@ export const Pin = ({ size = 16 }: IconProps) => (
     <circle cx="12" cy="10" r="2.5" />
   </svg>
 )
+export const Expand = ({ size = 16 }: IconProps) => (
+  <svg {...base(size)}>
+    <path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7" />
+  </svg>
+)

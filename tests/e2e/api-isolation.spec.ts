@@ -11,14 +11,12 @@ const MADE_UP_ID = '00000000-0000-4000-8000-000000000000'
 test.describe("REST API as club A's editor", () => {
   test('lists only club A pages and club settings', async ({ editorPage, world }) => {
     const pages = await (await editorPage.request.get('/api/pages')).json()
-    expect(pages.docs.map((d: { id: string }) => d.id).sort()).toEqual(
-      [world.pageA.id, world.homeA.id].sort(),
-    )
-    expect(
-      pages.docs.every((d: { tenant: unknown }) =>
-        JSON.stringify(d.tenant).includes(world.clubA.id),
-      ),
-    ).toBe(true)
+    const ids = pages.docs.map((d: { id: string }) => d.id)
+    expect(ids).toEqual(expect.arrayContaining([world.pageA.id, world.homeA.id]))
+    expect(ids).not.toContain(world.pageB.id)
+    for (const d of pages.docs as { tenant: unknown }[]) {
+      expect(JSON.stringify(d.tenant)).toContain(world.clubA.id)
+    }
     const settings = await (await editorPage.request.get('/api/club-settings')).json()
     expect(settings.docs.map((d: { id: string }) => d.id)).toEqual([world.settingsA.id])
   })
