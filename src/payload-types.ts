@@ -179,7 +179,7 @@ export interface Page {
    * The page address, e.g. "membership" for /membership. Use "home" for the home page.
    */
   slug: string;
-  layout?: (HeroBlock | CtaCardGridBlock | TwoColumnBlock | RichTextBlock | RateTableBlock)[] | null;
+  layout?: (HeroBlock | CtaCardGridBlock | TwoColumnBlock | RichTextBlock | RateTableBlock | GalleryBlock)[] | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -482,6 +482,29 @@ export interface RateTableBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'rateTable';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GalleryBlock".
+ */
+export interface GalleryBlock {
+  style: 'masonry' | 'grid' | 'viewer';
+  eyebrow?: string | null;
+  heading: string;
+  images?:
+    | {
+        image: string | Media;
+        caption?: string | null;
+        /**
+         * e.g. "The course". Photos with the same album are filtered together.
+         */
+        album?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'gallery';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -795,6 +818,7 @@ export interface PagesSelect<T extends boolean = true> {
         twoColumn?: T | TwoColumnBlockSelect<T>;
         richText?: T | RichTextBlockSelect<T>;
         rateTable?: T | RateTableBlockSelect<T>;
+        gallery?: T | GalleryBlockSelect<T>;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -970,6 +994,25 @@ export interface RateTableBlockSelect<T extends boolean = true> {
         id?: T;
       };
   showPhone?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GalleryBlock_select".
+ */
+export interface GalleryBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  images?:
+    | T
+    | {
+        image?: T;
+        caption?: T;
+        album?: T;
+        id?: T;
+      };
   id?: T;
   blockName?: T;
 }

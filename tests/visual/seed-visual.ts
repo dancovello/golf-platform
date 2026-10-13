@@ -462,6 +462,56 @@ for (const [slug, p] of Object.entries(palettes)) {
       showPhone: true,
     },
   ])
+
+  // Mixed shapes for the masonry; more than 12 so the grid shows "Load more".
+  const shapes: [number, number][] = [
+    [1200, 1600],
+    [1600, 1200],
+    [1600, 1000],
+    [1200, 1200],
+    [1600, 1200],
+    [1200, 1500],
+    [1600, 1100],
+    [1600, 1200],
+    [1200, 1600],
+    [1600, 1000],
+    [1600, 1200],
+    [1200, 1200],
+    [1600, 1200],
+    [1600, 1000],
+  ]
+  const albums = ['The course', 'Clubhouse', 'Events']
+  const galleryPhotos = []
+  for (const [i, [w, h]] of shapes.entries())
+    galleryPhotos.push(await photo(`Gallery ${i + 1}`, w, h))
+  const galleryImages = galleryPhotos.map((m, i) => ({
+    image: m.id,
+    caption: i === 0 ? 'The clubhouse from the 18th green, late September' : null,
+    album: albums[i % 3],
+  }))
+  await page('gallery', 'Gallery', [
+    {
+      blockType: 'gallery',
+      style: 'masonry',
+      eyebrow: 'Gallery',
+      heading: 'Around the club',
+      images: galleryImages.slice(0, 9),
+    },
+    {
+      blockType: 'gallery',
+      style: 'grid',
+      eyebrow: 'Gallery',
+      heading: 'The course through the seasons',
+      images: galleryImages,
+    },
+    {
+      blockType: 'gallery',
+      style: 'viewer',
+      eyebrow: 'Gallery',
+      heading: 'A walk round the course',
+      images: galleryImages.slice(0, 10),
+    },
+  ])
 }
 
 process.exit(0)

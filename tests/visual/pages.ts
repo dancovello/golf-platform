@@ -20,4 +20,5 @@ export const VISUAL_PAGES = [
   'two-column',
   'rich-text',
   'rate-table',
+  'gallery',
 ] as const

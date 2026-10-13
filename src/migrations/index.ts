@@ -11,6 +11,7 @@ import * as migration_20261012_153502_cta_card_grid from './20261012_153502_cta_
 import * as migration_20261012_154742_two_column from './20261012_154742_two_column';
 import * as migration_20261012_161340_rich_text from './20261012_161340_rich_text';
 import * as migration_20261012_171616_rate_table from './20261012_171616_rate_table';
+import * as migration_20261013_065044_gallery from './20261013_065044_gallery';
 
 export const migrations = [
   {
@@ -76,6 +77,11 @@ export const migrations = [
   {
     up: migration_20261012_171616_rate_table.up,
     down: migration_20261012_171616_rate_table.down,
-    name: '20261012_171616_rate_table'
+    name: '20261012_171616_rate_table',
+  },
+  {
+    up: migration_20261013_065044_gallery.up,
+    down: migration_20261013_065044_gallery.down,
+    name: '20261013_065044_gallery'
   },
 ];

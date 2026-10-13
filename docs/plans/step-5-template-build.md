@@ -22,4 +22,6 @@ Every block is **one block with a Design style choice (A / B / C)** from the Fig
 - Font sets: Heritage, Editorial, Contemporary (swap any later)
 - Hero C uses the club's booking button instead of the tee-time search bar
 - Editorial font set: Fraunces headings look heavier than Cormorant at the same size
+- Price table C on phones: booking panel sits below the prices (spec wanted a fixed bottom bar)
+- Gallery C is an on-page viewer (Figma's C is the full-screen viewer that A and B open)
 - Open decisions: email provider (newsletter, contact form), site search (wanted?)
