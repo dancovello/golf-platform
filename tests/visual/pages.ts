@@ -25,4 +25,5 @@ export const VISUAL_PAGES = [
   'map',
   'pull-quote',
   'timeline',
+  'logo-strip',
 ] as const

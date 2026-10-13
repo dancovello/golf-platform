@@ -177,3 +177,21 @@ describe('quote', () => {
     expect(errorPaths(error)).toContain('layout.0.image')
   })
 })
+
+describe('logo strip', () => {
+  it("refuses club B's logo and unsafe websites", async () => {
+    const error = await save([
+      { blockType: 'logoStrip', style: 'row', partners: [{ name: 'B', logo: w.mediaB.id }] },
+    ]).catch((e: unknown) => e)
+    expect(errorPaths(error)).toContain('layout.0.partners.0.logo')
+    await expect(
+      save([
+        {
+          blockType: 'logoStrip',
+          style: 'row',
+          partners: [{ name: 'X', url: 'javascript:alert(1)' }],
+        },
+      ]),
+    ).rejects.toThrow()
+  })
+})

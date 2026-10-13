@@ -685,6 +685,33 @@ for (const [slug, p] of Object.entries(palettes)) {
       entries: milestones,
     },
   ])
+
+  const partners = [
+    'Heathland Trust',
+    'Fairway Collective',
+    'County Golf Union',
+    'Junior Golf Foundation',
+    'Greens Certified',
+    'The Links Guild',
+  ].map((name) => ({ name, url: 'https://example.com' }))
+  await page('logo-strip', 'Partners', [
+    { blockType: 'logoStrip', style: 'row', eyebrow: 'Accredited & supported by', partners },
+    {
+      blockType: 'logoStrip',
+      style: 'grid',
+      eyebrow: 'Partners',
+      heading: 'In good company',
+      intro:
+        'The organisations that certify our course, coach our juniors and help protect the heathland.',
+      partners,
+    },
+    {
+      blockType: 'logoStrip',
+      style: 'marquee',
+      eyebrow: 'Our partners',
+      partners: [...partners, ...partners.slice(0, 2)],
+    },
+  ])
 }
 
 process.exit(0)

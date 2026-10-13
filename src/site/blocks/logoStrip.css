@@ -1,0 +1,165 @@
+/* Partner / Logo Strip. Figma page "Partner / Logo Strip"; docs/design/11 and 13. */
+.ls {
+  font-family: var(--font-body);
+}
+.ls-slot {
+  color: var(--color-text-secondary);
+}
+.ls-marquee .ls-slot {
+  color: var(--color-text-on-inverse-muted);
+}
+.ls ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ls-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 180px;
+  height: 72px;
+  flex: none;
+}
+.ls-slot a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+.ls-slot a:focus-visible {
+  outline: 2px solid var(--color-action-accent);
+  outline-offset: 2px;
+}
+/* One tone: the logo's shape filled with the text colour; full strength on hover/focus */
+.ls-logo {
+  display: block;
+  width: 100%;
+  height: 40px;
+  background-color: currentColor;
+  -webkit-mask: var(--logo) center / contain no-repeat;
+  mask: var(--logo) center / contain no-repeat;
+  opacity: 0.85;
+  transition: opacity 150ms ease-out;
+}
+.ls-wordmark {
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  opacity: 0.85;
+}
+.ls-slot a:hover .ls-logo,
+.ls-slot a:hover .ls-wordmark,
+.ls-slot a:focus-visible .ls-logo {
+  opacity: 1;
+}
+
+/* A · Row: padding 64/40, logos spaced across the container */
+.ls-row-block {
+  padding: var(--space-64) var(--space-40);
+  background: var(--color-surface-canvas);
+}
+.ls .ls-eyebrow {
+  margin: 0 0 var(--space-24);
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+.ls-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-16);
+}
+
+/* B · Grid: intro beside a ruled 3-column grid */
+.ls-grid-layout {
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap: var(--space-64);
+  align-items: center;
+}
+.ls .ls-intro {
+  margin: var(--space-16) 0 0;
+}
+.ls-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid var(--color-border-subtle);
+  border-left: 1px solid var(--color-border-subtle);
+}
+.ls-grid .ls-slot {
+  width: auto;
+  height: auto;
+  min-height: 120px;
+  padding: var(--space-32) var(--space-24);
+  border-right: 1px solid var(--color-border-subtle);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+/* C · Marquee: slow continuous loop on the brand colour, edge fade, pause on hover/focus */
+.ls-marquee {
+  padding: var(--space-48) 0;
+  background: var(--color-surface-brand);
+}
+.ls-marquee-viewport {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.ls-marquee-track {
+  display: flex;
+  gap: var(--space-48);
+  width: max-content;
+  animation: ls-scroll 40s linear infinite;
+}
+.ls-marquee:hover .ls-marquee-track,
+.ls-marquee:focus-within .ls-marquee-track {
+  animation-play-state: paused;
+}
+@keyframes ls-scroll {
+  to {
+    transform: translateX(calc(-50% - var(--space-24)));
+  }
+}
+
+@media (max-width: 1023px) {
+  .ls-row {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .ls-row .ls-slot {
+    width: calc(33% - var(--space-16));
+  }
+  .ls-grid-layout {
+    grid-template-columns: 1fr;
+    gap: var(--space-32);
+  }
+  .ls-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 767px) {
+  .ls-row-block {
+    padding: var(--space-48) 20px;
+  }
+  /* Row: two-up, centred (docs/design/13) */
+  .ls-row .ls-slot {
+    width: calc(50% - var(--space-16));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ls-marquee-track {
+    animation: none;
+  }
+  .ls-marquee-viewport {
+    overflow-x: auto;
+  }
+  .ls-marquee-track > [aria-hidden='true'] {
+    display: none;
+  }
+  .ls-logo {
+    transition: none;
+  }
+}
