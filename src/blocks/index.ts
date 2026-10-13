@@ -8,6 +8,7 @@ import { richText } from './richText/config'
 import { twoColumn } from './twoColumn/config'
 import { pullQuote } from './pullQuote/config'
 import { timeline } from './timeline/config'
+import { logoStrip } from './logoStrip/config'
 import type { BlockDefinition, BlockRef } from './types'
 
 /** Every block a club can add to a page. The website side is in src/site/blocks. */
@@ -22,6 +23,7 @@ export const blockDefinitions: BlockDefinition[] = [
   map,
   pullQuote,
   timeline,
+  logoStrip,
 ]
 
 export const pageBlocks = blockDefinitions.map((b) => b.config)

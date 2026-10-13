@@ -193,6 +193,7 @@ export interface Page {
         | MapBlock
         | PullQuoteBlock
         | TimelineBlock
+        | LogoStripBlock
       )[]
     | null;
   updatedAt: string;
@@ -648,6 +649,33 @@ export interface TimelineBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LogoStripBlock".
+ */
+export interface LogoStripBlock {
+  style: 'row' | 'grid' | 'marquee';
+  /**
+   * e.g. "Accredited & supported by"
+   */
+  eyebrow?: string | null;
+  heading?: string | null;
+  intro?: string | null;
+  /**
+   * Style A shows up to 6. PNG or WebP with a transparent background works best.
+   */
+  partners?:
+    | {
+        name: string;
+        url?: string | null;
+        logo?: (string | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'logoStrip';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "club-settings".
  */
 export interface ClubSetting {
@@ -984,6 +1012,7 @@ export interface PagesSelect<T extends boolean = true> {
         map?: T | MapBlockSelect<T>;
         pullQuote?: T | PullQuoteBlockSelect<T>;
         timeline?: T | TimelineBlockSelect<T>;
+        logoStrip?: T | LogoStripBlockSelect<T>;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -1251,6 +1280,26 @@ export interface TimelineBlockSelect<T extends boolean = true> {
         title?: T;
         text?: T;
         image?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LogoStripBlock_select".
+ */
+export interface LogoStripBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  intro?: T;
+  partners?:
+    | T
+    | {
+        name?: T;
+        url?: T;
+        logo?: T;
         id?: T;
       };
   id?: T;
