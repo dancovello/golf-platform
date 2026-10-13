@@ -2,6 +2,7 @@ import type { Payload } from 'payload'
 
 import { layoutRefs } from '@/blocks'
 import { idOf } from '@/blocks/types'
+import { TEE_COLOURS, type TeeColour, yardsField } from '@/collections/courseTees'
 import { isSafeURL } from '@/fields/link'
 
 import type { SiteLink } from '../loadClub'
@@ -95,6 +96,73 @@ const loadClubStaff = async (
   )
 }
 
+export type SiteTee = {
+  colour: TeeColour
+  /** "White", "Yellow"… */
+  name: string
+  rating: number | null
+  slope: number | null
+}
+
+export type SiteHole = {
+  number: number
+  name: string | null
+  par: number
+  strokeIndex: number | null
+  /** Yards from each of the course's tees, in the same order as `tees` (null if not set). */
+  yards: (number | null)[]
+  image: SiteMedia | null
+  tip: string | null
+}
+
+export type SiteCourse = { id: string; name: string; tees: SiteTee[]; holes: SiteHole[] }
+
+/** Courses by ID, only if they belong to this club, with their (same-club) hole photos. */
+const loadClubCourses = async (
+  payload: Payload,
+  tenantID: string,
+  ids: string[],
+): Promise<Map<string, SiteCourse>> => {
+  if (ids.length === 0) return new Map()
+  const { docs } = await payload.find({
+    collection: 'courses',
+    where: { and: [{ id: { in: ids } }, { tenant: { equals: tenantID } }] },
+    limit: ids.length,
+    depth: 0,
+    overrideAccess: true,
+  })
+  const photos = await loadClubMedia(
+    payload,
+    tenantID,
+    docs
+      .flatMap((d) => (d.holes ?? []).map((h) => idOf(h.image)))
+      .filter((id): id is string => Boolean(id)),
+  )
+  return new Map(
+    docs.map((d) => {
+      const tees: SiteTee[] = (d.tees ?? []).map((t) => ({
+        colour: t.colour,
+        name: TEE_COLOURS.find((c) => c.value === t.colour)?.label ?? t.colour,
+        rating: t.rating ?? null,
+        slope: t.slope ?? null,
+      }))
+      const holes: SiteHole[] = (d.holes ?? []).map((h, i) => {
+        const image = photos.get(idOf(h.image) ?? '') ?? null
+        return {
+          number: i + 1,
+          name: h.name?.trim() || null,
+          par: h.par,
+          strokeIndex: h.strokeIndex ?? null,
+          yards: tees.map((t) => h[yardsField(t.colour)] ?? null),
+          image: image?.mimeType.startsWith('image/') ? image : null,
+          tip: h.tip?.trim() || null,
+        }
+      })
+      return [String(d.id), { id: String(d.id), name: d.name, tees, holes }]
+    }),
+  )
+}
+
 /** What a block's website component gets: its own data, with pages and photos looked up. */
 export type BlockContext = {
   media: (value: unknown) => SiteMedia | null
@@ -104,6 +172,8 @@ export type BlockContext = {
   document: (value: unknown) => SiteDocument | null
   /** One of the club's team members, or null. */
   person: (value: unknown) => SitePerson | null
+  /** One of the club's courses, or null. */
+  course: (value: unknown) => SiteCourse | null
 }
 
 /**
@@ -121,7 +191,8 @@ export const loadBlockContext = async (
     ...new Set(refs.filter((r) => r.collection === 'documents').map((r) => r.id)),
   ]
   const staffIDs = [...new Set(refs.filter((r) => r.collection === 'staff').map((r) => r.id))]
-  const [media, pages, documents, staff] = await Promise.all([
+  const courseIDs = [...new Set(refs.filter((r) => r.collection === 'courses').map((r) => r.id))]
+  const [media, pages, documents, staff, courses] = await Promise.all([
     loadClubMedia(
       payload,
       tenantID,
@@ -170,12 +241,14 @@ export const loadBlockContext = async (
               ),
           ),
     loadClubStaff(payload, tenantID, staffIDs),
+    loadClubCourses(payload, tenantID, courseIDs),
   ])
 
   return {
     media: (value) => media.get(idOf(value) ?? '') ?? null,
     document: (value) => documents.get(idOf(value) ?? '') ?? null,
     person: (value) => staff.get(idOf(value) ?? '') ?? null,
+    course: (value) => courses.get(idOf(value) ?? '') ?? null,
     link: (value, fallbackLabel) => {
       const raw = (value ?? {}) as {
         label?: string | null

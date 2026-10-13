@@ -965,6 +965,70 @@ for (const [slug, p] of Object.entries(palettes)) {
       },
     },
   ])
+
+  const holePhotos = [
+    await photo('Hole one', 1600, 1067),
+    await photo('Hole two', 1600, 1067),
+    await photo('Hole three', 1600, 1067),
+    await photo('Hole four', 1600, 1067),
+  ]
+  // Hole name, par, stroke index, white / yellow / red yards.
+  const holeCard: [string, number, number, number, number, number][] = [
+    ['Heather Gate', 4, 7, 420, 398, 352],
+    ['The Firs', 4, 1, 446, 425, 380],
+    ['Short Cut', 3, 15, 168, 152, 128],
+    ['Long Ride', 5, 5, 532, 510, 455],
+    ['The Pond', 4, 11, 395, 372, 330],
+    ['Spion Kop', 3, 13, 192, 176, 150],
+    ['Dogleg', 4, 3, 431, 410, 362],
+    ['Windmill', 5, 9, 548, 522, 470],
+    ['Home Pine', 4, 17, 415, 392, 348],
+    ['Bracken', 4, 4, 438, 418, 368],
+    ['The Dell', 3, 16, 178, 160, 136],
+    ['Long Acre', 5, 6, 560, 535, 478],
+    ['Birches', 4, 2, 452, 430, 384],
+    ['The Ditch', 3, 14, 205, 186, 160],
+    ['Ridgeway', 5, 10, 520, 498, 446],
+    ['Gorse', 4, 12, 402, 380, 335],
+    ['Clubhouse View', 4, 8, 440, 418, 372],
+    ['The Home Hole', 4, 18, 432, 410, 365],
+  ]
+  const tips = [
+    'A gentle opener through the heather. Favour the right half; the green slopes hard from back to front.',
+    'The hardest hole on the card. A long iron in is normal — bail out short, never left.',
+    'Only a short iron, but the green is a shelf. Take one more club than you think.',
+  ]
+  const championship = await payload.create({
+    collection: 'courses',
+    data: {
+      name: 'The Championship course',
+      tenant: club.id,
+      tees: [
+        { colour: 'white', rating: 74.1, slope: 138 },
+        { colour: 'yellow', rating: 72.3, slope: 131 },
+        { colour: 'red', rating: 75.2, slope: 134 },
+      ],
+      holes: holeCard.map(([name, par, strokeIndex, yardsWhite, yardsYellow, yardsRed], i) => ({
+        name,
+        par,
+        strokeIndex,
+        yardsWhite,
+        yardsYellow,
+        yardsRed,
+        image: holePhotos[i % holePhotos.length].id,
+        tip: tips[i % tips.length],
+      })),
+    } as never,
+  })
+  await page('holes', 'The course', [
+    ...(['cards', 'carousel', 'guide'] as const).map((style) => ({
+      blockType: 'holeGrid',
+      style,
+      eyebrow: 'The Championship course',
+      heading: 'Hole by hole',
+      course: championship.id,
+    })),
+  ])
 }
 
 process.exit(0)

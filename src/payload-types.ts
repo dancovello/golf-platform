@@ -74,6 +74,7 @@ export interface Config {
     media: Media;
     documents: Document;
     staff: Staff;
+    courses: Course;
     'totp-attempts': TotpAttempt;
     'payload-kv': PayloadKv;
     'payload-preferences': PayloadPreference;
@@ -88,6 +89,7 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     documents: DocumentsSelect<false> | DocumentsSelect<true>;
     staff: StaffSelect<false> | StaffSelect<true>;
+    courses: CoursesSelect<false> | CoursesSelect<true>;
     'totp-attempts': TotpAttemptsSelect<false> | TotpAttemptsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -199,6 +201,7 @@ export interface Page {
         | FaqBlock
         | TeamBlock
         | MembershipBlock
+        | HoleGridBlock
       )[]
     | null;
   updatedAt: string;
@@ -911,6 +914,69 @@ export interface MembershipBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HoleGridBlock".
+ */
+export interface HoleGridBlock {
+  style: 'cards' | 'carousel' | 'guide';
+  eyebrow?: string | null;
+  heading: string;
+  /**
+   * Holes, tees and photos come from Courses.
+   */
+  course: string | Course;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'holeGrid';
+}
+/**
+ * Each course’s holes and tees, for the Hole-by-hole and Scorecard blocks.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "courses".
+ */
+export interface Course {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  /**
+   * e.g. "The Championship course"
+   */
+  name: string;
+  /**
+   * The first tee is the one shown when only one yardage fits.
+   */
+  tees?:
+    | {
+        colour: 'white' | 'yellow' | 'red' | 'blue';
+        rating?: number | null;
+        slope?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * In order, from hole 1. Fill in the yards for the tees you have.
+   */
+  holes?:
+    | {
+        name?: string | null;
+        par: number;
+        strokeIndex?: number | null;
+        yardsWhite?: number | null;
+        yardsYellow?: number | null;
+        yardsRed?: number | null;
+        yardsBlue?: number | null;
+        image?: (string | null) | Media;
+        /**
+         * One or two sentences.
+         */
+        tip?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "club-settings".
  */
 export interface ClubSetting {
@@ -1251,6 +1317,7 @@ export interface PagesSelect<T extends boolean = true> {
         faq?: T | FaqBlockSelect<T>;
         team?: T | TeamBlockSelect<T>;
         membership?: T | MembershipBlockSelect<T>;
+        holeGrid?: T | HoleGridBlockSelect<T>;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -1676,6 +1743,18 @@ export interface MembershipBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HoleGridBlock_select".
+ */
+export interface HoleGridBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  course?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "club-settings_select".
  */
 export interface ClubSettingsSelect<T extends boolean = true> {
@@ -1924,6 +2003,38 @@ export interface StaffSelect<T extends boolean = true> {
   bio?: T;
   email?: T;
   phone?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "courses_select".
+ */
+export interface CoursesSelect<T extends boolean = true> {
+  tenant?: T;
+  name?: T;
+  tees?:
+    | T
+    | {
+        colour?: T;
+        rating?: T;
+        slope?: T;
+        id?: T;
+      };
+  holes?:
+    | T
+    | {
+        name?: T;
+        par?: T;
+        strokeIndex?: T;
+        yardsWhite?: T;
+        yardsYellow?: T;
+        yardsRed?: T;
+        yardsBlue?: T;
+        image?: T;
+        tip?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }

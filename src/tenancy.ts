@@ -11,6 +11,7 @@ export const clubOwnedCollections = {
   media: {},
   documents: {},
   staff: {},
+  courses: {},
   // One record per club: the plugin's "global" mode. Never a real Payload global.
   'club-settings': { isGlobal: true },
 } as const

@@ -4,7 +4,16 @@ import { getPayload } from 'payload'
 import { allowAccountCreation } from '@/access/accountCreation'
 import { createSuperAdmin } from '@/accounts/createSuperAdmin'
 import config from '@/payload.config'
-import type { ClubSetting, Document, Media, Page, Staff, Tenant, User } from '@/payload-types'
+import type {
+  ClubSetting,
+  Course,
+  Document,
+  Media,
+  Page,
+  Staff,
+  Tenant,
+  User,
+} from '@/payload-types'
 
 import { ensureMediaBucket, pdfFile, pngFile } from '../../shared/media'
 import { TEST_TOTP_SECRET } from '../../shared/totp'
@@ -42,6 +51,8 @@ export type World = {
   docB: Document
   staffA: Staff
   staffB: Staff
+  courseA: Course
+  courseB: Course
 }
 
 /** Refuses to run against anything but the golf_test database. */
@@ -62,6 +73,7 @@ export const resetDatabase = async (payload: Payload) => {
   await payload.delete({ collection: 'media', where: all })
   await payload.delete({ collection: 'documents', where: all })
   await payload.delete({ collection: 'staff', where: all })
+  await payload.delete({ collection: 'courses', where: all })
   await payload.delete({ collection: 'club-settings', where: all })
   await payload.delete({ collection: 'payload-preferences', where: all })
   await payload.delete({ collection: 'users', where: all })
@@ -153,5 +165,19 @@ export const seedWorld = async (): Promise<World> => {
       collection: 'staff',
       data: { name: 'Bea Pro', role: 'Head Professional', department: 'golf', tenant: clubB.id },
     }),
+    courseA: await course(payload, 'Club A course', clubA.id),
+    courseB: await course(payload, 'Club B course', clubB.id),
   }
 }
+
+/** A 9-hole course with one tee. */
+export const course = (payload: Payload, name: string, tenant: string) =>
+  payload.create({
+    collection: 'courses',
+    data: {
+      name,
+      tenant,
+      tees: [{ colour: 'white' }],
+      holes: Array.from({ length: 9 }, (_, i) => ({ par: 4, strokeIndex: i + 1, yardsWhite: 400 })),
+    },
+  })

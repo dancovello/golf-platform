@@ -1,0 +1,445 @@
+/* Hole-by-hole (Figma page "Hole-by-Hole + Scorecard", docs/design/09 and 13). */
+
+/* Tee Marker: system colours, always with a word. White gets a strong border. */
+.tee-dot {
+  display: inline-block;
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+}
+.tee-dot.is-white {
+  background: var(--color-tee-white);
+  border: 1px solid var(--color-border-strong);
+}
+.tee-dot.is-yellow {
+  background: var(--color-tee-yellow);
+}
+.tee-dot.is-red {
+  background: var(--color-tee-red);
+}
+.tee-dot.is-blue {
+  background: var(--color-tee-blue);
+}
+
+.holes .hole-number,
+.holes .hole-par {
+  color: var(--color-text-secondary);
+}
+.holes .hole-tip {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+/* Tee yardage list (Guide card and hole details). */
+.holes .hole-tees {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+.hole-tee {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-16);
+  padding: var(--space-8) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.holes .hole-tee dt {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+.holes .hole-tee dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* A: cards. Header left, nine tabs right; 3 columns, gap 24. */
+.holes-cards .blk-container {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: var(--space-24);
+}
+.holes-cards .blk-header {
+  grid-column: 1;
+}
+.holes-cards .tabs {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: end;
+  margin-bottom: var(--space-48);
+  border-bottom: 0;
+}
+.holes-cards [role='tabpanel'] {
+  grid-column: 1 / -1;
+}
+.hole-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-24);
+}
+.hole-cards > [role='listitem'] {
+  display: flex;
+}
+.hole-card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: var(--color-surface-raised);
+  color: var(--color-text-primary);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.hole-card-image {
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  background: var(--color-surface-subtle);
+}
+.hole-card-image img,
+.hole-row-image img,
+.hole-dialog-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.hole-card:hover .t-heading-m {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.hole-card-info {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-16);
+  padding: var(--space-16) var(--space-24) var(--space-24);
+}
+.hole-card-title {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.holes .hole-stats {
+  display: flex;
+  gap: var(--space-16);
+  margin: 0;
+}
+.holes .hole-stats div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.holes .hole-stats dt {
+  color: var(--color-text-secondary);
+}
+.holes .hole-stats dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The hole details opened from a card. */
+.hole-dialog {
+  width: min(880px, calc(100vw - 2 * var(--space-24)));
+  max-height: calc(100dvh - 2 * var(--space-24));
+  padding: 0;
+  border: 0;
+  background: var(--color-surface-canvas);
+  color: var(--color-text-primary);
+}
+.hole-dialog::backdrop {
+  background: var(--color-overlay-scrim);
+}
+.hole-dialog-body {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-40);
+  padding: var(--space-40);
+}
+.hole-dialog-image {
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+}
+.holes .hole-dialog-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+.hole-dialog-close {
+  position: absolute;
+  top: var(--space-12);
+  right: var(--space-12);
+  display: grid;
+  place-items: center;
+  width: var(--size-control);
+  height: var(--size-control);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+/* B: carousel. Cards 340 × 425 (4:5), gap 24; pager in the header. */
+.hole-pager {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+}
+.hole-pager button {
+  display: grid;
+  place-items: center;
+  width: var(--size-control);
+  height: var(--size-control);
+  padding: 0;
+  border: 1px solid var(--color-border-on-inverse);
+  border-radius: var(--radius-full);
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+.hole-pager button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.hole-track {
+  display: flex;
+  gap: var(--space-24);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.hole-track::-webkit-scrollbar {
+  display: none;
+}
+.hole-overlay {
+  position: relative;
+  display: flex;
+  flex: 0 0 340px;
+  flex-direction: column;
+  justify-content: space-between;
+  aspect-ratio: 4 / 5;
+  padding: var(--space-24);
+  overflow: hidden;
+  scroll-snap-align: start;
+  background: var(--color-surface-brand);
+  color: var(--color-text-on-inverse);
+  isolation: isolate;
+}
+.hole-overlay img {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.hole-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    to bottom,
+    var(--color-overlay-scrim) 0%,
+    var(--color-overlay-clear) 35%,
+    var(--color-overlay-clear) 55%,
+    var(--color-overlay-scrim) 100%
+  );
+}
+.hole-overlay-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+.holes .hole-overlay-top .t-display-xl {
+  line-height: 1;
+}
+.holes .hole-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  padding: 6px var(--space-12);
+  border: 1px solid var(--color-border-on-inverse-subtle);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-glass);
+  backdrop-filter: blur(8px);
+  font-variant-numeric: tabular-nums;
+}
+.hole-overlay-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+.hole-overlay-tees {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* C: course guide. Photo 280 (3:2), copy, tee list 180; rows divided by subtle rules. */
+.hole-filter {
+  flex: none;
+}
+.hole-guide {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.hole-guide:not(.is-expanded) .hole-row.is-more {
+  display: none;
+}
+.hole-row {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr) 180px;
+  gap: var(--space-32);
+  align-items: start;
+  padding: var(--space-24) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+  scroll-margin-top: calc(var(--size-nav-clearance) + var(--space-24));
+}
+.hole-row-image {
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  background: var(--color-surface-canvas);
+}
+.holes .hole-row-copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  max-width: 520px;
+}
+.holes .hole-row-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-8) var(--space-16);
+  margin: 0;
+  font-weight: inherit;
+}
+.hole-show-all {
+  margin-top: var(--space-48);
+}
+
+@media (max-width: 1023px) {
+  .hole-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .hole-row {
+    grid-template-columns: 200px minmax(0, 1fr);
+  }
+  .hole-row .hole-tees {
+    grid-column: 2;
+  }
+}
+
+@media (max-width: 767px) {
+  .holes-cards .blk-container {
+    display: block;
+  }
+  .holes-cards .tabs {
+    margin-bottom: var(--space-24);
+  }
+  .hole-card-info {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: var(--space-16);
+  }
+  .hole-dialog-body {
+    grid-template-columns: 1fr;
+    gap: var(--space-24);
+    padding: var(--space-24);
+  }
+  .hole-dialog-close {
+    background: var(--color-surface-canvas);
+    border-radius: var(--radius-full);
+  }
+
+  /* B on phones: pager under the heading, cards 82vw. */
+  .holes-carousel .hole-pager {
+    align-self: stretch;
+    justify-content: space-between;
+  }
+  .hole-track {
+    gap: var(--space-16);
+    margin: 0 -20px;
+    padding: 0 20px;
+    scroll-padding: 0 20px;
+  }
+  .hole-overlay {
+    flex-basis: 82vw;
+  }
+
+  /* C on phones: a swipe row of cards, every hole shown; photo above the copy. */
+  .hole-filter {
+    align-self: stretch;
+  }
+  .hole-filter .tab {
+    flex: 1;
+  }
+  .hole-guide {
+    display: flex;
+    gap: var(--space-16);
+    margin: 0 -20px;
+    padding: 0 20px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding: 0 20px;
+    scrollbar-width: none;
+  }
+  .hole-guide::-webkit-scrollbar {
+    display: none;
+  }
+  .hole-guide:not(.is-expanded) .hole-row.is-more {
+    display: flex;
+  }
+  .hole-row {
+    display: flex;
+    flex: 0 0 82vw;
+    flex-direction: column;
+    gap: var(--space-16);
+    padding: var(--space-16);
+    border: 0;
+    background: var(--color-surface-raised);
+    scroll-snap-align: start;
+  }
+  .hole-row-image {
+    width: 100%;
+  }
+  .hole-row .hole-tees {
+    width: 100%;
+  }
+  .holes .hole-show-all {
+    display: none;
+  }
+
+  /* A on phones: the nine tabs become pills (Figma Segment). */
+  .holes-cards .tabs-tabs {
+    gap: var(--space-8);
+  }
+  .holes-cards .tabs-tabs .tab {
+    flex: 1;
+    margin: 0;
+    padding: var(--space-8) var(--space-16);
+    border: 0;
+    border-radius: var(--radius-full);
+    color: var(--color-text-primary);
+    text-transform: none;
+    letter-spacing: 0.04em;
+  }
+  .holes-cards .tabs-tabs .tab.is-active {
+    background: var(--color-action-solid);
+    color: var(--color-action-on-solid);
+  }
+}
+
+.holes .hole-filter {
+  margin-bottom: 0;
+}

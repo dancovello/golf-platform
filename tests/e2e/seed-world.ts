@@ -158,6 +158,20 @@ await w.payload.create({
   } as never,
 })
 
+// Club A's course page (tests/e2e/site-holes.spec.ts).
+await w.payload.create({
+  collection: 'pages',
+  data: {
+    title: 'Course',
+    slug: 'course',
+    tenant: w.clubA.id,
+    layout: [
+      { blockType: 'holeGrid', style: 'cards', heading: 'Holes', course: w.courseA.id },
+      { blockType: 'holeGrid', style: 'guide', heading: 'Guide', course: w.courseA.id },
+    ],
+  } as never,
+})
+
 // Club A's header and menu, for the public site tests (tests/e2e/site-header.spec.ts).
 await w.payload.update({
   collection: 'club-settings',

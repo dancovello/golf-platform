@@ -32,4 +32,5 @@ Every block is **one block with a Design style choice (A / B / C)** from the Fig
 - Team: staff emails never appear whole in the page source (the "@" is added in the browser), to limit spam scraping
 - Membership: categories are typed into the block (like the price table), not a separate shared list. Doc 02 suggested a "Membership Tiers" collection; worth it only if the same categories appear on several pages
 - Membership C: the enquiry card links to the contact page for now. Figma's built-in form (qualifying question, email, "Request a call back") waits for the email provider decision
+- Hole by hole: courses (holes, tees, rating/slope) are a new "Courses" list. The first tee listed is the club's main tee (Figma mentions a "Default tee" setting; this does the same job). Hole cards open a details pop-up; there are no separate hole pages
 - Open decisions: email provider (newsletter, contact form), site search (wanted?)
