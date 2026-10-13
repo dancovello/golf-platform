@@ -24,4 +24,5 @@ export const VISUAL_PAGES = [
   'documents',
   'map',
   'pull-quote',
+  'timeline',
 ] as const

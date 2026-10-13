@@ -628,6 +628,63 @@ for (const [slug, p] of Object.entries(palettes)) {
       image: cards[0].id,
     },
   ])
+
+  const milestones = [
+    {
+      year: '1926',
+      title: 'The club is founded',
+      text: 'Members of the London Stock Exchange commission Harry Colt to lay out heathland golf within an hour of the City.',
+      image: cards[3].id,
+    },
+    {
+      year: '1931',
+      title: 'A second course',
+      text: 'The Heathland course opens for members’ families, routed through the old pine plantation.',
+      image: cards[0].id,
+    },
+    {
+      year: '1953',
+      title: 'Championship golf arrives',
+      text: 'The club hosts its first county championship; crowds of 3,000 follow the final.',
+      image: cards[1].id,
+    },
+    {
+      year: '1987',
+      title: 'The new clubhouse',
+      text: 'The Victorian lodge is extended, with the terrace that now overlooks the 18th green.',
+      image: cards[2].id,
+    },
+    {
+      year: '2019',
+      title: 'Back to Colt',
+      text: 'Every bunker is restored to Colt’s original drawings, found in the clubhouse library.',
+      image: null,
+    },
+  ]
+  await page('timeline', 'Our history', [
+    {
+      blockType: 'timeline',
+      style: 'alternating',
+      eyebrow: 'Our history',
+      heading: 'Ninety-nine years in five moments',
+      entries: milestones.slice(0, 4),
+    },
+    {
+      blockType: 'timeline',
+      style: 'horizontal',
+      eyebrow: 'Our history',
+      heading: 'A century in the heather',
+      entries: milestones,
+    },
+    {
+      blockType: 'timeline',
+      style: 'ledger',
+      eyebrow: 'Our history',
+      heading: 'Year by year',
+      intro: 'From a stockbrokers’ idea in 1926 to the bunker restoration of 2019.',
+      entries: milestones,
+    },
+  ])
 }
 
 process.exit(0)

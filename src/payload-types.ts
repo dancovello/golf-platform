@@ -192,6 +192,7 @@ export interface Page {
         | DocumentListBlock
         | MapBlock
         | PullQuoteBlock
+        | TimelineBlock
       )[]
     | null;
   updatedAt: string;
@@ -622,6 +623,31 @@ export interface PullQuoteBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TimelineBlock".
+ */
+export interface TimelineBlock {
+  style: 'alternating' | 'horizontal' | 'ledger';
+  eyebrow?: string | null;
+  heading: string;
+  intro?: string | null;
+  entries?:
+    | {
+        year: string;
+        title: string;
+        /**
+         * About 30 words.
+         */
+        text: string;
+        image?: (string | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'timeline';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "club-settings".
  */
 export interface ClubSetting {
@@ -957,6 +983,7 @@ export interface PagesSelect<T extends boolean = true> {
         documentList?: T | DocumentListBlockSelect<T>;
         map?: T | MapBlockSelect<T>;
         pullQuote?: T | PullQuoteBlockSelect<T>;
+        timeline?: T | TimelineBlockSelect<T>;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -1205,6 +1232,27 @@ export interface PullQuoteBlockSelect<T extends boolean = true> {
   publication?: T;
   year?: T;
   image?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TimelineBlock_select".
+ */
+export interface TimelineBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  intro?: T;
+  entries?:
+    | T
+    | {
+        year?: T;
+        title?: T;
+        text?: T;
+        image?: T;
+        id?: T;
+      };
   id?: T;
   blockName?: T;
 }

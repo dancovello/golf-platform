@@ -99,3 +99,8 @@ export const PinFilled = ({ size = 16 }: IconProps) => (
     <circle cx="12" cy="10" r="2.5" fill="currentColor" />
   </svg>
 )
+export const ArrowLeft = ({ size = 20 }: IconProps) => (
+  <svg {...base(size)}>
+    <path d="M20 12H4M10 6l-6 6 6 6" />
+  </svg>
+)
