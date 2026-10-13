@@ -233,3 +233,35 @@ describe('team', () => {
     expect(page!.ctx.person(w.staffB.id)).toBeNull()
   })
 })
+
+describe('membership', () => {
+  it('refuses club B\'s pages, and more than one "Most popular"', async () => {
+    const tier = (recommended: boolean, page: string) => ({
+      name: 'Full',
+      recommended,
+      link: { type: 'page', page },
+    })
+    const error = await save([
+      {
+        blockType: 'membership',
+        style: 'cards',
+        heading: 'Membership',
+        tiers: [tier(false, w.pageA.id), tier(false, w.pageB.id)],
+        card: { link: { type: 'page', page: w.pageB.id, label: 'Ask' } },
+      },
+    ]).catch((e: unknown) => e)
+    expect(errorPaths(error)).toEqual(
+      expect.arrayContaining(['layout.0.tiers.1.link.page', 'layout.0.card.link.page']),
+    )
+    await expect(
+      save([
+        {
+          blockType: 'membership',
+          style: 'cards',
+          heading: 'Membership',
+          tiers: [tier(true, w.pageA.id), tier(true, w.pageA.id)],
+        },
+      ]),
+    ).rejects.toThrow()
+  })
+})

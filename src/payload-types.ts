@@ -198,6 +198,7 @@ export interface Page {
         | LogoStripBlock
         | FaqBlock
         | TeamBlock
+        | MembershipBlock
       )[]
     | null;
   updatedAt: string;
@@ -799,6 +800,117 @@ export interface Staff {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MembershipBlock".
+ */
+export interface MembershipBlock {
+  style: 'cards' | 'compare' | 'enquire';
+  eyebrow?: string | null;
+  heading: string;
+  intro?: string | null;
+  /**
+   * In the order you want them. Style A reads best with three.
+   */
+  tiers?:
+    | {
+        name: string;
+        /**
+         * e.g. "£1,780". Leave empty to show "On application".
+         */
+        price?: string | null;
+        /**
+         * e.g. "per year".
+         */
+        period?: string | null;
+        /**
+         * Who it is for, in a sentence or two.
+         */
+        description?: string | null;
+        /**
+         * 3 to 6 short lines.
+         */
+        benefits?:
+          | {
+              text: string;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * One per table row, in the same order. Type "yes" for a tick; leave empty for not included.
+         */
+        values?:
+          | {
+              value?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * e.g. "Places available".
+         */
+        availability?: string | null;
+        recommended?: boolean | null;
+        link?: {
+          type?: ('page' | 'url') | null;
+          page?: (string | null) | Page;
+          /**
+           * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+           */
+          url?: string | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Defaults: "Apply for membership" (A), "Apply" (B), "Enquire" (C).
+   */
+  buttonLabel?: string | null;
+  /**
+   * e.g. "Playing days", "Locker".
+   */
+  features?:
+    | {
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * e.g. "Book a tour".
+   */
+  action?: {
+    label?: string | null;
+    type?: ('page' | 'url') | null;
+    page?: (string | null) | Page;
+    /**
+     * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+     */
+    url?: string | null;
+  };
+  card?: {
+    heading?: string | null;
+    text?: string | null;
+    link?: {
+      label?: string | null;
+      type?: ('page' | 'url') | null;
+      page?: (string | null) | Page;
+      /**
+       * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+       */
+      url?: string | null;
+    };
+    /**
+     * e.g. "The Membership Secretary replies within two days."
+     */
+    note?: string | null;
+  };
+  /**
+   * e.g. joining fees, which year the prices are for, VAT.
+   */
+  note?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'membership';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "club-settings".
  */
 export interface ClubSetting {
@@ -1138,6 +1250,7 @@ export interface PagesSelect<T extends boolean = true> {
         logoStrip?: T | LogoStripBlockSelect<T>;
         faq?: T | FaqBlockSelect<T>;
         team?: T | TeamBlockSelect<T>;
+        membership?: T | MembershipBlockSelect<T>;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -1485,6 +1598,79 @@ export interface TeamBlockSelect<T extends boolean = true> {
         page?: T;
         url?: T;
       };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MembershipBlock_select".
+ */
+export interface MembershipBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  intro?: T;
+  tiers?:
+    | T
+    | {
+        name?: T;
+        price?: T;
+        period?: T;
+        description?: T;
+        benefits?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+        values?:
+          | T
+          | {
+              value?: T;
+              id?: T;
+            };
+        availability?: T;
+        recommended?: T;
+        link?:
+          | T
+          | {
+              type?: T;
+              page?: T;
+              url?: T;
+            };
+        id?: T;
+      };
+  buttonLabel?: T;
+  features?:
+    | T
+    | {
+        label?: T;
+        id?: T;
+      };
+  action?:
+    | T
+    | {
+        label?: T;
+        type?: T;
+        page?: T;
+        url?: T;
+      };
+  card?:
+    | T
+    | {
+        heading?: T;
+        text?: T;
+        link?:
+          | T
+          | {
+              label?: T;
+              type?: T;
+              page?: T;
+              url?: T;
+            };
+        note?: T;
+      };
+  note?: T;
   id?: T;
   blockName?: T;
 }

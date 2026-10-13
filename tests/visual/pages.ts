@@ -28,4 +28,5 @@ export const VISUAL_PAGES = [
   'logo-strip',
   'faq',
   'team',
+  'membership',
 ] as const

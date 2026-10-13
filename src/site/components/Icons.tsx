@@ -104,3 +104,8 @@ export const ArrowLeft = ({ size = 20 }: IconProps) => (
     <path d="M20 12H4M10 6l-6 6 6 6" />
   </svg>
 )
+export const Check = ({ size = 18 }: IconProps) => (
+  <svg {...base(size)}>
+    <path d="M5 12.5l4.5 4.5L19 7.5" />
+  </svg>
+)
