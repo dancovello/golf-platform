@@ -4,6 +4,7 @@ import { ClubSettings } from './ClubSettings'
 import { Documents } from './Documents'
 import { Media } from './Media'
 import { Pages } from './Pages'
+import { Staff } from './Staff'
 import { Tenants } from './Tenants'
 import { Users } from './Users'
 
@@ -17,4 +18,5 @@ export const collections: CollectionConfig[] = [
   ClubSettings,
   Media,
   Documents,
+  Staff,
 ]

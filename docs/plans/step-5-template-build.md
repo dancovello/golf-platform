@@ -28,4 +28,6 @@ Every block is **one block with a Design style choice (A / B / C)** from the Fig
 - Map pin label is small on phones (the drawing scales down): polish later
 - Timeline A: the optional "fade in on scroll" effect is left out (steadier; can add)
 - FAQ answers are plain text inside the block (no links yet; spec suggested a shared FAQ collection with rich text)
+- Team: people live in a new "Team & staff" list (name, role, department, photo, bio, email, phone, one qualification tag). Departments are a fixed list (Golf, Course, Club & membership, Clubhouse, Committee); say if clubs need their own
+- Team: staff emails never appear whole in the page source (the "@" is added in the browser), to limit spam scraping
 - Open decisions: email provider (newsletter, contact form), site search (wanted?)

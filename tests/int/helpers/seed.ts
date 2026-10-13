@@ -4,7 +4,7 @@ import { getPayload } from 'payload'
 import { allowAccountCreation } from '@/access/accountCreation'
 import { createSuperAdmin } from '@/accounts/createSuperAdmin'
 import config from '@/payload.config'
-import type { ClubSetting, Document, Media, Page, Tenant, User } from '@/payload-types'
+import type { ClubSetting, Document, Media, Page, Staff, Tenant, User } from '@/payload-types'
 
 import { ensureMediaBucket, pdfFile, pngFile } from '../../shared/media'
 import { TEST_TOTP_SECRET } from '../../shared/totp'
@@ -40,6 +40,8 @@ export type World = {
   mediaB: Media
   docA: Document
   docB: Document
+  staffA: Staff
+  staffB: Staff
 }
 
 /** Refuses to run against anything but the golf_test database. */
@@ -59,6 +61,7 @@ export const resetDatabase = async (payload: Payload) => {
   await payload.delete({ collection: 'pages', where: all })
   await payload.delete({ collection: 'media', where: all })
   await payload.delete({ collection: 'documents', where: all })
+  await payload.delete({ collection: 'staff', where: all })
   await payload.delete({ collection: 'club-settings', where: all })
   await payload.delete({ collection: 'payload-preferences', where: all })
   await payload.delete({ collection: 'users', where: all })
@@ -141,6 +144,14 @@ export const seedWorld = async (): Promise<World> => {
       collection: 'documents',
       data: { title: 'Club B local rules', category: 'course', tenant: clubB.id },
       file: pdfFile('local-rules.pdf'),
+    }),
+    staffA: await payload.create({
+      collection: 'staff',
+      data: { name: 'Alex Pro', role: 'Head Professional', department: 'golf', tenant: clubA.id },
+    }),
+    staffB: await payload.create({
+      collection: 'staff',
+      data: { name: 'Bea Pro', role: 'Head Professional', department: 'golf', tenant: clubB.id },
     }),
   }
 }

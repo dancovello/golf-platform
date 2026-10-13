@@ -1,7 +1,11 @@
 import type { Block } from 'payload'
 
 /** A page or photo a block points at, with where it was found (for error messages). */
-export type BlockRef = { collection: 'pages' | 'media' | 'documents'; id: string; path: string }
+export type BlockRef = {
+  collection: 'pages' | 'media' | 'documents' | 'staff'
+  id: string
+  path: string
+}
 
 export const idOf = (value: unknown): string | null => {
   if (typeof value === 'string' && value) return value

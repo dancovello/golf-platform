@@ -27,4 +27,5 @@ export const VISUAL_PAGES = [
   'timeline',
   'logo-strip',
   'faq',
+  'team',
 ] as const

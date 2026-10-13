@@ -13,6 +13,7 @@ import { PullQuote } from './PullQuote'
 import { Timeline } from './Timeline'
 import { LogoStrip } from './LogoStrip'
 import { Faq } from './Faq'
+import { Team } from './Team'
 import type { BlockContext } from './resolve'
 
 import './blocks.css'
@@ -28,6 +29,7 @@ import './pullQuote.css'
 import './timeline.css'
 import './logoStrip.css'
 import './faq.css'
+import './team.css'
 import '../components/buttons.css'
 
 type LayoutBlock = NonNullable<Page['layout']>[number]
@@ -82,6 +84,8 @@ export const RenderBlocks = ({
         return <LogoStrip key={block.id ?? i} block={block} ctx={ctx} />
       case 'faq':
         return <Faq key={block.id ?? i} block={block} ctx={ctx} club={club} base={base} />
+      case 'team':
+        return <Team key={block.id ?? i} block={block} ctx={ctx} base={base} />
       default:
         return null
     }

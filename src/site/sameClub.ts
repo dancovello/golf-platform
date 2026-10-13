@@ -60,7 +60,7 @@ const sameClubCheck =
     if (!tenant || refs.length === 0) return data
 
     const errors: { path: string; message: string }[] = []
-    for (const name of ['pages', 'media', 'documents'] as const) {
+    for (const name of ['pages', 'media', 'documents', 'staff'] as const) {
       const wanted = [...new Set(refs.filter((r) => r.collection === name).map((r) => r.id))]
       if (wanted.length === 0) continue
       const { docs } = await req.payload.find({
@@ -81,7 +81,9 @@ const sameClubCheck =
               ? 'Choose one of your own pages.'
               : name === 'media'
                 ? 'Choose one of your own photos.'
-                : 'Choose one of your own documents.',
+                : name === 'documents'
+                  ? 'Choose one of your own documents.'
+                  : 'Choose people from your own team.',
         })
       }
     }
@@ -94,3 +96,9 @@ export const checkSameClub = sameClubCheck(settingsRefs)
 
 /** Pages: everything the page's blocks point at. */
 export const checkPageSameClub = sameClubCheck((data) => layoutRefs(data.layout))
+
+/** Team members: their photo. */
+export const checkStaffSameClub = sameClubCheck((data) => {
+  const id = idOf(data.photo)
+  return id ? [{ collection: 'media', id, path: 'photo' }] : []
+})

@@ -1,0 +1,376 @@
+/* Team / Staff (Figma page "Team / Staff", docs/design/11 and 13). */
+
+/* Portrait: Card 4:5, Avatar 56 circle; initials on the subtle surface until a photo exists. */
+.team-portrait {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--color-surface-subtle);
+  color: var(--color-text-brand);
+}
+.team-portrait img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.team-portrait.is-card {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+}
+.team-portrait.is-avatar {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border-subtle);
+}
+
+/* The "@" of a protected email address (ProtectedEmail.tsx). */
+.protected-at::before {
+  content: '@';
+}
+
+.team .team-tag {
+  display: inline-block;
+  padding: var(--space-4) var(--space-12);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-full);
+  color: var(--color-text-secondary);
+}
+.team .team-bio {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  color: var(--color-text-secondary);
+}
+.team .team-bio p {
+  margin: 0;
+}
+
+/* Contacts: phone and email with icons. */
+.team .team-contacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8) var(--space-24);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.team .team-contacts li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  color: var(--color-text-secondary);
+}
+.team .team-contacts svg {
+  flex: none;
+}
+.team .team-contacts a {
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+.team .team-contacts a:hover {
+  text-decoration: underline;
+}
+
+/* A: grid. 4 across, gap 24, row gap 48; tablet 3; phone 2 (gap 16, row gap 32). */
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-48) var(--space-24);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.team-card-button {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.team-card-button:hover .team-name {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.team .team-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-top: var(--space-16);
+}
+.team .team-role-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-8);
+  margin: 0;
+}
+.team .team-role {
+  color: var(--color-text-secondary);
+}
+
+/* The profile opened from a grid card. */
+.team-profile {
+  width: min(880px, calc(100vw - 2 * var(--space-24)));
+  max-height: calc(100dvh - 2 * var(--space-24));
+  padding: 0;
+  border: 0;
+  background: var(--color-surface-canvas);
+  color: var(--color-text-primary);
+}
+.team-profile::backdrop {
+  background: var(--color-overlay-scrim);
+}
+.team-profile-body {
+  position: relative;
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: var(--space-40);
+  padding: var(--space-40);
+}
+.team .team-profile-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-16);
+}
+.team-profile-close {
+  position: absolute;
+  top: var(--space-12);
+  right: var(--space-12);
+  display: grid;
+  place-items: center;
+  width: var(--size-control);
+  height: var(--size-control);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+/* B: directory. Department column 240, rows with subtle rules, strong rule on top. */
+.team-department {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: var(--space-48);
+}
+.team-department + .team-department {
+  margin-top: var(--space-48);
+}
+.team .team-department-name {
+  color: var(--color-text-primary);
+}
+.team-department-people,
+.team-side-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.team-department-people {
+  border-top: 1px solid var(--color-border-strong);
+}
+.team-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-24);
+}
+.team-department-people .team-row {
+  padding: var(--space-16) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.team .team-row-text {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: var(--space-24);
+  row-gap: var(--space-4);
+  flex: 1;
+  min-width: 0;
+}
+.team .team-row-name,
+.team .team-row-role {
+  margin: 0;
+}
+.team .team-row-role {
+  color: var(--color-text-secondary);
+}
+.team-department-people .team-row-text {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+.team-department-people .team-row-name {
+  grid-column: 1;
+}
+.team-department-people .team-row-role {
+  grid-column: 1;
+}
+.team-department-people .team-contacts {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  justify-content: flex-end;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+/* C: featured. Lead (portrait 360 + text) and a 300px side list, gap 64. */
+.team-featured-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: var(--space-64);
+  align-items: start;
+}
+.team-featured-main {
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap: var(--space-40);
+  align-items: start;
+}
+.team .team-featured-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-16);
+}
+.team .team-featured-tag {
+  padding: var(--space-4) var(--space-12);
+  border-radius: var(--radius-full);
+  background: var(--color-action-accent);
+  color: var(--color-action-on-accent);
+}
+.team .team-featured-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-24);
+  margin-top: var(--space-16);
+}
+.team-featured-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-24);
+}
+.team-side-list {
+  align-self: stretch;
+}
+.team-side-list .team-row {
+  gap: var(--space-16);
+  padding-bottom: var(--space-24);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.team-side-list .team-row + .team-row {
+  padding-top: var(--space-24);
+}
+.team-side-list .team-row-text {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+@media (max-width: 1023px) {
+  .team-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .team-department {
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+  .team-featured-layout {
+    grid-template-columns: 1fr;
+    gap: var(--space-32);
+  }
+}
+
+@media (max-width: 767px) {
+  .team-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-32) var(--space-16);
+  }
+  .team-profile-body {
+    grid-template-columns: 1fr;
+    gap: var(--space-24);
+    padding: var(--space-24);
+  }
+
+  /* B on phones: department as an eyebrow over a strong rule; contacts under the name. */
+  .team .team-department-name {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.33;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-text-brand);
+  }
+  .team-department + .team-department {
+    margin-top: var(--space-32);
+  }
+  .team-directory .blk-header .btn {
+    align-self: stretch;
+  }
+  .team-department-people .team-row {
+    align-items: flex-start;
+    gap: var(--space-16);
+    padding: var(--space-24) 0;
+  }
+  .team-department-people .team-row-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+  }
+  .team .team-department-people .team-row-name {
+    font-family: var(--font-display);
+    font-size: var(--type-heading-m);
+    line-height: 1.18;
+  }
+  .team .team-department-people .team-row-role {
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.33;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .team-department-people .team-contacts {
+    flex-direction: column;
+    gap: var(--space-8);
+    margin-top: var(--space-8);
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+  .team-department-people .team-contacts a {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* C on phones: portrait full width (312×280), side list below with 48 avatars. */
+  .team-featured-main {
+    grid-template-columns: 1fr;
+    gap: var(--space-24);
+  }
+  .team-featured-main .team-portrait.is-card {
+    aspect-ratio: 312 / 280;
+  }
+  .team-featured-actions .btn-solid {
+    align-self: stretch;
+    justify-content: center;
+  }
+  .team .team-featured-actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .team-side-list .team-portrait.is-avatar {
+    width: 48px;
+    height: 48px;
+  }
+}

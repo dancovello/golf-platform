@@ -19,6 +19,7 @@ import * as migration_20261013_073551_pull_quote from './20261013_073551_pull_qu
 import * as migration_20261013_074738_timeline from './20261013_074738_timeline';
 import * as migration_20261013_075847_logo_strip from './20261013_075847_logo_strip';
 import * as migration_20261013_081117_faq from './20261013_081117_faq';
+import * as migration_20261013_082830_team from './20261013_082830_team';
 
 export const migrations = [
   {
@@ -124,6 +125,11 @@ export const migrations = [
   {
     up: migration_20261013_081117_faq.up,
     down: migration_20261013_081117_faq.down,
-    name: '20261013_081117_faq'
+    name: '20261013_081117_faq',
+  },
+  {
+    up: migration_20261013_082830_team.up,
+    down: migration_20261013_082830_team.down,
+    name: '20261013_082830_team'
   },
 ];
