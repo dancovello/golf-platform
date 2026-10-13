@@ -26,4 +26,5 @@ export const VISUAL_PAGES = [
   'pull-quote',
   'timeline',
   'logo-strip',
+  'faq',
 ] as const

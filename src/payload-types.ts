@@ -194,6 +194,7 @@ export interface Page {
         | PullQuoteBlock
         | TimelineBlock
         | LogoStripBlock
+        | FaqBlock
       )[]
     | null;
   updatedAt: string;
@@ -676,6 +677,49 @@ export interface LogoStripBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FaqBlock".
+ */
+export interface FaqBlock {
+  style: 'centred' | 'withContact' | 'searchTopics';
+  eyebrow?: string | null;
+  heading: string;
+  /**
+   * Style A reads best with up to 10.
+   */
+  items?:
+    | {
+        question: string;
+        answer: string;
+        /**
+         * e.g. "Visitors". 2–4 topics work best.
+         */
+        topic?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  firstOpen?: boolean | null;
+  /**
+   * e.g. "Talk to the pro shop". Phone, email and hours come from Club Settings.
+   */
+  cardHeading?: string | null;
+  /**
+   * e.g. "Contact the pro shop" (A, C) or "Send a message" (B).
+   */
+  contactLink?: {
+    label?: string | null;
+    type?: ('page' | 'url') | null;
+    page?: (string | null) | Page;
+    /**
+     * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+     */
+    url?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'faq';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "club-settings".
  */
 export interface ClubSetting {
@@ -1013,6 +1057,7 @@ export interface PagesSelect<T extends boolean = true> {
         pullQuote?: T | PullQuoteBlockSelect<T>;
         timeline?: T | TimelineBlockSelect<T>;
         logoStrip?: T | LogoStripBlockSelect<T>;
+        faq?: T | FaqBlockSelect<T>;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -1301,6 +1346,35 @@ export interface LogoStripBlockSelect<T extends boolean = true> {
         url?: T;
         logo?: T;
         id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FaqBlock_select".
+ */
+export interface FaqBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  items?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        topic?: T;
+        id?: T;
+      };
+  firstOpen?: T;
+  cardHeading?: T;
+  contactLink?:
+    | T
+    | {
+        label?: T;
+        type?: T;
+        page?: T;
+        url?: T;
       };
   id?: T;
   blockName?: T;

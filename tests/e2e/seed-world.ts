@@ -109,6 +109,36 @@ await w.payload.create({
   } as never,
 })
 
+// Club A's help page (tests/e2e/site-faq.spec.ts).
+await w.payload.create({
+  collection: 'pages',
+  data: {
+    title: 'Help',
+    slug: 'help',
+    tenant: w.clubA.id,
+    layout: [
+      {
+        blockType: 'faq',
+        style: 'searchTopics',
+        heading: 'How can we help?',
+        items: [
+          {
+            question: 'Do visitors need a handicap certificate?',
+            answer: 'Yes, 24 or below on the Championship course.',
+            topic: 'Visitors',
+          },
+          { question: 'What is the dress code?', answer: 'Smart golf attire.', topic: 'Visitors' },
+          {
+            question: 'Is there a driving range?',
+            answer: 'A 20-bay grass range.',
+            topic: 'The course',
+          },
+        ],
+      },
+    ],
+  } as never,
+})
+
 // Club A's header and menu, for the public site tests (tests/e2e/site-header.spec.ts).
 await w.payload.update({
   collection: 'club-settings',

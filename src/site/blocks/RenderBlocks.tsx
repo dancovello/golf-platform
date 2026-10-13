@@ -12,6 +12,7 @@ import { TwoColumn } from './TwoColumn'
 import { PullQuote } from './PullQuote'
 import { Timeline } from './Timeline'
 import { LogoStrip } from './LogoStrip'
+import { Faq } from './Faq'
 import type { BlockContext } from './resolve'
 
 import './blocks.css'
@@ -26,6 +27,7 @@ import './map.css'
 import './pullQuote.css'
 import './timeline.css'
 import './logoStrip.css'
+import './faq.css'
 import '../components/buttons.css'
 
 type LayoutBlock = NonNullable<Page['layout']>[number]
@@ -78,6 +80,8 @@ export const RenderBlocks = ({
         return <Timeline key={block.id ?? i} block={block} ctx={ctx} />
       case 'logoStrip':
         return <LogoStrip key={block.id ?? i} block={block} ctx={ctx} />
+      case 'faq':
+        return <Faq key={block.id ?? i} block={block} ctx={ctx} club={club} base={base} />
       default:
         return null
     }
