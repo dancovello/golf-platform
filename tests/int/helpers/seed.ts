@@ -4,9 +4,9 @@ import { getPayload } from 'payload'
 import { allowAccountCreation } from '@/access/accountCreation'
 import { createSuperAdmin } from '@/accounts/createSuperAdmin'
 import config from '@/payload.config'
-import type { ClubSetting, Media, Page, Tenant, User } from '@/payload-types'
+import type { ClubSetting, Document, Media, Page, Tenant, User } from '@/payload-types'
 
-import { ensureMediaBucket, pngFile } from '../../shared/media'
+import { ensureMediaBucket, pdfFile, pngFile } from '../../shared/media'
 import { TEST_TOTP_SECRET } from '../../shared/totp'
 
 export const PASSWORD = 'a-long-test-password'
@@ -38,6 +38,8 @@ export type World = {
   settingsB: ClubSetting
   mediaA: Media
   mediaB: Media
+  docA: Document
+  docB: Document
 }
 
 /** Refuses to run against anything but the golf_test database. */
@@ -56,6 +58,7 @@ export const resetDatabase = async (payload: Payload) => {
   const all = { id: { exists: true } }
   await payload.delete({ collection: 'pages', where: all })
   await payload.delete({ collection: 'media', where: all })
+  await payload.delete({ collection: 'documents', where: all })
   await payload.delete({ collection: 'club-settings', where: all })
   await payload.delete({ collection: 'payload-preferences', where: all })
   await payload.delete({ collection: 'users', where: all })
@@ -129,5 +132,15 @@ export const seedWorld = async (): Promise<World> => {
     // Same file name in both clubs: each is stored in its own random folder.
     mediaA: await media('Club A photo', clubA.id),
     mediaB: await media('Club B photo', clubB.id),
+    docA: await payload.create({
+      collection: 'documents',
+      data: { title: 'Club A local rules', category: 'course', tenant: clubA.id },
+      file: pdfFile('local-rules.pdf'),
+    }),
+    docB: await payload.create({
+      collection: 'documents',
+      data: { title: 'Club B local rules', category: 'course', tenant: clubB.id },
+      file: pdfFile('local-rules.pdf'),
+    }),
   }
 }

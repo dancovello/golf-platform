@@ -11,7 +11,7 @@ import { beforeAll, describe, expect, it } from 'vitest'
 
 import { clubOwnedCollections, type ClubOwnedSlug } from '@/tenancy'
 
-import { pngFile } from '../shared/media'
+import { pdfFile, pngFile } from '../shared/media'
 import { seedWorld, type World } from './helpers/seed'
 
 let w: World
@@ -43,7 +43,7 @@ type Fixture = {
   /** Club-global collections (one record per club) can't be created by editors at all. */
   editorsCanCreate: boolean
   /** Upload collections: the file to send with a new record. */
-  file?: () => ReturnType<typeof pngFile>
+  file?: () => ReturnType<typeof pngFile> | ReturnType<typeof pdfFile>
 }
 
 const fixtures: Record<ClubOwnedSlug, Fixture> = {
@@ -68,6 +68,14 @@ const fixtures: Record<ClubOwnedSlug, Fixture> = {
     read: (doc) => (doc as { alt?: unknown }).alt,
     editorsCanCreate: true,
     file: () => pngFile('planted.png'),
+  },
+  documents: {
+    ids: (w) => ({ a: w.docA.id, b: w.docB.id }),
+    newRecord: (tenant) => ({ title: 'Planted', category: 'forms', tenant }),
+    change: { title: 'Changed' },
+    read: (doc) => (doc as { title?: unknown }).title,
+    editorsCanCreate: true,
+    file: () => pdfFile('planted.pdf'),
   },
 }
 
@@ -220,6 +228,11 @@ describe('the database enforces club ownership on its own', () => {
     ).rejects.toThrow()
     await expect(
       db().execute(sql`INSERT INTO media (alt, prefix) VALUES ('orphan', 'media/orphan')`),
+    ).rejects.toThrow()
+    await expect(
+      db().execute(
+        sql`INSERT INTO documents (title, prefix) VALUES ('orphan', 'documents/orphan')`,
+      ),
     ).rejects.toThrow()
   })
 

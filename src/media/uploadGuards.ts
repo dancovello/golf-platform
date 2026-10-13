@@ -18,7 +18,7 @@ export const withRandomCode = (filename: string) =>
  *    which tells club A that another club exists (CLAUDE.md non-negotiable 2).
  */
 export const guardBrowserUploads =
-  (endpointPath: string, allowed: { collectionSlug: string; mimeTypes: string[] }): Plugin =>
+  (endpointPath: string, allowed: Record<string, string[]>): Plugin =>
   (config: Config): Config => ({
     ...config,
     endpoints: (config.endpoints ?? []).map((endpoint) =>
@@ -28,11 +28,16 @@ export const guardBrowserUploads =
             handler: async (req) => {
               const body = (await req.json?.()) as
                 { collectionSlug?: unknown; filename?: unknown; mimeType?: unknown } | undefined
+              const types =
+                typeof body?.collectionSlug === 'string' &&
+                Object.hasOwn(allowed, body.collectionSlug)
+                  ? allowed[body.collectionSlug]
+                  : null
               if (
                 !body ||
-                body.collectionSlug !== allowed.collectionSlug ||
+                !types ||
                 typeof body.mimeType !== 'string' ||
-                !allowed.mimeTypes.includes(body.mimeType) ||
+                !types.includes(body.mimeType) ||
                 typeof body.filename !== 'string'
               ) {
                 return Response.json(

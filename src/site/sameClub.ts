@@ -60,7 +60,7 @@ const sameClubCheck =
     if (!tenant || refs.length === 0) return data
 
     const errors: { path: string; message: string }[] = []
-    for (const name of ['pages', 'media'] as const) {
+    for (const name of ['pages', 'media', 'documents'] as const) {
       const wanted = [...new Set(refs.filter((r) => r.collection === name).map((r) => r.id))]
       if (wanted.length === 0) continue
       const { docs } = await req.payload.find({
@@ -77,7 +77,11 @@ const sameClubCheck =
         errors.push({
           path: ref.path,
           message:
-            name === 'pages' ? 'Choose one of your own pages.' : 'Choose one of your own photos.',
+            name === 'pages'
+              ? 'Choose one of your own pages.'
+              : name === 'media'
+                ? 'Choose one of your own photos.'
+                : 'Choose one of your own documents.',
         })
       }
     }

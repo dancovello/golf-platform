@@ -6,7 +6,7 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 
 import { allowAccountCreation } from '@/access/accountCreation'
 
-import { photoFile } from '../shared/media'
+import { pdfFile, photoFile } from '../shared/media'
 import { enrolTwoFactor, PASSWORD, seedWorld } from '../int/helpers/seed'
 
 const w = await seedWorld()
@@ -61,6 +61,38 @@ await w.payload.create({
         style: 'grid',
         heading: 'Around the club',
         images: galleryPhotos.map((m) => ({ image: m.id })),
+      },
+    ],
+  } as never,
+})
+
+// Club A's document library (tests/e2e/site-documents.spec.ts).
+const libraryDocs = []
+for (const [title, category, lastReviewed] of [
+  ['Safeguarding policy', 'policies', '2026-03-12'],
+  ['Privacy notice', 'policies', '2025-01-20'],
+  ['Membership application', 'forms', undefined],
+] as const) {
+  libraryDocs.push(
+    await w.payload.create({
+      collection: 'documents',
+      data: { title, category, lastReviewed, tenant: w.clubA.id } as never,
+      file: pdfFile(`${title.toLowerCase().replace(/\W+/g, '-')}.pdf`),
+    }),
+  )
+}
+await w.payload.create({
+  collection: 'pages',
+  data: {
+    title: 'Documents',
+    slug: 'documents',
+    tenant: w.clubA.id,
+    layout: [
+      {
+        blockType: 'documentList',
+        style: 'table',
+        heading: 'Find a document',
+        documents: libraryDocs.map((d) => d.id),
       },
     ],
   } as never,

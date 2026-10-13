@@ -9,6 +9,7 @@
 export const clubOwnedCollections = {
   pages: {},
   media: {},
+  documents: {},
   // One record per club: the plugin's "global" mode. Never a real Payload global.
   'club-settings': { isGlobal: true },
 } as const

@@ -142,3 +142,29 @@ describe('rich text', () => {
     expect(page!.ctx.media(w.mediaA.id)?.url).toBe(w.mediaA.url)
   })
 })
+
+describe('document list', () => {
+  it("refuses club B's document", async () => {
+    const error = await save([
+      {
+        blockType: 'documentList',
+        style: 'grouped',
+        heading: 'Docs',
+        documents: [w.docA.id, w.docB.id],
+      },
+    ]).catch((e: unknown) => e)
+    expect(errorPaths(error)).toContain('layout.0.documents')
+  })
+
+  it('a policy needs its last-reviewed date', async () => {
+    await expect(
+      w.payload.update({
+        collection: 'documents',
+        id: w.docA.id,
+        data: { category: 'policies', lastReviewed: null } as never,
+        overrideAccess: false,
+        user: w.editorA,
+      }),
+    ).rejects.toThrow()
+  })
+})

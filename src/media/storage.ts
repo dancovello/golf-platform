@@ -33,7 +33,3 @@ export const mediaStorageSettings = () => ({
     responseChecksumValidation: 'WHEN_REQUIRED',
   } satisfies S3ClientConfig,
 })
-
-/** Folder for one file: "media/" plus a random ID. Also checked by the database. */
-export const MEDIA_PREFIX =
-  /^media\/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/

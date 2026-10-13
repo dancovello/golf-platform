@@ -13,6 +13,7 @@ import { guardTenantSelection } from './admin/guardTenantSelection'
 import { encryptTotpSecrets } from './auth/totpSecretEncryption'
 import { collections } from './collections'
 import { usersAccess } from './collections/Users'
+import { DOCUMENT_TYPES } from './collections/Documents'
 import { MEDIA_TYPES } from './collections/Media'
 import { guardBrowserUploads } from './media/uploadGuards'
 import { mediaStorageSettings } from './media/storage'
@@ -110,12 +111,17 @@ export default buildConfig({
           disablePayloadAccessControl: true,
           generateFileURL: ({ filename, prefix }) => `${media.publicURL}/${prefix}/${filename}`,
         },
+        documents: {
+          prefix: 'documents',
+          disablePayloadAccessControl: true,
+          generateFileURL: ({ filename, prefix }) => `${media.publicURL}/${prefix}/${filename}`,
+        },
       },
     }),
     // Must come after s3Storage, whose signed-link endpoint it wraps.
     guardBrowserUploads('/storage-s3-generate-signed-url', {
-      collectionSlug: 'media',
-      mimeTypes: MEDIA_TYPES,
+      media: MEDIA_TYPES,
+      documents: DOCUMENT_TYPES,
     }),
     // Keeps the club list from loading before the two-factor code is entered.
     guardTenantSelection,

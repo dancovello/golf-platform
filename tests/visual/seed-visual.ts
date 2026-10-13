@@ -7,7 +7,7 @@ import { getPayload } from 'payload'
 
 import config from '@/payload.config'
 
-import { photoFile } from '../shared/media'
+import { pdfFile, photoFile } from '../shared/media'
 import { rt } from '../shared/richText'
 
 const payload = await getPayload({ config: await config })
@@ -510,6 +510,49 @@ for (const [slug, p] of Object.entries(palettes)) {
       eyebrow: 'Gallery',
       heading: 'A walk round the course',
       images: galleryImages.slice(0, 10),
+    },
+  ])
+
+  const doc = (title: string, category: string, lastReviewed?: string) =>
+    payload.create({
+      collection: 'documents',
+      data: { title, category, lastReviewed, tenant: club.id } as never,
+      file: pdfFile(`${title.toLowerCase().replace(/\W+/g, '-')}.pdf`),
+    })
+  const libraryDocs = [
+    await doc('Championship course scorecard', 'course'),
+    await doc('Local rules 2026', 'course', '2026-01-04'),
+    await doc('Safeguarding policy', 'policies', '2026-03-12'),
+    await doc('Equality, diversity & inclusion', 'policies', '2026-02-02'),
+    await doc('Privacy notice', 'policies', '2025-05-20'),
+    await doc('Membership application', 'forms'),
+    await doc('Society booking form', 'forms'),
+    await doc('Dress code', 'visitors', '2026-04-01'),
+    await doc('AGM minutes 2026', 'minutes', '2026-04-14'),
+  ]
+  const ids = (...i: number[]) => i.map((n) => libraryDocs[n].id)
+  await page('documents', 'Documents', [
+    {
+      blockType: 'documentList',
+      style: 'grouped',
+      eyebrow: 'Club documents',
+      heading: 'Policies, forms and scorecards',
+      documents: ids(0, 1, 2, 3, 4, 5, 6),
+    },
+    {
+      blockType: 'documentList',
+      style: 'cards',
+      eyebrow: 'Club documents',
+      heading: 'Before you play',
+      documents: ids(0, 1, 7, 2, 6, 4),
+      viewAll: link('All documents'),
+    },
+    {
+      blockType: 'documentList',
+      style: 'table',
+      eyebrow: 'Document library',
+      heading: 'Find a document',
+      documents: ids(2, 3, 4, 5, 8, 0),
     },
   ])
 }

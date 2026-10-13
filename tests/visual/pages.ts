@@ -21,4 +21,5 @@ export const VISUAL_PAGES = [
   'rich-text',
   'rate-table',
   'gallery',
+  'documents',
 ] as const
