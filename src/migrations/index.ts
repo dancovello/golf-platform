@@ -24,6 +24,7 @@ import * as migration_20261013_084416_membership from './20261013_084416_members
 import * as migration_20261013_090048_courses_holes from './20261013_090048_courses_holes';
 import * as migration_20261013_091523_scorecard from './20261013_091523_scorecard';
 import * as migration_20261013_092958_course_status from './20261013_092958_course_status';
+import * as migration_20261013_094450_announcement_bar from './20261013_094450_announcement_bar';
 
 export const migrations = [
   {
@@ -154,6 +155,11 @@ export const migrations = [
   {
     up: migration_20261013_092958_course_status.up,
     down: migration_20261013_092958_course_status.down,
-    name: '20261013_092958_course_status'
+    name: '20261013_092958_course_status',
+  },
+  {
+    up: migration_20261013_094450_announcement_bar.up,
+    down: migration_20261013_094450_announcement_bar.down,
+    name: '20261013_094450_announcement_bar'
   },
 ];

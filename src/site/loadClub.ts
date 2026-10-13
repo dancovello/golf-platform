@@ -3,10 +3,17 @@ import { getPayload, type Payload } from 'payload'
 
 import type { Page } from '@/payload-types'
 
+import {
+  STATUS_STALE_HOURS,
+  STATUS_STATES,
+  type StatusState,
+} from '@/collections/courseStatusStates'
 import { isSafeURL } from '@/fields/link'
 import { loadBlockContext } from '@/site/blocks/resolve'
 import { type Brand, BRAND_INPUTS, DEFAULT_BRAND, isHex } from '@/theme/colour'
 import { DEFAULT_FONT_SET, type FontSetID, isFontSetID } from '@/theme/fontSets'
+
+import { siteToday } from './today'
 
 /** A link on the public site: one of the club's pages (by slug) or a checked web address. */
 export type SiteLink = { kind: 'page'; slug: string } | { kind: 'url'; href: string }
@@ -19,6 +26,17 @@ export type SiteImage = { url: string; alt: string; width: number | null; height
 export type HeaderStyle = 'classic' | 'transparent' | 'appBar'
 export type FooterStyle = 'brandColumns' | 'lightColumns' | 'editorial'
 export type LabelledLink = { label: string; link: SiteLink }
+
+/** The bar above the header (Club Settings → Announcement), with only notices showing today. */
+export type SiteAnnouncement = {
+  style: 'classic' | 'rotator' | 'utility'
+  tone: 'brand' | 'accent' | 'subtle'
+  items: { tag: string; message: string; link: LabelledLink | null; expiresAt: string }[]
+  /** Style C: the course status, unless it is more than 24 hours old. */
+  status: { state: StatusState; label: string } | null
+  /** Style C: the header phone number. */
+  phone: string | null
+}
 
 export type ClubSite = {
   tenantID: string
@@ -41,6 +59,7 @@ export type ClubSite = {
     mapLabel: string | null
     what3words: string | null
   }
+  announcement: SiteAnnouncement | null
   footer: {
     style: FooterStyle
     about: string | null
@@ -90,6 +109,20 @@ type RawSettings = {
     secondaryButton?: RawLink | null
     legalLinks?: { link?: RawLink | null }[] | null
   }
+  announcement?: {
+    style?: string | null
+    tone?: string | null
+    showStatus?: boolean | null
+    items?:
+      | {
+          message?: string | null
+          tag?: string | null
+          startsAt?: string | null
+          expiresAt?: string | null
+          link?: RawLink | null
+        }[]
+      | null
+  }
   location?: {
     latitude?: number | null
     longitude?: number | null
@@ -128,7 +161,14 @@ export const loadClubBySlug = async (slug: string): Promise<ClubSite | null> => 
   const { docs } = await payload.find({
     collection: 'club-settings',
     where: { tenant: { equals: tenantID } },
-    select: { clubName: true, branding: true, header: true, footer: true, location: true },
+    select: {
+      clubName: true,
+      branding: true,
+      header: true,
+      footer: true,
+      location: true,
+      announcement: true,
+    },
     limit: 1,
     depth: 0,
     overrideAccess: true,
@@ -148,6 +188,7 @@ export const loadClubBySlug = async (slug: string): Promise<ClubSite | null> => 
     ...(f.hoursLink ? [f.hoursLink] : []),
     ...(f.secondaryButton ? [f.secondaryButton] : []),
     ...(f.legalLinks ?? []).map((l) => l.link ?? {}),
+    ...(s.announcement?.items ?? []).map((i) => i.link ?? {}),
   ]
   const pageSlugs = await clubPageSlugs(
     payload,
@@ -172,6 +213,11 @@ export const loadClubBySlug = async (slug: string): Promise<ClubSite | null> => 
 
   const bookingLink = toLink(h.booking)
   const bookingLabel = h.booking?.label?.trim()
+
+  const announcement = await loadAnnouncement(payload, tenantID, s.announcement, {
+    labelled,
+    phone: h.phone?.trim() || null,
+  })
 
   return {
     tenantID,
@@ -213,6 +259,7 @@ export const loadClubBySlug = async (slug: string): Promise<ClubSite | null> => 
         ? (s.location?.what3words?.trim() ?? null)
         : null,
     },
+    announcement,
     footer: {
       style: FOOTER_STYLES.includes(f.style as FooterStyle)
         ? (f.style as FooterStyle)
@@ -302,4 +349,68 @@ export const loadClubPage = async (tenantID: string, slug: string) => {
     layout,
     ctx: await loadBlockContext(payload, tenantID, layout),
   }
+}
+
+const ANNOUNCEMENT_STYLES = ['classic', 'rotator', 'utility'] as const
+const TONES = ['brand', 'accent', 'subtle'] as const
+const TAGS: Record<string, string> = {
+  notice: 'Notice',
+  event: 'Event',
+  course: 'Course',
+  offer: 'Offer',
+}
+/** A day as YYYY-MM-DD in the UK, so "until 31 Oct" means the whole of 31 October here. */
+const ukDay = (d: Date) => d.toLocaleDateString('en-CA', { timeZone: 'Europe/London' })
+
+const loadAnnouncement = async (
+  payload: Payload,
+  tenantID: string,
+  raw: RawSettings['announcement'],
+  {
+    labelled,
+    phone,
+  }: { labelled: (l: RawLink | null | undefined) => LabelledLink | null; phone: string | null },
+): Promise<SiteAnnouncement | null> => {
+  const style = ANNOUNCEMENT_STYLES.find((x) => x === raw?.style) ?? 'classic'
+  const tone = TONES.find((x) => x === raw?.tone) ?? 'brand'
+  const now = siteToday()
+  const today = ukDay(now)
+  const items = (raw?.items ?? []).flatMap((i) => {
+    const message = i.message?.trim()
+    if (!message || !i.expiresAt) return []
+    if (i.startsAt && ukDay(new Date(i.startsAt)) > today) return []
+    if (ukDay(new Date(i.expiresAt)) < today) return []
+    return [
+      {
+        tag: TAGS[i.tag ?? ''] ?? 'Notice',
+        message,
+        link: labelled(i.link),
+        expiresAt: i.expiresAt,
+      },
+    ]
+  })
+  const shown = style === 'rotator' ? items : items.slice(0, 1)
+
+  let status: SiteAnnouncement['status'] = null
+  if (style === 'utility' && raw?.showStatus !== false) {
+    const { docs } = await payload.find({
+      collection: 'course-status',
+      where: { tenant: { equals: tenantID } },
+      select: { state: true, updatedAt: true },
+      limit: 1,
+      depth: 0,
+      overrideAccess: true,
+    })
+    const d = docs[0]
+    const fresh =
+      d && now.getTime() - new Date(d.updatedAt).getTime() <= STATUS_STALE_HOURS * 3_600_000
+    if (d && fresh) {
+      const label = STATUS_STATES.find((x) => x.value === d.state)?.label ?? d.state
+      status = { state: d.state, label: `Course ${label.toLowerCase()}` }
+    }
+  }
+
+  const utilityPhone = style === 'utility' ? phone : null
+  if (shown.length === 0 && !status && !utilityPhone) return null
+  return { style, tone, items: shown, status, phone: utilityPhone }
 }

@@ -25,6 +25,24 @@ const palettes = {
     },
     header: 'classic',
     footer: 'brandColumns',
+    announcement: {
+      style: 'rotator',
+      tone: 'subtle',
+      items: [
+        {
+          tag: 'course',
+          message:
+            'The Championship course reopens on Saturday 18 October after autumn hollow-tining. Buggies stay on paths until the greens recover, and the practice ground opens at 10:00 on weekdays.',
+          link: { label: 'View tee times', type: 'url', url: 'https://booking.example.com' },
+          expiresAt: '2026-12-31T12:00:00.000Z',
+        },
+        {
+          tag: 'event',
+          message: 'Captain’s Day is on Saturday 1 August. Entries close on 25 July.',
+          expiresAt: '2026-12-31T12:00:00.000Z',
+        },
+      ],
+    },
   },
   'visual-coastal': {
     branding: {
@@ -38,6 +56,18 @@ const palettes = {
     },
     header: 'appBar',
     footer: 'editorial',
+    announcement: {
+      style: 'utility',
+      tone: 'brand',
+      showStatus: true,
+      items: [
+        {
+          message:
+            'Clubhouse terrace closed for refurbishment. Lunch and afternoon tea move to the Members’ Lounge.',
+          expiresAt: '2026-10-31T12:00:00.000Z',
+        },
+      ],
+    },
   },
 } as const
 
@@ -78,6 +108,7 @@ for (const [slug, p] of Object.entries(palettes)) {
     data: {
       clubName: name,
       branding: p.branding,
+      announcement: p.announcement,
       header: {
         style: p.header,
         phone: '01932 704 500',

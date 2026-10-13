@@ -98,3 +98,52 @@ describe('public site loader', () => {
     expect(await loadClubBySlug('no-such-club')).toBeNull()
   })
 })
+
+describe('announcement bar', () => {
+  const setAnnouncement = (announcement: Record<string, unknown>, user = w.editorA) =>
+    w.payload.update({
+      collection: 'club-settings',
+      id: w.settingsA.id,
+      data: { announcement } as never,
+      user,
+      overrideAccess: false,
+    })
+  const day = (offset: number) => new Date(Date.now() + offset * 86_400_000).toISOString()
+
+  it('shows only notices between their start and end dates', async () => {
+    await setAnnouncement({
+      style: 'rotator',
+      tone: 'brand',
+      items: [
+        { message: 'Finished', expiresAt: day(-2) },
+        { message: 'Not yet', startsAt: day(2), expiresAt: day(5) },
+        { message: 'Last day today', expiresAt: day(0) },
+      ],
+    })
+    const club = await loadClubBySlug('test-club-a')
+    expect(club?.announcement?.items.map((i) => i.message)).toEqual(['Last day today'])
+  })
+
+  it("refuses a link to club B's page", async () => {
+    const error = await setAnnouncement({
+      style: 'classic',
+      tone: 'brand',
+      items: [
+        { message: 'Hi', expiresAt: day(3), link: { label: 'B', type: 'page', page: w.pageB.id } },
+      ],
+    }).catch((e: unknown) => e)
+    const paths = ((error as { data?: { errors?: { path: string }[] } }).data?.errors ?? []).map(
+      (x) => x.path,
+    )
+    expect(paths).toContain('announcement.items.0.link.page')
+  })
+
+  it('style C shows the course status and phone even with no notice', async () => {
+    await setAnnouncement({ style: 'utility', tone: 'brand', showStatus: true, items: [] })
+    const club = await loadClubBySlug('test-club-a')
+    expect(club?.announcement).toMatchObject({
+      items: [],
+      status: { state: 'open', label: 'Course open' },
+    })
+  })
+})

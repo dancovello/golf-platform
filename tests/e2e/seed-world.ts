@@ -195,6 +195,20 @@ await w.payload.update({
   id: w.settingsA.id,
   data: {
     branding: { strapline: 'Golf Club · 1926' },
+    // tests/e2e/site-announcement.spec.ts (the browser tests run on 15 July 2026).
+    announcement: {
+      style: 'classic',
+      tone: 'brand',
+      items: [
+        {
+          message:
+            'The Championship course reopens on Saturday 18 October after autumn hollow-tining. Buggies stay on paths until the greens recover, and the practice ground opens at 10:00 on weekdays while the new mats are fitted.',
+          startsAt: '2026-07-01T12:00:00.000Z',
+          expiresAt: '2026-07-31T12:00:00.000Z',
+        },
+        { message: 'An expired notice', expiresAt: '2026-07-14T12:00:00.000Z' },
+      ],
+    },
     header: {
       style: 'classic',
       phone: '01932 704 500',
