@@ -274,3 +274,14 @@
     align-self: center;
   }
 }
+/* Phones: category tabs scroll sideways rather than wrap (docs/design/13) */
+.dl-tabs .tab {
+  flex: none;
+  white-space: nowrap;
+}
+@media (max-width: 767px) {
+  .dl-tabs {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+}
