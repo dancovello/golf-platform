@@ -300,3 +300,20 @@ describe('hole by hole', () => {
     expect(page!.ctx.course(w.courseB.id)).toBeNull()
   })
 })
+
+describe('scorecard', () => {
+  it("refuses club B's course and printable scorecard", async () => {
+    const error = await save([
+      {
+        blockType: 'scorecard',
+        style: 'classic',
+        heading: 'Card',
+        course: w.courseB.id,
+        download: w.docB.id,
+      },
+    ]).catch((e: unknown) => e)
+    expect(errorPaths(error)).toEqual(
+      expect.arrayContaining(['layout.0.course', 'layout.0.download']),
+    )
+  })
+})

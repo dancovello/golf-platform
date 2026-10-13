@@ -22,3 +22,19 @@ test('the course guide shows three holes, then all of them', async ({ page }) =>
   await expect(rows.filter({ visible: true })).toHaveCount(9)
   await expect(page.locator('#hole-9')).toBeVisible()
 })
+
+test('the scorecard tee picker updates the figures and the address', async ({ page }) => {
+  await page.goto(url)
+  const strip = page.locator('.sc-strip')
+  await expect(strip.locator('tbody tr').first().locator('td').last()).toHaveText('3,600')
+  await page.getByRole('button', { name: 'Yellow tees' }).click()
+  await expect(strip.locator('tbody tr').first().locator('td').last()).toHaveText('3,420')
+  await expect(page.getByText('68.4')).toBeVisible()
+  await expect(page).toHaveURL(/\?tee=yellow$/)
+
+  await page.goto(`${url}?tee=yellow`)
+  await expect(page.getByRole('button', { name: 'Yellow tees' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  )
+})

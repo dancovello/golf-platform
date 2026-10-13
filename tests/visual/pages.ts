@@ -30,4 +30,5 @@ export const VISUAL_PAGES = [
   'team',
   'membership',
   'holes',
+  'scorecard',
 ] as const
