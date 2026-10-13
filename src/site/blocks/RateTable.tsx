@@ -46,39 +46,62 @@ export const RateTable = ({
   const updated = pageUpdatedAt ? new Date(pageUpdatedAt) : null
   const fresh = updated ? today.getTime() - updated.getTime() < 90 * DAY : false
 
-  const table = (section: Section, caption: string) => (
-    <div className="rate-scroll">
-      <table className="rate-table">
-        <caption className="visually-hidden">{caption}</caption>
-        <thead>
-          <tr>
-            <th scope="col" className="t-data-label">
-              {style === 'matrix' ? 'Course' : 'Rate'}
-            </th>
-            {columns.map((c, i) => (
-              <th key={i} scope="col" className="t-data-label rate-price">
-                {c}
-              </th>
+  // Phones (docs/design/13 v2, "Rate Row / Mobile"): each rate stacks, one line per price.
+  const stacked = (section: Section) => (
+    <div className="rate-stack" aria-hidden="true">
+      {(section.rows ?? []).map((row, i) => (
+        <div key={i} className="rate-stack-row">
+          <p className="t-heading-m rate-stack-name">{row.label}</p>
+          {row.subLabel ? <p className="t-body-s rate-sub">{row.subLabel}</p> : null}
+          <dl>
+            {prices(row, columns.length).map((p, k) => (
+              <div key={k}>
+                <dt className="t-body-s">{columns[k]}</dt>
+                <dd className="t-data-serif">{p}</dd>
+              </div>
             ))}
-          </tr>
-        </thead>
-        <tbody>
-          {(section.rows ?? []).map((row, i) => (
-            <tr key={i}>
-              <th scope="row">
-                <span className="t-data-sans">{row.label}</span>
-                {row.subLabel ? <span className="t-body-s rate-sub">{row.subLabel}</span> : null}
+          </dl>
+        </div>
+      ))}
+    </div>
+  )
+
+  const table = (section: Section, caption: string) => (
+    <>
+      {stacked(section)}
+      <div className="rate-scroll">
+        <table className="rate-table">
+          <caption className="visually-hidden">{caption}</caption>
+          <thead>
+            <tr>
+              <th scope="col" className="t-data-label">
+                {style === 'matrix' ? 'Course' : 'Rate'}
               </th>
-              {prices(row, columns.length).map((p, k) => (
-                <td key={k} className="t-data-sans rate-price">
-                  {p}
-                </td>
+              {columns.map((c, i) => (
+                <th key={i} scope="col" className="t-data-label rate-price">
+                  {c}
+                </th>
               ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {(section.rows ?? []).map((row, i) => (
+              <tr key={i}>
+                <th scope="row">
+                  <span className="t-data-sans">{row.label}</span>
+                  {row.subLabel ? <span className="t-body-s rate-sub">{row.subLabel}</span> : null}
+                </th>
+                {prices(row, columns.length).map((p, k) => (
+                  <td key={k} className="t-data-sans rate-price">
+                    {p}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
   )
 
   const seasonCards = (tab: Tab) => {

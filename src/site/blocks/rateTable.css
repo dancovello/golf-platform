@@ -104,6 +104,32 @@
   margin-top: var(--space-4);
   color: var(--color-text-secondary);
 }
+.rate-stack {
+  display: none;
+}
+.rate-stack-row {
+  padding: var(--space-24) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.rate-stack .rate-stack-name {
+  margin: 0;
+}
+.rate-stack dl {
+  margin: var(--space-12) 0 0;
+}
+.rate-stack dl > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: var(--space-8) 0;
+}
+.rate-stack dt {
+  color: var(--color-text-secondary);
+}
+.rate-stack dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
 .rate-lists {
   display: grid;
   gap: var(--space-48);
@@ -293,27 +319,22 @@
   .rate-footer .btn {
     width: 100%;
   }
-  /* Sticky label column while the prices scroll sideways */
-  .rate-table tbody th,
-  .rate-table thead th:first-child {
-    position: sticky;
-    left: 0;
-    z-index: 1;
-    min-width: 160px;
-    padding-right: var(--space-16);
-    background: var(--color-surface-canvas);
+  /* Rates stack: name, small print, then one line per price (the table is for screen
+     readers and larger screens) */
+  .rate-scroll {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
   }
-  .rate-table .rate-price {
-    width: auto;
-    min-width: 96px;
+  .rate-stack {
+    display: block;
+    border-top: 1px solid var(--color-border-strong);
   }
-  /* The booking panel becomes a bar with the button only, stuck to the bottom of the block */
+  /* The booking panel shows just its button, below the prices */
   .rate-aside {
-    position: sticky;
-    bottom: 0;
-    padding: var(--space-16) 20px;
-    margin: 0 -20px -56px;
-    border-radius: 0;
+    padding: var(--space-24) 20px;
   }
   .rate-aside > :not(.rate-aside-cta) {
     display: none;
