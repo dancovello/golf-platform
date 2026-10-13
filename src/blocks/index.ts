@@ -2,6 +2,7 @@ import { ctaCardGrid } from './ctaCardGrid/config'
 import { documentList } from './documentList/config'
 import { gallery } from './gallery/config'
 import { hero } from './hero/config'
+import { map } from './map/config'
 import { rateTable } from './rateTable/config'
 import { richText } from './richText/config'
 import { twoColumn } from './twoColumn/config'
@@ -16,6 +17,7 @@ export const blockDefinitions: BlockDefinition[] = [
   rateTable,
   gallery,
   documentList,
+  map,
 ]
 
 export const pageBlocks = blockDefinitions.map((b) => b.config)

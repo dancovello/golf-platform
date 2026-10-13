@@ -1,0 +1,197 @@
+/* Map / Location. Figma page "Map / Location"; docs/design/11 and 13. Roles only. */
+.map a {
+  color: inherit;
+}
+.map-frame {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-surface-subtle);
+}
+.map-svg,
+.map-iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.map-load {
+  position: absolute;
+  right: var(--space-16);
+  bottom: var(--space-16);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  padding: var(--space-8) var(--space-12);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+.map-load:focus-visible {
+  outline: 2px solid var(--color-action-accent);
+  outline-offset: 2px;
+}
+.map .map-heading {
+  margin-bottom: var(--space-16);
+}
+.map .map-address {
+  margin: 0 0 var(--space-24);
+  color: var(--color-text-secondary);
+}
+.map-address-lines {
+  white-space: pre-line;
+}
+.map .map-contact {
+  display: grid;
+  gap: var(--space-12);
+  margin: 0 0 var(--space-32);
+  padding: var(--space-24) 0 0;
+  border-top: 1px solid var(--color-border-subtle);
+  list-style: none;
+}
+.map-contact li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+}
+.map-contact a {
+  text-decoration: none;
+}
+.map-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-24);
+}
+
+/* A · Split: map 7 cols beside 5 cols of details */
+.map-split-grid {
+  display: grid;
+  grid-template-columns: 7fr 5fr;
+  gap: var(--space-64);
+  align-items: center;
+}
+.map-split-frame {
+  aspect-ratio: 5 / 4;
+  border-radius: var(--radius-sm);
+}
+
+/* B · Full-width: 640 tall map, raised 420px card floating left, vertically centred */
+.map-full {
+  position: relative;
+  height: 640px;
+  font-family: var(--font-body);
+  color: var(--color-text-primary);
+}
+.map-full-frame {
+  position: absolute;
+  inset: 0;
+}
+.map-full-card-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  max-width: calc(var(--size-container) + 2 * var(--space-40));
+  margin: 0 auto;
+  padding: 0 var(--space-40);
+  pointer-events: none;
+}
+.map-card {
+  width: 420px;
+  padding: var(--space-40);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  box-shadow: 0 16px 48px color-mix(in srgb, var(--brand-dark) 14%, transparent);
+  pointer-events: auto;
+}
+.map-card .map-directions {
+  width: 100%;
+  justify-content: space-between;
+}
+
+/* C · Getting here: route cards (equal height) above a 320px map strip */
+.map-routes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-24);
+  margin: 0 0 var(--space-48);
+  padding: 0;
+  list-style: none;
+}
+.map-routes.cols-1 {
+  grid-template-columns: 1fr;
+}
+.map-routes.cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.map-route {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-32);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+}
+.map-route h3 {
+  margin: 0 0 var(--space-16);
+}
+.map-route .map-route-text {
+  margin: 0 0 var(--space-24);
+  color: var(--color-text-secondary);
+}
+.map-route .map-route-distance {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  margin: auto 0 0;
+  padding-top: var(--space-16);
+  border-top: 1px solid var(--color-border-subtle);
+}
+.map-strip {
+  height: 320px;
+  border-radius: var(--radius-sm);
+}
+
+@media (max-width: 1023px) {
+  .map-split-grid {
+    gap: var(--space-40);
+  }
+  .map-routes {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 767px) {
+  .map-split-grid {
+    grid-template-columns: 1fr;
+  }
+  .map-split-frame {
+    aspect-ratio: 4 / 3;
+  }
+  .map-actions .btn-outline {
+    width: 100%;
+  }
+  /* B: map 4:3, card stacked below */
+  .map-full {
+    height: auto;
+  }
+  .map-full-frame {
+    position: relative;
+    aspect-ratio: 4 / 3;
+  }
+  .map-full-card-wrap {
+    display: block;
+    height: auto;
+    padding: 0;
+  }
+  .map-card {
+    width: auto;
+    padding: var(--space-32) 20px 56px;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .map-strip {
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
+}

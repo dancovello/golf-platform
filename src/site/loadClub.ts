@@ -35,6 +35,12 @@ export type ClubSite = {
     phone: string | null
     menu: MenuItem[]
   }
+  location: {
+    latitude: number | null
+    longitude: number | null
+    mapLabel: string | null
+    what3words: string | null
+  }
   footer: {
     style: FooterStyle
     about: string | null
@@ -84,6 +90,12 @@ type RawSettings = {
     secondaryButton?: RawLink | null
     legalLinks?: { link?: RawLink | null }[] | null
   }
+  location?: {
+    latitude?: number | null
+    longitude?: number | null
+    mapLabel?: string | null
+    what3words?: string | null
+  }
 }
 
 const idOf = (v: unknown) =>
@@ -116,7 +128,7 @@ export const loadClubBySlug = async (slug: string): Promise<ClubSite | null> => 
   const { docs } = await payload.find({
     collection: 'club-settings',
     where: { tenant: { equals: tenantID } },
-    select: { clubName: true, branding: true, header: true, footer: true },
+    select: { clubName: true, branding: true, header: true, footer: true, location: true },
     limit: 1,
     depth: 0,
     overrideAccess: true,
@@ -192,6 +204,14 @@ export const loadClubBySlug = async (slug: string): Promise<ClubSite | null> => 
             .filter((g) => g.heading && g.links.length > 0),
         }))
         .filter((m) => m.label && (m.link || m.groups.length > 0)),
+    },
+    location: {
+      latitude: typeof s.location?.latitude === 'number' ? s.location.latitude : null,
+      longitude: typeof s.location?.longitude === 'number' ? s.location.longitude : null,
+      mapLabel: s.location?.mapLabel?.trim() || null,
+      what3words: /^[a-z]+\.[a-z]+\.[a-z]+$/.test(s.location?.what3words?.trim() ?? '')
+        ? (s.location?.what3words?.trim() ?? null)
+        : null,
     },
     footer: {
       style: FOOTER_STYLES.includes(f.style as FooterStyle)
