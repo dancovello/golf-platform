@@ -31,4 +31,5 @@ export const VISUAL_PAGES = [
   'membership',
   'holes',
   'scorecard',
+  'course-status',
 ] as const

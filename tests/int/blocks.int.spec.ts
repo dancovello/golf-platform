@@ -1,3 +1,4 @@
+import { sql } from '@payloadcms/db-postgres'
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import { pngFile } from '../shared/media'
@@ -315,5 +316,31 @@ describe('scorecard', () => {
     expect(errorPaths(error)).toEqual(
       expect.arrayContaining(['layout.0.course', 'layout.0.download']),
     )
+  })
+})
+
+describe('course status', () => {
+  it('every club has one, and the site says when it is out of date', async () => {
+    expect(w.statusA.state).toBe('open')
+    await save([{ blockType: 'courseStatus', style: 'board', heading: 'Status' }])
+    const fresh = await loadClubPage(w.clubA.id, 'membership')
+    expect(fresh!.ctx.courseStatus).toMatchObject({ state: 'open', stale: false })
+
+    await w.payload.db.drizzle.execute(
+      sql`UPDATE course_status SET updated_at = now() - interval '2 days' WHERE id = ${w.statusA.id}`,
+    )
+    const old = await loadClubPage(w.clubA.id, 'membership')
+    expect(old!.ctx.courseStatus?.stale).toBe(true)
+  })
+
+  it("refuses a link to club B's page", async () => {
+    const error = await save([
+      {
+        blockType: 'courseStatus',
+        style: 'band',
+        statusPage: { type: 'page', page: w.pageB.id },
+      },
+    ]).catch((e: unknown) => e)
+    expect(errorPaths(error)).toContain('layout.0.statusPage.page')
   })
 })

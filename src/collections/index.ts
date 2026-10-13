@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { ClubSettings } from './ClubSettings'
 import { Courses } from './Courses'
+import { CourseStatus } from './CourseStatus'
 import { Documents } from './Documents'
 import { Media } from './Media'
 import { Pages } from './Pages'
@@ -21,4 +22,5 @@ export const collections: CollectionConfig[] = [
   Documents,
   Staff,
   Courses,
+  CourseStatus,
 ]

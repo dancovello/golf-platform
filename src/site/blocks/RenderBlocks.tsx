@@ -17,6 +17,7 @@ import { Team } from './Team'
 import { Membership } from './Membership'
 import { HoleGrid } from './HoleGrid'
 import { Scorecard } from './Scorecard'
+import { CourseStatus } from './CourseStatus'
 import type { BlockContext } from './resolve'
 
 import './blocks.css'
@@ -36,6 +37,7 @@ import './team.css'
 import './membership.css'
 import './holes.css'
 import './scorecard.css'
+import './courseStatus.css'
 import '../components/buttons.css'
 
 type LayoutBlock = NonNullable<Page['layout']>[number]
@@ -98,6 +100,8 @@ export const RenderBlocks = ({
         return <HoleGrid key={block.id ?? i} block={block} ctx={ctx} />
       case 'scorecard':
         return <Scorecard key={block.id ?? i} block={block} ctx={ctx} />
+      case 'courseStatus':
+        return <CourseStatus key={block.id ?? i} block={block} ctx={ctx} club={club} base={base} />
       default:
         return null
     }

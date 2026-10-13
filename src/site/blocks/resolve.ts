@@ -2,10 +2,12 @@ import type { Payload } from 'payload'
 
 import { layoutRefs } from '@/blocks'
 import { idOf } from '@/blocks/types'
+import { STATUS_STALE_HOURS, type StatusState } from '@/collections/courseStatusStates'
 import { TEE_COLOURS, type TeeColour, yardsField } from '@/collections/courseTees'
 import { isSafeURL } from '@/fields/link'
 
 import type { SiteLink } from '../loadClub'
+import { siteToday } from '../today'
 import { loadClubMedia, type SiteMedia } from './media'
 
 export type ResolvedLink = { label: string; link: SiteLink }
@@ -163,6 +165,45 @@ const loadClubCourses = async (
   )
 }
 
+export type SiteCourseStatus = {
+  state: StatusState
+  reason: string | null
+  facilities: { label: string; state: StatusState; value: string | null }[]
+  changedBy: string | null
+  updatedAt: string
+  /** Not changed for 24 hours: the site says so instead of showing an old status. */
+  stale: boolean
+}
+
+/** The club's course status, if a block on the page shows it. */
+const loadClubCourseStatus = async (
+  payload: Payload,
+  tenantID: string,
+): Promise<SiteCourseStatus | null> => {
+  const { docs } = await payload.find({
+    collection: 'course-status',
+    where: { tenant: { equals: tenantID } },
+    limit: 1,
+    depth: 0,
+    overrideAccess: true,
+  })
+  const d = docs[0]
+  if (!d) return null
+  const age = siteToday().getTime() - new Date(d.updatedAt).getTime()
+  return {
+    state: d.state,
+    reason: d.reason?.trim() || null,
+    facilities: (d.facilities ?? []).map((f) => ({
+      label: f.label,
+      state: f.state,
+      value: f.value?.trim() || null,
+    })),
+    changedBy: d.changedBy?.trim() || null,
+    updatedAt: d.updatedAt,
+    stale: age > STATUS_STALE_HOURS * 60 * 60 * 1000,
+  }
+}
+
 /** What a block's website component gets: its own data, with pages and photos looked up. */
 export type BlockContext = {
   media: (value: unknown) => SiteMedia | null
@@ -174,6 +215,8 @@ export type BlockContext = {
   person: (value: unknown) => SitePerson | null
   /** One of the club's courses, or null. */
   course: (value: unknown) => SiteCourse | null
+  /** The club's course status (only loaded when a block shows it). */
+  courseStatus: SiteCourseStatus | null
 }
 
 /**
@@ -192,7 +235,10 @@ export const loadBlockContext = async (
   ]
   const staffIDs = [...new Set(refs.filter((r) => r.collection === 'staff').map((r) => r.id))]
   const courseIDs = [...new Set(refs.filter((r) => r.collection === 'courses').map((r) => r.id))]
-  const [media, pages, documents, staff, courses] = await Promise.all([
+  const showsStatus = (Array.isArray(layout) ? layout : []).some(
+    (b) => b?.blockType === 'courseStatus',
+  )
+  const [media, pages, documents, staff, courses, courseStatus] = await Promise.all([
     loadClubMedia(
       payload,
       tenantID,
@@ -242,6 +288,7 @@ export const loadBlockContext = async (
           ),
     loadClubStaff(payload, tenantID, staffIDs),
     loadClubCourses(payload, tenantID, courseIDs),
+    showsStatus ? loadClubCourseStatus(payload, tenantID) : Promise.resolve(null),
   ])
 
   return {
@@ -249,6 +296,7 @@ export const loadBlockContext = async (
     document: (value) => documents.get(idOf(value) ?? '') ?? null,
     person: (value) => staff.get(idOf(value) ?? '') ?? null,
     course: (value) => courses.get(idOf(value) ?? '') ?? null,
+    courseStatus,
     link: (value, fallbackLabel) => {
       const raw = (value ?? {}) as {
         label?: string | null
