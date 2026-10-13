@@ -159,6 +159,22 @@ await w.payload.create({
 })
 
 // Club A's course page (tests/e2e/site-holes.spec.ts).
+await w.payload.update({
+  collection: 'courses',
+  id: w.courseA.id,
+  data: {
+    tees: [
+      { colour: 'white', rating: 70.1, slope: 125 },
+      { colour: 'yellow', rating: 68.4, slope: 120 },
+    ],
+    holes: Array.from({ length: 9 }, (_, i) => ({
+      par: 4,
+      strokeIndex: i + 1,
+      yardsWhite: 400,
+      yardsYellow: 380,
+    })),
+  },
+})
 await w.payload.create({
   collection: 'pages',
   data: {
@@ -168,6 +184,7 @@ await w.payload.create({
     layout: [
       { blockType: 'holeGrid', style: 'cards', heading: 'Holes', course: w.courseA.id },
       { blockType: 'holeGrid', style: 'guide', heading: 'Guide', course: w.courseA.id },
+      { blockType: 'scorecard', style: 'teeSelector', heading: 'Card', course: w.courseA.id },
     ],
   } as never,
 })

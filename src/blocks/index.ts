@@ -13,6 +13,7 @@ import { faq } from './faq/config'
 import { team } from './team/config'
 import { membership } from './membership/config'
 import { holeGrid } from './holeGrid/config'
+import { scorecard } from './scorecard/config'
 import type { BlockDefinition, BlockRef } from './types'
 
 /** Every block a club can add to a page. The website side is in src/site/blocks. */
@@ -32,6 +33,7 @@ export const blockDefinitions: BlockDefinition[] = [
   team,
   membership,
   holeGrid,
+  scorecard,
 ]
 
 export const pageBlocks = blockDefinitions.map((b) => b.config)

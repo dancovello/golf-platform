@@ -202,6 +202,7 @@ export interface Page {
         | TeamBlock
         | MembershipBlock
         | HoleGridBlock
+        | ScorecardBlock
       )[]
     | null;
   updatedAt: string;
@@ -977,6 +978,34 @@ export interface Course {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ScorecardBlock".
+ */
+export interface ScorecardBlock {
+  style: 'classic' | 'vertical' | 'teeSelector';
+  eyebrow?: string | null;
+  heading: string;
+  /**
+   * Holes, tees, ratings and slopes come from Courses.
+   */
+  course: string | Course;
+  /**
+   * Shown as a "Download scorecard" button.
+   */
+  download?: (string | null) | Document;
+  /**
+   * Only if this page also has a Hole by hole block in style C.
+   */
+  linkToGuide?: boolean | null;
+  /**
+   * e.g. "Yardages measured from the back of each tee."
+   */
+  note?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'scorecard';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "club-settings".
  */
 export interface ClubSetting {
@@ -1318,6 +1347,7 @@ export interface PagesSelect<T extends boolean = true> {
         team?: T | TeamBlockSelect<T>;
         membership?: T | MembershipBlockSelect<T>;
         holeGrid?: T | HoleGridBlockSelect<T>;
+        scorecard?: T | ScorecardBlockSelect<T>;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -1750,6 +1780,21 @@ export interface HoleGridBlockSelect<T extends boolean = true> {
   eyebrow?: T;
   heading?: T;
   course?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ScorecardBlock_select".
+ */
+export interface ScorecardBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  course?: T;
+  download?: T;
+  linkToGuide?: T;
+  note?: T;
   id?: T;
   blockName?: T;
 }

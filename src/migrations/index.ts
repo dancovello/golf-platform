@@ -22,6 +22,7 @@ import * as migration_20261013_081117_faq from './20261013_081117_faq';
 import * as migration_20261013_082830_team from './20261013_082830_team';
 import * as migration_20261013_084416_membership from './20261013_084416_membership';
 import * as migration_20261013_090048_courses_holes from './20261013_090048_courses_holes';
+import * as migration_20261013_091523_scorecard from './20261013_091523_scorecard';
 
 export const migrations = [
   {
@@ -142,6 +143,11 @@ export const migrations = [
   {
     up: migration_20261013_090048_courses_holes.up,
     down: migration_20261013_090048_courses_holes.down,
-    name: '20261013_090048_courses_holes'
+    name: '20261013_090048_courses_holes',
+  },
+  {
+    up: migration_20261013_091523_scorecard.up,
+    down: migration_20261013_091523_scorecard.down,
+    name: '20261013_091523_scorecard'
   },
 ];

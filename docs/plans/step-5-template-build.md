@@ -33,4 +33,6 @@ Every block is **one block with a Design style choice (A / B / C)** from the Fig
 - Membership: categories are typed into the block (like the price table), not a separate shared list. Doc 02 suggested a "Membership Tiers" collection; worth it only if the same categories appear on several pages
 - Membership C: the enquiry card links to the contact page for now. Figma's built-in form (qualifying question, email, "Request a call back") waits for the email provider decision
 - Hole by hole: courses (holes, tees, rating/slope) are a new "Courses" list. The first tee listed is the club's main tee (Figma mentions a "Default tee" setting; this does the same job). Hole cards open a details pop-up; there are no separate hole pages
+- Scorecard A on phones scrolls sideways with the row names fixed (as its Figma note says), rather than the separate phone layout drawn with a tee picker; style C does that job. Scorecard C on tablets scrolls sideways instead of splitting into two strips
+- Scorecard: "Download scorecard" uses a PDF uploaded to Documents (no PDF is generated automatically)
 - Open decisions: email provider (newsletter, contact form), site search (wanted?)

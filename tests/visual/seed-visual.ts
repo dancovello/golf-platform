@@ -1029,6 +1029,34 @@ for (const [slug, p] of Object.entries(palettes)) {
       course: championship.id,
     })),
   ])
+
+  const printable = await doc('Championship course scorecard (print)', 'course')
+  await page('scorecard', 'Scorecard', [
+    {
+      blockType: 'scorecard',
+      style: 'classic',
+      eyebrow: 'The Championship course',
+      heading: 'Scorecard',
+      course: championship.id,
+      download: printable.id,
+    },
+    {
+      blockType: 'scorecard',
+      style: 'vertical',
+      eyebrow: 'The Championship course',
+      heading: 'Scorecard',
+      course: championship.id,
+      download: printable.id,
+    },
+    {
+      blockType: 'scorecard',
+      style: 'teeSelector',
+      eyebrow: 'The Championship course',
+      heading: 'Scorecard',
+      course: championship.id,
+      note: 'Yardages measured from the back of each tee. Course rating and slope shown for the selected tee.',
+    },
+  ])
 }
 
 process.exit(0)
