@@ -10,6 +10,7 @@ import { RateTable } from './RateTable'
 import { RichText } from './RichText'
 import { TwoColumn } from './TwoColumn'
 import { PullQuote } from './PullQuote'
+import { Timeline } from './Timeline'
 import type { BlockContext } from './resolve'
 
 import './blocks.css'
@@ -22,6 +23,7 @@ import './gallery.css'
 import './documentList.css'
 import './map.css'
 import './pullQuote.css'
+import './timeline.css'
 import '../components/buttons.css'
 
 type LayoutBlock = NonNullable<Page['layout']>[number]
@@ -70,6 +72,8 @@ export const RenderBlocks = ({
         return <MapBlock key={block.id ?? i} block={block} club={club} />
       case 'pullQuote':
         return <PullQuote key={block.id ?? i} block={block} ctx={ctx} />
+      case 'timeline':
+        return <Timeline key={block.id ?? i} block={block} ctx={ctx} />
       default:
         return null
     }

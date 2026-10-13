@@ -16,6 +16,7 @@ import * as migration_20261013_070306_documents_library from './20261013_070306_
 import * as migration_20261013_070543_document_list from './20261013_070543_document_list';
 import * as migration_20261013_072334_map_and_location from './20261013_072334_map_and_location';
 import * as migration_20261013_073551_pull_quote from './20261013_073551_pull_quote';
+import * as migration_20261013_074738_timeline from './20261013_074738_timeline';
 
 export const migrations = [
   {
@@ -106,6 +107,11 @@ export const migrations = [
   {
     up: migration_20261013_073551_pull_quote.up,
     down: migration_20261013_073551_pull_quote.down,
-    name: '20261013_073551_pull_quote'
+    name: '20261013_073551_pull_quote',
+  },
+  {
+    up: migration_20261013_074738_timeline.up,
+    down: migration_20261013_074738_timeline.down,
+    name: '20261013_074738_timeline'
   },
 ];

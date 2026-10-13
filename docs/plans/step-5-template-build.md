@@ -26,4 +26,5 @@ Every block is **one block with a Design style choice (A / B / C)** from the Fig
 - Gallery C is an on-page viewer (Figma's C is the full-screen viewer that A and B open)
 - Map: drawn, colour-themed map by default; the interactive map is OpenStreetMap (free, loads on click). A real styled map image needs a provider (Mapbox or Google, paid): decide later
 - Map pin label is small on phones (the drawing scales down): polish later
+- Timeline A: the optional "fade in on scroll" effect is left out (steadier; can add)
 - Open decisions: email provider (newsletter, contact form), site search (wanted?)
