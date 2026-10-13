@@ -36,4 +36,7 @@ Every block is **one block with a Design style choice (A / B / C)** from the Fig
 - Scorecard A on phones scrolls sideways with the row names fixed (as its Figma note says), rather than the separate phone layout drawn with a tee picker; style C does that job. Scorecard C on tablets scrolls sideways instead of splitting into two strips
 - Scorecard: "Download scorecard" uses a PDF uploaded to Documents (no PDF is generated automatically)
 - Course status: set in a new "Course status" record (one per club, created with the club); after 24 hours without a change the site says "not updated today" and asks visitors to call. Weather in the band (Figma B) is left out until a weather provider is chosen (e.g. the free Open-Meteo, no key) — **open decision**. The embeddable <course-status> widget for newsletters is not built
+- Announcement bar: set in Club Settings → Announcement (style, colour, up to 3 notices with start/end dates). Dismissing hides it for the visit. Header style B over a hero now starts below the bar
+- Header fix found along the way: on pages only just long enough to scroll, the header's top row could flicker; it now only comes back after a real scroll up
+- **Cookie banner not built (open decision):** the sites set no tracking or advertising cookies today, so UK rules don't require a banner and one would mislead visitors. Needed once an analytics tool is chosen (which one? per club?)
 - Open decisions: email provider (newsletter, contact form), site search (wanted?)

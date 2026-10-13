@@ -56,6 +56,7 @@ export const Tenants: CollectionConfig = {
             branding: { ...DEFAULT_BRAND, fontSet: DEFAULT_FONT_SET },
             header: { style: 'classic' },
             footer: { style: 'brandColumns' },
+            announcement: { style: 'classic', tone: 'brand' },
           },
           req,
         })

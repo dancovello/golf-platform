@@ -1231,6 +1231,41 @@ export interface ClubSetting {
       | null;
   };
   /**
+   * A short notice above the header on every page, between its start and end dates.
+   */
+  announcement: {
+    style: 'classic' | 'rotator' | 'utility';
+    tone: 'brand' | 'accent' | 'subtle';
+    showStatus?: boolean | null;
+    /**
+     * Only notices between their start and end dates are shown. Styles A and C show the first one.
+     */
+    items?:
+      | {
+          /**
+           * Up to 100 characters fits on one line.
+           */
+          message: string;
+          tag?: ('notice' | 'event' | 'course' | 'offer') | null;
+          startsAt?: string | null;
+          /**
+           * Hidden automatically after this day.
+           */
+          expiresAt: string;
+          link?: {
+            label?: string | null;
+            type?: ('page' | 'url') | null;
+            page?: (string | null) | Page;
+            /**
+             * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+             */
+            url?: string | null;
+          };
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
    * Used by the Map block. The address, phone, email and opening hours come from the Footer tab and the header phone.
    */
   location?: {
@@ -2009,6 +2044,30 @@ export interface ClubSettingsSelect<T extends boolean = true> {
         legalLinks?:
           | T
           | {
+              link?:
+                | T
+                | {
+                    label?: T;
+                    type?: T;
+                    page?: T;
+                    url?: T;
+                  };
+              id?: T;
+            };
+      };
+  announcement?:
+    | T
+    | {
+        style?: T;
+        tone?: T;
+        showStatus?: T;
+        items?:
+          | T
+          | {
+              message?: T;
+              tag?: T;
+              startsAt?: T;
+              expiresAt?: T;
               link?:
                 | T
                 | {

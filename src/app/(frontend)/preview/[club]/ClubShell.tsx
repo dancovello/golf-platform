@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from 'react'
 
+import { AnnouncementBar } from '@/site/components/AnnouncementBar'
 import { SiteFooter } from '@/site/components/SiteFooter'
 import { SiteHeader } from '@/site/components/SiteHeader'
 import type { ClubSite } from '@/site/loadClub'
@@ -10,6 +11,7 @@ import { fontSetVariables } from '../../fonts'
 import '@/theme/theme.css'
 import '@/site/components/header.css'
 import '@/site/components/footer.css'
+import '@/site/components/announcement.css'
 import './preview.css'
 
 /** A club's page frame on staging: its colours and fonts, header, page content and footer. */
@@ -32,6 +34,7 @@ export const ClubShell = ({
   const base = `/preview/${club.slug}`
   return (
     <div className="club-theme pv" style={theme}>
+      {club.announcement ? <AnnouncementBar data={club.announcement} base={base} /> : null}
       <SiteHeader club={club} base={base} currentPath={currentPath} overHero={overHero} />
       <main id="main" tabIndex={-1}>
         {children}

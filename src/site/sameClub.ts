@@ -43,6 +43,10 @@ const settingsRefs = (data: Record<string, unknown>): Ref[] => {
   page(footer.hoursLink?.page, 'footer.hoursLink.page')
   page(footer.secondaryButton?.page, 'footer.secondaryButton.page')
   footer.legalLinks?.forEach((l, k) => page(l.link?.page, `footer.legalLinks.${k}.link.page`))
+  const announcement = (data.announcement ?? {}) as { items?: { link?: { page?: unknown } }[] }
+  announcement.items?.forEach((item, k) =>
+    page(item.link?.page, `announcement.items.${k}.link.page`),
+  )
   return refs
 }
 

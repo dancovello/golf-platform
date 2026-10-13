@@ -405,6 +405,117 @@ export const ClubSettings: CollectionConfig = {
           ],
         },
         {
+          label: 'Announcement',
+          fields: [
+            {
+              name: 'announcement',
+              type: 'group',
+              label: false,
+              admin: {
+                description:
+                  'A short notice above the header on every page, between its start and end dates.',
+              },
+              fields: [
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'style',
+                      label: 'Style',
+                      type: 'select',
+                      required: true,
+                      defaultValue: 'classic',
+                      options: [
+                        { label: 'A · Classic: one centred line', value: 'classic' },
+                        { label: 'B · Rotator: up to three notices in turn', value: 'rotator' },
+                        {
+                          label: 'C · Utility: notice left, course status and phone right',
+                          value: 'utility',
+                        },
+                      ],
+                    },
+                    {
+                      name: 'tone',
+                      label: 'Colour',
+                      type: 'select',
+                      required: true,
+                      defaultValue: 'brand',
+                      options: [
+                        { label: 'Brand colour', value: 'brand' },
+                        { label: 'Accent (urgent; style A only)', value: 'accent' },
+                        { label: 'Subtle', value: 'subtle' },
+                      ],
+                    },
+                    {
+                      name: 'showStatus',
+                      label: 'Show course status (style C)',
+                      type: 'checkbox',
+                      defaultValue: true,
+                    },
+                  ],
+                },
+                {
+                  name: 'items',
+                  label: 'Notices',
+                  type: 'array',
+                  maxRows: 3,
+                  labels: { singular: 'Notice', plural: 'Notices' },
+                  admin: {
+                    description:
+                      'Only notices between their start and end dates are shown. Styles A and C show the first one.',
+                  },
+                  fields: [
+                    {
+                      name: 'message',
+                      label: 'Message',
+                      type: 'textarea',
+                      required: true,
+                      maxLength: 240,
+                      admin: { description: 'Up to 100 characters fits on one line.' },
+                    },
+                    {
+                      type: 'row',
+                      fields: [
+                        {
+                          name: 'tag',
+                          label: 'Tag (style B)',
+                          type: 'select',
+                          defaultValue: 'notice',
+                          options: [
+                            { label: 'Notice', value: 'notice' },
+                            { label: 'Event', value: 'event' },
+                            { label: 'Course', value: 'course' },
+                            { label: 'Offer', value: 'offer' },
+                          ],
+                        },
+                        {
+                          name: 'startsAt',
+                          label: 'Show from (optional)',
+                          type: 'date',
+                          admin: {
+                            date: { pickerAppearance: 'dayOnly', displayFormat: 'd MMM yyyy' },
+                          },
+                        },
+                        {
+                          name: 'expiresAt',
+                          label: 'Show until',
+                          type: 'date',
+                          required: true,
+                          admin: {
+                            date: { pickerAppearance: 'dayOnly', displayFormat: 'd MMM yyyy' },
+                            description: 'Hidden automatically after this day.',
+                          },
+                        },
+                      ],
+                    },
+                    linkField({ name: 'link', label: 'Link (optional)', required: false }),
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+        {
           label: 'Location',
           fields: [
             {

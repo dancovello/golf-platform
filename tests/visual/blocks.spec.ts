@@ -51,6 +51,17 @@ for (const club of VISUAL_CLUBS) {
         })
       }
 
+      test('announcement bar', async ({ page }) => {
+        // Rotating notices stand still for people who prefer reduced motion, and here.
+        await page.emulateMedia({ reducedMotion: 'reduce' })
+        await page.goto(`/preview/${club.slug}/about`)
+        await settle(page, { hideHeader: false })
+        await expect(page.getByRole('region', { name: 'Site announcement' })).toHaveScreenshot(
+          `announcement--${club.slug}--${viewport.name}.png`,
+          { animations: 'disabled' },
+        )
+      })
+
       test('header and footer', async ({ page }) => {
         await page.goto(`/preview/${club.slug}/about`)
         await settle(page, { hideHeader: false })
