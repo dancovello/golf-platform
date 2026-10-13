@@ -5,6 +5,7 @@ import { Courses } from './Courses'
 import { CourseStatus } from './CourseStatus'
 import { Documents } from './Documents'
 import { Media } from './Media'
+import { News } from './News'
 import { Pages } from './Pages'
 import { Staff } from './Staff'
 import { Tenants } from './Tenants'
@@ -23,4 +24,5 @@ export const collections: CollectionConfig[] = [
   Staff,
   Courses,
   CourseStatus,
+  News,
 ]
