@@ -35,4 +35,5 @@ Every block is **one block with a Design style choice (A / B / C)** from the Fig
 - Hole by hole: courses (holes, tees, rating/slope) are a new "Courses" list. The first tee listed is the club's main tee (Figma mentions a "Default tee" setting; this does the same job). Hole cards open a details pop-up; there are no separate hole pages
 - Scorecard A on phones scrolls sideways with the row names fixed (as its Figma note says), rather than the separate phone layout drawn with a tee picker; style C does that job. Scorecard C on tablets scrolls sideways instead of splitting into two strips
 - Scorecard: "Download scorecard" uses a PDF uploaded to Documents (no PDF is generated automatically)
+- Course status: set in a new "Course status" record (one per club, created with the club); after 24 hours without a change the site says "not updated today" and asks visitors to call. Weather in the band (Figma B) is left out until a weather provider is chosen (e.g. the free Open-Meteo, no key) — **open decision**. The embeddable <course-status> widget for newsletters is not built
 - Open decisions: email provider (newsletter, contact form), site search (wanted?)

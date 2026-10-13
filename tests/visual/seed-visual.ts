@@ -1057,6 +1057,64 @@ for (const [slug, p] of Object.entries(palettes)) {
       note: 'Yardages measured from the back of each tee. Course rating and slope shown for the selected tee.',
     },
   ])
+
+  const statusRecord = (
+    await payload.find({ collection: 'course-status', where: { tenant: { equals: club.id } } })
+  ).docs[0]
+  await payload.update({
+    collection: 'course-status',
+    id: statusRecord.id,
+    data: {
+      state: 'open',
+      reason:
+        'All 36 holes in play. Greens running at 10 on the Stimpmeter; temporary green on the 7th Heathland.',
+      changedBy: 'the Course Manager',
+      facilities: [
+        { label: 'Championship course', state: 'open' },
+        { label: 'Buggies', state: 'restricted', value: 'Paths only' },
+        { label: 'Trolleys', state: 'open', value: 'Permitted' },
+        { label: 'Practice ground', state: 'closed', value: 'Opens 10:00' },
+        { label: 'Heathland course', state: 'open' },
+        { label: 'Winter greens', state: 'open', value: 'Not in play' },
+      ],
+    } as never,
+  })
+  const statusPage = await page('course-status', 'Course status', [
+    {
+      blockType: 'courseStatus',
+      style: 'board',
+      eyebrow: 'Live from the greenkeeper',
+      heading: 'Course status',
+    },
+  ])
+  await payload.update({
+    collection: 'pages',
+    id: statusPage.id,
+    data: {
+      layout: [
+        {
+          blockType: 'courseStatus',
+          style: 'board',
+          eyebrow: 'Live from the greenkeeper',
+          heading: 'Course status',
+        },
+        {
+          blockType: 'courseStatus',
+          style: 'band',
+          statusPage: { type: 'page', page: statusPage.id },
+        },
+        {
+          blockType: 'courseStatus',
+          style: 'widget',
+          eyebrow: 'Visitors',
+          heading: 'Playing as a visitor',
+          intro:
+            'Visitors are welcome every day after 10am. Handicap certificates are required on the Championship course; the Heathland is open to all.',
+          statusPage: { type: 'page', page: statusPage.id },
+        },
+      ],
+    } as never,
+  })
 }
 
 process.exit(0)

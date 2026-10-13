@@ -61,6 +61,13 @@ const fixtures: Record<ClubOwnedSlug, Fixture> = {
     read: (doc) => (doc as { clubName?: unknown }).clubName,
     editorsCanCreate: false,
   },
+  'course-status': {
+    ids: (w) => ({ a: w.statusA.id, b: w.statusB.id }),
+    newRecord: (tenant) => ({ state: 'closed', tenant }),
+    change: { reason: 'Changed' },
+    read: (doc) => (doc as { reason?: unknown }).reason,
+    editorsCanCreate: false,
+  },
   media: {
     ids: (w) => ({ a: w.mediaA.id, b: w.mediaB.id }),
     newRecord: (tenant) => ({ alt: 'Planted', tenant }),
@@ -257,6 +264,9 @@ describe('the database enforces club ownership on its own', () => {
       db().execute(sql`INSERT INTO staff (name, role, department) VALUES ('o', 'o', 'golf')`),
     ).rejects.toThrow()
     await expect(db().execute(sql`INSERT INTO courses (name) VALUES ('orphan')`)).rejects.toThrow()
+    await expect(
+      db().execute(sql`INSERT INTO course_status (state) VALUES ('open')`),
+    ).rejects.toThrow()
   })
 
   it('refuses to delete a club that still has content', async () => {

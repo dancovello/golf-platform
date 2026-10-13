@@ -44,7 +44,7 @@ export const Tenants: CollectionConfig = {
   },
   hooks: {
     beforeValidate: [defaultSlug],
-    // Every club gets its Club Settings record straight away (one per club).
+    // Every club gets its Club Settings and Course status records straight away (one each).
     afterChange: [
       async ({ doc, operation, req }) => {
         if (operation !== 'create') return doc
@@ -57,6 +57,11 @@ export const Tenants: CollectionConfig = {
             header: { style: 'classic' },
             footer: { style: 'brandColumns' },
           },
+          req,
+        })
+        await req.payload.create({
+          collection: 'course-status',
+          data: { tenant: doc.id, state: 'open' },
           req,
         })
         return doc

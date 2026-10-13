@@ -75,6 +75,7 @@ export interface Config {
     documents: Document;
     staff: Staff;
     courses: Course;
+    'course-status': CourseStatus;
     'totp-attempts': TotpAttempt;
     'payload-kv': PayloadKv;
     'payload-preferences': PayloadPreference;
@@ -90,6 +91,7 @@ export interface Config {
     documents: DocumentsSelect<false> | DocumentsSelect<true>;
     staff: StaffSelect<false> | StaffSelect<true>;
     courses: CoursesSelect<false> | CoursesSelect<true>;
+    'course-status': CourseStatusSelect<false> | CourseStatusSelect<true>;
     'totp-attempts': TotpAttemptsSelect<false> | TotpAttemptsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -203,6 +205,7 @@ export interface Page {
         | MembershipBlock
         | HoleGridBlock
         | ScorecardBlock
+        | CourseStatusBlock
       )[]
     | null;
   updatedAt: string;
@@ -1006,6 +1009,33 @@ export interface ScorecardBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CourseStatusBlock".
+ */
+export interface CourseStatusBlock {
+  style: 'board' | 'band' | 'widget';
+  eyebrow?: string | null;
+  /**
+   * e.g. "Course status" (A).
+   */
+  heading?: string | null;
+  intro?: string | null;
+  /**
+   * The page with the full board. The band and "Full report" link to it.
+   */
+  statusPage?: {
+    type?: ('page' | 'url') | null;
+    page?: (string | null) | Page;
+    /**
+     * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+     */
+    url?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'courseStatus';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "club-settings".
  */
 export interface ClubSetting {
@@ -1225,6 +1255,41 @@ export interface ClubSetting {
   createdAt: string;
 }
 /**
+ * Update whenever the course changes. If it isn’t updated for 24 hours the website says so and asks visitors to call.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "course-status".
+ */
+export interface CourseStatus {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  state: 'open' | 'restricted' | 'closed';
+  /**
+   * e.g. "All 36 holes in play. Temporary green on the 7th."
+   */
+  reason?: string | null;
+  /**
+   * e.g. Buggies: Restricted, "Paths only". Up to six.
+   */
+  facilities?:
+    | {
+        label: string;
+        state: 'open' | 'restricted' | 'closed';
+        /**
+         * Defaults to the status, e.g. "Open".
+         */
+        value?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * e.g. "the Course Manager". Shown beside the time.
+   */
+  changedBy?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "totp-attempts".
  */
@@ -1348,6 +1413,7 @@ export interface PagesSelect<T extends boolean = true> {
         membership?: T | MembershipBlockSelect<T>;
         holeGrid?: T | HoleGridBlockSelect<T>;
         scorecard?: T | ScorecardBlockSelect<T>;
+        courseStatus?: T | CourseStatusBlockSelect<T>;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -1800,6 +1866,25 @@ export interface ScorecardBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CourseStatusBlock_select".
+ */
+export interface CourseStatusBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  intro?: T;
+  statusPage?:
+    | T
+    | {
+        type?: T;
+        page?: T;
+        url?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "club-settings_select".
  */
 export interface ClubSettingsSelect<T extends boolean = true> {
@@ -2080,6 +2165,26 @@ export interface CoursesSelect<T extends boolean = true> {
         tip?: T;
         id?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "course-status_select".
+ */
+export interface CourseStatusSelect<T extends boolean = true> {
+  tenant?: T;
+  state?: T;
+  reason?: T;
+  facilities?:
+    | T
+    | {
+        label?: T;
+        state?: T;
+        value?: T;
+        id?: T;
+      };
+  changedBy?: T;
   updatedAt?: T;
   createdAt?: T;
 }

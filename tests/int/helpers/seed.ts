@@ -7,6 +7,7 @@ import config from '@/payload.config'
 import type {
   ClubSetting,
   Course,
+  CourseStatus,
   Document,
   Media,
   Page,
@@ -53,6 +54,8 @@ export type World = {
   staffB: Staff
   courseA: Course
   courseB: Course
+  statusA: CourseStatus
+  statusB: CourseStatus
 }
 
 /** Refuses to run against anything but the golf_test database. */
@@ -75,6 +78,7 @@ export const resetDatabase = async (payload: Payload) => {
   await payload.delete({ collection: 'staff', where: all })
   await payload.delete({ collection: 'courses', where: all })
   await payload.delete({ collection: 'club-settings', where: all })
+  await payload.delete({ collection: 'course-status', where: all })
   await payload.delete({ collection: 'payload-preferences', where: all })
   await payload.delete({ collection: 'users', where: all })
   await payload.delete({ collection: 'tenants', where: all })
@@ -129,6 +133,10 @@ export const seedWorld = async (): Promise<World> => {
     (await payload.find({ collection: 'club-settings', where: { tenant: { equals: tenant } } }))
       .docs[0]
 
+  const status = async (tenant: string) =>
+    (await payload.find({ collection: 'course-status', where: { tenant: { equals: tenant } } }))
+      .docs[0]
+
   const media = (alt: string, tenant: string) =>
     payload.create({ collection: 'media', data: { alt, tenant }, file: pngFile('photo.png') })
 
@@ -167,6 +175,9 @@ export const seedWorld = async (): Promise<World> => {
     }),
     courseA: await course(payload, 'Club A course', clubA.id),
     courseB: await course(payload, 'Club B course', clubB.id),
+    // Created automatically with each club, like Club Settings.
+    statusA: await status(clubA.id),
+    statusB: await status(clubB.id),
   }
 }
 
