@@ -597,6 +597,37 @@ for (const [slug, p] of Object.entries(palettes)) {
       ],
     },
   ])
+
+  await page('pull-quote', 'Quotes', [
+    {
+      blockType: 'pullQuote',
+      style: 'centred',
+      quote:
+        'The finest piece of heathland golf in England, and the one I’d choose for my last round.',
+      name: 'A visiting captain',
+      role: 'Royal St George’s, 2025',
+    },
+    {
+      blockType: 'pullQuote',
+      style: 'overImage',
+      quote:
+        'We came for the golf and stayed for the people. Forty years on, I still look forward to the walk up the 18th.',
+      name: 'Margaret Hughes',
+      role: 'Member since 1985',
+      image: wide.id,
+    },
+    {
+      blockType: 'pullQuote',
+      style: 'split',
+      quote:
+        'A rare course that rewards thinking over power. The 7th is as good a par four as you’ll find inland.',
+      name: 'National golf magazine',
+      role: 'Top 100 courses list',
+      publication: 'Course review',
+      year: '2026',
+      image: cards[0].id,
+    },
+  ])
 }
 
 process.exit(0)

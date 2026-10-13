@@ -9,6 +9,7 @@ import { MapBlock } from './MapBlock'
 import { RateTable } from './RateTable'
 import { RichText } from './RichText'
 import { TwoColumn } from './TwoColumn'
+import { PullQuote } from './PullQuote'
 import type { BlockContext } from './resolve'
 
 import './blocks.css'
@@ -20,6 +21,7 @@ import './rateTable.css'
 import './gallery.css'
 import './documentList.css'
 import './map.css'
+import './pullQuote.css'
 import '../components/buttons.css'
 
 type LayoutBlock = NonNullable<Page['layout']>[number]
@@ -66,6 +68,8 @@ export const RenderBlocks = ({
         return <DocumentList key={block.id ?? i} block={block} ctx={ctx} base={base} />
       case 'map':
         return <MapBlock key={block.id ?? i} block={block} club={club} />
+      case 'pullQuote':
+        return <PullQuote key={block.id ?? i} block={block} ctx={ctx} />
       default:
         return null
     }

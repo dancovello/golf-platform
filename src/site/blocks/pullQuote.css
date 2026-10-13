@@ -1,0 +1,147 @@
+/* Pull-Quote. Figma page "Pull-Quote"; docs/design/11 and 13. Roles only. */
+.pq-figure {
+  margin: 0;
+}
+.pq-quote {
+  margin: 0;
+}
+.pq-quote p {
+  margin: 0;
+  text-wrap: balance;
+}
+.pq-caption {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-16);
+  margin-top: var(--space-32);
+}
+.pq-rule {
+  flex: none;
+  width: 40px;
+  margin-top: 0.6em;
+  border-top: 1px solid var(--color-action-accent);
+}
+.pq-caption .pq-name,
+.pq-caption .pq-role {
+  display: block;
+}
+.pq-caption .pq-role {
+  margin-top: 2px;
+  color: var(--color-text-secondary);
+}
+
+/* A · Centred: padding 128, quote max 880, large opening mark in the brand text colour */
+.pq-centred {
+  padding-top: var(--space-128);
+  padding-bottom: var(--space-128);
+}
+.pq-centred .pq-figure {
+  max-width: 880px;
+  margin: 0 auto;
+  text-align: center;
+}
+.pq-centred .pq-mark {
+  display: block;
+  height: 0.6em;
+  color: var(--color-text-brand);
+  line-height: 1;
+}
+.pq-centred .pq-caption {
+  justify-content: center;
+}
+.pq-centred .pq-caption > span:last-child {
+  text-align: left;
+}
+
+/* B · Over a photo: 640 tall, uniform scrim, on-inverse text, accent rule */
+.pq-over {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 640px;
+  padding: var(--space-96) var(--space-40);
+  overflow: hidden;
+  color: var(--color-text-on-inverse);
+  font-family: var(--font-body);
+}
+.pq-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.pq-scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--color-overlay-scrim);
+}
+.pq-over-inner {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.pq-over .pq-figure {
+  text-align: center;
+}
+.pq-over .pq-caption {
+  justify-content: center;
+}
+.pq-over .pq-caption > span:last-child {
+  text-align: left;
+}
+.pq-over .pq-rule {
+  border-top-color: var(--color-text-accent);
+}
+.pq-over .pq-caption .pq-role {
+  color: var(--color-text-on-inverse-muted);
+}
+
+/* C · Split: 440 photo (4:5) + 96 gap + quote */
+.pq-split-grid {
+  display: grid;
+  grid-template-columns: 440px minmax(0, 1fr);
+  gap: var(--space-96);
+  align-items: center;
+}
+.pq-split-grid.no-image {
+  grid-template-columns: minmax(0, 760px);
+}
+.pq-split-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+}
+.pq-split .pq-source {
+  display: inline-block;
+  margin: 0 0 var(--space-24);
+  padding: var(--space-4) var(--space-12);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+@media (max-width: 767px) {
+  .pq-centred {
+    padding-top: var(--space-80);
+    padding-bottom: var(--space-80);
+  }
+  .pq-over {
+    min-height: 480px;
+    padding: var(--space-64) 20px;
+  }
+  .pq-over .pq-quote p {
+    font-size: var(--type-quote-m);
+  }
+  .pq-split-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-32);
+  }
+  .pq-split-img {
+    aspect-ratio: 3 / 2;
+  }
+}

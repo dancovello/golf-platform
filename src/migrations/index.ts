@@ -15,6 +15,7 @@ import * as migration_20261013_065044_gallery from './20261013_065044_gallery';
 import * as migration_20261013_070306_documents_library from './20261013_070306_documents_library';
 import * as migration_20261013_070543_document_list from './20261013_070543_document_list';
 import * as migration_20261013_072334_map_and_location from './20261013_072334_map_and_location';
+import * as migration_20261013_073551_pull_quote from './20261013_073551_pull_quote';
 
 export const migrations = [
   {
@@ -100,6 +101,11 @@ export const migrations = [
   {
     up: migration_20261013_072334_map_and_location.up,
     down: migration_20261013_072334_map_and_location.down,
-    name: '20261013_072334_map_and_location'
+    name: '20261013_072334_map_and_location',
+  },
+  {
+    up: migration_20261013_073551_pull_quote.up,
+    down: migration_20261013_073551_pull_quote.down,
+    name: '20261013_073551_pull_quote'
   },
 ];

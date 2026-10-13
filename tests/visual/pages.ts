@@ -23,4 +23,5 @@ export const VISUAL_PAGES = [
   'gallery',
   'documents',
   'map',
+  'pull-quote',
 ] as const

@@ -191,6 +191,7 @@ export interface Page {
         | GalleryBlock
         | DocumentListBlock
         | MapBlock
+        | PullQuoteBlock
       )[]
     | null;
   updatedAt: string;
@@ -599,6 +600,28 @@ export interface MapBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PullQuoteBlock".
+ */
+export interface PullQuoteBlock {
+  style: 'centred' | 'overImage' | 'split';
+  /**
+   * Without quotation marks; they are added for you.
+   */
+  quote: string;
+  name: string;
+  /**
+   * e.g. "Member since 1985"
+   */
+  role?: string | null;
+  publication?: string | null;
+  year?: string | null;
+  image?: (string | null) | Media;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'pullQuote';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "club-settings".
  */
 export interface ClubSetting {
@@ -933,6 +956,7 @@ export interface PagesSelect<T extends boolean = true> {
         gallery?: T | GalleryBlockSelect<T>;
         documentList?: T | DocumentListBlockSelect<T>;
         map?: T | MapBlockSelect<T>;
+        pullQuote?: T | PullQuoteBlockSelect<T>;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -1166,6 +1190,21 @@ export interface MapBlockSelect<T extends boolean = true> {
         directions?: T;
         id?: T;
       };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PullQuoteBlock_select".
+ */
+export interface PullQuoteBlockSelect<T extends boolean = true> {
+  style?: T;
+  quote?: T;
+  name?: T;
+  role?: T;
+  publication?: T;
+  year?: T;
+  image?: T;
   id?: T;
   blockName?: T;
 }

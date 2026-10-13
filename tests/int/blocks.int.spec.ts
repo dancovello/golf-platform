@@ -168,3 +168,12 @@ describe('document list', () => {
     ).rejects.toThrow()
   })
 })
+
+describe('quote', () => {
+  it("refuses club B's photo", async () => {
+    const error = await save([
+      { blockType: 'pullQuote', style: 'overImage', quote: 'Q', name: 'N', image: w.mediaB.id },
+    ]).catch((e: unknown) => e)
+    expect(errorPaths(error)).toContain('layout.0.image')
+  })
+})
