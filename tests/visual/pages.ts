@@ -22,4 +22,5 @@ export const VISUAL_PAGES = [
   'rate-table',
   'gallery',
   'documents',
+  'map',
 ] as const

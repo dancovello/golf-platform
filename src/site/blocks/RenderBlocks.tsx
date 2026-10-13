@@ -5,6 +5,7 @@ import { CtaCardGrid } from './CtaCardGrid'
 import { DocumentList } from './DocumentList'
 import { Gallery } from './Gallery'
 import { Hero } from './Hero'
+import { MapBlock } from './MapBlock'
 import { RateTable } from './RateTable'
 import { RichText } from './RichText'
 import { TwoColumn } from './TwoColumn'
@@ -18,6 +19,7 @@ import './richText.css'
 import './rateTable.css'
 import './gallery.css'
 import './documentList.css'
+import './map.css'
 import '../components/buttons.css'
 
 type LayoutBlock = NonNullable<Page['layout']>[number]
@@ -62,6 +64,8 @@ export const RenderBlocks = ({
         return <Gallery key={block.id ?? i} block={block} ctx={ctx} />
       case 'documentList':
         return <DocumentList key={block.id ?? i} block={block} ctx={ctx} base={base} />
+      case 'map':
+        return <MapBlock key={block.id ?? i} block={block} club={club} />
       default:
         return null
     }

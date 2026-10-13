@@ -404,6 +404,70 @@ export const ClubSettings: CollectionConfig = {
             },
           ],
         },
+        {
+          label: 'Location',
+          fields: [
+            {
+              name: 'location',
+              type: 'group',
+              label: false,
+              admin: {
+                description:
+                  'Used by the Map block. The address, phone, email and opening hours come from the Footer tab and the header phone.',
+              },
+              fields: [
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'latitude',
+                      label: 'Latitude',
+                      type: 'number',
+                      min: 49,
+                      max: 61,
+                      admin: {
+                        description:
+                          'e.g. 51.3920 (right-click the clubhouse in Google Maps to copy it).',
+                      },
+                    },
+                    {
+                      name: 'longitude',
+                      label: 'Longitude',
+                      type: 'number',
+                      min: -9,
+                      max: 2,
+                      admin: { description: 'e.g. -0.6120' },
+                    },
+                  ],
+                },
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'mapLabel',
+                      label: 'Map pin label',
+                      type: 'text',
+                      maxLength: 30,
+                      admin: { description: 'e.g. "Clubhouse & car park"' },
+                    },
+                    {
+                      name: 'what3words',
+                      label: 'what3words (optional)',
+                      type: 'text',
+                      maxLength: 60,
+                      admin: { description: 'e.g. filled.count.soap' },
+                      validate: (value: unknown) =>
+                        !value ||
+                        (typeof value === 'string' && /^[a-z]+\.[a-z]+\.[a-z]+$/.test(value.trim()))
+                          ? true
+                          : 'Three words separated by dots, e.g. filled.count.soap',
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
       ],
     },
   ],

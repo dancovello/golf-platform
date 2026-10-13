@@ -14,6 +14,7 @@ import * as migration_20261012_171616_rate_table from './20261012_171616_rate_ta
 import * as migration_20261013_065044_gallery from './20261013_065044_gallery';
 import * as migration_20261013_070306_documents_library from './20261013_070306_documents_library';
 import * as migration_20261013_070543_document_list from './20261013_070543_document_list';
+import * as migration_20261013_072334_map_and_location from './20261013_072334_map_and_location';
 
 export const migrations = [
   {
@@ -94,6 +95,11 @@ export const migrations = [
   {
     up: migration_20261013_070543_document_list.up,
     down: migration_20261013_070543_document_list.down,
-    name: '20261013_070543_document_list'
+    name: '20261013_070543_document_list',
+  },
+  {
+    up: migration_20261013_072334_map_and_location.up,
+    down: migration_20261013_072334_map_and_location.down,
+    name: '20261013_072334_map_and_location'
   },
 ];

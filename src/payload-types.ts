@@ -190,6 +190,7 @@ export interface Page {
         | RateTableBlock
         | GalleryBlock
         | DocumentListBlock
+        | MapBlock
       )[]
     | null;
   updatedAt: string;
@@ -572,6 +573,32 @@ export interface Document {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MapBlock".
+ */
+export interface MapBlock {
+  style: 'split' | 'fullBleed' | 'gettingHere';
+  eyebrow?: string | null;
+  heading: string;
+  routes?:
+    | {
+        mode: 'car' | 'train' | 'air' | 'bus' | 'walk';
+        /**
+         * e.g. "5 min from M25"
+         */
+        distance?: string | null;
+        /**
+         * About 45 words.
+         */
+        directions: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'map';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "club-settings".
  */
 export interface ClubSetting {
@@ -766,6 +793,27 @@ export interface ClubSetting {
         }[]
       | null;
   };
+  /**
+   * Used by the Map block. The address, phone, email and opening hours come from the Footer tab and the header phone.
+   */
+  location?: {
+    /**
+     * e.g. 51.3920 (right-click the clubhouse in Google Maps to copy it).
+     */
+    latitude?: number | null;
+    /**
+     * e.g. -0.6120
+     */
+    longitude?: number | null;
+    /**
+     * e.g. "Clubhouse & car park"
+     */
+    mapLabel?: string | null;
+    /**
+     * e.g. filled.count.soap
+     */
+    what3words?: string | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -884,6 +932,7 @@ export interface PagesSelect<T extends boolean = true> {
         rateTable?: T | RateTableBlockSelect<T>;
         gallery?: T | GalleryBlockSelect<T>;
         documentList?: T | DocumentListBlockSelect<T>;
+        map?: T | MapBlockSelect<T>;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -1103,6 +1152,25 @@ export interface DocumentListBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MapBlock_select".
+ */
+export interface MapBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  routes?:
+    | T
+    | {
+        mode?: T;
+        distance?: T;
+        directions?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "club-settings_select".
  */
 export interface ClubSettingsSelect<T extends boolean = true> {
@@ -1237,6 +1305,14 @@ export interface ClubSettingsSelect<T extends boolean = true> {
                   };
               id?: T;
             };
+      };
+  location?:
+    | T
+    | {
+        latitude?: T;
+        longitude?: T;
+        mapLabel?: T;
+        what3words?: T;
       };
   updatedAt?: T;
   createdAt?: T;

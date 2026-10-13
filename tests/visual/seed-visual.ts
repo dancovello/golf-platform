@@ -97,6 +97,12 @@ for (const [slug, p] of Object.entries(palettes)) {
           { label: 'Clubhouse', link: { type: 'page', page: about.id } },
         ],
       },
+      location: {
+        latitude: 51.392,
+        longitude: -0.612,
+        mapLabel: 'Clubhouse & car park',
+        what3words: 'filled.count.soap',
+      },
       footer: {
         style: p.footer,
         about: 'Heathland golf since 1926, twenty minutes from Heathrow.',
@@ -553,6 +559,42 @@ for (const [slug, p] of Object.entries(palettes)) {
       eyebrow: 'Document library',
       heading: 'Find a document',
       documents: ids(2, 3, 4, 5, 8, 0),
+    },
+  ])
+
+  await page('map', 'Find us', [
+    { blockType: 'map', style: 'split', eyebrow: 'Getting here', heading: 'Find the club' },
+    {
+      blockType: 'map',
+      style: 'fullBleed',
+      eyebrow: 'Visit us',
+      heading: 'Twenty minutes from Heathrow',
+    },
+    {
+      blockType: 'map',
+      style: 'gettingHere',
+      eyebrow: 'Getting here',
+      heading: 'By road, rail or air',
+      routes: [
+        {
+          mode: 'car',
+          distance: '5 min from M25',
+          directions:
+            'M25 junction 13, then A30 towards Bagshot. The club entrance is on the left after the second roundabout; 120 free spaces.',
+        },
+        {
+          mode: 'train',
+          distance: '1.5 miles',
+          directions:
+            'Virginia Water station (South Western Railway, 45 min from London Waterloo). Taxis wait at the rank; we can book one ahead.',
+        },
+        {
+          mode: 'air',
+          distance: '20 min drive',
+          directions:
+            'London Heathrow is a 20-minute drive. The club can arrange a chauffeur for visiting parties of four or more.',
+        },
+      ],
     },
   ])
 }

@@ -98,6 +98,17 @@ await w.payload.create({
   } as never,
 })
 
+// Club A's map page (tests/e2e/site-map.spec.ts).
+await w.payload.create({
+  collection: 'pages',
+  data: {
+    title: 'Find us',
+    slug: 'find-us',
+    tenant: w.clubA.id,
+    layout: [{ blockType: 'map', style: 'split', heading: 'Find the club' }],
+  } as never,
+})
+
 // Club A's header and menu, for the public site tests (tests/e2e/site-header.spec.ts).
 await w.payload.update({
   collection: 'club-settings',
@@ -124,6 +135,7 @@ await w.payload.update({
         { label: 'Membership', link: { type: 'page', page: w.pageA.id } },
       ],
     },
+    location: { latitude: 51.392, longitude: -0.612, mapLabel: 'Clubhouse' },
     footer: {
       style: 'brandColumns',
       about: 'Heathland golf since 1926.',
