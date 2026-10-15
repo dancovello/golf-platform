@@ -208,6 +208,7 @@ export interface Page {
         | HoleGridBlock
         | ScorecardBlock
         | CourseStatusBlock
+        | NewsFeedBlock
       )[]
     | null;
   updatedAt: string;
@@ -1038,6 +1039,22 @@ export interface CourseStatusBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "NewsFeedBlock".
+ */
+export interface NewsFeedBlock {
+  style: 'carousel' | 'leadList' | 'headlines';
+  eyebrow?: string | null;
+  heading: string;
+  /**
+   * Leave empty for all news.
+   */
+  category?: ('course' | 'competitions' | 'clubhouse' | 'membership' | 'academy' | 'club') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'newsFeed';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "club-settings".
  */
 export interface ClubSetting {
@@ -1497,6 +1514,7 @@ export interface PagesSelect<T extends boolean = true> {
         holeGrid?: T | HoleGridBlockSelect<T>;
         scorecard?: T | ScorecardBlockSelect<T>;
         courseStatus?: T | CourseStatusBlockSelect<T>;
+        newsFeed?: T | NewsFeedBlockSelect<T>;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -1963,6 +1981,18 @@ export interface CourseStatusBlockSelect<T extends boolean = true> {
         page?: T;
         url?: T;
       };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "NewsFeedBlock_select".
+ */
+export interface NewsFeedBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  category?: T;
   id?: T;
   blockName?: T;
 }

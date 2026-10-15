@@ -18,6 +18,7 @@ import { Membership } from './Membership'
 import { HoleGrid } from './HoleGrid'
 import { Scorecard } from './Scorecard'
 import { CourseStatus } from './CourseStatus'
+import { NewsFeed } from '../news/NewsFeed'
 import type { BlockContext } from './resolve'
 
 import './blocks.css'
@@ -102,6 +103,8 @@ export const RenderBlocks = ({
         return <Scorecard key={block.id ?? i} block={block} ctx={ctx} />
       case 'courseStatus':
         return <CourseStatus key={block.id ?? i} block={block} ctx={ctx} club={club} base={base} />
+      case 'newsFeed':
+        return <NewsFeed key={block.id ?? i} block={block} club={club} base={base} />
       default:
         return null
     }
