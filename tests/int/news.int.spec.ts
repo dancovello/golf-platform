@@ -42,6 +42,15 @@ describe('news article web addresses', () => {
     expect(w.newsA.slug).toBe('club-a-news')
   })
 
+  it('stay within 80 characters when made from a long title', async () => {
+    const long = await addNews({
+      title: `${'Greens '.repeat(12)}update`.slice(0, 90),
+      status: 'draft',
+    })
+    expect(long.slug?.length).toBeLessThanOrEqual(80)
+    expect(long.slug).not.toMatch(/-$/)
+  })
+
   it('can repeat across clubs but not within one club', async () => {
     expect(w.newsB.slug).toBe(w.newsA.slug)
     await expect(addNews({ title: 'Club A news' })).rejects.toThrow()
@@ -98,7 +107,7 @@ describe('the website shows only live articles from its own club', () => {
     expect(all.total).toBe(8)
   })
 
-  it('links an article to its older and newer neighbours, and three more to read', async () => {
+  it('links an article to its older and newer neighbours, and up to six more to read', async () => {
     const post = await loadNewsPost(w.clubA.id, 'course-update-2')
     expect(post?.previous?.slug).toBe('course-update-3')
     expect(post?.next?.slug).toBe('course-update-1')
@@ -106,18 +115,21 @@ describe('the website shows only live articles from its own club', () => {
       'club-a-news',
       'course-update-1',
       'course-update-3',
+      'course-update-4',
+      'course-update-5',
+      'course-update-6',
     ])
   })
 })
 
 describe('the news archive', () => {
-  it('shows six to a page, newest first', async () => {
+  it('shows seven to a page (a lead story and six), newest first', async () => {
     const first = await newsArchive(w.clubA.id, { category: null, q: null, page: 1 })
     expect(first.cards).toHaveLength(NEWS_PER_PAGE)
     expect(first.cards[0].slug).toBe('club-a-news')
     expect(first.pages).toBe(2)
     const second = await newsArchive(w.clubA.id, { category: null, q: null, page: 2 })
-    expect(second.cards.map((c) => c.slug)).toEqual(['course-update-6', 'course-update-7'])
+    expect(second.cards.map((c) => c.slug)).toEqual(['course-update-7'])
   })
 
   it('filters by category, ignoring categories it doesn’t know', async () => {

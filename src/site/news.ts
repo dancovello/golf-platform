@@ -29,7 +29,8 @@ export type SiteNewsPost = SiteNewsCard & {
   more: SiteNewsCard[]
 }
 
-export const NEWS_PER_PAGE = 6
+/** The lead story plus a grid of six (Figma "News archive"). */
+export const NEWS_PER_PAGE = 7
 
 type NewsDoc = {
   slug?: string | null
@@ -148,7 +149,7 @@ const wordCount = (value: unknown): number => {
   return n
 }
 
-/** One published article, with its neighbours (older and newer) and three more to read. */
+/** One published article, with its neighbours (older and newer) and up to six more to read. */
 export const loadNewsPost = async (
   tenantID: string,
   slug: string,
@@ -189,7 +190,7 @@ export const loadNewsPost = async (
   const [previous, next, latest, ctx] = await Promise.all([
     neighbour('older'),
     neighbour('newer'),
-    latestNews(tenantID, 4),
+    latestNews(tenantID, 7),
     // The article is drawn like a Text block, so its photos and links are checked the same way.
     loadBlockContext(payload, tenantID, [{ blockType: 'richText', content: doc.body }]),
   ])
@@ -203,6 +204,6 @@ export const loadNewsPost = async (
     ctx,
     previous,
     next,
-    more: latest.filter((p) => p.slug !== slug).slice(0, 3),
+    more: latest.filter((p) => p.slug !== slug).slice(0, 6),
   }
 }

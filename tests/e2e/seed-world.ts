@@ -267,7 +267,8 @@ const editorLoginOnly = await extraEditor('editor-login-only@example.com', true)
 const editorTypesCode = await extraEditor('editor-types-code@example.com', true)
 const editorWrongCode = await extraEditor('editor-wrong-code@example.com', true)
 const editorLinkTarget = await extraEditor('editor-link-target@example.com', true)
-// Club A's news (tests/e2e/site-news.spec.ts). The browser tests pin "today" to 15 July 2026,
+// Club A's news: nine live articles (tests/e2e/site-news.spec.ts). The browser tests pin
+// "today" to 15 July 2026,
 // so the seeded "Club A news" (dated today) is still in the future there and stays hidden.
 const newsPhoto = await w.payload.create({
   collection: 'media',
@@ -282,6 +283,8 @@ const articles: [string, string, string][] = [
   ['Summer fourball', 'competitions', '2026-07-06'],
   ['Bunker renovation update', 'course', '2026-07-04'],
   ['Welcome to our new members', 'membership', '2026-07-02'],
+  ['Greenkeeping team grows', 'club', '2026-06-30'],
+  ['Spring meeting report', 'club', '2026-06-28'],
 ]
 for (const [title, category, date] of articles) {
   await w.payload.create({

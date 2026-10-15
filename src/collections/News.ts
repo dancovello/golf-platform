@@ -9,9 +9,11 @@ import { slugify } from './Tenants'
 
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
-/** A new article gets its web address from its title unless one is typed. */
+/** A new article gets its web address from its title unless one is typed (at most 80 long). */
 const defaultSlug: CollectionBeforeValidateHook = ({ data }) => {
-  if (data && !data.slug && typeof data.title === 'string') data.slug = slugify(data.title)
+  if (data && !data.slug && typeof data.title === 'string') {
+    data.slug = slugify(data.title).slice(0, 80).replace(/-+$/, '')
+  }
   return data
 }
 

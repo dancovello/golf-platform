@@ -5,7 +5,7 @@ export const NEWS_CATEGORIES = [
   { label: 'Competitions', value: 'competitions' },
   { label: 'Clubhouse', value: 'clubhouse' },
   { label: 'Membership', value: 'membership' },
-  { label: 'Juniors & academy', value: 'academy' },
+  { label: 'Academy', value: 'academy' },
   { label: 'Club news', value: 'club' },
 ] as const
 
