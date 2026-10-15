@@ -87,7 +87,8 @@ Dan's devops contact checked and approved the review items raised in PRs #18, #2
 
 ## 2026-10-15 — GitHub Actions minutes
 
-- The repo used all 3,000 monthly GitHub Actions minutes (GitHub Pro). Dan **won't pay for more**, and decided against running checks on his own Mac and against making the repo public.
+- The repo used all 3,000 monthly GitHub Actions minutes (GitHub Pro). Dan **won't pay for more**, and decided against running checks on his own Mac.
+- **The repo is public for about a week (from 2026-10-15) until the minutes reset**, because public repos get Actions minutes free. Before the switch, a full scan of every branch, past pull request and file version found no real secrets (only test values and a deliberate fake key from a closed test PR). Anything public should be treated as public for good, even after the repo goes private again.
 - Over the previous 30 days, CI used about 2,660 of those minutes, at about 14 minutes a run. Each of its ~10 jobs was billed in whole minutes and installed everything from scratch, and about 800 minutes came from CI running again after each merge into `main`.
 - **CI is now three jobs:** `quick-checks` (typecheck, lint, formatting, secret scan, dependency scan, migration guard), `tests` (every Vitest test, including the tenant-isolation suite) and `browser-checks` (the build, the picture check, and the admin-screen tenant-isolation tests). The checks themselves are unchanged. These three are the required checks on `main`.
 - **No CI run after merging into `main`.** Branch protection makes every pull request catch up with `main` first, so its own run already checked exactly what lands.
