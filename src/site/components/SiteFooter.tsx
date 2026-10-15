@@ -1,4 +1,5 @@
 import type { ClubSite, LabelledLink } from '../loadClub'
+import { CookieSettingsButton } from '../privacy/CookieConsent'
 import { BookButton } from './BookButton'
 import { ArrowRight, Mail, Phone, Pin } from './Icons'
 import { isExternal, siteHref } from './links'
@@ -9,8 +10,10 @@ import { Logo } from './Logo'
  * "B · Newsletter band", "C · Editorial").
  *
  * Left out for v1: the newsletter sign-up (waits for the email provider decision, so style B
- * shows its columns without the band), today's open/closed dot next to the hours, and the
- * "Cookie settings" link (arrives with the cookie consent banner).
+ * shows its columns without the band) and today's open/closed dot next to the hours.
+ *
+ * The bottom row always starts with "Privacy policy" (src/site/privacy), which clubs can't
+ * remove, then "Cookie settings" when the club uses Google Analytics.
  */
 export const SiteFooter = ({ club, base }: { club: ClubSite; base: string }) => {
   const f = club.footer
@@ -145,6 +148,16 @@ export const SiteFooter = ({ club, base }: { club: ClubSite; base: string }) => 
         )}
         <div className="sf-legal t-label-s">
           <ul className="sf-legal-links">
+            <li>
+              <a className="sf-link" href={`${base}/privacy`}>
+                Privacy policy
+              </a>
+            </li>
+            {club.privacy.gaMeasurementId ? (
+              <li>
+                <CookieSettingsButton className="sf-link sf-cookie-settings" />
+              </li>
+            ) : null}
             {f.legalLinks.map((l, i) => (
               <li key={i}>{a(l, 'sf-link')}</li>
             ))}

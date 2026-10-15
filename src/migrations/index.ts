@@ -27,7 +27,8 @@ import * as migration_20261013_092958_course_status from './20261013_092958_cour
 import * as migration_20261013_094450_announcement_bar from './20261013_094450_announcement_bar';
 import * as migration_20261015_184351_news from './20261015_184351_news';
 import * as migration_20261015_192631_news_block from './20261015_192631_news_block';
-import * as migration_20261015_195203_events from './20261015_195203_events';
+import * as migration_20261015_195334_privacy_settings from './20261015_195334_privacy_settings';
+import * as migration_20261015_200921_events from './20261015_200921_events';
 
 export const migrations = [
   {
@@ -176,8 +177,13 @@ export const migrations = [
     name: '20261015_192631_news_block',
   },
   {
-    up: migration_20261015_195203_events.up,
-    down: migration_20261015_195203_events.down,
-    name: '20261015_195203_events'
+    up: migration_20261015_195334_privacy_settings.up,
+    down: migration_20261015_195334_privacy_settings.down,
+    name: '20261015_195334_privacy_settings',
+  },
+  {
+    up: migration_20261015_200921_events.up,
+    down: migration_20261015_200921_events.down,
+    name: '20261015_200921_events'
   },
 ];

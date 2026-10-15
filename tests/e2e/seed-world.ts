@@ -291,6 +291,61 @@ const editorLoginOnly = await extraEditor('editor-login-only@example.com', true)
 const editorTypesCode = await extraEditor('editor-types-code@example.com', true)
 const editorWrongCode = await extraEditor('editor-wrong-code@example.com', true)
 const editorLinkTarget = await extraEditor('editor-link-target@example.com', true)
+// A club using every privacy option, for tests/e2e/site-privacy.spec.ts. Its own club, so the
+// cookie banner never sits over what other tests click.
+const cookieClub = await w.payload.create({
+  collection: 'tenants',
+  data: { name: 'Test Club Cookies', slug: 'test-club-cookies' },
+})
+const { docs: cookieSettings } = await w.payload.find({
+  collection: 'club-settings',
+  where: { tenant: { equals: cookieClub.id } },
+})
+await w.payload.update({
+  collection: 'club-settings',
+  id: cookieSettings[0]!.id,
+  data: {
+    footer: { email: 'office@cookies.example', address: '1 Fairway Road\nTesttown\nTE1 1ST' },
+    privacy: {
+      legalName: 'Test Club Cookies Limited',
+      email: 'privacy@cookies.example',
+      newsletterProvider: 'Mailchimp',
+      gaMeasurementId: 'G-TEST12345',
+      additionalInfo: {
+        root: {
+          type: 'root',
+          format: '',
+          indent: 0,
+          version: 1,
+          direction: 'ltr',
+          children: [
+            {
+              type: 'paragraph',
+              format: '',
+              indent: 0,
+              version: 1,
+              direction: 'ltr',
+              textFormat: 0,
+              children: [
+                {
+                  type: 'text',
+                  text: 'We use CCTV in the car park.',
+                  format: 0,
+                  detail: 0,
+                  mode: 'normal',
+                  style: '',
+                  version: 1,
+                },
+              ],
+            },
+          ],
+        },
+      },
+    },
+  } as never,
+  overrideAccess: true,
+})
+
 // Club A's news: nine live articles (tests/e2e/site-news.spec.ts). The browser tests pin
 // "today" to 15 July 2026,
 // so the seeded "Club A news" (dated today) is still in the future there and stays hidden.

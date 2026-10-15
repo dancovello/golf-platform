@@ -13,6 +13,7 @@ import { loadBlockContext } from '@/site/blocks/resolve'
 import { type Brand, BRAND_INPUTS, DEFAULT_BRAND, isHex } from '@/theme/colour'
 import { DEFAULT_FONT_SET, type FontSetID, isFontSetID } from '@/theme/fontSets'
 
+import { isGAMeasurementID, type PrivacySettings } from './privacy/policy'
 import { siteToday } from './today'
 
 /** A link on the public site: one of the club's pages (by slug) or a checked web address. */
@@ -73,6 +74,8 @@ export type ClubSite = {
     secondaryButton: LabelledLink | null
     legalLinks: LabelledLink[]
   }
+  /** Club Settings → Privacy & legal (the privacy policy and cookie banner). */
+  privacy: PrivacySettings
 }
 
 type RawLink = { label?: string | null; type?: string | null; page?: unknown; url?: string | null }
@@ -129,6 +132,13 @@ type RawSettings = {
     mapLabel?: string | null
     what3words?: string | null
   }
+  privacy?: {
+    legalName?: string | null
+    email?: string | null
+    newsletterProvider?: string | null
+    gaMeasurementId?: string | null
+    additionalInfo?: unknown
+  }
 }
 
 const idOf = (v: unknown) =>
@@ -168,6 +178,7 @@ export const loadClubBySlug = async (slug: string): Promise<ClubSite | null> => 
       footer: true,
       location: true,
       announcement: true,
+      privacy: true,
     },
     limit: 1,
     depth: 0,
@@ -287,6 +298,15 @@ export const loadClubBySlug = async (slug: string): Promise<ClubSite | null> => 
       ),
       secondaryButton: labelled(f.secondaryButton),
       legalLinks: (f.legalLinks ?? []).flatMap((l) => labelled(l.link) ?? []),
+    },
+    privacy: {
+      legalName: text(s.privacy?.legalName),
+      email: text(s.privacy?.email),
+      newsletterProvider: text(s.privacy?.newsletterProvider),
+      gaMeasurementId: isGAMeasurementID(s.privacy?.gaMeasurementId)
+        ? s.privacy.gaMeasurementId.trim()
+        : null,
+      additionalInfo: s.privacy?.additionalInfo ?? null,
     },
   }
 }
