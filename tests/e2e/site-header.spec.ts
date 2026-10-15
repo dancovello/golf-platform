@@ -75,6 +75,24 @@ test.describe('mobile header', () => {
   })
 })
 
+test.describe('narrow phone', () => {
+  test.use({ viewport: { width: 360, height: 780 } })
+
+  // Clubs seeded in tests/e2e/seed-world.ts, one per header style, all with a long name.
+  for (const style of ['classic', 'transparent', 'appbar']) {
+    test(`header style ${style} keeps the page within the screen`, async ({ page }) => {
+      await page.goto(`/preview/header-${style}/about`)
+      await expect(page.getByRole('button', { name: 'Menu', exact: true })).toBeVisible()
+      await page.evaluate(() => document.fonts.ready)
+      const { scrollWidth, clientWidth } = await page.evaluate(() => ({
+        scrollWidth: document.documentElement.scrollWidth,
+        clientWidth: document.documentElement.clientWidth,
+      }))
+      expect(scrollWidth, 'the page scrolls sideways').toBe(clientWidth)
+    })
+  }
+})
+
 test('the footer shows club A details and nothing of club B', async ({ page, world }) => {
   await page.goto(home)
   const footer = page.getByRole('contentinfo')
