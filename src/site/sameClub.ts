@@ -2,6 +2,7 @@ import type { CollectionBeforeValidateHook } from 'payload'
 import { ValidationError } from 'payload'
 
 import { layoutRefs } from '../blocks'
+import { richTextRefs } from '../blocks/richText/lexical'
 import { type BlockRef as Ref, idOf } from '../blocks/types'
 
 /** Every page and photo a club's settings point at, with where it was found. */
@@ -47,6 +48,8 @@ const settingsRefs = (data: Record<string, unknown>): Ref[] => {
   announcement.items?.forEach((item, k) =>
     page(item.link?.page, `announcement.items.${k}.link.page`),
   )
+  const privacy = (data.privacy ?? {}) as { additionalInfo?: unknown }
+  refs.push(...richTextRefs(privacy.additionalInfo, 'privacy.additionalInfo'))
   return refs
 }
 

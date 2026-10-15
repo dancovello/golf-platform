@@ -1187,11 +1187,17 @@ export interface ClubSetting {
        */
       url?: string | null;
     };
+    /**
+     * Shown in the footer and the privacy policy. Required.
+     */
     email?: string | null;
     /**
      * e.g. a Google Maps link. Optional.
      */
     directions?: string | null;
+    /**
+     * Shown in the footer and the privacy policy. Required.
+     */
     address?: string | null;
     /**
      * Shown in style C.
@@ -1213,7 +1219,7 @@ export interface ClubSetting {
       url?: string | null;
     };
     /**
-     * e.g. Privacy, Terms, Accessibility.
+     * e.g. Terms, Accessibility. The privacy policy link is added for you, and “Cookie settings” too if you use Google Analytics.
      */
     legalLinks?:
       | {
@@ -1264,6 +1270,42 @@ export interface ClubSetting {
           id?: string | null;
         }[]
       | null;
+  };
+  privacy?: {
+    /**
+     * The club’s registered name if it differs from the name above, e.g. "Example Golf Club Limited". Leave blank to use the club name.
+     */
+    legalName?: string | null;
+    /**
+     * Where people send requests about their personal information. Leave blank to use the footer email.
+     */
+    email?: string | null;
+    /**
+     * If you send a newsletter, the service you use, e.g. "Mailchimp". Filling this in adds a newsletter section to the policy.
+     */
+    newsletterProvider?: string | null;
+    /**
+     * Starts with G-, e.g. G-AB12CD34EF. Filling this in adds a cookie banner, and Google Analytics only runs for visitors who accept it.
+     */
+    gaMeasurementId?: string | null;
+    /**
+     * Anything extra the club needs to tell people, e.g. CCTV in the car park. Shown as its own section near the end of the policy. Leave blank to leave the section out.
+     */
+    additionalInfo?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
   };
   /**
    * Used by the Map block. The address, phone, email and opening hours come from the Footer tab and the header phone.
@@ -2078,6 +2120,15 @@ export interface ClubSettingsSelect<T extends boolean = true> {
                   };
               id?: T;
             };
+      };
+  privacy?:
+    | T
+    | {
+        legalName?: T;
+        email?: T;
+        newsletterProvider?: T;
+        gaMeasurementId?: T;
+        additionalInfo?: T;
       };
   location?:
     | T

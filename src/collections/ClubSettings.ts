@@ -1,8 +1,11 @@
-import type { CollectionBeforeValidateHook, CollectionConfig, Field } from 'payload'
+import type { CollectionBeforeValidateHook, CollectionConfig, Field, Validate } from 'payload'
 import { ValidationError } from 'payload'
+import { email as emailFormat, textarea as textareaRules } from 'payload/shared'
 
 import { loggedIn, superAdminOnly } from '../access/roles'
+import { privacyRichText } from '../blocks/richText/lexical'
 import { isSafeURL, linkField } from '../fields/link'
+import { isGAMeasurementID } from '../site/privacy/policy'
 import { checkSameClub } from '../site/sameClub'
 import { BRAND_INPUTS, type Brand, contrastProblems, DEFAULT_BRAND, isHex } from '../theme/colour'
 import { DEFAULT_FONT_SET, FONT_SETS } from '../theme/fontSets'
@@ -54,6 +57,18 @@ const checkBrandContrast: CollectionBeforeValidateHook = ({ collection, data, or
   }
   return data
 }
+
+/**
+ * Required whenever the settings are saved, but not when they're first made blank alongside a
+ * new club (src/collections/Tenants.ts). Not a database rule, so clubs saved before this
+ * existed still load; the website leaves out a missing line until it's filled in.
+ */
+const neededOnSave =
+  (message: string, rules: Validate): Validate =>
+  (value, options) =>
+    options.operation !== 'create' && !(typeof value === 'string' && value.trim())
+      ? message
+      : rules(value, options)
 
 // One record per club (src/tenancy.ts, plugin "global" mode). Never a real Payload global,
 // which would be shared by every club.
@@ -332,7 +347,18 @@ export const ClubSettings: CollectionConfig = {
                 {
                   type: 'row',
                   fields: [
-                    { name: 'email', label: 'Email address', type: 'email' },
+                    {
+                      name: 'email',
+                      label: 'Email address',
+                      type: 'email',
+                      admin: {
+                        description: 'Shown in the footer and the privacy policy. Required.',
+                      },
+                      validate: neededOnSave(
+                        'Add the club’s email address. The privacy policy needs it.',
+                        emailFormat as Validate,
+                      ),
+                    },
                     {
                       name: 'directions',
                       label: 'Directions link',
@@ -345,7 +371,19 @@ export const ClubSettings: CollectionConfig = {
                     },
                   ],
                 },
-                { name: 'address', label: 'Address', type: 'textarea', maxLength: 200 },
+                {
+                  name: 'address',
+                  label: 'Address',
+                  type: 'textarea',
+                  maxLength: 200,
+                  admin: {
+                    description: 'Shown in the footer and the privacy policy. Required.',
+                  },
+                  validate: neededOnSave(
+                    'Add the club’s postal address. The privacy policy needs it.',
+                    textareaRules as Validate,
+                  ),
+                },
                 {
                   name: 'social',
                   label: 'Social media',
@@ -395,7 +433,8 @@ export const ClubSettings: CollectionConfig = {
                   type: 'array',
                   maxRows: 6,
                   admin: {
-                    description: 'e.g. Privacy, Terms, Accessibility.',
+                    description:
+                      'e.g. Terms, Accessibility. The privacy policy link is added for you, and “Cookie settings” too if you use Google Analytics.',
                     initCollapsed: true,
                   },
                   fields: [linkField({ name: 'link', label: 'Link' })],
@@ -510,6 +549,83 @@ export const ClubSettings: CollectionConfig = {
                     },
                     linkField({ name: 'link', label: 'Link (optional)', required: false }),
                   ],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'Privacy & legal',
+          description:
+            'Every club’s website has a privacy policy at /privacy, written for you from these details and the features you use. You don’t have to fill anything in here: blank boxes use your club name and footer email instead.',
+          fields: [
+            {
+              name: 'privacy',
+              type: 'group',
+              label: false,
+              fields: [
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'legalName',
+                      label: 'Legal name (optional)',
+                      type: 'text',
+                      maxLength: 120,
+                      admin: {
+                        description:
+                          'The club’s registered name if it differs from the name above, e.g. "Example Golf Club Limited". Leave blank to use the club name.',
+                      },
+                    },
+                    {
+                      name: 'email',
+                      label: 'Privacy email (optional)',
+                      type: 'email',
+                      admin: {
+                        description:
+                          'Where people send requests about their personal information. Leave blank to use the footer email.',
+                      },
+                    },
+                  ],
+                },
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'newsletterProvider',
+                      label: 'Newsletter service (optional)',
+                      type: 'text',
+                      maxLength: 60,
+                      admin: {
+                        description:
+                          'If you send a newsletter, the service you use, e.g. "Mailchimp". Filling this in adds a newsletter section to the policy.',
+                      },
+                    },
+                    {
+                      name: 'gaMeasurementId',
+                      label: 'Google Analytics ID (optional)',
+                      type: 'text',
+                      maxLength: 20,
+                      admin: {
+                        description:
+                          'Starts with G-, e.g. G-AB12CD34EF. Filling this in adds a cookie banner, and Google Analytics only runs for visitors who accept it.',
+                      },
+                      validate: (value: unknown) =>
+                        !value || isGAMeasurementID(value)
+                          ? true
+                          : 'A Google Analytics ID looks like G-AB12CD34EF (G, a dash, then capital letters and numbers).',
+                    },
+                  ],
+                },
+                {
+                  name: 'additionalInfo',
+                  label: 'Additional information (optional)',
+                  type: 'richText',
+                  editor: privacyRichText,
+                  admin: {
+                    description:
+                      'Anything extra the club needs to tell people, e.g. CCTV in the car park. Shown as its own section near the end of the policy. Leave blank to leave the section out.',
+                  },
                 },
               ],
             },
