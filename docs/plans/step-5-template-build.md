@@ -39,4 +39,6 @@ Every block is **one block with a Design style choice (A / B / C)** from the Fig
 - Announcement bar: set in Club Settings → Announcement (style, colour, up to 3 notices with start/end dates). Dismissing hides it for the visit. Header style B over a hero now starts below the bar
 - Header fix found along the way: on pages only just long enough to scroll, the header's top row could flicker; it now only comes back after a real scroll up
 - **Cookie banner not built (open decision):** the sites set no tracking or advertising cookies today, so UK rules don't require a banner and one would mislead visitors. Needed once an analytics tool is chosen (which one? per club?)
+- News: the archive and article are fixed templates at /news and /news/<address>; the archive heading ("Club news") and intro are fixed text for now
+- Events: the archive at /events shows every upcoming event via "Show more"; Figma's quarter pager ("October – December" with arrows) is left out. Events have no pages of their own: Book / Enquire goes straight to the link set on the event (a booking site or one of the club's pages)
 - Open decisions: email provider (newsletter, contact form), site search (wanted?)
