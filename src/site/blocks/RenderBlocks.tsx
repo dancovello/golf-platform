@@ -40,6 +40,8 @@ import './holes.css'
 import './scorecard.css'
 import './courseStatus.css'
 import '../components/buttons.css'
+// After buttons.css: the news styles refine the shared link buttons (same as on news pages).
+import '../news/news.css'
 
 type LayoutBlock = NonNullable<Page['layout']>[number]
 

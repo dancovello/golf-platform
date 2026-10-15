@@ -7,7 +7,7 @@ import { Photo } from '../blocks/parts'
 import { NewsCard, NewsMeta, newsHref } from './NewsCard'
 import { NewsCarousel } from './NewsCarousel'
 
-import './news.css'
+// Its styles (news.css) are loaded by RenderBlocks after the shared button styles.
 
 /** A text headline (News B list, News C rail). B shows a small photo on phones. */
 const Headline = ({
