@@ -5,6 +5,7 @@ import { allowAccountCreation } from '@/access/accountCreation'
 import { createSuperAdmin } from '@/accounts/createSuperAdmin'
 import config from '@/payload.config'
 import type {
+  AgreementAcceptance,
   ClubSetting,
   Course,
   CourseStatus,
@@ -59,6 +60,8 @@ export type World = {
   statusB: CourseStatus
   newsA: News
   newsB: News
+  agreementA: AgreementAcceptance
+  agreementB: AgreementAcceptance
 }
 
 /** Refuses to run against anything but the golf_test database (or a golf_test_<name> copy). */
@@ -81,6 +84,7 @@ export const resetDatabase = async (payload: Payload) => {
   await payload.delete({ collection: 'staff', where: all })
   await payload.delete({ collection: 'courses', where: all })
   await payload.delete({ collection: 'news', where: all })
+  await payload.delete({ collection: 'agreement-acceptances', where: all })
   await payload.delete({ collection: 'club-settings', where: all })
   await payload.delete({ collection: 'course-status', where: all })
   await payload.delete({ collection: 'payload-preferences', where: all })
@@ -218,8 +222,18 @@ export const seedWorld = async (): Promise<World> => {
         tenant: clubB.id,
       },
     }),
+    // Both clubs have accepted the data processing agreement, so editors can save settings.
+    agreementA: await acceptAgreement(payload, clubA.id, 'Alice Secretary'),
+    agreementB: await acceptAgreement(payload, clubB.id, 'Bob Secretary'),
   }
 }
+
+/** The club accepts the current data processing agreement (as a trusted script would). */
+export const acceptAgreement = (payload: Payload, tenant: string, fullName: string) =>
+  payload.create({
+    collection: 'agreement-acceptances',
+    data: { fullName, jobTitle: 'Club Secretary', authorised: true, tenant },
+  })
 
 /** A 9-hole course with one tee. */
 export const course = (payload: Payload, name: string, tenant: string) =>

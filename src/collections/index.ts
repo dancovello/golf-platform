@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 
+import { AgreementAcceptances } from './AgreementAcceptances'
 import { ClubSettings } from './ClubSettings'
 import { Courses } from './Courses'
 import { CourseStatus } from './CourseStatus'
@@ -25,4 +26,5 @@ export const collections: CollectionConfig[] = [
   Courses,
   CourseStatus,
   News,
+  AgreementAcceptances,
 ]
