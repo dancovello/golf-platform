@@ -2,6 +2,7 @@ import type { CollectionBeforeValidateHook } from 'payload'
 import { ValidationError } from 'payload'
 
 import { layoutRefs } from '../blocks'
+import { richTextRefs } from '../blocks/richText/lexical'
 import { type BlockRef as Ref, idOf } from '../blocks/types'
 
 /** Every page and photo a club's settings point at, with where it was found. */
@@ -118,3 +119,12 @@ export const checkCourseSameClub = sameClubCheck((data) =>
     },
   ),
 )
+
+/** News: the main photo, and the photos and pages in the article. */
+export const checkNewsSameClub = sameClubCheck((data) => {
+  const id = idOf(data.image)
+  return [
+    ...(id ? [{ collection: 'media' as const, id, path: 'image' }] : []),
+    ...richTextRefs(data.body, 'body'),
+  ]
+})

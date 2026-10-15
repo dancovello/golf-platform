@@ -91,6 +91,18 @@ const fixtures: Record<ClubOwnedSlug, Fixture> = {
     read: (doc) => (doc as { name?: unknown }).name,
     editorsCanCreate: true,
   },
+  news: {
+    ids: (w) => ({ a: w.newsA.id, b: w.newsB.id }),
+    newRecord: (tenant) => ({
+      title: `Planted ${Date.now()}`,
+      category: 'club',
+      publishedAt: new Date().toISOString(),
+      tenant,
+    }),
+    change: { title: 'Changed' },
+    read: (doc) => (doc as { title?: unknown }).title,
+    editorsCanCreate: true,
+  },
   courses: {
     ids: (w) => ({ a: w.courseA.id, b: w.courseB.id }),
     newRecord: (tenant) => ({
@@ -264,6 +276,9 @@ describe('the database enforces club ownership on its own', () => {
       db().execute(sql`INSERT INTO staff (name, role, department) VALUES ('o', 'o', 'golf')`),
     ).rejects.toThrow()
     await expect(db().execute(sql`INSERT INTO courses (name) VALUES ('orphan')`)).rejects.toThrow()
+    await expect(
+      db().execute(sql`INSERT INTO news (title, slug, category) VALUES ('o', 'o', 'club')`),
+    ).rejects.toThrow()
     await expect(
       db().execute(sql`INSERT INTO course_status (state) VALUES ('open')`),
     ).rejects.toThrow()

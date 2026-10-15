@@ -3,6 +3,9 @@ import { notFound, redirect } from 'next/navigation'
 import { heroIsFullBleed } from '@/site/blocks/Hero'
 import { RenderBlocks } from '@/site/blocks/RenderBlocks'
 import { loadClubBySlug, loadClubPage } from '@/site/loadClub'
+import { loadNewsPost, newsArchive } from '@/site/news'
+import { NewsArchive } from '@/site/news/NewsArchive'
+import { NewsPost } from '@/site/news/NewsPost'
 import { sitePreviewEnabled } from '@/site/preview'
 
 import { ClubShell } from '../ClubShell'
@@ -13,14 +16,43 @@ export const dynamic = 'force-dynamic'
  * page starts with a hero (which has its own headline). */
 export default async function ClubPagePreview({
   params,
+  searchParams,
 }: {
   params: Promise<{ club: string; path: string[] }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }) {
   if (!sitePreviewEnabled()) notFound()
   const { club: clubSlug, path } = await params
-  if (path.length !== 1) notFound()
+  if (path.length > 2 || (path.length === 2 && path[0] !== 'news')) notFound()
   const club = await loadClubBySlug(clubSlug)
   if (!club) notFound()
+
+  // News is a template, not a page: /news (the archive) and /news/<address> (an article).
+  if (path[0] === 'news') {
+    const base = `/preview/${club.slug}`
+    if (path.length === 2) {
+      const post = await loadNewsPost(club.tenantID, path[1])
+      if (!post) notFound()
+      return (
+        <ClubShell club={club} currentPath={`${base}/news`}>
+          <NewsPost post={post} base={base} />
+        </ClubShell>
+      )
+    }
+    const query = await searchParams
+    const one = (v: string | string[] | undefined) => (typeof v === 'string' ? v : null)
+    const archive = await newsArchive(club.tenantID, {
+      category: one(query.category),
+      q: one(query.q),
+      page: Number.parseInt(one(query.page) ?? '1', 10) || 1,
+    })
+    return (
+      <ClubShell club={club} currentPath={`${base}/news`}>
+        <NewsArchive archive={archive} base={base} />
+      </ClubShell>
+    )
+  }
+
   if (path[0] === 'home') redirect(`/preview/${club.slug}`)
   const page = await loadClubPage(club.tenantID, path[0])
   if (!page) notFound()

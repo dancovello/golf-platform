@@ -1146,6 +1146,98 @@ for (const [slug, p] of Object.entries(palettes)) {
       ],
     } as never,
   })
+
+  // News template pages (VISUAL_TEMPLATES): nine live articles, so the archive has a second page.
+  const newsPhotos = [wide, ...cards]
+  const stories: [string, string, string, string][] = [
+    [
+      'Hollow-tining week: what to expect on the greens',
+      'course',
+      '2026-07-14',
+      'Greens on both courses are cored from Monday. Here is how long recovery takes, and which tees stay open.',
+    ],
+    [
+      'Club championship 2026: a play-off on the 18th decides it',
+      'competitions',
+      '2026-07-12',
+      'Results, photos and the full leaderboard from a dramatic final day.',
+    ],
+    [
+      'Summer menu: Cornish mussels and a new Sunday roast',
+      'clubhouse',
+      '2026-07-10',
+      'Head chef Marta Ruiz on the dishes arriving in the clubhouse this month.',
+    ],
+    [
+      'Intermediate membership opens to under-35s',
+      'membership',
+      '2026-07-08',
+      'A full seven-day membership with a fee that steps up gradually to 35.',
+    ],
+    [
+      'Why we are letting the heather grow back on the 7th',
+      'course',
+      '2026-07-06',
+      'The course manager explains the five-year heathland plan.',
+    ],
+    [
+      'New TrackMan bays open at the academy',
+      'academy',
+      '2026-07-04',
+      'Four covered bays with simulator rounds, lessons and fitting. Members get 20% off.',
+    ],
+    [
+      'Seniors’ Open raises £4,200 for the county air ambulance',
+      'club',
+      '2026-07-02',
+      'Thank you to 112 players, 14 sponsors and every volunteer on the day.',
+    ],
+    [
+      'Spring meeting report',
+      'competitions',
+      '2026-06-30',
+      'Scores, winners and the best of the weekend.',
+    ],
+    [
+      'Greenkeeping team grows',
+      'club',
+      '2026-06-28',
+      'Two new greenkeepers join the course team this summer.',
+    ],
+  ]
+  for (const [i, [title, category, date, excerpt]] of stories.entries()) {
+    await payload.create({
+      collection: 'news',
+      data: {
+        title,
+        category,
+        status: 'published',
+        publishedAt: `${date}T12:00:00.000Z`,
+        excerpt,
+        image: newsPhotos[i % newsPhotos.length].id,
+        ...(i === 0
+          ? {
+              author: 'Owen Pryce, Course manager',
+              imageCaption: 'Hollow-tining the 4th green, October 2025.',
+              body: rt.doc(
+                rt.p(
+                  'Every autumn the greens on both courses are hollow-tined: small cores of soil are lifted out so air, water and sand can reach the roots before winter.',
+                ),
+                rt.h2('What to expect'),
+                rt.ul(
+                  'Slower, bumpier greens for about two weeks',
+                  'Temporary greens on the 4th and 11th for two days',
+                  'Preferred lies through the green until the end of the month',
+                ),
+                rt.quote('Two weeks of patience buys us greens that hold up all winter.'),
+                rt.p('Thank you for bearing with the team while the work is done.'),
+              ),
+            }
+          : {}),
+        tenant: club.id,
+      } as never,
+    })
+  }
 }
 
 process.exit(0)
