@@ -48,6 +48,8 @@ const settingsRefs = (data: Record<string, unknown>): Ref[] => {
   announcement.items?.forEach((item, k) =>
     page(item.link?.page, `announcement.items.${k}.link.page`),
   )
+  const privacy = (data.privacy ?? {}) as { additionalInfo?: unknown }
+  refs.push(...richTextRefs(privacy.additionalInfo, 'privacy.additionalInfo'))
   return refs
 }
 

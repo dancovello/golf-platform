@@ -61,9 +61,9 @@ export type World = {
   newsB: News
 }
 
-/** Refuses to run against anything but the golf_test database. */
+/** Refuses to run against anything but the golf_test database (or a golf_test_<name> copy). */
 export const assertTestDatabase = () => {
-  if (!/\/golf_test(\?|$)/.test(process.env.DATABASE_URL ?? '')) {
+  if (!/\/golf_test(_[a-z0-9]+)?(\?|$)/.test(process.env.DATABASE_URL ?? '')) {
     throw new Error('Integration tests must run against the golf_test database')
   }
 }
@@ -105,6 +105,8 @@ export const withoutCode = (user: LoggedInUser): LoggedInUser => {
   return { ...rest, _strategy: 'local-jwt' } as LoggedInUser
 }
 
+const slugOf = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+
 const createEditor = async (payload: Payload, email: string, tenant: string) => {
   const created = await payload.create({
     collection: 'users',
@@ -132,10 +134,22 @@ export const seedWorld = async (): Promise<World> => {
   // Both clubs have a page with the same slug: slugs are unique per club, not globally.
   const page = (title: string, tenant: string) =>
     payload.create({ collection: 'pages', data: { title, slug: 'membership', tenant } })
-  // Created automatically with each club (src/collections/Tenants.ts).
-  const settings = async (_clubName: string, tenant: string) =>
-    (await payload.find({ collection: 'club-settings', where: { tenant: { equals: tenant } } }))
-      .docs[0]
+  // Created automatically with each club (src/collections/Tenants.ts), then given the email
+  // and address every save needs (the privacy policy uses them).
+  const settings = async (clubName: string, tenant: string) => {
+    const { docs } = await payload.find({
+      collection: 'club-settings',
+      where: { tenant: { equals: tenant } },
+    })
+    return payload.update({
+      collection: 'club-settings',
+      id: docs[0]!.id,
+      data: {
+        footer: { email: `office@${slugOf(clubName)}.example`, address: `${clubName}\nTest Lane` },
+      },
+      overrideAccess: true,
+    })
+  }
 
   const status = async (tenant: string) =>
     (await payload.find({ collection: 'course-status', where: { tenant: { equals: tenant } } }))

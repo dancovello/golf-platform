@@ -154,7 +154,7 @@ for (const [slug, p] of Object.entries(palettes)) {
         address: 'Heath Lane, Virginia Water GU25 4LS',
         social: [{ network: 'instagram', url: 'https://instagram.com/example' }],
         secondaryButton: { label: 'Membership enquiries', type: 'page', page: about.id },
-        legalLinks: [{ link: { label: 'Privacy', type: 'page', page: about.id } }],
+        legalLinks: [{ link: { label: 'Terms', type: 'page', page: about.id } }],
       },
     } as never,
   })
