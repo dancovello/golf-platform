@@ -4,6 +4,8 @@ import { notFound, redirect } from 'next/navigation'
 import { heroIsFullBleed } from '@/site/blocks/Hero'
 import { RenderBlocks } from '@/site/blocks/RenderBlocks'
 import { loadClubBySlug, loadClubPage } from '@/site/loadClub'
+import { eventsArchive } from '@/site/events'
+import { EventsArchive } from '@/site/events/EventsArchive'
 import { loadNewsPost, newsArchive } from '@/site/news'
 import { NewsArchive } from '@/site/news/NewsArchive'
 import { NewsPost } from '@/site/news/NewsPost'
@@ -51,6 +53,22 @@ export default async function ClubPagePreview({
     return (
       <ClubShell club={club} currentPath={`${base}/privacy`}>
         <ClubPrivacyPolicy club={club} base={base} />
+      </ClubShell>
+    )
+  }
+
+  // Events is a template too: /events, the upcoming events.
+  if (path[0] === 'events' && path.length === 1) {
+    const base = `/preview/${club.slug}`
+    const query = await searchParams
+    const one = (v: string | string[] | undefined) => (typeof v === 'string' ? v : null)
+    const archive = await eventsArchive(club.tenantID, {
+      category: one(query.category),
+      show: Number.parseInt(one(query.show) ?? '0', 10) || 0,
+    })
+    return (
+      <ClubShell club={club} currentPath={`${base}/events`}>
+        <EventsArchive archive={archive} base={base} />
       </ClubShell>
     )
   }

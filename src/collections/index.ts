@@ -4,6 +4,7 @@ import { ClubSettings } from './ClubSettings'
 import { Courses } from './Courses'
 import { CourseStatus } from './CourseStatus'
 import { Documents } from './Documents'
+import { Events } from './Events'
 import { Media } from './Media'
 import { News } from './News'
 import { Pages } from './Pages'
@@ -25,4 +26,5 @@ export const collections: CollectionConfig[] = [
   Courses,
   CourseStatus,
   News,
+  Events,
 ]
