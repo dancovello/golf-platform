@@ -26,6 +26,7 @@ import * as migration_20261013_091523_scorecard from './20261013_091523_scorecar
 import * as migration_20261013_092958_course_status from './20261013_092958_course_status';
 import * as migration_20261013_094450_announcement_bar from './20261013_094450_announcement_bar';
 import * as migration_20261015_184351_news from './20261015_184351_news';
+import * as migration_20261015_192631_news_block from './20261015_192631_news_block';
 
 export const migrations = [
   {
@@ -166,6 +167,11 @@ export const migrations = [
   {
     up: migration_20261015_184351_news.up,
     down: migration_20261015_184351_news.down,
-    name: '20261015_184351_news'
+    name: '20261015_184351_news',
+  },
+  {
+    up: migration_20261015_192631_news_block.up,
+    down: migration_20261015_192631_news_block.down,
+    name: '20261015_192631_news_block'
   },
 ];

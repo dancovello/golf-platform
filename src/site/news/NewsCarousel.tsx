@@ -14,11 +14,14 @@ export const NewsCarousel = ({
   eyebrow,
   heading,
   allHref,
+  variant = 'cards',
   children,
 }: {
   eyebrow: string
   heading: string
   allHref: string
+  /** "headlines": News block C, text-only headlines on the brand colour, no "All news" tile. */
+  variant?: 'cards' | 'headlines'
   children: ReactNode[]
 }) => {
   const track = useRef<HTMLUListElement>(null)
@@ -50,7 +53,9 @@ export const NewsCarousel = ({
   }
 
   return (
-    <section className="blk news-carousel">
+    <section
+      className={`blk news-carousel${variant === 'headlines' ? ' is-headlines on-brand' : ''}`}
+    >
       <div className="blk-container">
         <div className="blk-header">
           <div className="news-carousel-titles">
@@ -85,14 +90,16 @@ export const NewsCarousel = ({
           {children.map((child, i) => (
             <li key={i}>{child}</li>
           ))}
-          <li>
-            <a className="news-all-tile" href={allHref}>
-              <span className="news-all-arrow" aria-hidden="true">
-                <ArrowRight size={22} />
-              </span>
-              <span className="t-label-button">All news</span>
-            </a>
-          </li>
+          {variant === 'headlines' ? null : (
+            <li>
+              <a className="news-all-tile" href={allHref}>
+                <span className="news-all-arrow" aria-hidden="true">
+                  <ArrowRight size={22} />
+                </span>
+                <span className="t-label-button">All news</span>
+              </a>
+            </li>
+          )}
         </ul>
       </div>
     </section>
