@@ -14,6 +14,7 @@ import '@/site/components/header.css'
 import '@/site/components/footer.css'
 import '@/site/components/announcement.css'
 import '@/site/privacy/cookieConsent.css'
+import '@/site/privacy/privacy.css'
 import './preview.css'
 
 /** A club's page frame on staging: its colours and fonts, header, page content and footer. */
