@@ -84,3 +84,12 @@ Dan's devops contact checked and approved the review items raised in PRs #18, #2
 - **Uploads go straight from the browser to R2** (Vercel refuses request bodies over 4.5 MB), using a 10-minute signed link that can't overwrite an existing file. Links are only issued for the allowed types (JPEG, PNG, WebP, AVIF, MP4, WebM; no SVG; 50 MB), and the file is stored and served as that type (`src/media/uploadGuards.ts`; Payload itself doesn't check its own list at this step). Payload then downloads the file once and checks its real contents, refusing the record if they don't match.
 - **Local development and tests** use SeaweedFS (`docker-compose.yml`), never real R2.
 - **Known gap:** a file that fails Payload's content check after a browser upload stays in the bucket, unlisted and served only as an allowed image or video type. A response header telling browsers not to second-guess the type (`X-Content-Type-Options: nosniff`) needs the custom domain in step 4. A clean-up job is a follow-up (Payload Jobs Queue).
+
+## 2026-10-15 — GitHub Actions minutes
+
+- The repo used all 3,000 monthly GitHub Actions minutes (GitHub Pro). Dan **won't pay for more**, and decided against running checks on his own Mac and against making the repo public.
+- Over the previous 30 days, CI used about 2,660 of those minutes, at about 14 minutes a run. Each of its ~10 jobs was billed in whole minutes and installed everything from scratch, and about 800 minutes came from CI running again after each merge into `main`.
+- **CI is now three jobs:** `quick-checks` (typecheck, lint, formatting, secret scan, dependency scan, migration guard), `tests` (every Vitest test, including the tenant-isolation suite) and `browser-checks` (the build, the picture check, and the admin-screen tenant-isolation tests). The checks themselves are unchanged. These three are the required checks on `main`.
+- **No CI run after merging into `main`.** Branch protection makes every pull request catch up with `main` first, so its own run already checked exactly what lands.
+- **Changes that can't affect anything skip the heavy jobs.** A change to only docs, Claude notes or Markdown skips `tests` and `browser-checks`, and the picture check is skipped when nothing the pictures depend on changed. GitHub counts a skipped required check as passed. `quick-checks` always runs, so the secret scan sees every change.
+- **Claude runs the checks locally and pushes a branch once it's ready**, not after every small fix, because every push re-runs CI.

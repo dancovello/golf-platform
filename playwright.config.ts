@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test'
 
-// Admin-screen half of the tenant-isolation suite (CLAUDE.md non-negotiable 3).
+// Admin-screen half of the tenant-isolation suite (CLAUDE.md non-negotiable 3), CI job "browser-checks".
 // Runs against a production build (`pnpm build` first) on the golf_test database.
 const isCI = !!process.env.CI
 const port = 3100
@@ -27,7 +27,7 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
       dependencies: ['setup'],
     },
-    // The picture check (CI job "block-regression"): pnpm exec playwright test --project=visual
+    // The picture check (CI job "browser-checks"): pnpm exec playwright test --project=visual
     {
       name: 'visual-setup',
       testDir: './tests/visual',

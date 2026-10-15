@@ -1,5 +1,5 @@
 /**
- * CI guard for database changes. Run by the `migration-guard` job on every pull request.
+ * CI guard for database changes. Run by the "Migration guard" step of the `quick-checks` CI job on every pull request.
  *
  *   node scripts/check-migrations.ts <base-ref>
  *

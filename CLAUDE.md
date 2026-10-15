@@ -80,8 +80,9 @@ Node 24 and pnpm (via corepack: `corepack pnpm …` if `pnpm` isn't on PATH). Lo
 - Every collection must be listed in `src/collections/index.ts` and define create/read/update/delete access. `tests/unit/access-guard.spec.ts` enforces this.
 - Accounts are created only by trusted scripts that pass `allowAccountCreation` context (`src/access/accountCreation.ts`).
 - `pnpm format` must never touch `docs/`, `.claude/` or Markdown. `.prettierignore` covers this.
+- **GitHub Actions minutes are limited** (3,000 a month, and Dan won't buy more). Run typecheck, lint, tests and the isolation suite locally first, and push a branch once it's ready, not after every fix. Every push re-runs CI. See `docs/architecture/decisions.md` (2026-10-15).
 - **Releases:** merging into `main` releases to staging; merging a release PR (`main` → `production`) releases to production. `.github/workflows/release.yml` runs: pre-release backup → dry run of the database changes on a structure-only copy → migrate (owner account, GitHub secrets only) → Vercel deploy → `/health` check. Vercel never changes the database (`scripts/vercel-build.sh` only builds), and `vercel.json` turns off Vercel's own automatic deploys of `main` and `production`.
 - **Database accounts:** the website uses the limited `golf_app` account (read/write data only). Only the release workflow uses the owner account.
 - **Backups:** `.github/workflows/backup.yml` runs nightly and before each release, encrypted with the public key in `ops/backup-recipient.txt`. Restore procedure: `docs/operations/restore-runbook.md`.
-- **Migrations:** never edit a merged migration; the `migration-guard` CI check blocks it. Data-deleting changes need Dan's `approved-destructive-migration` label.
+- **Migrations:** never edit a merged migration; the migration guard in CI (`quick-checks`) blocks it. Data-deleting changes need Dan's `approved-destructive-migration` label.
 - Decisions made after doc 04 are in `docs/architecture/decisions.md`.

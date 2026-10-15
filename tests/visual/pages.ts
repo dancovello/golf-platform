@@ -1,5 +1,5 @@
 /**
- * The picture check (block-regression): one page per block, holding every design style of
+ * The picture check (browser-checks CI job): one page per block, holding every design style of
  * that block, for each of the two Figma colour themes. Add a block here when it's built;
  * tests/visual/seed-visual.ts creates the pages and blocks.spec.ts photographs them.
  */
