@@ -108,8 +108,9 @@ describe('privacy policy, every feature off', () => {
     expect(text).not.toMatch(/Additional information/)
   })
 
-  it('says nothing about Vercel Web Analytics, which is not installed', () => {
-    expect(text).not.toMatch(/vercel/i)
+  it('says nothing about analytics, because none runs without Google Analytics', () => {
+    expect(text).not.toMatch(/vercel|analytics|pages viewed/i)
+    expect(text).toContain('Visit the website (server logs)')
   })
 
   it('names the platform and keeps the shared retention periods', () => {
@@ -146,7 +147,8 @@ describe('privacy policy, every feature on', () => {
       'Create or use a member account',
       'Make a booking',
       'Pay online or give a card guarantee',
-      'Consent for Google Analytics',
+      'Pages viewed, device and browser type',
+      'Consent (Google Analytics, only if you accept analytics cookies)',
       'independent controller',
       'such as keeping you logged in or holding a booking slot while you pay',
       'Cookie settings',

@@ -106,14 +106,13 @@ export const PrivacyPolicy = ({
       ],
     },
     {
-      show: true,
+      // Only Google Analytics collects this. Without it, server logs are the only visit data.
+      show: f.ga,
       cells: [
         'Visit the website',
         'Pages viewed, device and browser type, approximate location (country/region), referring site',
         'To understand how the site is used and keep it working well',
-        f.ga
-          ? 'Legitimate interests (anonymous analytics). Consent for Google Analytics'
-          : 'Legitimate interests (anonymous analytics)',
+        'Consent (Google Analytics, only if you accept analytics cookies)',
       ],
     },
     {
@@ -213,7 +212,7 @@ export const PrivacyPolicy = ({
     },
     {
       key: 'cookies',
-      title: 'Cookies and analytics',
+      title: f.ga ? 'Cookies and analytics' : 'Cookies',
       body: (
         <>
           <p>We use a small number of cookies and similar technologies.</p>
