@@ -1238,6 +1238,17 @@ for (const [slug, p] of Object.entries(palettes)) {
       } as never,
     })
   }
+
+  await page('news-block', 'Latest news', [
+    { blockType: 'newsFeed', style: 'carousel', eyebrow: 'News', heading: 'From the club' },
+    {
+      blockType: 'newsFeed',
+      style: 'leadList',
+      eyebrow: 'News',
+      heading: `The latest from ${name}`,
+    },
+    { blockType: 'newsFeed', style: 'headlines', eyebrow: 'News', heading: 'Headlines' },
+  ])
 }
 
 process.exit(0)

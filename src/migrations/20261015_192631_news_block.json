@@ -5278,6 +5278,137 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.pages_blocks_news_feed": {
+      "name": "pages_blocks_news_feed",
+      "schema": "",
+      "columns": {
+        "_order": {
+          "name": "_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "_parent_id": {
+          "name": "_parent_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "_path": {
+          "name": "_path",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id": {
+          "name": "id",
+          "type": "varchar",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "style": {
+          "name": "style",
+          "type": "enum_pages_blocks_news_feed_style",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'carousel'"
+        },
+        "eyebrow": {
+          "name": "eyebrow",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'News'"
+        },
+        "heading": {
+          "name": "heading",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "category": {
+          "name": "category",
+          "type": "enum_pages_blocks_news_feed_category",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "block_name": {
+          "name": "block_name",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "pages_blocks_news_feed_order_idx": {
+          "name": "pages_blocks_news_feed_order_idx",
+          "columns": [
+            {
+              "expression": "_order",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "pages_blocks_news_feed_parent_id_idx": {
+          "name": "pages_blocks_news_feed_parent_id_idx",
+          "columns": [
+            {
+              "expression": "_parent_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "pages_blocks_news_feed_path_idx": {
+          "name": "pages_blocks_news_feed_path_idx",
+          "columns": [
+            {
+              "expression": "_path",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "pages_blocks_news_feed_parent_id_fk": {
+          "name": "pages_blocks_news_feed_parent_id_fk",
+          "tableFrom": "pages_blocks_news_feed",
+          "tableTo": "pages",
+          "columnsFrom": [
+            "_parent_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.pages": {
       "name": "pages",
       "schema": "",
@@ -6838,36 +6969,6 @@
           "primaryKey": false,
           "notNull": false,
           "default": true
-        },
-        "privacy_legal_name": {
-          "name": "privacy_legal_name",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "privacy_email": {
-          "name": "privacy_email",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "privacy_newsletter_provider": {
-          "name": "privacy_newsletter_provider",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "privacy_ga_measurement_id": {
-          "name": "privacy_ga_measurement_id",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "privacy_additional_info": {
-          "name": "privacy_additional_info",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
         },
         "location_latitude": {
           "name": "location_latitude",
@@ -9487,6 +9588,27 @@
         "url"
       ]
     },
+    "public.enum_pages_blocks_news_feed_style": {
+      "name": "enum_pages_blocks_news_feed_style",
+      "schema": "public",
+      "values": [
+        "carousel",
+        "leadList",
+        "headlines"
+      ]
+    },
+    "public.enum_pages_blocks_news_feed_category": {
+      "name": "enum_pages_blocks_news_feed_category",
+      "schema": "public",
+      "values": [
+        "course",
+        "competitions",
+        "clubhouse",
+        "membership",
+        "academy",
+        "club"
+      ]
+    },
     "public.enum_club_settings_header_menu_groups_links_link_type": {
       "name": "enum_club_settings_header_menu_groups_links_link_type",
       "schema": "public",
@@ -9700,6 +9822,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "436eaa97-2578-4542-bb82-d3e5b30cc987",
+  "id": "25c4b64e-aaed-45f7-9004-d53b4701548e",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

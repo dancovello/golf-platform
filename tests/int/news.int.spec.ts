@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import type { News } from '@/payload-types'
-import { loadNewsPost, NEWS_PER_PAGE, newsArchive } from '@/site/news'
+import { latestNews, loadNewsPost, NEWS_PER_PAGE, newsArchive } from '@/site/news'
 
 import { seedWorld, type World } from './helpers/seed'
 
@@ -145,5 +145,21 @@ describe('the news archive', () => {
     expect(found.cards.map((c) => c.slug)).toEqual(['course-update-2'])
     const none = await newsArchive(w.clubA.id, { category: null, q: 'bunker', page: 1 })
     expect(none.total).toBe(0)
+  })
+})
+
+describe('the Latest news block', () => {
+  it('shows the club’s own newest live articles, optionally one category', async () => {
+    const latest = await latestNews(w.clubA.id, 4)
+    expect(latest.map((c) => c.title)).toEqual([
+      'Club A news',
+      'Course update 1',
+      'Course update 2',
+      'Course update 3',
+    ])
+    const competitions = await latestNews(w.clubA.id, 6, 'competitions')
+    expect(competitions.every((c) => c.category === 'competitions')).toBe(true)
+    expect(competitions).toHaveLength(4)
+    expect((await latestNews(w.clubB.id, 6)).map((c) => c.title)).toEqual(['Club B news'])
   })
 })

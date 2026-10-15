@@ -32,6 +32,7 @@ export const VISUAL_PAGES = [
   'holes',
   'scorecard',
   'course-status',
+  'news-block',
 ] as const
 
 /** Template pages (not blocks): name for the picture, and the address under the club. */
