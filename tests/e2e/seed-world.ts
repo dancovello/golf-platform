@@ -190,6 +190,30 @@ await w.payload.create({
   } as never,
 })
 
+// Club A's events (tests/e2e/site-events.spec.ts). The browser tests run on 15 July 2026.
+for (const [i, category] of [
+  'social',
+  'dining',
+  'competition',
+  'social',
+  'academy',
+  'dining',
+  'social',
+  'competition',
+].entries()) {
+  await w.payload.create({
+    collection: 'events',
+    data: {
+      title: `Event ${i + 1}`,
+      category,
+      status: 'published',
+      booking: 'book',
+      startsAt: new Date(Date.UTC(2026, 7 + Math.floor(i / 3), 3 + i, 18)).toISOString(),
+      tenant: w.clubA.id,
+    } as never,
+  })
+}
+
 // Club A's header and menu, for the public site tests (tests/e2e/site-header.spec.ts).
 await w.payload.update({
   collection: 'club-settings',

@@ -1,0 +1,286 @@
+/* Events (Figma "Events archive", "Event Card", doc 14). Colours are roles only. */
+
+/* ---------- Event Card ---------- */
+.event-card {
+  position: relative;
+  color: var(--color-text-primary);
+}
+.event-link {
+  color: inherit;
+  text-decoration: none;
+}
+/* The whole card follows the button's link. */
+.event-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.event-card.has-link:hover .event-link {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
+}
+.event-card :focus-visible {
+  outline: 2px solid var(--color-action-accent);
+  outline-offset: 2px;
+}
+.event-card .event-title {
+  margin: 0;
+}
+.event-card .event-meta {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+/* Date badge: the day in the serif, the month small and upper case. */
+.event-date {
+  display: inline-flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 64px;
+  background: var(--color-surface-subtle);
+  color: var(--color-text-primary);
+  line-height: 1;
+}
+.event-date .t-data-serif {
+  line-height: 1;
+}
+.event-date .t-data-label {
+  margin-top: var(--space-4);
+  color: var(--color-text-secondary);
+}
+.event-date.is-on-image {
+  position: absolute;
+  top: var(--space-16);
+  left: var(--space-16);
+  background: var(--color-surface-raised);
+}
+
+/* Stacked: 3:2 photo, tag, title, meta, then price and the action. */
+.event-card.is-stacked {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  height: 100%;
+}
+.event-image {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  background: var(--color-surface-subtle);
+}
+.event-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.event-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-8);
+}
+.event-card .event-tag {
+  margin: 0 0 var(--space-4);
+  padding: var(--space-4) var(--space-12);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-subtle);
+  color: var(--color-text-secondary);
+}
+.event-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-16);
+  align-self: stretch;
+  margin-top: auto;
+  padding-top: var(--space-8);
+}
+.event-card .event-price {
+  margin: 0;
+}
+.event-action {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-12);
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--color-action-accent);
+  white-space: nowrap;
+}
+.event-action.is-sold-out {
+  border-bottom-color: transparent;
+  color: var(--color-text-secondary);
+}
+
+/* Row: date box, category, title, meta, arrow; rows divided by subtle rules. */
+.event-card.is-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-24);
+  padding: var(--space-24) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.event-row-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+.event-card .event-category {
+  margin: 0;
+  color: var(--color-text-accent);
+}
+.event-chevron {
+  display: inline-flex;
+  flex: none;
+  color: var(--color-text-secondary);
+}
+
+/* ---------- Archive ---------- */
+.events-archive {
+  padding-top: var(--space-48);
+}
+.events-archive .blk-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-48);
+}
+.events-archive-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+.events-archive .blk-eyebrow {
+  margin: 0;
+}
+.events-archive .events-archive-intro {
+  max-width: 640px;
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+.events-pills {
+  display: flex;
+  gap: var(--space-8);
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.events-pills::-webkit-scrollbar {
+  display: none;
+}
+/* Figma Segment: 32px pill, with a taller hit area for 44px tap targets. */
+.events-pill {
+  position: relative;
+  flex: none;
+  margin: 6px 0;
+  padding: var(--space-8) var(--space-24);
+  border-radius: var(--radius-full);
+  color: var(--color-text-primary);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.events-pill::after {
+  content: '';
+  position: absolute;
+  inset: -6px 0;
+}
+.events-pill:hover {
+  background: var(--color-surface-subtle);
+}
+.events-pill.is-active {
+  background: var(--color-surface-brand);
+  color: var(--color-text-on-inverse);
+}
+.events-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+}
+.events-archive .events-group-title {
+  margin: 0;
+  padding-bottom: var(--space-12);
+  border-bottom: 1px solid var(--color-border-strong);
+}
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-24);
+}
+.events-rows {
+  display: flex;
+  flex-direction: column;
+}
+.events-rows .event-card.is-row:first-child {
+  padding-top: 0;
+}
+.events-more {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-16);
+}
+.events-archive .events-count {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+.events-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-24);
+  padding: var(--space-48) 0;
+}
+.events-empty .t-heading-m {
+  margin: 0;
+}
+
+@media (max-width: 1023px) {
+  .events-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .events-archive {
+    padding-top: var(--space-32);
+  }
+  .events-archive .blk-container {
+    gap: var(--space-32);
+  }
+  .events-pills {
+    margin: 0 -20px;
+    padding: 0 20px;
+    scroll-padding: 0 20px;
+  }
+  /* Phones: "Coming up" becomes a swipe row of cards to the screen edge. */
+  .events-grid {
+    display: flex;
+    gap: var(--space-16);
+    margin: 0 -20px;
+    padding: 0 20px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding: 0 20px;
+    scrollbar-width: none;
+  }
+  .events-grid::-webkit-scrollbar {
+    display: none;
+  }
+  .events-grid > .event-card {
+    flex: 0 0 272px;
+    scroll-snap-align: start;
+  }
+  .event-card.is-row {
+    gap: var(--space-16);
+  }
+  .events-more .btn {
+    align-self: stretch;
+    justify-content: center;
+  }
+}

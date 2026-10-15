@@ -9,6 +9,7 @@ import type {
   Course,
   CourseStatus,
   Document,
+  Event,
   Media,
   News,
   Page,
@@ -59,6 +60,8 @@ export type World = {
   statusB: CourseStatus
   newsA: News
   newsB: News
+  eventA: Event
+  eventB: Event
 }
 
 /** Refuses to run against anything but the golf_test database. */
@@ -81,6 +84,7 @@ export const resetDatabase = async (payload: Payload) => {
   await payload.delete({ collection: 'staff', where: all })
   await payload.delete({ collection: 'courses', where: all })
   await payload.delete({ collection: 'news', where: all })
+  await payload.delete({ collection: 'events', where: all })
   await payload.delete({ collection: 'club-settings', where: all })
   await payload.delete({ collection: 'course-status', where: all })
   await payload.delete({ collection: 'payload-preferences', where: all })
@@ -204,8 +208,24 @@ export const seedWorld = async (): Promise<World> => {
         tenant: clubB.id,
       },
     }),
+    eventA: await event(payload, 'Club A dinner', clubA.id),
+    eventB: await event(payload, 'Club B dinner', clubB.id),
   }
 }
+
+/** A published event a week from now. */
+export const event = (payload: Payload, title: string, tenant: string, days = 7) =>
+  payload.create({
+    collection: 'events',
+    data: {
+      title,
+      tenant,
+      status: 'published',
+      category: 'dining',
+      booking: 'book',
+      startsAt: new Date(Date.now() + days * 86_400_000).toISOString(),
+    },
+  })
 
 /** A 9-hole course with one tee. */
 export const course = (payload: Payload, name: string, tenant: string) =>

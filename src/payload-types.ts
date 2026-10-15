@@ -77,6 +77,7 @@ export interface Config {
     courses: Course;
     'course-status': CourseStatus;
     news: News;
+    events: Event;
     'totp-attempts': TotpAttempt;
     'payload-kv': PayloadKv;
     'payload-preferences': PayloadPreference;
@@ -94,6 +95,7 @@ export interface Config {
     courses: CoursesSelect<false> | CoursesSelect<true>;
     'course-status': CourseStatusSelect<false> | CourseStatusSelect<true>;
     news: NewsSelect<false> | NewsSelect<true>;
+    events: EventsSelect<false> | EventsSelect<true>;
     'totp-attempts': TotpAttemptsSelect<false> | TotpAttemptsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -1391,6 +1393,59 @@ export interface News {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events".
+ */
+export interface Event {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  title: string;
+  status: 'draft' | 'published';
+  /**
+   * UK time. The event leaves the website once it has started.
+   */
+  startsAt: string;
+  category: 'social' | 'dining' | 'competition' | 'academy' | 'members';
+  /**
+   * e.g. "Clubhouse" or "Championship course"
+   */
+  venue?: string | null;
+  /**
+   * e.g. "shotgun". Shown after the time.
+   */
+  timeNote?: string | null;
+  /**
+   * One or two sentences, shown when the event is featured.
+   */
+  summary?: string | null;
+  image?: (string | null) | Media;
+  /**
+   * e.g. "£45" or "£20 entry"
+   */
+  price?: string | null;
+  /**
+   * e.g. "£38"
+   */
+  memberPrice?: string | null;
+  booking: 'book' | 'enquire' | 'soldOut';
+  capacity?: number | null;
+  /**
+   * Shown as "14 of 60 places left" when the event is featured.
+   */
+  placesLeft?: number | null;
+  link?: {
+    type?: ('page' | 'url') | null;
+    page?: (string | null) | Page;
+    /**
+     * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+     */
+    url?: string | null;
+  };
+  featured?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "totp-attempts".
  */
 export interface TotpAttempt {
@@ -2341,6 +2396,36 @@ export interface NewsSelect<T extends boolean = true> {
   author?: T;
   body?: T;
   slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events_select".
+ */
+export interface EventsSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  status?: T;
+  startsAt?: T;
+  category?: T;
+  venue?: T;
+  timeNote?: T;
+  summary?: T;
+  image?: T;
+  price?: T;
+  memberPrice?: T;
+  booking?: T;
+  capacity?: T;
+  placesLeft?: T;
+  link?:
+    | T
+    | {
+        type?: T;
+        page?: T;
+        url?: T;
+      };
+  featured?: T;
   updatedAt?: T;
   createdAt?: T;
 }
