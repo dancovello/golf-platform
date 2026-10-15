@@ -14,12 +14,15 @@ export const NewsCarousel = ({
   eyebrow,
   heading,
   allHref,
+  allLabel = 'All news',
   variant = 'cards',
   children,
 }: {
   eyebrow: string
   heading: string
   allHref: string
+  /** e.g. "All events" when the carousel holds event cards. */
+  allLabel?: string
   /** "headlines": News block C, text-only headlines on the brand colour, no "All news" tile. */
   variant?: 'cards' | 'headlines'
   children: ReactNode[]
@@ -64,12 +67,12 @@ export const NewsCarousel = ({
           </div>
           <div className="news-carousel-controls">
             <a className="btn btn-link t-label-button news-link" href={allHref}>
-              All news <ArrowRight />
+              {allLabel} <ArrowRight />
             </a>
             <button
               type="button"
               className="news-arrow"
-              aria-label="Previous articles"
+              aria-label="Scroll back"
               disabled={atStart}
               onClick={() => step(-1)}
             >
@@ -78,7 +81,7 @@ export const NewsCarousel = ({
             <button
               type="button"
               className="news-arrow"
-              aria-label="More articles"
+              aria-label="Scroll forward"
               disabled={atEnd}
               onClick={() => step(1)}
             >
@@ -96,7 +99,7 @@ export const NewsCarousel = ({
                 <span className="news-all-arrow" aria-hidden="true">
                   <ArrowRight size={22} />
                 </span>
-                <span className="t-label-button">All news</span>
+                <span className="t-label-button">{allLabel}</span>
               </a>
             </li>
           )}
