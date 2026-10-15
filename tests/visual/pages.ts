@@ -33,3 +33,9 @@ export const VISUAL_PAGES = [
   'scorecard',
   'course-status',
 ] as const
+
+/** Template pages (not blocks): name for the picture, and the address under the club. */
+export const VISUAL_TEMPLATES = [
+  { name: 'news-archive', path: 'news' },
+  { name: 'news-article', path: 'news/hollow-tining-week-what-to-expect-on-the-greens' },
+] as const

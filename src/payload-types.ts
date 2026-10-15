@@ -76,6 +76,7 @@ export interface Config {
     staff: Staff;
     courses: Course;
     'course-status': CourseStatus;
+    news: News;
     'totp-attempts': TotpAttempt;
     'payload-kv': PayloadKv;
     'payload-preferences': PayloadPreference;
@@ -92,6 +93,7 @@ export interface Config {
     staff: StaffSelect<false> | StaffSelect<true>;
     courses: CoursesSelect<false> | CoursesSelect<true>;
     'course-status': CourseStatusSelect<false> | CourseStatusSelect<true>;
+    news: NewsSelect<false> | NewsSelect<true>;
     'totp-attempts': TotpAttemptsSelect<false> | TotpAttemptsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -1368,6 +1370,52 @@ export interface CourseStatus {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "news".
+ */
+export interface News {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  title: string;
+  status: 'draft' | 'published';
+  /**
+   * Shown on the article. A future date keeps it hidden until then.
+   */
+  publishedAt: string;
+  category: 'course' | 'competitions' | 'clubhouse' | 'membership' | 'academy' | 'club';
+  /**
+   * One or two sentences, shown on cards and under the title.
+   */
+  excerpt?: string | null;
+  image?: (string | null) | Media;
+  imageCaption?: string | null;
+  /**
+   * e.g. "Owen Pryce, Course Manager"
+   */
+  author?: string | null;
+  body?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Filled in from the title. e.g. "hollow-tining-week" for /news/hollow-tining-week.
+   */
+  slug?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "totp-attempts".
  */
 export interface TotpAttempt {
@@ -2295,6 +2343,25 @@ export interface CourseStatusSelect<T extends boolean = true> {
         id?: T;
       };
   changedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "news_select".
+ */
+export interface NewsSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  status?: T;
+  publishedAt?: T;
+  category?: T;
+  excerpt?: T;
+  image?: T;
+  imageCaption?: T;
+  author?: T;
+  body?: T;
+  slug?: T;
   updatedAt?: T;
   createdAt?: T;
 }

@@ -1,6 +1,6 @@
 import { expect, type Page, test } from '@playwright/test'
 
-import { VISUAL_CLUBS, VISUAL_PAGES, VISUAL_VIEWPORTS } from './pages'
+import { VISUAL_CLUBS, VISUAL_PAGES, VISUAL_TEMPLATES, VISUAL_VIEWPORTS } from './pages'
 
 /**
  * The block-regression check (doc 04 §7): every block page and the header/footer, in both
@@ -48,6 +48,17 @@ for (const club of VISUAL_CLUBS) {
             `${slug}--${club.slug}--${viewport.name}.png`,
             // Dates that change by themselves (e.g. "Prices last updated") are masked.
             { animations: 'disabled', caret: 'hide', mask: [page.locator('[data-volatile]')] },
+          )
+        })
+      }
+
+      for (const template of VISUAL_TEMPLATES) {
+        test(`${template.name} page`, async ({ page }) => {
+          await page.goto(`/preview/${club.slug}/${template.path}`)
+          await settle(page)
+          await expect(page.locator('main')).toHaveScreenshot(
+            `${template.name}--${club.slug}--${viewport.name}.png`,
+            { animations: 'disabled', caret: 'hide' },
           )
         })
       }

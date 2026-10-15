@@ -121,3 +121,12 @@ export const checkCourseSameClub = sameClubCheck((data) =>
     },
   ),
 )
+
+/** News: the main photo, and the photos and pages in the article. */
+export const checkNewsSameClub = sameClubCheck((data) => {
+  const id = idOf(data.image)
+  return [
+    ...(id ? [{ collection: 'media' as const, id, path: 'image' }] : []),
+    ...richTextRefs(data.body, 'body'),
+  ]
+})

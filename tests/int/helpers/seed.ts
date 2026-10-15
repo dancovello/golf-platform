@@ -10,6 +10,7 @@ import type {
   CourseStatus,
   Document,
   Media,
+  News,
   Page,
   Staff,
   Tenant,
@@ -56,6 +57,8 @@ export type World = {
   courseB: Course
   statusA: CourseStatus
   statusB: CourseStatus
+  newsA: News
+  newsB: News
 }
 
 /** Refuses to run against anything but the golf_test database (or a golf_test_<name> copy). */
@@ -77,6 +80,7 @@ export const resetDatabase = async (payload: Payload) => {
   await payload.delete({ collection: 'documents', where: all })
   await payload.delete({ collection: 'staff', where: all })
   await payload.delete({ collection: 'courses', where: all })
+  await payload.delete({ collection: 'news', where: all })
   await payload.delete({ collection: 'club-settings', where: all })
   await payload.delete({ collection: 'course-status', where: all })
   await payload.delete({ collection: 'payload-preferences', where: all })
@@ -192,6 +196,28 @@ export const seedWorld = async (): Promise<World> => {
     // Created automatically with each club, like Club Settings.
     statusA: await status(clubA.id),
     statusB: await status(clubB.id),
+    // Same address in both clubs: addresses are unique per club, not globally.
+    newsA: await payload.create({
+      collection: 'news',
+      data: {
+        title: 'Club A news',
+        publishedAt: new Date().toISOString(),
+        status: 'published',
+        category: 'club',
+        tenant: clubA.id,
+      },
+    }),
+    newsB: await payload.create({
+      collection: 'news',
+      data: {
+        title: 'Club B news',
+        publishedAt: new Date().toISOString(),
+        slug: 'club-a-news',
+        status: 'published',
+        category: 'club',
+        tenant: clubB.id,
+      },
+    }),
   }
 }
 

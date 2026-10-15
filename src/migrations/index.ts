@@ -25,7 +25,8 @@ import * as migration_20261013_090048_courses_holes from './20261013_090048_cour
 import * as migration_20261013_091523_scorecard from './20261013_091523_scorecard';
 import * as migration_20261013_092958_course_status from './20261013_092958_course_status';
 import * as migration_20261013_094450_announcement_bar from './20261013_094450_announcement_bar';
-import * as migration_20261015_191516_privacy_settings from './20261015_191516_privacy_settings';
+import * as migration_20261015_184351_news from './20261015_184351_news';
+import * as migration_20261015_192704_privacy_settings from './20261015_192704_privacy_settings';
 
 export const migrations = [
   {
@@ -164,8 +165,13 @@ export const migrations = [
     name: '20261013_094450_announcement_bar',
   },
   {
-    up: migration_20261015_191516_privacy_settings.up,
-    down: migration_20261015_191516_privacy_settings.down,
-    name: '20261015_191516_privacy_settings'
+    up: migration_20261015_184351_news.up,
+    down: migration_20261015_184351_news.down,
+    name: '20261015_184351_news',
+  },
+  {
+    up: migration_20261015_192704_privacy_settings.up,
+    down: migration_20261015_192704_privacy_settings.down,
+    name: '20261015_192704_privacy_settings'
   },
 ];
