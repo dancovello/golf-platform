@@ -95,9 +95,12 @@ jobs:
           sudo apt-get install -y -qq "postgresql-client-${major}" > /dev/null
           echo "PG_BIN=/usr/lib/postgresql/${major}/bin" >> "$GITHUB_ENV"
       # Only the structure, plus the list of changes already applied. No club data is copied.
+      # Accounts aren't part of a copy, so the website's account (golf_app) is made first, as
+      # it exists on the real database: database changes that limit its rights need it.
       - name: Copy the database's structure into a throwaway database
         run: |
           set -euo pipefail
+          psql -q -v ON_ERROR_STOP=1 "$DRY_RUN_URL" -c "CREATE ROLE golf_app NOLOGIN"
           "$PG_BIN/pg_dump" --schema-only --no-owner --no-privileges "$TARGET_DATABASE_URL" | psql -q -v ON_ERROR_STOP=1 "$DRY_RUN_URL"
           if [ "$(psql "$TARGET_DATABASE_URL" -Atc "SELECT to_regclass('public.payload_migrations') IS NOT NULL")" = "t" ]; then
             "$PG_BIN/pg_dump" --data-only --no-owner --table=payload_migrations "$TARGET_DATABASE_URL" | psql -q -v ON_ERROR_STOP=1 "$DRY_RUN_URL"
