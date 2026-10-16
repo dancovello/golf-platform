@@ -41,4 +41,5 @@ Every block is **one block with a Design style choice (A / B / C)** from the Fig
 - Cookie banner: decided (2026-10-15) and built in PR #68. Only clubs with a Google Analytics ID get one; see docs/architecture/decisions.md
 - News: the archive and article are fixed templates at /news and /news/<address>; the archive heading ("Club news") and intro are fixed text for now
 - Events: the archive at /events shows every upcoming event via "Show more"; Figma's quarter pager ("October – December" with arrows) is left out. Events have no pages of their own: Book / Enquire goes straight to the link set on the event (a booking site or one of the club's pages)
+- Page not found (404): each club's own, with its header, footer and up to three links (its booking button, then its menu) plus Home. The "Search the site" box waits for site search (open decision). The headline "Lost in the heather" is from Figma; it suits heathland clubs, so you may want wording that fits every course (e.g. "Lost in the rough")
 - Open decisions: email provider (newsletter, contact form), site search (wanted?)
