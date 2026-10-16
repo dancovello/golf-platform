@@ -291,6 +291,39 @@ const editorLoginOnly = await extraEditor('editor-login-only@example.com', true)
 const editorTypesCode = await extraEditor('editor-types-code@example.com', true)
 const editorWrongCode = await extraEditor('editor-wrong-code@example.com', true)
 const editorLinkTarget = await extraEditor('editor-link-target@example.com', true)
+// One club per header style, with a long name in the widest font set, so the phone-width check
+// in tests/e2e/site-header.spec.ts has something that could overflow.
+for (const style of ['classic', 'transparent', 'appBar'] as const) {
+  const club = await w.payload.create({
+    collection: 'tenants',
+    data: { name: 'Saltmarsh Links', slug: `header-${style.toLowerCase()}` },
+  })
+  const { docs } = await w.payload.find({
+    collection: 'club-settings',
+    where: { tenant: { equals: club.id } },
+    limit: 1,
+  })
+  const about = await w.payload.create({
+    collection: 'pages',
+    data: { title: 'About the club', slug: 'about', tenant: club.id, layout: [] } as never,
+  })
+  await w.payload.update({
+    collection: 'club-settings',
+    id: docs[0].id,
+    data: {
+      clubName: 'Saltmarsh Links',
+      branding: { fontSet: 'editorial', strapline: 'Links · 1891' },
+      footer: { email: 'office@saltmarsh.example', address: '1 Links Road\nSaltmarsh\nSA1 1LT' },
+      header: {
+        style,
+        phone: '01932 704 500',
+        booking: { label: 'Book a tee time', type: 'url', url: 'https://booking.example.com' },
+        menu: [{ label: 'Visitors', link: { type: 'page', page: about.id } }],
+      },
+    },
+  })
+}
+
 // A club using every privacy option, for tests/e2e/site-privacy.spec.ts. Its own club, so the
 // cookie banner never sits over what other tests click.
 const cookieClub = await w.payload.create({
