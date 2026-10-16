@@ -65,7 +65,19 @@ describe('the demo club', () => {
     ])
     expect(menuLinks.length).toBeGreaterThan(15)
     expect(menuLinks).toContainEqual({ kind: 'page', slug: 'contact' })
-    expect(club!.footer.linkColumns).toHaveLength(2)
+    expect(club!.footer.linkColumns.map((c) => c.heading)).toEqual(['Golf', 'Visitors', 'The club'])
+    // The Golf drop-down and footer column come from the Golf page's child pages, in order.
+    const golf = club!.header.menu[0].groups[0].links.map((l) => l.label)
+    expect(golf).toEqual([
+      'The courses',
+      'The Championship course',
+      'The Heathland course',
+      'Scorecards',
+      'Course status',
+      'The Academy',
+      'Competitions',
+    ])
+    expect(club!.footer.linkColumns[0].links.map((l) => l.label)).toEqual(golf.slice(1))
     expect(club!.announcement?.items).toHaveLength(3)
     // Every page the menu points at exists and has content.
     for (const link of menuLinks) {

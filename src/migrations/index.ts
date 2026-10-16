@@ -34,6 +34,7 @@ import * as migration_20261016_083527_club_agreement from './20261016_083527_clu
 import * as migration_20261016_131627_contact_page from './20261016_131627_contact_page';
 import * as migration_20261016_140458_enquiry_alerts from './20261016_140458_enquiry_alerts';
 import * as migration_20261016_145756_builtin_links from './20261016_145756_builtin_links';
+import * as migration_20261016_154202_nav_footer_control from './20261016_154202_nav_footer_control';
 
 export const migrations = [
   {
@@ -214,6 +215,11 @@ export const migrations = [
   {
     up: migration_20261016_145756_builtin_links.up,
     down: migration_20261016_145756_builtin_links.down,
-    name: '20261016_145756_builtin_links'
+    name: '20261016_145756_builtin_links',
+  },
+  {
+    up: migration_20261016_154202_nav_footer_control.up,
+    down: migration_20261016_154202_nav_footer_control.down,
+    name: '20261016_154202_nav_footer_control'
   },
 ];

@@ -130,3 +130,10 @@ Dan's devops contact checked and approved the review items raised in PRs #18, #2
 - **Uses everything:** every block in every design style (a test fails if a new style is added and the demo doesn't use it), plus the menu, footer, announcement bar, cookie banner, course status, two courses, ten team members, twelve news stories (one draft, one scheduled), eight events, ten documents, contact settings and four enquiries.
 - **Pictures are drawn in code** (simple illustrated landscapes and silhouettes), so nothing is copied, and every alt text starts "Illustration:".
 - **Staging and local only**, for a super-admin with their code entered; refused on production. It only ever touches the club with the address `heathcote-demo`, and refuses to rebuild one that has editor accounts or an accepted agreement.
+
+## 2026-10-16 — Menu and footer control
+
+- **Parent pages** (Dan, 2026-10-16): any page can sit under another ("Parent page" in the page's sidebar), with an optional position number and a "leave out of drop-downs" tick. Addresses stay short (`/championship-course`, not `/golf/championship-course`), so moving a page never breaks a link. A page can't sit inside itself or its own child pages, or under another club's page.
+- **Menu items** do one of three things: go to a page or link; open a drop-down of a page's child pages (kept up to date automatically, optionally with the page itself first and up to 4 extra links at the end); or open a drop-down of hand-picked links in up to 3 groups, each with an optional heading. Items saved before this keep working as they were.
+- **Footer**: up to 3 link columns in every style (style C used to have none and style A showed only the first), each with its own heading and either hand-picked links or a page's child pages (so a column can match a menu drop-down).
+- **Not done:** drag-and-drop ordering of pages (Payload's version is marked experimental), breadcrumbs, and pages three levels deep in drop-downs (only a page's direct child pages are listed).

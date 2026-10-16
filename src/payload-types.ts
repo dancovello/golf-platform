@@ -195,6 +195,15 @@ export interface Page {
    * The page address, e.g. "membership" for /membership. Use "home" for the home page.
    */
   slug: string;
+  /**
+   * Put this page under another one, e.g. "Green fees" under "Visitors". A menu item set to show its page’s child pages lists this page in its drop-down. The page address stays the same.
+   */
+  parent?: (string | null) | Page;
+  /**
+   * 1 comes first. Pages without a number follow, in A–Z order.
+   */
+  menuPosition?: number | null;
+  hideFromMenu?: boolean | null;
   layout?:
     | (
         | HeroBlock
@@ -1157,11 +1166,15 @@ export interface ClubSetting {
      */
     phone?: string | null;
     /**
-     * Up to 6 items. An item with link groups opens a drop-down menu instead of going straight to a page.
+     * Up to 6 items, left to right; drag to reorder. Each is a link, or opens a drop-down: either the child pages of one of your pages (kept up to date for you) or links you choose.
      */
     menu?:
       | {
           label: string;
+          /**
+           * Blank on items saved before this choice existed: they keep working as before.
+           */
+          kind?: ('link' | 'children' | 'manual') | null;
           link?: {
             type?: ('page' | 'builtIn' | 'url') | null;
             page?: (string | null) | Page;
@@ -1171,9 +1184,35 @@ export interface ClubSetting {
              */
             url?: string | null;
           };
+          /**
+           * Its child pages (set on each page, under "Parent page") make up the drop-down, in their "Position" order.
+           */
+          page?: (string | null) | Page;
+          includeParent?: boolean | null;
+          /**
+           * e.g. your booking site, or News, Events or Contact.
+           */
+          extraLinks?:
+            | {
+                link: {
+                  label: string;
+                  type?: ('page' | 'builtIn' | 'url') | null;
+                  page?: (string | null) | Page;
+                  builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+                  /**
+                   * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+                   */
+                  url?: string | null;
+                };
+                id?: string | null;
+              }[]
+            | null;
+          /**
+           * Up to 3 groups side by side, each with its own heading.
+           */
           groups?:
             | {
-                heading: string;
+                heading?: string | null;
                 links?:
                   | {
                       link: {
@@ -1203,11 +1242,16 @@ export interface ClubSetting {
      */
     about?: string | null;
     /**
-     * Style A shows the first column; style B shows both. Style C has none.
+     * Up to 3 columns, each with its own heading, in every footer style. A column can list a page’s child pages (kept up to date, like the menu) or links you choose.
      */
     linkColumns?:
       | {
           heading: string;
+          source?: ('manual' | 'children') | null;
+          /**
+           * e.g. "Visitors" lists every page under Visitors, so the column matches that menu drop-down.
+           */
+          page?: (string | null) | Page;
           links?:
             | {
                 link: {
@@ -1740,6 +1784,9 @@ export interface PagesSelect<T extends boolean = true> {
   tenant?: T;
   title?: T;
   slug?: T;
+  parent?: T;
+  menuPosition?: T;
+  hideFromMenu?: T;
   layout?:
     | T
     | {
@@ -2308,6 +2355,7 @@ export interface ClubSettingsSelect<T extends boolean = true> {
           | T
           | {
               label?: T;
+              kind?: T;
               link?:
                 | T
                 | {
@@ -2315,6 +2363,22 @@ export interface ClubSettingsSelect<T extends boolean = true> {
                     page?: T;
                     builtIn?: T;
                     url?: T;
+                  };
+              page?: T;
+              includeParent?: T;
+              extraLinks?:
+                | T
+                | {
+                    link?:
+                      | T
+                      | {
+                          label?: T;
+                          type?: T;
+                          page?: T;
+                          builtIn?: T;
+                          url?: T;
+                        };
+                    id?: T;
                   };
               groups?:
                 | T
@@ -2348,6 +2412,8 @@ export interface ClubSettingsSelect<T extends boolean = true> {
           | T
           | {
               heading?: T;
+              source?: T;
+              page?: T;
               links?:
                 | T
                 | {
