@@ -16,7 +16,12 @@ const settingsRefs = (data: Record<string, unknown>): Ref[] => {
   }
   const header = (data.header ?? {}) as {
     booking?: { page?: unknown }
-    menu?: { link?: { page?: unknown }; groups?: { links?: { link?: { page?: unknown } }[] }[] }[]
+    menu?: {
+      link?: { page?: unknown }
+      page?: unknown
+      extraLinks?: { link?: { page?: unknown } }[]
+      groups?: { links?: { link?: { page?: unknown } }[] }[]
+    }[]
   }
   const page = (value: unknown, path: string) => {
     const id = idOf(value)
@@ -25,6 +30,10 @@ const settingsRefs = (data: Record<string, unknown>): Ref[] => {
   page(header.booking?.page, 'header.booking.page')
   header.menu?.forEach((item, i) => {
     page(item.link?.page, `header.menu.${i}.link.page`)
+    page(item.page, `header.menu.${i}.page`)
+    item.extraLinks?.forEach((l, k) =>
+      page(l.link?.page, `header.menu.${i}.extraLinks.${k}.link.page`),
+    )
     item.groups?.forEach((group, g) =>
       group.links?.forEach((l, k) =>
         page(l.link?.page, `header.menu.${i}.groups.${g}.links.${k}.link.page`),
@@ -32,11 +41,12 @@ const settingsRefs = (data: Record<string, unknown>): Ref[] => {
     )
   })
   const footer = (data.footer ?? {}) as {
-    linkColumns?: { links?: { link?: { page?: unknown } }[] }[]
+    linkColumns?: { page?: unknown; links?: { link?: { page?: unknown } }[] }[]
     hoursLink?: { page?: unknown }
     secondaryButton?: { page?: unknown }
     legalLinks?: { link?: { page?: unknown } }[]
   }
+  footer.linkColumns?.forEach((col, c) => page(col.page, `footer.linkColumns.${c}.page`))
   footer.linkColumns?.forEach((col, c) =>
     col.links?.forEach((l, k) =>
       page(l.link?.page, `footer.linkColumns.${c}.links.${k}.link.page`),
@@ -109,7 +119,13 @@ const sameClubCheck =
 export const checkSameClub = sameClubCheck(settingsRefs)
 
 /** Pages: everything the page's blocks point at. */
-export const checkPageSameClub = sameClubCheck((data) => layoutRefs(data.layout))
+export const checkPageSameClub = sameClubCheck((data) => {
+  const parent = idOf(data.parent)
+  return [
+    ...layoutRefs(data.layout),
+    ...(parent ? [{ collection: 'pages' as const, id: parent, path: 'parent' }] : []),
+  ]
+})
 
 /** Team members: their photo. */
 export const checkStaffSameClub = sameClubCheck((data) => {

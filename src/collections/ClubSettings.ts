@@ -12,6 +12,9 @@ import { BRAND_INPUTS, type Brand, contrastProblems, DEFAULT_BRAND, isHex } from
 import { DEFAULT_FONT_SET, FONT_SETS } from '../theme/fontSets'
 import { ENQUIRY_PURPOSES } from './enquiryPurposes'
 
+const idOf = (v: unknown) =>
+  typeof v === 'string' ? v : v && typeof v === 'object' && 'id' in v ? String(v.id) : null
+
 const colourHelp: Record<keyof Brand, string> = {
   primary: 'Brand bands, headers and solid buttons.',
   secondary: 'A softer supporting colour, mixed into subtle backgrounds and eyebrow text.',
@@ -229,29 +232,101 @@ export const ClubSettings: CollectionConfig = {
                   labels: { singular: 'Menu item', plural: 'Menu items' },
                   admin: {
                     description:
-                      'Up to 6 items. An item with link groups opens a drop-down menu instead of going straight to a page.',
+                      'Up to 6 items, left to right; drag to reorder. Each is a link, or opens a drop-down: either the child pages of one of your pages (kept up to date for you) or links you choose.',
                     initCollapsed: true,
+                    components: { RowLabel: '/admin/MenuRowLabel#MenuRowLabel' },
                   },
                   fields: [
-                    { name: 'label', label: 'Text', type: 'text', required: true, maxLength: 24 },
-                    linkField({
-                      name: 'link',
-                      label: 'Goes to (when it has no link groups)',
-                      withLabel: false,
-                      required: false,
-                    }),
+                    {
+                      type: 'row',
+                      fields: [
+                        {
+                          name: 'label',
+                          label: 'Text',
+                          type: 'text',
+                          required: true,
+                          maxLength: 24,
+                        },
+                        {
+                          name: 'kind',
+                          label: 'What it does',
+                          type: 'select',
+                          options: [
+                            { label: 'Goes to a page or link', value: 'link' },
+                            { label: 'Drop-down: a page’s child pages', value: 'children' },
+                            { label: 'Drop-down: links I choose', value: 'manual' },
+                          ],
+                          admin: {
+                            description:
+                              'Blank on items saved before this choice existed: they keep working as before.',
+                          },
+                        },
+                      ],
+                    },
+                    {
+                      ...linkField({
+                        name: 'link',
+                        label: 'Goes to',
+                        withLabel: false,
+                        required: false,
+                      }),
+                      admin: {
+                        condition: (_data, row) =>
+                          row?.kind !== 'manual' && row?.kind !== 'children',
+                      },
+                    },
+                    {
+                      name: 'page',
+                      label: 'Page whose child pages to show',
+                      type: 'relationship',
+                      relationTo: 'pages',
+                      filterOptions: ({ data }) =>
+                        data?.tenant ? { tenant: { equals: idOf(data.tenant) } } : true,
+                      admin: {
+                        condition: (_data, row) => row?.kind === 'children',
+                        description:
+                          'Its child pages (set on each page, under "Parent page") make up the drop-down, in their "Position" order.',
+                      },
+                      validate: (
+                        value: unknown,
+                        { siblingData }: { siblingData: { kind?: string } },
+                      ) => (siblingData?.kind !== 'children' || value ? true : 'Choose a page.'),
+                    },
+                    {
+                      name: 'includeParent',
+                      label: 'Show that page itself at the top of the drop-down',
+                      type: 'checkbox',
+                      defaultValue: true,
+                      admin: { condition: (_data, row) => row?.kind === 'children' },
+                    },
+                    {
+                      name: 'extraLinks',
+                      label: 'Extra links at the end (optional)',
+                      type: 'array',
+                      maxRows: 4,
+                      labels: { singular: 'Extra link', plural: 'Extra links' },
+                      admin: {
+                        condition: (_data, row) => row?.kind === 'children',
+                        description: 'e.g. your booking site, or News, Events or Contact.',
+                      },
+                      fields: [linkField({ name: 'link', label: 'Link' })],
+                    },
                     {
                       name: 'groups',
                       label: 'Link groups',
                       type: 'array',
                       maxRows: 3,
                       labels: { singular: 'Group', plural: 'Groups' },
+                      admin: {
+                        condition: (_data, row) =>
+                          row?.kind === 'manual' || (!row?.kind && (row?.groups?.length ?? 0) > 0),
+                        description: 'Up to 3 groups side by side, each with its own heading.',
+                      },
                       fields: [
                         {
                           name: 'heading',
-                          label: 'Heading',
+                          label: 'Heading (optional)',
                           type: 'text',
-                          required: true,
                           maxLength: 30,
                         },
                         {
@@ -315,27 +390,68 @@ export const ClubSettings: CollectionConfig = {
                   name: 'linkColumns',
                   label: 'Link columns',
                   type: 'array',
-                  maxRows: 2,
+                  maxRows: 3,
                   labels: { singular: 'Column', plural: 'Columns' },
                   admin: {
                     description:
-                      'Style A shows the first column; style B shows both. Style C has none.',
+                      'Up to 3 columns, each with its own heading, in every footer style. A column can list a page’s child pages (kept up to date, like the menu) or links you choose.',
                     initCollapsed: true,
+                    components: { RowLabel: '/admin/MenuRowLabel#ColumnRowLabel' },
                   },
                   fields: [
                     {
-                      name: 'heading',
-                      label: 'Heading',
-                      type: 'text',
-                      required: true,
-                      maxLength: 30,
+                      type: 'row',
+                      fields: [
+                        {
+                          name: 'heading',
+                          label: 'Heading',
+                          type: 'text',
+                          required: true,
+                          maxLength: 30,
+                        },
+                        {
+                          name: 'source',
+                          label: 'Links',
+                          type: 'select',
+                          defaultValue: 'manual',
+                          options: [
+                            { label: 'Links I choose', value: 'manual' },
+                            { label: 'A page’s child pages', value: 'children' },
+                          ],
+                        },
+                      ],
+                    },
+                    {
+                      name: 'page',
+                      label: 'Page whose child pages to list',
+                      type: 'relationship',
+                      relationTo: 'pages',
+                      filterOptions: ({ data }) =>
+                        data?.tenant ? { tenant: { equals: idOf(data.tenant) } } : true,
+                      admin: {
+                        condition: (_data, row) => row?.source === 'children',
+                        description:
+                          'e.g. "Visitors" lists every page under Visitors, so the column matches that menu drop-down.',
+                      },
+                      validate: (
+                        value: unknown,
+                        { siblingData }: { siblingData: { source?: string } },
+                      ) => (siblingData?.source !== 'children' || value ? true : 'Choose a page.'),
                     },
                     {
                       name: 'links',
                       label: 'Links',
                       type: 'array',
-                      minRows: 1,
                       maxRows: 8,
+                      admin: { condition: (_data, row) => row?.source !== 'children' },
+                      validate: (
+                        value: unknown,
+                        { siblingData }: { siblingData: { source?: string } },
+                      ) =>
+                        siblingData?.source === 'children' ||
+                        (Array.isArray(value) && value.length > 0)
+                          ? true
+                          : 'Add at least one link.',
                       fields: [linkField({ name: 'link', label: 'Link' })],
                     },
                   ],

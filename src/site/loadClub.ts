@@ -100,7 +100,11 @@ type RawSettings = {
     menu?:
       | {
           label?: string | null
+          kind?: string | null
           link?: RawLink | null
+          page?: unknown
+          includeParent?: boolean | null
+          extraLinks?: { link?: RawLink | null }[] | null
           groups?: { heading?: string | null; links?: { link?: RawLink | null }[] | null }[] | null
         }[]
       | null
@@ -108,7 +112,14 @@ type RawSettings = {
   footer?: {
     style?: string | null
     about?: string | null
-    linkColumns?: { heading?: string | null; links?: { link?: RawLink | null }[] | null }[] | null
+    linkColumns?:
+      | {
+          heading?: string | null
+          source?: string | null
+          page?: unknown
+          links?: { link?: RawLink | null }[] | null
+        }[]
+      | null
     hours?: { place?: string | null; times?: string | null }[] | null
     hoursLink?: RawLink | null
     email?: string | null
@@ -200,6 +211,7 @@ export const loadClubBySlug = async (slug: string): Promise<ClubSite | null> => 
     ...(h.menu ?? []).flatMap((m) => [
       ...(m.link ? [m.link] : []),
       ...(m.groups ?? []).flatMap((g) => (g.links ?? []).map((l) => l.link ?? {})),
+      ...(m.extraLinks ?? []).map((l) => l.link ?? {}),
     ]),
     ...(f.linkColumns ?? []).flatMap((c) => (c.links ?? []).map((l) => l.link ?? {})),
     ...(f.hoursLink ? [f.hoursLink] : []),
@@ -213,6 +225,11 @@ export const loadClubBySlug = async (slug: string): Promise<ClubSite | null> => 
     rawLinks.map((l) => (linksToPage(l.type) ? idOf(l.page) : null)),
   )
   const images = await clubImages(payload, tenantID, [idOf(b.logoOnLight), idOf(b.logoOnDark)])
+  // Menu items and footer columns that list a page's child pages.
+  const family = await clubPageFamilies(payload, tenantID, [
+    ...(h.menu ?? []).map((m) => (m.kind === 'children' ? idOf(m.page) : null)),
+    ...(f.linkColumns ?? []).map((c) => (c.source === 'children' ? idOf(c.page) : null)),
+  ])
 
   const toLink = (raw: RawLink | null | undefined): SiteLink | null => {
     if (!raw) return null
@@ -253,20 +270,34 @@ export const loadClubBySlug = async (slug: string): Promise<ClubSite | null> => 
       booking: bookingLink && bookingLabel ? { label: bookingLabel, link: bookingLink } : null,
       phone: h.phone?.trim() || null,
       menu: (h.menu ?? [])
-        .map((m) => ({
-          label: m.label?.trim() ?? '',
-          link: toLink(m.link),
-          groups: (m.groups ?? [])
-            .map((g) => ({
-              heading: g.heading?.trim() ?? '',
-              links: (g.links ?? []).flatMap((l) => {
-                const link = toLink(l.link)
-                const label = l.link?.label?.trim()
-                return link && label ? [{ label, link }] : []
-              }),
-            }))
-            .filter((g) => g.heading && g.links.length > 0),
-        }))
+        .map((m): MenuItem => {
+          const label = m.label?.trim() ?? ''
+          // Items saved before "What it does" existed: groups mean a drop-down.
+          const kind = m.kind ?? ((m.groups ?? []).length > 0 ? 'manual' : 'link')
+          if (kind === 'children') {
+            const parentID = idOf(m.page) ?? ''
+            const parent = family.parents.get(parentID)
+            const links = [
+              ...(parent && m.includeParent !== false ? [parent] : []),
+              ...(family.children.get(parentID) ?? []),
+              ...(m.extraLinks ?? []).flatMap((l) => labelled(l.link) ?? []),
+            ]
+            // A page with no child pages yet is just a link to it.
+            if (links.length <= 1) return { label, link: parent?.link ?? null, groups: [] }
+            return { label, link: null, groups: [{ heading: '', links }] }
+          }
+          if (kind === 'link') return { label, link: toLink(m.link), groups: [] }
+          return {
+            label,
+            link: null,
+            groups: (m.groups ?? [])
+              .map((g) => ({
+                heading: g.heading?.trim() ?? '',
+                links: (g.links ?? []).flatMap((l) => labelled(l.link) ?? []),
+              }))
+              .filter((g) => g.links.length > 0),
+          }
+        })
         .filter((m) => m.label && (m.link || m.groups.length > 0)),
     },
     location: {
@@ -286,7 +317,10 @@ export const loadClubBySlug = async (slug: string): Promise<ClubSite | null> => 
       linkColumns: (f.linkColumns ?? [])
         .map((c) => ({
           heading: c.heading?.trim() ?? '',
-          links: (c.links ?? []).flatMap((l) => labelled(l.link) ?? []),
+          links:
+            c.source === 'children'
+              ? (family.children.get(idOf(c.page) ?? '') ?? [])
+              : (c.links ?? []).flatMap((l) => labelled(l.link) ?? []),
         }))
         .filter((c) => c.heading && c.links.length > 0),
       hours: (f.hours ?? []).flatMap((r) =>
@@ -331,6 +365,58 @@ export const clubPageSlugs = async (payload: Payload, tenantID: string, ids: (st
     overrideAccess: true,
   })
   return new Map(docs.map((d) => [String(d.id), String(d.slug)]))
+}
+
+/**
+ * For menu items and footer columns that list a page's child pages: each chosen page (as a
+ * link with its title) and its child pages, in "Position" order then A–Z, leaving out pages
+ * marked "Leave out of drop-downs". Only pages of this club, so another club's page is never
+ * listed even if a stray reference points at it.
+ */
+const clubPageFamilies = async (payload: Payload, tenantID: string, ids: (string | null)[]) => {
+  const wanted = [...new Set(ids.filter((id): id is string => Boolean(id)))]
+  const parents = new Map<string, LabelledLink>()
+  const children = new Map<string, LabelledLink[]>()
+  if (wanted.length === 0) return { parents, children }
+  const [{ docs: tops }, { docs: kids }] = await Promise.all([
+    payload.find({
+      collection: 'pages',
+      where: { and: [{ id: { in: wanted } }, { tenant: { equals: tenantID } }] },
+      select: { title: true, slug: true },
+      limit: wanted.length,
+      depth: 0,
+      overrideAccess: true,
+    }),
+    payload.find({
+      collection: 'pages',
+      where: {
+        and: [
+          { parent: { in: wanted } },
+          { tenant: { equals: tenantID } },
+          { hideFromMenu: { not_equals: true } },
+        ],
+      },
+      select: { title: true, slug: true, parent: true, menuPosition: true },
+      limit: 200,
+      depth: 0,
+      overrideAccess: true,
+    }),
+  ])
+  for (const p of tops) {
+    parents.set(String(p.id), { label: p.title, link: { kind: 'page', slug: String(p.slug) } })
+  }
+  const sorted = [...kids].sort(
+    (a, b) => (a.menuPosition ?? 1000) - (b.menuPosition ?? 1000) || a.title.localeCompare(b.title),
+  )
+  for (const p of sorted) {
+    const parent = idOf(p.parent) ?? ''
+    if (!parents.has(parent)) continue
+    children.set(parent, [
+      ...(children.get(parent) ?? []),
+      { label: p.title, link: { kind: 'page', slug: String(p.slug) } },
+    ])
+  }
+  return { parents, children }
 }
 
 /** Public addresses of the given images, only if they belong to this club. */

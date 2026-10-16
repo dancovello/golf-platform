@@ -118,7 +118,9 @@ export const DesktopNav = ({
                 <div className="sh-mega-inner">
                   {item.groups.map((group, g) => (
                     <div key={g} className="sh-mega-group">
-                      <p className="t-eyebrow sh-mega-heading">{group.heading}</p>
+                      {group.heading ? (
+                        <p className="t-eyebrow sh-mega-heading">{group.heading}</p>
+                      ) : null}
                       <ul>
                         {group.links.map((l, k) => {
                           const href = siteHref(base, l.link)

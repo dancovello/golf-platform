@@ -323,6 +323,31 @@ export const buildDemoClub = async (payload: Payload) => {
   for (const [slug, title] of pageTitles) {
     pageIDs[slug] = (await create<{ id: ID }>('pages', { title, slug, layout: [] })).id
   }
+  // The site's structure: each child page and its position in its parent's drop-down.
+  const tree: Record<string, string[]> = {
+    courses: [
+      'championship-course',
+      'heathland-course',
+      'scorecards',
+      'course-status',
+      'academy',
+      'competitions',
+    ],
+    visitors: ['societies', 'getting-here', 'faqs'],
+    membership: ['joining'],
+    clubhouse: ['gallery'],
+    about: ['history', 'team', 'partners', 'documents'],
+  }
+  for (const [parent, children] of Object.entries(tree)) {
+    for (const [i, child] of children.entries()) {
+      await payload.update({
+        collection: 'pages',
+        id: pageIDs[child],
+        data: { parent: pageIDs[parent], menuPosition: i + 1 } as never,
+        overrideAccess: true,
+      })
+    }
+  }
   const to = (slug: string): Link => ({ type: 'page', page: pageIDs[slug] })
   const builtIn = (page: 'news' | 'events' | 'contact' | 'privacy'): Link => ({
     type: 'builtIn',
@@ -359,76 +384,33 @@ export const buildDemoClub = async (payload: Payload) => {
         style: 'classic',
         phone: '01932 704 500',
         booking,
+        // Golf, Visitors, Membership and Clubhouse list their page's child pages (kept up to
+        // date as pages are added); About shows a drop-down with hand-picked, headed groups.
         menu: [
           {
             label: 'Golf',
-            groups: [
-              {
-                heading: 'The courses',
-                links: [
-                  menuLink('Both courses', to('courses')),
-                  menuLink('The Championship course', to('championship-course')),
-                  menuLink('The Heathland course', to('heathland-course')),
-                  menuLink('Scorecards', to('scorecards')),
-                ],
-              },
-              {
-                heading: 'Playing',
-                links: [
-                  menuLink('Course status', to('course-status')),
-                  menuLink('The Academy', to('academy')),
-                  menuLink('Competitions', to('competitions')),
-                ],
-              },
-            ],
+            kind: 'children',
+            page: pageIDs.courses,
+            includeParent: true,
           },
           {
             label: 'Visitors',
-            groups: [
-              {
-                heading: 'Plan your round',
-                links: [
-                  menuLink('Green fees', to('visitors')),
-                  menuLink('Societies', to('societies')),
-                  menuLink('Getting here', to('getting-here')),
-                ],
-              },
-              {
-                heading: 'Help',
-                links: [
-                  menuLink('Visitor questions', to('faqs')),
-                  menuLink('Contact the club', builtIn('contact')),
-                ],
-              },
-            ],
+            kind: 'children',
+            page: pageIDs.visitors,
+            includeParent: true,
+            extraLinks: [menuLink('Contact the club', builtIn('contact'))],
           },
-          {
-            label: 'Membership',
-            groups: [
-              {
-                heading: 'Join the club',
-                links: [
-                  menuLink('Membership categories', to('membership')),
-                  menuLink('How to join', to('joining')),
-                ],
-              },
-            ],
-          },
+          { label: 'Membership', kind: 'children', page: pageIDs.membership, includeParent: true },
           {
             label: 'Clubhouse',
-            groups: [
-              {
-                heading: 'Eat & meet',
-                links: [
-                  menuLink('Clubhouse & dining', to('clubhouse')),
-                  menuLink('What’s on', builtIn('events')),
-                  menuLink('Gallery', to('gallery')),
-                ],
-              },
-            ],
+            kind: 'children',
+            page: pageIDs.clubhouse,
+            includeParent: true,
+            extraLinks: [menuLink('What’s on', builtIn('events'))],
           },
           {
             label: 'About',
+            kind: 'manual',
             groups: [
               {
                 heading: 'The club',
@@ -454,24 +436,18 @@ export const buildDemoClub = async (payload: Payload) => {
       footer: {
         style: 'brandColumns',
         about: 'Heathland golf since 1926, twenty minutes from Heathrow.',
+        // Two columns follow pages' child pages; the third is picked by hand.
         linkColumns: [
-          {
-            heading: 'Explore',
-            links: [
-              menuLink('The courses', to('courses')),
-              menuLink('Visitors & green fees', to('visitors')),
-              menuLink('Membership', to('membership')),
-              menuLink('Competitions', to('competitions')),
-              menuLink('Clubhouse & dining', to('clubhouse')),
-            ],
-          },
+          { heading: 'Golf', source: 'children', page: pageIDs.courses },
+          { heading: 'Visitors', source: 'children', page: pageIDs.visitors },
           {
             heading: 'The club',
+            source: 'manual',
             links: [
+              menuLink('Membership', to('membership')),
+              menuLink('Clubhouse & dining', to('clubhouse')),
               menuLink('News', builtIn('news')),
               menuLink('What’s on', builtIn('events')),
-              menuLink('Our team', to('team')),
-              menuLink('Club documents', to('documents')),
               menuLink('Contact', builtIn('contact')),
             ],
           },

@@ -135,7 +135,9 @@ export const MobileMenu = ({
             {current ? (
               current.groups.map((group, g) => (
                 <div key={g} className="sh-drawer-group">
-                  <p className="t-eyebrow sh-drawer-heading">{group.heading}</p>
+                  {group.heading ? (
+                    <p className="t-eyebrow sh-drawer-heading">{group.heading}</p>
+                  ) : null}
                   <ul>
                     {group.links.map((l, k) => (
                       <li key={k}>{link(l.label, l.link, 't-body-l sh-drawer-sublink')}</li>

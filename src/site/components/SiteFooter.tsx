@@ -106,6 +106,7 @@ export const SiteFooter = ({ club, base }: { club: ClubSite; base: string }) => 
           <>
             <p className="t-display-xl sf-wordmark">{club.name}</p>
             <div className="sf-columns">
+              {f.linkColumns.map((c, i) => column(c.heading, c.links, i))}
               {hours}
               {contact(true)}
               {f.social.length > 0 ? (
@@ -139,9 +140,7 @@ export const SiteFooter = ({ club, base }: { club: ClubSite; base: string }) => 
         ) : (
           <div className="sf-columns">
             {brand}
-            {(f.style === 'brandColumns' ? f.linkColumns.slice(0, 1) : f.linkColumns).map((c, i) =>
-              column(c.heading, c.links, i),
-            )}
+            {f.linkColumns.map((c, i) => column(c.heading, c.links, i))}
             {hours}
             {f.style === 'lightColumns' ? contact(true) : null}
           </div>
