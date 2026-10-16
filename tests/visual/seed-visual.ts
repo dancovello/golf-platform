@@ -156,6 +156,13 @@ for (const [slug, p] of Object.entries(palettes)) {
         secondaryButton: { label: 'Membership enquiries', type: 'page', page: about.id },
         legalLinks: [{ link: { label: 'Terms', type: 'page', page: about.id } }],
       },
+      contact: {
+        replyDays: 1,
+        officeHours: 'Mon–Fri 8:00–17:00 · Sat 8:00–12:00',
+        membershipTypes: [{ label: 'Five-day' }, { label: 'Seven-day' }, { label: 'Junior' }],
+        asideTitle: 'Tee times and lessons',
+        asideText: 'The pro shop is quickest for anything today: 01932 704 520, 7am–7pm.',
+      },
     } as never,
   })
 

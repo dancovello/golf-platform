@@ -24,6 +24,14 @@ test.describe("club A's editor", () => {
     await expect(page.getByText(world.pageB.title)).toHaveCount(0)
   })
 
+  test("the enquiries list shows only club A's messages", async ({ editorPage: page }) => {
+    await page.goto('/admin/collections/enquiries')
+    await expect(page.getByRole('link', { name: 'Ann Visitor' })).toBeVisible()
+    await expect(page.getByText('Ben Visitor')).toHaveCount(0)
+    // Messages only arrive from the website, so there's no "Create new".
+    await expect(page.getByRole('link', { name: /Create new/i })).toHaveCount(0)
+  })
+
   test('the accounts list shows only club A editors', async ({ editorPage: page, world }) => {
     await page.goto('/admin/collections/users')
     await expect(page.getByRole('link', { name: world.editorA.email })).toBeVisible()

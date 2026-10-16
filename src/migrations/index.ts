@@ -31,6 +31,7 @@ import * as migration_20261015_195334_privacy_settings from './20261015_195334_p
 import * as migration_20261015_200921_events from './20261015_200921_events';
 import * as migration_20261015_201730_events_block from './20261015_201730_events_block';
 import * as migration_20261016_083527_club_agreement from './20261016_083527_club_agreement';
+import * as migration_20261016_131627_contact_page from './20261016_131627_contact_page';
 
 export const migrations = [
   {
@@ -196,6 +197,11 @@ export const migrations = [
   {
     up: migration_20261016_083527_club_agreement.up,
     down: migration_20261016_083527_club_agreement.down,
-    name: '20261016_083527_club_agreement'
+    name: '20261016_083527_club_agreement',
+  },
+  {
+    up: migration_20261016_131627_contact_page.up,
+    down: migration_20261016_131627_contact_page.down,
+    name: '20261016_131627_contact_page'
   },
 ];

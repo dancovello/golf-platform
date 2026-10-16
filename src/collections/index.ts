@@ -5,6 +5,7 @@ import { ClubSettings } from './ClubSettings'
 import { Courses } from './Courses'
 import { CourseStatus } from './CourseStatus'
 import { Documents } from './Documents'
+import { Enquiries } from './Enquiries'
 import { Events } from './Events'
 import { Media } from './Media'
 import { News } from './News'
@@ -29,4 +30,5 @@ export const collections: CollectionConfig[] = [
   News,
   AgreementAcceptances,
   Events,
+  Enquiries,
 ]

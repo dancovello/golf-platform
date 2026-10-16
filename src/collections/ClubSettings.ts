@@ -10,6 +10,7 @@ import { isGAMeasurementID } from '../site/privacy/policy'
 import { checkSameClub } from '../site/sameClub'
 import { BRAND_INPUTS, type Brand, contrastProblems, DEFAULT_BRAND, isHex } from '../theme/colour'
 import { DEFAULT_FONT_SET, FONT_SETS } from '../theme/fontSets'
+import { ENQUIRY_PURPOSES } from './enquiryPurposes'
 
 const colourHelp: Record<keyof Brand, string> = {
   primary: 'Brand bands, headers and solid buttons.',
@@ -579,6 +580,142 @@ export const ClubSettings: CollectionConfig = {
                       ],
                     },
                     linkField({ name: 'link', label: 'Link (optional)', required: false }),
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'Contact page',
+          description:
+            'Your website has a Contact page at /contact. Messages are saved under Enquiries. The phone, email and address beside the form come from the Header and Footer tabs.',
+          fields: [
+            {
+              name: 'contact',
+              type: 'group',
+              label: false,
+              fields: [
+                {
+                  name: 'intro',
+                  label: 'Introduction',
+                  type: 'textarea',
+                  maxLength: 200,
+                  defaultValue:
+                    'Choose what it’s about and it goes straight to the right person. We reply within one working day.',
+                },
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'replyDays',
+                      label: 'Working days to reply',
+                      type: 'number',
+                      required: true,
+                      defaultValue: 1,
+                      min: 1,
+                      max: 10,
+                      admin: {
+                        description:
+                          'After sending, visitors are told the date they’ll hear back by (weekends skipped).',
+                      },
+                    },
+                    {
+                      name: 'officeHours',
+                      label: 'Office hours (optional)',
+                      type: 'text',
+                      maxLength: 80,
+                      admin: { description: 'e.g. Mon–Fri 8:00–17:00 · Sat 8:00–12:00' },
+                    },
+                  ],
+                },
+                {
+                  name: 'purposes',
+                  label: 'Who replies',
+                  type: 'array',
+                  maxRows: ENQUIRY_PURPOSES.length,
+                  labels: { singular: 'Topic', plural: 'Topics' },
+                  admin: {
+                    description:
+                      'Every topic is always on the form. Add a topic here to name who replies to it, and an optional button shown after sending.',
+                  },
+                  validate: (value: unknown) => {
+                    const purposes = Array.isArray(value)
+                      ? value.map((row) => (row as { purpose?: unknown }).purpose)
+                      : []
+                    return new Set(purposes).size === purposes.length
+                      ? true
+                      : 'Each topic can only be listed once.'
+                  },
+                  fields: [
+                    {
+                      type: 'row',
+                      fields: [
+                        {
+                          name: 'purpose',
+                          label: 'Topic',
+                          type: 'select',
+                          required: true,
+                          options: [...ENQUIRY_PURPOSES],
+                        },
+                        {
+                          name: 'replier',
+                          label: 'Who replies',
+                          type: 'text',
+                          maxLength: 80,
+                          admin: {
+                            description:
+                              'e.g. "Sarah Cole, our membership secretary". Blank: "Someone from the club".',
+                          },
+                        },
+                        {
+                          name: 'inbox',
+                          label: 'Inbox (for email alerts, coming later)',
+                          type: 'email',
+                        },
+                      ],
+                    },
+                    linkField({
+                      name: 'nextLink',
+                      label: 'Button after sending (optional)',
+                      required: false,
+                    }),
+                  ],
+                },
+                {
+                  name: 'membershipTypes',
+                  label: 'Membership types',
+                  type: 'array',
+                  maxRows: 12,
+                  labels: { singular: 'Membership type', plural: 'Membership types' },
+                  admin: {
+                    description:
+                      'The choices for "Membership type" on membership enquiries. Leave empty to let people type it.',
+                  },
+                  fields: [
+                    { name: 'label', label: 'Name', type: 'text', required: true, maxLength: 40 },
+                  ],
+                },
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'asideTitle',
+                      label: 'Side note heading',
+                      type: 'text',
+                      maxLength: 40,
+                      defaultValue: 'Tee times and lessons',
+                    },
+                    {
+                      name: 'asideText',
+                      label: 'Side note (optional)',
+                      type: 'textarea',
+                      maxLength: 160,
+                      admin: {
+                        description:
+                          'A short note under the contact details, with your booking button, e.g. "The pro shop is quickest for anything today: 01932 704 520, 7am–7pm." Blank hides it.',
+                      },
+                    },
                   ],
                 },
               ],

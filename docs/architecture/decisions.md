@@ -105,3 +105,11 @@ Dan's devops contact checked and approved the review items raised in PRs #18, #2
 - **Records are permanent evidence:** version, account and time are set by the server; nobody can edit or delete a record in the admin, and the website's `golf_app` database account can only add rows to that table.
 - **Draft wording, written by Claude Code from ICO guidance, awaiting Dan's solicitor.** The admin shows "Draft" until `AGREEMENT_APPROVED` is set. The provider's legal name, company number, address and contact email, and the liability clause, are left in square brackets.
 - **Before the first real club:** Dan to confirm he has accepted each supplier's own data processing terms (Vercel, Neon, Cloudflare, GitHub), which the agreement relies on, and to decide whether to move Vercel's function region from the default (Washington, D.C.) to London, next to the database.
+
+## 2026-10-16 — Contact page enquiries
+
+- **Saved in the CMS, emailed later** (Dan, 2026-10-16). Each club's Contact page saves messages to its own "Enquiries" list. Email alerts wait for the Resend or Postmark decision; Club Settings already has an inbox per topic for then.
+- **Only the website creates enquiries**, as trusted server code (`src/site/contact/submit.ts`). Nobody, including the super-admin, can add one through the admin or the API. Editors can mark them handled, add notes and delete them; what the visitor sent can't be changed.
+- **The club comes from the page address**, never from the form.
+- **Spam checks that keep nothing about the visitor:** a hidden box, a signed time check (sent less than 3 seconds after loading = bot; over a day old = expired), and 20 messages per club per hour. Bots caught by the first two see the normal "sent" screen. No IP addresses or other visitor details are stored.
+- **Before the first real club:** a security review of the form, and a clean-up job for messages older than the 12 months the privacy policy promises.

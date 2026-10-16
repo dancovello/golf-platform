@@ -312,7 +312,7 @@ export const loadClubBySlug = async (slug: string): Promise<ClubSite | null> => 
 }
 
 /** Slugs of the given pages, only if they belong to this club. */
-const clubPageSlugs = async (payload: Payload, tenantID: string, ids: (string | null)[]) => {
+export const clubPageSlugs = async (payload: Payload, tenantID: string, ids: (string | null)[]) => {
   const wanted = [...new Set(ids.filter((id): id is string => Boolean(id)))]
   if (wanted.length === 0) return new Map<string, string>()
   const { docs } = await payload.find({
