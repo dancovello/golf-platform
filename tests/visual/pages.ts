@@ -41,4 +41,5 @@ export const VISUAL_TEMPLATES = [
   { name: 'news-archive', path: 'news' },
   { name: 'news-article', path: 'news/hollow-tining-week-what-to-expect-on-the-greens' },
   { name: 'events-archive', path: 'events' },
+  { name: 'not-found', path: 'no-such-page' },
 ] as const
