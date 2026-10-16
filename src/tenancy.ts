@@ -13,6 +13,7 @@ export const clubOwnedCollections = {
   staff: {},
   courses: {},
   news: {},
+  'agreement-acceptances': {},
   events: {},
   // One record per club: the plugin's "global" mode. Never a real Payload global.
   'club-settings': { isGlobal: true },

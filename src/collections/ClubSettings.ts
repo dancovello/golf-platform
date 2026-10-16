@@ -1,8 +1,9 @@
 import type { CollectionBeforeValidateHook, CollectionConfig, Field, Validate } from 'payload'
-import { ValidationError } from 'payload'
+import { APIError, ValidationError } from 'payload'
 import { email as emailFormat, textarea as textareaRules } from 'payload/shared'
 
-import { loggedIn, superAdminOnly } from '../access/roles'
+import { isSuperAdmin, loggedIn, superAdminOnly } from '../access/roles'
+import { clubHasAccepted } from '../agreement/acceptance'
 import { privacyRichText } from '../blocks/richText/lexical'
 import { isSafeURL, linkField } from '../fields/link'
 import { isGAMeasurementID } from '../site/privacy/policy'
@@ -70,6 +71,31 @@ const neededOnSave =
       ? message
       : rules(value, options)
 
+/**
+ * A club's editors can't save its settings until the club has accepted the current data
+ * processing agreement (src/agreement). The public website isn't affected, and the
+ * super-admin can still set a club up before it has accepted.
+ */
+const requireAgreement: CollectionBeforeValidateHook = async ({
+  data,
+  operation,
+  originalDoc,
+  req,
+}) => {
+  if (operation !== 'update' || !req.user || isSuperAdmin(req.user)) return data
+  const tenant = originalDoc?.tenant
+  const tenantID = typeof tenant === 'object' && tenant ? String(tenant.id) : String(tenant ?? '')
+  if (!tenantID || !(await clubHasAccepted(req.payload, tenantID, req))) {
+    throw new APIError(
+      'Your club needs to accept the data processing agreement before these settings can be saved. Open “Data processing agreement” in the menu to read and accept it.',
+      403,
+      null,
+      true,
+    )
+  }
+  return data
+}
+
 // One record per club (src/tenancy.ts, plugin "global" mode). Never a real Payload global,
 // which would be shared by every club.
 export const ClubSettings: CollectionConfig = {
@@ -79,8 +105,13 @@ export const ClubSettings: CollectionConfig = {
   admin: { useAsTitle: 'clubName' },
   // Created and removed with the club by the super-admin; editors only update their own.
   access: { create: superAdminOnly, read: loggedIn, update: loggedIn, delete: superAdminOnly },
-  hooks: { beforeValidate: [checkBrandContrast, checkSameClub] },
+  hooks: { beforeValidate: [requireAgreement, checkBrandContrast, checkSameClub] },
   fields: [
+    {
+      name: 'agreementNotice',
+      type: 'ui',
+      admin: { components: { Field: '/admin/AgreementNotice#AgreementNotice' } },
+    },
     {
       type: 'tabs',
       tabs: [
