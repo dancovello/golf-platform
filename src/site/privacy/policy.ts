@@ -4,11 +4,13 @@
  * template changes every club at once.
  */
 
+import { turnstileSiteKey } from '../contact/turnstile'
+
 /** The platform company named as the clubs' processor. "Clubhouse" is a working name. */
 export const PLATFORM_NAME = 'Clubhouse'
 
 /** When the template last changed. Update it with every wording change: all clubs follow. */
-export const POLICY_LAST_UPDATED = '2026-10-15'
+export const POLICY_LAST_UPDATED = '2026-10-16'
 
 /** How long each kind of information is kept. One list, so it can become per-club later. */
 export const RETENTION = {
@@ -30,6 +32,8 @@ export type PolicyFeatures = {
   /** Stripe. Not built yet (out of scope for v1), so always off. */
   payments: boolean
   ga: boolean
+  /** Cloudflare's spam check on the Contact form (src/site/contact/turnstile.ts). */
+  spamCheck: boolean
 }
 
 /** Everything the policy says about one club, with the fallbacks already applied. */
@@ -95,6 +99,7 @@ export const policyFacts = (club: {
       bookings: false,
       payments: false,
       ga: isGAMeasurementID(p.gaMeasurementId),
+      spamCheck: turnstileSiteKey() !== null,
     },
   }
 }

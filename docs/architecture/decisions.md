@@ -146,3 +146,11 @@ Dan's devops contact checked and approved the review items raised in PRs #18, #2
 - **Who sees drafts:** the preview (`?live=1` on the page's address) shows the draft only to someone signed in with their two-factor code who is that club's editor, or the super-admin. Anyone else adding `?live=1`, including another club's editor, sees the published page.
 - **Version history stays inside each club:** an editor can list, open and restore only their own club's page versions, and deleting a page deletes its history.
 - **Not done:** a preview for Club Settings (the menu and footer). It would show the home page after each save; possible later if wanted.
+
+## 2026-10-16 — Contact form spam check: Cloudflare Turnstile
+
+- **Added** (Dan, 2026-10-16). Before, one sender with a script could use up a club's 20-messages-an-hour allowance and block real visitors. Turnstile is Cloudflare's free "are you a person?" check; most visitors never see it (it asks for a click only when unsure).
+- **On only when both keys are set** (`TURNSTILE_SITE_KEY`, public; `TURNSTILE_SECRET_KEY`, secret). Cloudflare's always-pass test keys work on staging and locally, never on production.
+- **Checked on the server after the fields**, so a form sent back for fixing keeps its check. The check must have been made for this form (`action` "contact"). The visitor's IP address isn't sent to Cloudflare.
+- **If Cloudflare can't be reached, the message isn't saved** and the visitor is asked to try again or phone or email: spam isn't let through. *Open to change if Dan prefers letting messages through during a Cloudflare outage.*
+- **Privacy:** the privacy policy's cookies section mentions it (no tracking, no consent needed), and Schedule 3 of the data processing agreement adds the spam check to Cloudflare's role, so the agreement version is now `2026-10-16b-draft` (clubs are asked to accept again).

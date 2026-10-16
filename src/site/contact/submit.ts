@@ -6,6 +6,7 @@ import { enquiryPurposeLabel } from '@/collections/enquiryPurposes'
 import { isExternal, siteHref } from '../components/links'
 import { loadClubBySlug } from '../loadClub'
 import { checkFormToken, issueFormToken } from './formToken'
+import { verifyTurnstile } from './turnstile'
 import { DEFAULT_REPLIER, loadContactSettings, type ContactSettings } from './load'
 import { newReference } from './reference'
 import { formatReplyDate, replyByDate, ukToday } from './replyBy'
@@ -22,6 +23,10 @@ import {
 export const HOURLY_LIMIT = 20
 
 const EXPIRED = 'This form has been open a long time. Please press Send message again.'
+const NOT_CHECKED =
+  'We couldn’t confirm this message came from a person. Please press Send message again.'
+const CHECK_UNAVAILABLE =
+  'We couldn’t send your message just now. Please try again in a minute, or phone or email us instead.'
 const BUSY =
   'We’re receiving a lot of messages right now. Please try again later, or phone or email us instead.'
 
@@ -59,6 +64,7 @@ const summary = (
  * none of which store anything about the visitor:
  * - a hidden "website" box only bots fill in;
  * - the signed time check (formToken.ts): too quick to be a person, or long expired;
+ * - Cloudflare's "are you a person?" check, when switched on (turnstile.ts);
  * - at most HOURLY_LIMIT messages per club per hour.
  * Bots caught by the first two are shown the normal "sent" screen, so they learn nothing.
  * Returns null for a club that doesn't exist. `onSaved` gets the new enquiry's ID (the page
@@ -107,6 +113,13 @@ export const submitEnquiry = async (
     today: ukToday(now),
   })
   if (Object.keys(errors).length > 0) return keep({ errors })
+
+  // Cloudflare's "are you a person?" check, when switched on (turnstile.ts). Checked after the
+  // fields: an answer works only once, so a form sent back for fixing keeps it for the next try.
+  // If Cloudflare can't be reached the message isn't saved, rather than letting spam through.
+  const person = await verifyTurnstile(form.get('turnstile'))
+  if (person === 'failed') return keep({ formError: NOT_CHECKED })
+  if (person === 'unavailable') return keep({ formError: CHECK_UNAVAILABLE })
 
   const payload = await getPayload({ config })
   const { totalDocs: lastHour } = await payload.count({

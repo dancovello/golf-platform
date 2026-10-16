@@ -199,6 +199,77 @@ describe('spam checks', () => {
   })
 })
 
+describe("Cloudflare's spam check, when it's switched on", () => {
+  // Stands in for Cloudflare, so the tests never use the internet.
+  const cloudflare = (answer: Record<string, unknown> | 'down') => {
+    vi.stubEnv('TURNSTILE_SITE_KEY', 'test-site-key')
+    vi.stubEnv('TURNSTILE_SECRET_KEY', 'test-only-not-a-real-secret')
+    const fetchMock = vi.fn(async () => {
+      if (answer === 'down') throw new Error('network down')
+      return Response.json(answer)
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    return fetchMock
+  }
+  afterEach(() => {
+    vi.unstubAllEnvs()
+    vi.unstubAllGlobals()
+  })
+  const withCheck = (token: string | null) => {
+    const data = form({ purpose: 'general', message: 'Is the bar open to visitors?' })
+    if (token !== null) data.set('turnstile', token)
+    return data
+  }
+
+  it('saves the message when Cloudflare confirms a person sent it', async () => {
+    const fetchMock = cloudflare({ success: true, action: 'contact' })
+    const before = (await savedIn(w.clubA.id)).length
+    expect((await send(withCheck('passed-token')))?.sent).not.toBeNull()
+    expect(await savedIn(w.clubA.id)).toHaveLength(before + 1)
+    const [, request] = fetchMock.mock.calls[0] as unknown as [string, RequestInit]
+    const body = JSON.parse(String(request.body))
+    // Only the secret and the answer: no visitor details are sent.
+    expect(Object.keys(body).sort()).toEqual(['response', 'secret'])
+  })
+
+  it('refuses a message without a check, a failed one or one made for another form', async () => {
+    const before = (await savedIn(w.clubA.id)).length
+    cloudflare({ success: true, action: 'contact' })
+    expect((await send(withCheck(null)))?.formError).toMatch(/came from a person/)
+    cloudflare({ success: false, 'error-codes': ['invalid-input-response'] })
+    expect((await send(withCheck('bad-token')))?.formError).toMatch(/came from a person/)
+    cloudflare({ success: true, action: 'login' })
+    expect((await send(withCheck('other-form')))?.formError).toMatch(/came from a person/)
+    expect(await savedIn(w.clubA.id)).toHaveLength(before)
+  })
+
+  it("accepts Cloudflare's test keys, except on production", async () => {
+    const testing = { success: true, metadata: { result_with_testing_key: true } }
+    cloudflare(testing)
+    expect((await send(withCheck('XXXX.DUMMY.TOKEN.XXXX')))?.sent).not.toBeNull()
+    vi.stubEnv('VERCEL_ENV', 'production')
+    expect((await send(withCheck('XXXX.DUMMY.TOKEN.XXXX')))?.formError).toMatch(
+      /came from a person/,
+    )
+  })
+
+  it("doesn't save the message if Cloudflare can't be reached, and says so", async () => {
+    const before = (await savedIn(w.clubA.id)).length
+    cloudflare('down')
+    expect((await send(withCheck('any-token')))?.formError).toMatch(/phone or email us/)
+    expect(await savedIn(w.clubA.id)).toHaveLength(before)
+  })
+
+  it('checks the fields first, so an answer is not spent on a form sent back for fixing', async () => {
+    const fetchMock = cloudflare({ success: true, action: 'contact' })
+    const data = withCheck('token')
+    data.set('email', 'not-an-email')
+    const result = await send(data)
+    expect(Object.keys(result?.errors ?? {})).toContain('email')
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+})
+
 describe('who can do what with enquiries', () => {
   const data = {
     reference: 'X',
