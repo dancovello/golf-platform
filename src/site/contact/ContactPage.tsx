@@ -6,6 +6,7 @@ import type { ClubSite } from '../loadClub'
 import { sendEnquiry } from './actions'
 import { ContactForm } from './ContactForm'
 import { issueFormToken } from './formToken'
+import { turnstileSiteKey } from './turnstile'
 import type { ContactSettings } from './load'
 import { ukToday } from './replyBy'
 import { EMPTY_VALUES } from './validate'
@@ -83,6 +84,7 @@ export const ContactPage = ({
             today={ukToday(new Date())}
             offerNewsletter={Boolean(club.privacy.newsletterProvider)}
             againHref={`${base}/contact`}
+            turnstileSiteKey={turnstileSiteKey()}
           />
           <aside className="ct-aside" aria-label="Other ways to reach us">
             {details.length > 0 ? (

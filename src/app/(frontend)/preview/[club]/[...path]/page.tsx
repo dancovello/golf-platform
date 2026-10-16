@@ -13,7 +13,7 @@ import { EventsArchive } from '@/site/events/EventsArchive'
 import { loadNewsPost, newsArchive } from '@/site/news'
 import { NewsArchive } from '@/site/news/NewsArchive'
 import { NewsPost } from '@/site/news/NewsPost'
-import { sitePreviewEnabled } from '@/site/preview'
+import { siteBase, sitePreviewEnabled } from '@/site/preview'
 import { ClubPrivacyPolicy, privacyPolicyTitle } from '@/site/privacy/ClubPrivacyPolicy'
 
 import { ClubShell } from '../ClubShell'
@@ -49,13 +49,13 @@ export default async function ClubPagePreview({
   if (path.length > 2 || (path.length === 2 && path[0] !== 'news')) notFound()
   const club = await loadClubBySlug(clubSlug)
   if (!club) notFound()
+  const base = siteBase(club.slug)
 
   // The privacy policy is a system page in this same route (not its own), so club pages and
   // the policy share one stylesheet bundle in one order. Checked before the club's pages, so
   // a CMS page with the address "privacy" can't replace it.
   if (path[0] === 'privacy') {
     if (path.length !== 1) notFound()
-    const base = `/preview/${club.slug}`
     return (
       <ClubShell club={club} currentPath={`${base}/privacy`}>
         <ClubPrivacyPolicy club={club} base={base} />
@@ -65,7 +65,6 @@ export default async function ClubPagePreview({
 
   // Contact is a template too: the enquiry form (src/site/contact).
   if (path[0] === 'contact' && path.length === 1) {
-    const base = `/preview/${club.slug}`
     const about = (await searchParams).about
     return (
       <ClubShell club={club} currentPath={`${base}/contact`}>
@@ -81,7 +80,6 @@ export default async function ClubPagePreview({
 
   // Events is a template too: /events, the upcoming events.
   if (path[0] === 'events' && path.length === 1) {
-    const base = `/preview/${club.slug}`
     const query = await searchParams
     const one = (v: string | string[] | undefined) => (typeof v === 'string' ? v : null)
     const archive = await eventsArchive(club.tenantID, {
@@ -97,7 +95,6 @@ export default async function ClubPagePreview({
 
   // News is a template, not a page: /news (the archive) and /news/<address> (an article).
   if (path[0] === 'news') {
-    const base = `/preview/${club.slug}`
     if (path.length === 2) {
       const post = await loadNewsPost(club.tenantID, path[1])
       if (!post) notFound()
@@ -121,13 +118,12 @@ export default async function ClubPagePreview({
     )
   }
 
-  if (path[0] === 'home') redirect(`/preview/${club.slug}`)
+  if (path[0] === 'home') redirect(base)
   // Inside the admin's live preview, the club's own editors see their latest draft.
   const live = (await searchParams).live === '1'
   const draft = await canSeeDrafts(club.tenantID, live ? '1' : null)
   const page = await loadClubPage(club.tenantID, path[0], { draft })
   if (!page) notFound()
-  const base = `/preview/${club.slug}`
   const startsWithHero = page.layout[0]?.blockType === 'hero'
 
   return (

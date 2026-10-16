@@ -6,7 +6,7 @@
  * again before its next settings save.
  */
 
-export const AGREEMENT_VERSION = '2026-10-16-draft'
+export const AGREEMENT_VERSION = '2026-10-16b-draft'
 
 /** False until a solicitor has approved the wording; the admin then shows a "draft" notice. */
 export const AGREEMENT_APPROVED = false
@@ -314,7 +314,7 @@ export const agreementText = (club: AgreementParty): AgreementSection[] => {
             ],
             [
               'Cloudflare, Inc.',
-              'Network security and delivery; storage of photos, documents and encrypted backups',
+              'Network security and delivery, including the spam check on contact forms; storage of photos, documents and encrypted backups',
               'Western Europe and the EU for storage; global network for delivery',
               'UK Extension to the EU–US Data Privacy Framework; UK Addendum to the EU Standard Contractual Clauses',
             ],

@@ -2,6 +2,7 @@ import type { Payload } from 'payload'
 
 import { demoPDF, portrait, scene, type SceneOptions } from './pictures'
 import { rt } from './richText'
+import { siteBase } from '../site/preview'
 
 /**
  * The demo club: a complete, fictional club ("Heathcote Golf Club", from the Figma file) for
@@ -1858,7 +1859,7 @@ export const buildDemoClub = async (payload: Payload) => {
     ),
   )
 
-  return { url: `/preview/${DEMO_SLUG}`, pages: pageTitles.length }
+  return { url: siteBase(DEMO_SLUG), pages: pageTitles.length }
 }
 
 const partnerList = [

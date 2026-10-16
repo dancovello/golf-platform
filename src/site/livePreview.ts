@@ -1,7 +1,7 @@
 import type { LivePreviewConfig, PayloadRequest } from 'payload'
 
-const idOf = (v: unknown) =>
-  typeof v === 'string' ? v : v && typeof v === 'object' && 'id' in v ? String(v.id) : null
+import { siteBase } from './preview'
+import { idOf } from '@/blocks/types'
 
 /** The address the admin's live preview panel loads: the club's page with `?live=1`, which
  * shows the latest draft to the club's own editors (src/app/(frontend)/preview/...). */
@@ -16,7 +16,7 @@ const pageURL = async (req: PayloadRequest, tenant: unknown, slug: string | null
   const proto =
     req.headers.get('x-forwarded-proto') ?? (host?.startsWith('localhost') ? 'http' : 'https')
   const path = slug && slug !== 'home' ? `/${slug}` : ''
-  return `${proto}://${host}/preview/${club.slug}${path}?live=1`
+  return `${proto}://${host}${siteBase(club.slug)}${path}?live=1`
 }
 
 // The sizes match the picture check (tests/visual/pages.ts).

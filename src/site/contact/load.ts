@@ -5,6 +5,7 @@ import { type EnquiryPurpose, isEnquiryPurpose } from '@/collections/enquiryPurp
 import { builtInLink, isSafeURL, linksToPage } from '@/fields/link'
 
 import { clubPageSlugs, type LabelledLink, type SiteLink } from '../loadClub'
+import { idOf } from '@/blocks/types'
 
 export const DEFAULT_INTRO =
   'Choose what it’s about and it goes straight to the right person. We reply within one working day.'
@@ -36,9 +37,6 @@ type RawContact = {
   asideTitle?: string | null
   asideText?: string | null
 }
-
-const idOf = (v: unknown) =>
-  typeof v === 'string' ? v : v && typeof v === 'object' && 'id' in v ? String(v.id) : null
 
 /** Club Settings → Contact page, read for the public site. Filtered by the club's own ID, and
  * linked pages are looked up again within the club (like src/site/loadClub.ts). */
