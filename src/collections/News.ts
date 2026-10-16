@@ -3,11 +3,9 @@ import type { CollectionBeforeValidateHook, CollectionConfig } from 'payload'
 import { loggedIn } from '../access/roles'
 import { imageField } from '../blocks/shared'
 import { clubRichText } from '../blocks/richText/lexical'
+import { SLUG, SLUG_MESSAGE, slugify } from '../fields/slug'
 import { checkNewsSameClub } from '../site/sameClub'
 import { NEWS_CATEGORIES } from './newsCategories'
-import { slugify } from './Tenants'
-
-const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
 /** A new article gets its web address from its title unless one is typed (at most 80 long). */
 const defaultSlug: CollectionBeforeValidateHook = ({ data }) => {
@@ -108,9 +106,7 @@ export const News: CollectionConfig = {
           'Filled in from the title. e.g. "hollow-tining-week" for /news/hollow-tining-week.',
       },
       validate: (value: unknown) =>
-        !value || (typeof value === 'string' && SLUG.test(value))
-          ? true
-          : 'Lower-case letters, numbers and dashes only.',
+        !value || (typeof value === 'string' && SLUG.test(value)) ? true : SLUG_MESSAGE,
     },
   ],
 }

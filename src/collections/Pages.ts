@@ -1,7 +1,16 @@
-import type { CollectionConfig, Validate, Where } from 'payload'
+import type {
+  CollectionBeforeValidateHook,
+  CollectionConfig,
+  TextFieldSingleValidation,
+  Where,
+  Validate,
+} from 'payload'
+import { text as textRules } from 'payload/shared'
 
 import { editorTenantID, isSuperAdmin, loggedIn } from '../access/roles'
 import { pageBlocks } from '../blocks'
+import { BUILT_IN_PAGES } from '../fields/link'
+import { SLUG, SLUG_MESSAGE, slugify } from '../fields/slug'
 import { pageLivePreview } from '../site/livePreview'
 import { checkPageSameClub } from '../site/sameClub'
 
@@ -23,6 +32,29 @@ const validParent: Validate = async (value, { id, req }) => {
     next = idOf(parent?.parent)
   }
   return true
+}
+
+/** Addresses of the pages every club's site already has (News, Events, Contact, Privacy). A
+ * page with one of these would never be shown: the built-in page always wins. */
+const RESERVED = new Set<string>(BUILT_IN_PAGES.map((p) => p.value))
+
+const validSlug: TextFieldSingleValidation = (value, args) => {
+  const basics = textRules(value, args) // required, length
+  if (basics !== true || !value) return basics
+  if (!SLUG.test(value)) return `${SLUG_MESSAGE} e.g. "green-fees".`
+  if (RESERVED.has(value)) {
+    return `"${value}" is already used by your site's own ${value} page. Choose another address.`
+  }
+  return true
+}
+
+/** When a page is first published without an address, it gets one from its title. Not while
+ * drafting: autosave would fix the address from the first few letters typed. */
+const defaultSlug: CollectionBeforeValidateHook = ({ data }) => {
+  if (data && !data.slug && data._status === 'published' && typeof data.title === 'string') {
+    data.slug = slugify(data.title).slice(0, 80).replace(/-+$/, '')
+  }
+  return data
 }
 
 // Club-owned (src/tenancy.ts). The multi-tenant plugin adds the required `tenant` field and
@@ -53,7 +85,7 @@ export const Pages: CollectionConfig = {
   },
   // A slug only has to be unique within one club, so two clubs can both have /membership.
   indexes: [{ fields: ['tenant', 'slug'], unique: true }],
-  hooks: { beforeValidate: [checkPageSameClub] },
+  hooks: { beforeValidate: [defaultSlug, checkPageSameClub] },
   fields: [
     { name: 'title', type: 'text', required: true },
     {
@@ -61,9 +93,11 @@ export const Pages: CollectionConfig = {
       type: 'text',
       required: true,
       index: true,
+      maxLength: 80,
+      validate: validSlug,
       admin: {
         description:
-          'The page address, e.g. "membership" for /membership. Use "home" for the home page.',
+          'The page address, e.g. "membership" for /membership. Use "home" for the home page. Left empty, it is made from the title when you publish.',
       },
     },
     {
