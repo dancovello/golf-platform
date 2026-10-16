@@ -7,6 +7,7 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import { allowAccountCreation } from '@/access/accountCreation'
 
 import { pdfFile, photoFile } from '../shared/media'
+import { rt } from '../shared/richText'
 import { enrolTwoFactor, PASSWORD, seedWorld } from '../int/helpers/seed'
 
 const w = await seedWorld()
@@ -189,6 +190,30 @@ await w.payload.create({
   } as never,
 })
 
+// Club A's events (tests/e2e/site-events.spec.ts). The browser tests run on 15 July 2026.
+for (const [i, category] of [
+  'social',
+  'dining',
+  'competition',
+  'social',
+  'academy',
+  'dining',
+  'social',
+  'competition',
+].entries()) {
+  await w.payload.create({
+    collection: 'events',
+    data: {
+      title: `Event ${i + 1}`,
+      category,
+      status: 'published',
+      booking: 'book',
+      startsAt: new Date(Date.UTC(2026, 7 + Math.floor(i / 3), 3 + i, 18)).toISOString(),
+      tenant: w.clubA.id,
+    } as never,
+  })
+}
+
 // Club A's header and menu, for the public site tests (tests/e2e/site-header.spec.ts).
 await w.payload.update({
   collection: 'club-settings',
@@ -288,6 +313,7 @@ for (const style of ['classic', 'transparent', 'appBar'] as const) {
     data: {
       clubName: 'Saltmarsh Links',
       branding: { fontSet: 'editorial', strapline: 'Links · 1891' },
+      footer: { email: 'office@saltmarsh.example', address: '1 Links Road\nSaltmarsh\nSA1 1LT' },
       header: {
         style,
         phone: '01932 704 500',
@@ -297,6 +323,115 @@ for (const style of ['classic', 'transparent', 'appBar'] as const) {
     },
   })
 }
+
+// A club using every privacy option, for tests/e2e/site-privacy.spec.ts. Its own club, so the
+// cookie banner never sits over what other tests click.
+const cookieClub = await w.payload.create({
+  collection: 'tenants',
+  data: { name: 'Test Club Cookies', slug: 'test-club-cookies' },
+})
+const { docs: cookieSettings } = await w.payload.find({
+  collection: 'club-settings',
+  where: { tenant: { equals: cookieClub.id } },
+})
+await w.payload.update({
+  collection: 'club-settings',
+  id: cookieSettings[0]!.id,
+  data: {
+    footer: { email: 'office@cookies.example', address: '1 Fairway Road\nTesttown\nTE1 1ST' },
+    privacy: {
+      legalName: 'Test Club Cookies Limited',
+      email: 'privacy@cookies.example',
+      newsletterProvider: 'Mailchimp',
+      gaMeasurementId: 'G-TEST12345',
+      additionalInfo: {
+        root: {
+          type: 'root',
+          format: '',
+          indent: 0,
+          version: 1,
+          direction: 'ltr',
+          children: [
+            {
+              type: 'paragraph',
+              format: '',
+              indent: 0,
+              version: 1,
+              direction: 'ltr',
+              textFormat: 0,
+              children: [
+                {
+                  type: 'text',
+                  text: 'We use CCTV in the car park.',
+                  format: 0,
+                  detail: 0,
+                  mode: 'normal',
+                  style: '',
+                  version: 1,
+                },
+              ],
+            },
+          ],
+        },
+      },
+    },
+  } as never,
+  overrideAccess: true,
+})
+
+// Club A's news: nine live articles (tests/e2e/site-news.spec.ts). The browser tests pin
+// "today" to 15 July 2026,
+// so the seeded "Club A news" (dated today) is still in the future there and stays hidden.
+const newsPhoto = await w.payload.create({
+  collection: 'media',
+  data: { alt: 'Greenkeeper hollow tining the 18th green', tenant: w.clubA.id },
+  file: await photoFile('tining.jpg', 1600, 900),
+})
+const articles: [string, string, string][] = [
+  ['Hollow tining week', 'course', '2026-07-14'],
+  ['Club championship results', 'competitions', '2026-07-12'],
+  ['New bar menu', 'clubhouse', '2026-07-10'],
+  ['Junior open day', 'academy', '2026-07-08'],
+  ['Summer fourball', 'competitions', '2026-07-06'],
+  ['Bunker renovation update', 'course', '2026-07-04'],
+  ['Welcome to our new members', 'membership', '2026-07-02'],
+  ['Greenkeeping team grows', 'club', '2026-06-30'],
+  ['Spring meeting report', 'club', '2026-06-28'],
+]
+for (const [title, category, date] of articles) {
+  await w.payload.create({
+    collection: 'news',
+    data: {
+      title,
+      category,
+      status: 'published',
+      publishedAt: `${date}T12:00:00.000Z`,
+      excerpt: `${title}: the latest from the club.`,
+      author: title === 'Hollow tining week' ? 'Owen Pryce, Course Manager' : undefined,
+      image: title === 'Hollow tining week' ? newsPhoto.id : undefined,
+      imageCaption: title === 'Hollow tining week' ? 'The 18th green, Monday morning' : undefined,
+      body:
+        title === 'Hollow tining week'
+          ? rt.doc(
+              rt.p('The greens will be hollow tined from Monday. Temporary greens are in play.'),
+              rt.h2('What to expect'),
+              rt.ul('Slower greens for about two weeks', 'Preferred lies through the green'),
+            )
+          : undefined,
+      tenant: w.clubA.id,
+    } as never,
+  })
+}
+await w.payload.create({
+  collection: 'news',
+  data: {
+    title: 'Unfinished draft',
+    category: 'club',
+    status: 'draft',
+    publishedAt: '2026-07-13T12:00:00.000Z',
+    tenant: w.clubA.id,
+  } as never,
+})
 
 mkdirSync('tests/e2e/.state', { recursive: true })
 writeFileSync(

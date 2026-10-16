@@ -12,12 +12,13 @@ export function proxy(request: NextRequest) {
   }
 
   // payload-totp needs the requested path to decide where to send someone mid-login
-  // (set up or enter a code). Without it the admin redirects in a loop.
+  // (set up or enter a code). Without it the admin redirects in a loop. Club sites use it too:
+  // their "page not found" screen reads it to know which club's page was missing.
   const headers = new Headers(request.headers)
   headers.set('x-pathname', pathname)
   return NextResponse.next({ request: { headers } })
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/admin/:path*', '/preview/:path*'],
 }

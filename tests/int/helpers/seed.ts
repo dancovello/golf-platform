@@ -9,7 +9,9 @@ import type {
   Course,
   CourseStatus,
   Document,
+  Event,
   Media,
+  News,
   Page,
   Staff,
   Tenant,
@@ -56,11 +58,15 @@ export type World = {
   courseB: Course
   statusA: CourseStatus
   statusB: CourseStatus
+  newsA: News
+  newsB: News
+  eventA: Event
+  eventB: Event
 }
 
-/** Refuses to run against anything but the golf_test database. */
+/** Refuses to run against anything but the golf_test database (or a golf_test_<name> copy). */
 export const assertTestDatabase = () => {
-  if (!/\/golf_test(\?|$)/.test(process.env.DATABASE_URL ?? '')) {
+  if (!/\/golf_test(_[a-z0-9]+)?(\?|$)/.test(process.env.DATABASE_URL ?? '')) {
     throw new Error('Integration tests must run against the golf_test database')
   }
 }
@@ -77,6 +83,8 @@ export const resetDatabase = async (payload: Payload) => {
   await payload.delete({ collection: 'documents', where: all })
   await payload.delete({ collection: 'staff', where: all })
   await payload.delete({ collection: 'courses', where: all })
+  await payload.delete({ collection: 'news', where: all })
+  await payload.delete({ collection: 'events', where: all })
   await payload.delete({ collection: 'club-settings', where: all })
   await payload.delete({ collection: 'course-status', where: all })
   await payload.delete({ collection: 'payload-preferences', where: all })
@@ -100,6 +108,8 @@ export const withoutCode = (user: LoggedInUser): LoggedInUser => {
   const { _strategy: _ignored, ...rest } = user as LoggedInUser & { _strategy?: string }
   return { ...rest, _strategy: 'local-jwt' } as LoggedInUser
 }
+
+const slugOf = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
 
 const createEditor = async (payload: Payload, email: string, tenant: string) => {
   const created = await payload.create({
@@ -128,10 +138,22 @@ export const seedWorld = async (): Promise<World> => {
   // Both clubs have a page with the same slug: slugs are unique per club, not globally.
   const page = (title: string, tenant: string) =>
     payload.create({ collection: 'pages', data: { title, slug: 'membership', tenant } })
-  // Created automatically with each club (src/collections/Tenants.ts).
-  const settings = async (_clubName: string, tenant: string) =>
-    (await payload.find({ collection: 'club-settings', where: { tenant: { equals: tenant } } }))
-      .docs[0]
+  // Created automatically with each club (src/collections/Tenants.ts), then given the email
+  // and address every save needs (the privacy policy uses them).
+  const settings = async (clubName: string, tenant: string) => {
+    const { docs } = await payload.find({
+      collection: 'club-settings',
+      where: { tenant: { equals: tenant } },
+    })
+    return payload.update({
+      collection: 'club-settings',
+      id: docs[0]!.id,
+      data: {
+        footer: { email: `office@${slugOf(clubName)}.example`, address: `${clubName}\nTest Lane` },
+      },
+      overrideAccess: true,
+    })
+  }
 
   const status = async (tenant: string) =>
     (await payload.find({ collection: 'course-status', where: { tenant: { equals: tenant } } }))
@@ -178,8 +200,46 @@ export const seedWorld = async (): Promise<World> => {
     // Created automatically with each club, like Club Settings.
     statusA: await status(clubA.id),
     statusB: await status(clubB.id),
+    // Same address in both clubs: addresses are unique per club, not globally.
+    newsA: await payload.create({
+      collection: 'news',
+      data: {
+        title: 'Club A news',
+        publishedAt: new Date().toISOString(),
+        status: 'published',
+        category: 'club',
+        tenant: clubA.id,
+      },
+    }),
+    newsB: await payload.create({
+      collection: 'news',
+      data: {
+        title: 'Club B news',
+        publishedAt: new Date().toISOString(),
+        slug: 'club-a-news',
+        status: 'published',
+        category: 'club',
+        tenant: clubB.id,
+      },
+    }),
+    eventA: await event(payload, 'Club A dinner', clubA.id),
+    eventB: await event(payload, 'Club B dinner', clubB.id),
   }
 }
+
+/** A published event a week from now. */
+export const event = (payload: Payload, title: string, tenant: string, days = 7) =>
+  payload.create({
+    collection: 'events',
+    data: {
+      title,
+      tenant,
+      status: 'published',
+      category: 'dining',
+      booking: 'book',
+      startsAt: new Date(Date.now() + days * 86_400_000).toISOString(),
+    },
+  })
 
 /** A 9-hole course with one tee. */
 export const course = (payload: Payload, name: string, tenant: string) =>

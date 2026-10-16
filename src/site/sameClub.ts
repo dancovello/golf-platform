@@ -2,6 +2,7 @@ import type { CollectionBeforeValidateHook } from 'payload'
 import { ValidationError } from 'payload'
 
 import { layoutRefs } from '../blocks'
+import { richTextRefs } from '../blocks/richText/lexical'
 import { type BlockRef as Ref, idOf } from '../blocks/types'
 
 /** Every page and photo a club's settings point at, with where it was found. */
@@ -47,6 +48,8 @@ const settingsRefs = (data: Record<string, unknown>): Ref[] => {
   announcement.items?.forEach((item, k) =>
     page(item.link?.page, `announcement.items.${k}.link.page`),
   )
+  const privacy = (data.privacy ?? {}) as { additionalInfo?: unknown }
+  refs.push(...richTextRefs(privacy.additionalInfo, 'privacy.additionalInfo'))
   return refs
 }
 
@@ -118,3 +121,23 @@ export const checkCourseSameClub = sameClubCheck((data) =>
     },
   ),
 )
+
+/** News: the main photo, and the photos and pages in the article. */
+export const checkNewsSameClub = sameClubCheck((data) => {
+  const id = idOf(data.image)
+  return [
+    ...(id ? [{ collection: 'media' as const, id, path: 'image' }] : []),
+    ...richTextRefs(data.body, 'body'),
+  ]
+})
+
+/** Events: the photo, and the page the button goes to. */
+export const checkEventSameClub = sameClubCheck((data) => {
+  const refs: Ref[] = []
+  const image = idOf(data.image)
+  if (image) refs.push({ collection: 'media', id: image, path: 'image' })
+  const link = (data.link ?? {}) as { type?: string; page?: unknown }
+  const page = link.type === 'url' ? null : idOf(link.page)
+  if (page) refs.push({ collection: 'pages', id: page, path: 'link.page' })
+  return refs
+})

@@ -76,6 +76,8 @@ export interface Config {
     staff: Staff;
     courses: Course;
     'course-status': CourseStatus;
+    news: News;
+    events: Event;
     'totp-attempts': TotpAttempt;
     'payload-kv': PayloadKv;
     'payload-preferences': PayloadPreference;
@@ -92,6 +94,8 @@ export interface Config {
     staff: StaffSelect<false> | StaffSelect<true>;
     courses: CoursesSelect<false> | CoursesSelect<true>;
     'course-status': CourseStatusSelect<false> | CourseStatusSelect<true>;
+    news: NewsSelect<false> | NewsSelect<true>;
+    events: EventsSelect<false> | EventsSelect<true>;
     'totp-attempts': TotpAttemptsSelect<false> | TotpAttemptsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -206,6 +210,8 @@ export interface Page {
         | HoleGridBlock
         | ScorecardBlock
         | CourseStatusBlock
+        | NewsFeedBlock
+        | EventsFeedBlock
       )[]
     | null;
   updatedAt: string;
@@ -1036,6 +1042,39 @@ export interface CourseStatusBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "NewsFeedBlock".
+ */
+export interface NewsFeedBlock {
+  style: 'carousel' | 'leadList' | 'headlines';
+  eyebrow?: string | null;
+  heading: string;
+  /**
+   * Leave empty for all news.
+   */
+  category?: ('course' | 'competitions' | 'clubhouse' | 'membership' | 'academy' | 'club') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'newsFeed';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EventsFeedBlock".
+ */
+export interface EventsFeedBlock {
+  style: 'carousel' | 'agenda' | 'featured';
+  eyebrow?: string | null;
+  heading: string;
+  intro?: string | null;
+  /**
+   * Leave empty for all events.
+   */
+  category?: ('social' | 'dining' | 'competition' | 'academy' | 'members') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'eventsFeed';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "club-settings".
  */
 export interface ClubSetting {
@@ -1187,11 +1226,17 @@ export interface ClubSetting {
        */
       url?: string | null;
     };
+    /**
+     * Shown in the footer and the privacy policy. Required.
+     */
     email?: string | null;
     /**
      * e.g. a Google Maps link. Optional.
      */
     directions?: string | null;
+    /**
+     * Shown in the footer and the privacy policy. Required.
+     */
     address?: string | null;
     /**
      * Shown in style C.
@@ -1213,7 +1258,7 @@ export interface ClubSetting {
       url?: string | null;
     };
     /**
-     * e.g. Privacy, Terms, Accessibility.
+     * e.g. Terms, Accessibility. The privacy policy link is added for you, and “Cookie settings” too if you use Google Analytics.
      */
     legalLinks?:
       | {
@@ -1264,6 +1309,42 @@ export interface ClubSetting {
           id?: string | null;
         }[]
       | null;
+  };
+  privacy?: {
+    /**
+     * The club’s registered name if it differs from the name above, e.g. "Example Golf Club Limited". Leave blank to use the club name.
+     */
+    legalName?: string | null;
+    /**
+     * Where people send requests about their personal information. Leave blank to use the footer email.
+     */
+    email?: string | null;
+    /**
+     * If you send a newsletter, the service you use, e.g. "Mailchimp". Filling this in adds a newsletter section to the policy.
+     */
+    newsletterProvider?: string | null;
+    /**
+     * Starts with G-, e.g. G-AB12CD34EF. Filling this in adds a cookie banner, and Google Analytics only runs for visitors who accept it.
+     */
+    gaMeasurementId?: string | null;
+    /**
+     * Anything extra the club needs to tell people, e.g. CCTV in the car park. Shown as its own section near the end of the policy. Leave blank to leave the section out.
+     */
+    additionalInfo?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
   };
   /**
    * Used by the Map block. The address, phone, email and opening hours come from the Footer tab and the header phone.
@@ -1321,6 +1402,105 @@ export interface CourseStatus {
    * e.g. "the Course Manager". Shown beside the time.
    */
   changedBy?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "news".
+ */
+export interface News {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  title: string;
+  status: 'draft' | 'published';
+  /**
+   * Shown on the article. A future date keeps it hidden until then.
+   */
+  publishedAt: string;
+  category: 'course' | 'competitions' | 'clubhouse' | 'membership' | 'academy' | 'club';
+  /**
+   * One or two sentences, shown on cards and under the title.
+   */
+  excerpt?: string | null;
+  image?: (string | null) | Media;
+  imageCaption?: string | null;
+  /**
+   * e.g. "Owen Pryce, Course Manager"
+   */
+  author?: string | null;
+  body?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Filled in from the title. e.g. "hollow-tining-week" for /news/hollow-tining-week.
+   */
+  slug?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events".
+ */
+export interface Event {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  title: string;
+  status: 'draft' | 'published';
+  /**
+   * UK time. The event leaves the website once it has started.
+   */
+  startsAt: string;
+  category: 'social' | 'dining' | 'competition' | 'academy' | 'members';
+  /**
+   * e.g. "Clubhouse" or "Championship course"
+   */
+  venue?: string | null;
+  /**
+   * e.g. "shotgun". Shown after the time.
+   */
+  timeNote?: string | null;
+  /**
+   * One or two sentences, shown when the event is featured.
+   */
+  summary?: string | null;
+  image?: (string | null) | Media;
+  /**
+   * e.g. "£45" or "£20 entry"
+   */
+  price?: string | null;
+  /**
+   * e.g. "£38"
+   */
+  memberPrice?: string | null;
+  booking: 'book' | 'enquire' | 'soldOut';
+  capacity?: number | null;
+  /**
+   * Shown as "14 of 60 places left" when the event is featured.
+   */
+  placesLeft?: number | null;
+  link?: {
+    type?: ('page' | 'url') | null;
+    page?: (string | null) | Page;
+    /**
+     * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+     */
+    url?: string | null;
+  };
+  featured?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1449,6 +1629,8 @@ export interface PagesSelect<T extends boolean = true> {
         holeGrid?: T | HoleGridBlockSelect<T>;
         scorecard?: T | ScorecardBlockSelect<T>;
         courseStatus?: T | CourseStatusBlockSelect<T>;
+        newsFeed?: T | NewsFeedBlockSelect<T>;
+        eventsFeed?: T | EventsFeedBlockSelect<T>;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -1920,6 +2102,31 @@ export interface CourseStatusBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "NewsFeedBlock_select".
+ */
+export interface NewsFeedBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  category?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EventsFeedBlock_select".
+ */
+export interface EventsFeedBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  intro?: T;
+  category?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "club-settings_select".
  */
 export interface ClubSettingsSelect<T extends boolean = true> {
@@ -2078,6 +2285,15 @@ export interface ClubSettingsSelect<T extends boolean = true> {
                   };
               id?: T;
             };
+      };
+  privacy?:
+    | T
+    | {
+        legalName?: T;
+        email?: T;
+        newsletterProvider?: T;
+        gaMeasurementId?: T;
+        additionalInfo?: T;
       };
   location?:
     | T
@@ -2244,6 +2460,55 @@ export interface CourseStatusSelect<T extends boolean = true> {
         id?: T;
       };
   changedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "news_select".
+ */
+export interface NewsSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  status?: T;
+  publishedAt?: T;
+  category?: T;
+  excerpt?: T;
+  image?: T;
+  imageCaption?: T;
+  author?: T;
+  body?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events_select".
+ */
+export interface EventsSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  status?: T;
+  startsAt?: T;
+  category?: T;
+  venue?: T;
+  timeNote?: T;
+  summary?: T;
+  image?: T;
+  price?: T;
+  memberPrice?: T;
+  booking?: T;
+  capacity?: T;
+  placesLeft?: T;
+  link?:
+    | T
+    | {
+        type?: T;
+        page?: T;
+        url?: T;
+      };
+  featured?: T;
   updatedAt?: T;
   createdAt?: T;
 }
