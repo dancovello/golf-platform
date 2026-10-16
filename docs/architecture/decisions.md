@@ -146,3 +146,9 @@ Dan's devops contact checked and approved the review items raised in PRs #18, #2
 - **Who sees drafts:** the preview (`?live=1` on the page's address) shows the draft only to someone signed in with their two-factor code who is that club's editor, or the super-admin. Anyone else adding `?live=1`, including another club's editor, sees the published page.
 - **Version history stays inside each club:** an editor can list, open and restore only their own club's page versions, and deleting a page deletes its history.
 - **Not done:** a preview for Club Settings (the menu and footer). It would show the home page after each save; possible later if wanted.
+
+## 2026-10-16 — Page addresses and the Clubs list
+
+- **Page addresses follow the same rule as news and club addresses:** lower-case letters, numbers and single dashes, up to 80 characters (`src/fields/slug.ts`, now shared by all three). Left empty, a page's address is made from its title when it is first published; not while drafting, so autosave can't fix it from the first few letters.
+- **The addresses of the built-in pages (news, events, contact, privacy) are refused for pages**, because the built-in page always wins and the club's page would never be seen.
+- **The Clubs list shows every club to the super-admin**, whichever club is picked in the club selector (the multi-tenant plugin's `useTenantsListFilter: false`). It used to show only the picked club, so the demo club looked as if it had vanished.
