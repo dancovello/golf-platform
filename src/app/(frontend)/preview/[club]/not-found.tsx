@@ -2,7 +2,7 @@ import { headers } from 'next/headers'
 
 import { PageNotFound } from '@/site/components/PageNotFound'
 import { loadClubBySlug } from '@/site/loadClub'
-import { sitePreviewEnabled } from '@/site/preview'
+import { siteBase, sitePreviewEnabled } from '@/site/preview'
 
 import { ClubShell } from './ClubShell'
 
@@ -22,7 +22,7 @@ export default async function ClubNotFound() {
       </main>
     )
   }
-  const base = `/preview/${club.slug}`
+  const base = siteBase(club.slug)
   return (
     <ClubShell club={club} currentPath={path}>
       <PageNotFound club={club} base={base} />

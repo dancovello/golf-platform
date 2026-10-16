@@ -18,6 +18,7 @@ import {
   validateContact,
   valuesFromForm,
 } from './validate'
+import { siteBase } from '../preview'
 
 /** Most messages one club takes in an hour, so a flood of junk can't bury real ones. */
 export const HOURLY_LIMIT = 20
@@ -80,7 +81,7 @@ export const submitEnquiry = async (
   const club = await loadClubBySlug(clubSlug)
   if (!club) return null
   const settings = await loadContactSettings(club.tenantID)
-  const base = `/preview/${club.slug}`
+  const base = siteBase(club.slug)
   const attempt = prev.attempt + 1
   const values = valuesFromForm(form)
   // The form's "shown at" time for the next attempt. Kept when it checks out, so someone fixing

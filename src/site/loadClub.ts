@@ -1,7 +1,8 @@
 import config from '@payload-config'
 import { getPayload, type Payload } from 'payload'
+import { cache } from 'react'
 
-import type { Page } from '@/payload-types'
+import type { ClubSetting, Page } from '@/payload-types'
 
 import {
   STATUS_STALE_HOURS,
@@ -16,6 +17,7 @@ import { DEFAULT_FONT_SET, type FontSetID, isFontSetID } from '@/theme/fontSets'
 import { isGAMeasurementID, type PrivacySettings } from './privacy/policy'
 import { PUBLISHED } from './published'
 import { siteToday } from './today'
+import { idOf } from '@/blocks/types'
 
 /** A link on the public site: one of the club's pages (by slug) or a checked web address. */
 export type SiteLink = { kind: 'page'; slug: string } | { kind: 'url'; href: string }
@@ -79,6 +81,23 @@ export type ClubSite = {
   privacy: PrivacySettings
 }
 
+/**
+ * Club Settings as saved, from Payload's generated types, with every value treated as possibly
+ * missing: settings saved before a field existed don't have it. Built from the generated type
+ * (not written out by hand) so renaming a field shows up here as a type error.
+ */
+type Loose<T> = T extends (infer U)[]
+  ? Loose<U>[]
+  : T extends Record<string, unknown>
+    ? { [K in keyof T]?: Loose<T[K]> | null }
+    : T | null
+type RawSettings = Loose<
+  Pick<
+    ClubSetting,
+    'clubName' | 'branding' | 'header' | 'footer' | 'announcement' | 'location' | 'privacy'
+  >
+>
+/** Any link field (src/fields/link.ts). */
 type RawLink = {
   label?: string | null
   type?: string | null
@@ -86,81 +105,6 @@ type RawLink = {
   url?: string | null
   builtIn?: unknown
 }
-type RawSettings = {
-  clubName?: string | null
-  branding?: Partial<Brand> & {
-    fontSet?: unknown
-    logoOnLight?: unknown
-    logoOnDark?: unknown
-    strapline?: string | null
-  }
-  header?: {
-    style?: string | null
-    booking?: RawLink | null
-    phone?: string | null
-    menu?:
-      | {
-          label?: string | null
-          kind?: string | null
-          link?: RawLink | null
-          page?: unknown
-          includeParent?: boolean | null
-          extraLinks?: { link?: RawLink | null }[] | null
-          groups?: { heading?: string | null; links?: { link?: RawLink | null }[] | null }[] | null
-        }[]
-      | null
-  }
-  footer?: {
-    style?: string | null
-    about?: string | null
-    linkColumns?:
-      | {
-          heading?: string | null
-          source?: string | null
-          page?: unknown
-          links?: { link?: RawLink | null }[] | null
-        }[]
-      | null
-    hours?: { place?: string | null; times?: string | null }[] | null
-    hoursLink?: RawLink | null
-    email?: string | null
-    address?: string | null
-    directions?: string | null
-    social?: { network?: string | null; url?: string | null }[] | null
-    secondaryButton?: RawLink | null
-    legalLinks?: { link?: RawLink | null }[] | null
-  }
-  announcement?: {
-    style?: string | null
-    tone?: string | null
-    showStatus?: boolean | null
-    items?:
-      | {
-          message?: string | null
-          tag?: string | null
-          startsAt?: string | null
-          expiresAt?: string | null
-          link?: RawLink | null
-        }[]
-      | null
-  }
-  location?: {
-    latitude?: number | null
-    longitude?: number | null
-    mapLabel?: string | null
-    what3words?: string | null
-  }
-  privacy?: {
-    legalName?: string | null
-    email?: string | null
-    newsletterProvider?: string | null
-    gaMeasurementId?: string | null
-    additionalInfo?: unknown
-  }
-}
-
-const idOf = (v: unknown) =>
-  typeof v === 'string' ? v : v && typeof v === 'object' && 'id' in v ? String(v.id) : null
 
 const HEADER_STYLES: HeaderStyle[] = ['classic', 'transparent', 'appBar']
 const FOOTER_STYLES: FooterStyle[] = ['brandColumns', 'lightColumns', 'editorial']
@@ -171,8 +115,11 @@ const SOCIAL = ['instagram', 'facebook', 'x', 'youtube', 'linkedin', 'tiktok']
  * can't scope this: every query filters by the club's own ID explicitly and returns only the
  * fields the site shows. Linked pages and photos are looked up again within the club, so a
  * stray reference to another club's content is dropped, never shown.
+ *
+ * Loaded once per page view however many parts of the page ask for it (React `cache`: the
+ * page title and the page itself both need the club).
  */
-export const loadClubBySlug = async (slug: string): Promise<ClubSite | null> => {
+export const loadClubBySlug = cache(async (slug: string): Promise<ClubSite | null> => {
   const payload = await getPayload({ config })
   const { docs: tenants } = await payload.find({
     collection: 'tenants',
@@ -220,16 +167,19 @@ export const loadClubBySlug = async (slug: string): Promise<ClubSite | null> => 
     ...(f.legalLinks ?? []).map((l) => l.link ?? {}),
     ...(s.announcement?.items ?? []).map((i) => i.link ?? {}),
   ]
-  const pageSlugs = await clubPageSlugs(
-    payload,
-    tenantID,
-    rawLinks.map((l) => (linksToPage(l.type) ? idOf(l.page) : null)),
-  )
-  const images = await clubImages(payload, tenantID, [idOf(b.logoOnLight), idOf(b.logoOnDark)])
-  // Menu items and footer columns that list a page's child pages.
-  const family = await clubPageFamilies(payload, tenantID, [
-    ...(h.menu ?? []).map((m) => (m.kind === 'children' ? idOf(m.page) : null)),
-    ...(f.linkColumns ?? []).map((c) => (c.source === 'children' ? idOf(c.page) : null)),
+  // These don't depend on each other, so they're looked up at the same time.
+  const [pageSlugs, images, family] = await Promise.all([
+    clubPageSlugs(
+      payload,
+      tenantID,
+      rawLinks.map((l) => (linksToPage(l.type) ? idOf(l.page) : null)),
+    ),
+    clubImages(payload, tenantID, [idOf(b.logoOnLight), idOf(b.logoOnDark)]),
+    // Menu items and footer columns that list a page's child pages.
+    clubPageFamilies(payload, tenantID, [
+      ...(h.menu ?? []).map((m) => (m.kind === 'children' ? idOf(m.page) : null)),
+      ...(f.linkColumns ?? []).map((c) => (c.source === 'children' ? idOf(c.page) : null)),
+    ]),
   ])
 
   const toLink = (raw: RawLink | null | undefined): SiteLink | null => {
@@ -351,7 +301,7 @@ export const loadClubBySlug = async (slug: string): Promise<ClubSite | null> => 
       additionalInfo: s.privacy?.additionalInfo ?? null,
     },
   }
-}
+})
 
 /** Slugs of the given pages, only if they belong to this club. */
 export const clubPageSlugs = async (payload: Payload, tenantID: string, ids: (string | null)[]) => {
@@ -443,9 +393,8 @@ const clubImages = async (payload: Payload, tenantID: string, ids: (string | nul
   )
 }
 
-/** One of the club's pages by its address, with its blocks ready to draw, or null. */
-/** One of the club's pages. `draft` (the live preview only, for the club's own editors)
- * shows the latest draft instead of the published page. */
+/** One of the club's pages by its address, with its blocks ready to draw, or null. `draft`
+ * (the live preview only, for the club's own editors) shows the latest draft instead. */
 export const loadClubPage = async (
   tenantID: string,
   slug: string,

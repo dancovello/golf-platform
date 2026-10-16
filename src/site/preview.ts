@@ -5,3 +5,7 @@
  */
 export const sitePreviewEnabled = (): boolean =>
   process.env.SITE_PREVIEW === 'on' && process.env.VERCEL_ENV !== 'production'
+
+/** Where a club's site starts, e.g. "/preview/heathcote". The one place to change when clubs
+ * move to their own domains in build step 4 (the address then becomes ""). */
+export const siteBase = (clubSlug: string) => `/preview/${clubSlug}`

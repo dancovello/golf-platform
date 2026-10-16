@@ -16,6 +16,7 @@ import '@/site/components/announcement.css'
 import '@/site/privacy/cookieConsent.css'
 import '@/site/privacy/privacy.css'
 import './preview.css'
+import { siteBase } from '@/site/preview'
 
 /** A club's page frame on staging: its colours and fonts, header, page content and footer. */
 export const ClubShell = ({
@@ -34,7 +35,7 @@ export const ClubShell = ({
     ...brandCSSVariables(club.brand),
     ...fontSetVariables(club.fontSet),
   } as CSSProperties
-  const base = `/preview/${club.slug}`
+  const base = siteBase(club.slug)
   return (
     <div className="club-theme pv" style={theme}>
       {club.announcement ? <AnnouncementBar data={club.announcement} base={base} /> : null}

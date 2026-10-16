@@ -17,3 +17,13 @@ test('an unknown club is "not found"', async ({ page }) => {
   const response = await page.goto('/preview/no-such-club')
   expect(response?.status()).toBe(404)
 })
+
+test('a club without a home page shows a plain holding page, not sample text', async ({
+  page,
+  world: w,
+}) => {
+  await page.goto('/preview/test-club-b')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(w.clubB.name)
+  await expect(page.getByText('Our new website is on its way.')).toBeVisible()
+  await expect(page.getByText('A round worth travelling for')).toHaveCount(0)
+})
