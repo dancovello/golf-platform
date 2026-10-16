@@ -146,3 +146,8 @@ Dan's devops contact checked and approved the review items raised in PRs #18, #2
 - **Who sees drafts:** the preview (`?live=1` on the page's address) shows the draft only to someone signed in with their two-factor code who is that club's editor, or the super-admin. Anyone else adding `?live=1`, including another club's editor, sees the published page.
 - **Version history stays inside each club:** an editor can list, open and restore only their own club's page versions, and deleting a page deletes its history.
 - **Not done:** a preview for Club Settings (the menu and footer). It would show the home page after each save; possible later if wanted.
+
+## 2026-10-16 — Browser security headers
+
+- **Every response** (`next.config.ts`) says: only this site may frame it (`frame-ancestors 'self'`, `X-Frame-Options: SAMEORIGIN`; the admin's live preview frames the club's page on the same address), always use https (two years, without `includeSubDomains` because a club's own domain may have other sites under it), don't guess file types, send only the site's address when following a link, no camera/microphone/location/payment. `X-Powered-By` is off.
+- **Not yet:** a full content security policy limiting which scripts run. It needs a per-request code for Next.js's own inline scripts and Google Analytics, so it's its own change, ideally alongside the pen test.
