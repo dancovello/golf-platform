@@ -63,6 +63,13 @@
 .sf-logo {
   text-decoration: none;
   justify-self: start;
+  max-width: 100%;
+}
+/* A long club name wraps inside the brand column instead of running into the next one. */
+.sf-logo .sh-wordmark {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: center;
 }
 .sf-list {
   margin: 0;
