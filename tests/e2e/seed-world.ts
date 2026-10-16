@@ -21,6 +21,7 @@ const heroPhoto = await w.payload.create({
 const homeA = await w.payload.create({
   collection: 'pages',
   data: {
+    _status: 'published',
     title: 'Home',
     slug: 'home',
     tenant: w.clubA.id,
@@ -53,6 +54,7 @@ for (let i = 1; i <= 13; i++) {
 await w.payload.create({
   collection: 'pages',
   data: {
+    _status: 'published',
     title: 'Gallery',
     slug: 'gallery',
     tenant: w.clubA.id,
@@ -85,6 +87,7 @@ for (const [title, category, lastReviewed] of [
 await w.payload.create({
   collection: 'pages',
   data: {
+    _status: 'published',
     title: 'Documents',
     slug: 'documents',
     tenant: w.clubA.id,
@@ -103,6 +106,7 @@ await w.payload.create({
 await w.payload.create({
   collection: 'pages',
   data: {
+    _status: 'published',
     title: 'Find us',
     slug: 'find-us',
     tenant: w.clubA.id,
@@ -114,6 +118,7 @@ await w.payload.create({
 await w.payload.create({
   collection: 'pages',
   data: {
+    _status: 'published',
     title: 'Help',
     slug: 'help',
     tenant: w.clubA.id,
@@ -149,6 +154,7 @@ await w.payload.update({
 await w.payload.create({
   collection: 'pages',
   data: {
+    _status: 'published',
     title: 'Team',
     slug: 'team',
     tenant: w.clubA.id,
@@ -179,6 +185,7 @@ await w.payload.update({
 await w.payload.create({
   collection: 'pages',
   data: {
+    _status: 'published',
     title: 'Course',
     slug: 'course',
     tenant: w.clubA.id,
@@ -305,7 +312,13 @@ for (const style of ['classic', 'transparent', 'appBar'] as const) {
   })
   const about = await w.payload.create({
     collection: 'pages',
-    data: { title: 'About the club', slug: 'about', tenant: club.id, layout: [] } as never,
+    data: {
+      _status: 'published',
+      title: 'About the club',
+      slug: 'about',
+      tenant: club.id,
+      layout: [],
+    } as never,
   })
   await w.payload.update({
     collection: 'club-settings',

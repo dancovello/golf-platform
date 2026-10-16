@@ -8,7 +8,13 @@ test("club A's editor picks a parent page from club A's pages only", async ({
 }) => {
   await openReady(page, '/admin/collections/pages/create')
   await expect(page.getByText('Parent page (optional)')).toBeVisible()
-  await page.getByRole('combobox').click()
+  // The picker shows 10 pages at a time, so search for each one by name.
+  const picker = page.getByRole('combobox')
+  await picker.click()
+  await picker.pressSequentially(world.pageB.title)
+  await expect(page.getByText('No options')).toBeVisible()
+  await picker.clear()
+  await picker.pressSequentially(world.pageA.title)
   await expect(page.getByRole('option', { name: world.pageA.title })).toBeVisible()
   await expect(page.getByRole('option', { name: world.pageB.title })).toHaveCount(0)
 })

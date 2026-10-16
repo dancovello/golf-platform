@@ -95,7 +95,7 @@ for (const [slug, p] of Object.entries(palettes)) {
   const page = async (pageSlug: string, title: string, layout: unknown[]) => {
     const doc = await payload.create({
       collection: 'pages',
-      data: { title, slug: pageSlug, tenant: club.id, layout } as never,
+      data: { _status: 'published', title, slug: pageSlug, tenant: club.id, layout } as never,
     })
     pages[pageSlug] = String(doc.id)
     return doc

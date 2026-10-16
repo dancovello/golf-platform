@@ -137,3 +137,12 @@ Dan's devops contact checked and approved the review items raised in PRs #18, #2
 - **Menu items** do one of three things: go to a page or link; open a drop-down of a page's child pages (kept up to date automatically, optionally with the page itself first and up to 4 extra links at the end); or open a drop-down of hand-picked links in up to 3 groups, each with an optional heading. Items saved before this keep working as they were.
 - **Footer**: up to 3 link columns in every style (style C used to have none and style A showed only the first), each with its own heading and either hand-picked links or a page's child pages (so a column can match a menu drop-down).
 - **Not done:** drag-and-drop ordering of pages (Payload's version is marked experimental), breadcrumbs, and pages three levels deep in drop-downs (only a page's direct child pages are listed).
+
+## 2026-10-16 — Page drafts and live preview
+
+- **Live preview for pages only** (Dan, 2026-10-16). The eye button at the top of a page opens the club's page beside the form, updating as the editor types, with Phone, Tablet and Desktop sizes. News and events don't have it: their layout is always the same.
+- **Pages now have drafts.** Edits are saved as a draft automatically (under a second after typing stops) and reach the website only when the editor presses "Publish changes". The last 50 versions of each page are kept and can be restored. Every page that existed before this change was marked published, so nothing disappeared from any club's site.
+- **Visitors only ever see published pages**, in the menus, footer columns, page links and events as well as the page itself. A page that has never been published doesn't exist as far as visitors are concerned.
+- **Who sees drafts:** the preview (`?live=1` on the page's address) shows the draft only to someone signed in with their two-factor code who is that club's editor, or the super-admin. Anyone else adding `?live=1`, including another club's editor, sees the published page.
+- **Version history stays inside each club:** an editor can list, open and restore only their own club's page versions, and deleting a page deletes its history.
+- **Not done:** a preview for Club Settings (the menu and footer). It would show the home page after each save; possible later if wanted.

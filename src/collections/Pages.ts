@@ -1,7 +1,8 @@
 import type { CollectionConfig, Validate, Where } from 'payload'
 
-import { loggedIn } from '../access/roles'
+import { editorTenantID, isSuperAdmin, loggedIn } from '../access/roles'
 import { pageBlocks } from '../blocks'
+import { pageLivePreview } from '../site/livePreview'
 import { checkPageSameClub } from '../site/sameClub'
 
 const idOf = (v: unknown) =>
@@ -29,8 +30,27 @@ const validParent: Validate = async (value, { id, req }) => {
 export const Pages: CollectionConfig = {
   slug: 'pages',
   lockDocuments: false,
-  admin: { useAsTitle: 'title', defaultColumns: ['title', 'slug', 'parent', 'updatedAt'] },
-  access: { create: loggedIn, read: loggedIn, update: loggedIn, delete: loggedIn },
+  admin: {
+    useAsTitle: 'title',
+    defaultColumns: ['title', 'slug', 'parent', '_status', 'updatedAt'],
+    livePreview: pageLivePreview,
+  },
+  // Drafts, saved automatically as you type so the live preview keeps up. Visitors only see
+  // the published version (src/site/published.ts). The history keeps the last 50 versions.
+  versions: { drafts: { autosave: { interval: 800 } }, maxPerDoc: 50 },
+  access: {
+    create: loggedIn,
+    read: loggedIn,
+    update: loggedIn,
+    delete: loggedIn,
+    // The multi-tenant plugin scopes `read` but not the version history, so this does:
+    // editors see only their own club's drafts and old versions.
+    readVersions: ({ req: { user } }) => {
+      if (isSuperAdmin(user)) return true
+      const tenant = editorTenantID(user)
+      return tenant ? { 'version.tenant': { equals: tenant } } : false
+    },
+  },
   // A slug only has to be unique within one club, so two clubs can both have /membership.
   indexes: [{ fields: ['tenant', 'slug'], unique: true }],
   hooks: { beforeValidate: [checkPageSameClub] },

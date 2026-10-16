@@ -3,6 +3,8 @@ import { notFound, redirect } from 'next/navigation'
 
 import { heroIsFullBleed } from '@/site/blocks/Hero'
 import { RenderBlocks } from '@/site/blocks/RenderBlocks'
+import { LiveRefresh } from '@/site/components/LiveRefresh'
+import { canSeeDrafts } from '@/site/livePreviewAccess'
 import { ContactPage } from '@/site/contact/ContactPage'
 import { loadContactSettings } from '@/site/contact/load'
 import { loadClubBySlug, loadClubPage } from '@/site/loadClub'
@@ -120,7 +122,10 @@ export default async function ClubPagePreview({
   }
 
   if (path[0] === 'home') redirect(`/preview/${club.slug}`)
-  const page = await loadClubPage(club.tenantID, path[0])
+  // Inside the admin's live preview, the club's own editors see their latest draft.
+  const live = (await searchParams).live === '1'
+  const draft = await canSeeDrafts(club.tenantID, live ? '1' : null)
+  const page = await loadClubPage(club.tenantID, path[0], { draft })
   if (!page) notFound()
   const base = `/preview/${club.slug}`
   const startsWithHero = page.layout[0]?.blockType === 'hero'
@@ -131,6 +136,7 @@ export default async function ClubPagePreview({
       currentPath={`${base}/${page.slug}`}
       overHero={page.layout[0] ? heroIsFullBleed(page.layout[0]) : false}
     >
+      {live ? <LiveRefresh /> : null}
       {startsWithHero ? null : (
         <section className="pv-section">
           <h1 className="t-display-l">{page.title}</h1>
