@@ -77,6 +77,7 @@ export interface Config {
     courses: Course;
     'course-status': CourseStatus;
     news: News;
+    'agreement-acceptances': AgreementAcceptance;
     events: Event;
     'totp-attempts': TotpAttempt;
     'payload-kv': PayloadKv;
@@ -95,6 +96,7 @@ export interface Config {
     courses: CoursesSelect<false> | CoursesSelect<true>;
     'course-status': CourseStatusSelect<false> | CourseStatusSelect<true>;
     news: NewsSelect<false> | NewsSelect<true>;
+    'agreement-acceptances': AgreementAcceptancesSelect<false> | AgreementAcceptancesSelect<true>;
     events: EventsSelect<false> | EventsSelect<true>;
     'totp-attempts': TotpAttemptsSelect<false> | TotpAttemptsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -1452,6 +1454,27 @@ export interface News {
   createdAt: string;
 }
 /**
+ * The agreement between your club and the website provider about looking after personal information. Someone with authority to act for the club accepts it once; you’ll be asked again if it changes.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "agreement-acceptances".
+ */
+export interface AgreementAcceptance {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  fullName: string;
+  /**
+   * e.g. Club Secretary, General Manager
+   */
+  jobTitle: string;
+  authorised: boolean;
+  version?: string | null;
+  acceptedBy?: (string | null) | User;
+  acceptedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "events".
  */
@@ -2479,6 +2502,21 @@ export interface NewsSelect<T extends boolean = true> {
   author?: T;
   body?: T;
   slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "agreement-acceptances_select".
+ */
+export interface AgreementAcceptancesSelect<T extends boolean = true> {
+  tenant?: T;
+  fullName?: T;
+  jobTitle?: T;
+  authorised?: T;
+  version?: T;
+  acceptedBy?: T;
+  acceptedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
