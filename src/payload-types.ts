@@ -77,7 +77,7 @@ export interface Config {
     courses: Course;
     'course-status': CourseStatus;
     news: News;
-    'agreement-acceptances': AgreementAcceptance;
+    events: Event;
     'totp-attempts': TotpAttempt;
     'payload-kv': PayloadKv;
     'payload-preferences': PayloadPreference;
@@ -95,7 +95,7 @@ export interface Config {
     courses: CoursesSelect<false> | CoursesSelect<true>;
     'course-status': CourseStatusSelect<false> | CourseStatusSelect<true>;
     news: NewsSelect<false> | NewsSelect<true>;
-    'agreement-acceptances': AgreementAcceptancesSelect<false> | AgreementAcceptancesSelect<true>;
+    events: EventsSelect<false> | EventsSelect<true>;
     'totp-attempts': TotpAttemptsSelect<false> | TotpAttemptsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -211,6 +211,7 @@ export interface Page {
         | ScorecardBlock
         | CourseStatusBlock
         | NewsFeedBlock
+        | EventsFeedBlock
       )[]
     | null;
   updatedAt: string;
@@ -1057,6 +1058,23 @@ export interface NewsFeedBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EventsFeedBlock".
+ */
+export interface EventsFeedBlock {
+  style: 'carousel' | 'agenda' | 'featured';
+  eyebrow?: string | null;
+  heading: string;
+  intro?: string | null;
+  /**
+   * Leave empty for all events.
+   */
+  category?: ('social' | 'dining' | 'competition' | 'academy' | 'members') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'eventsFeed';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "club-settings".
  */
 export interface ClubSetting {
@@ -1434,23 +1452,55 @@ export interface News {
   createdAt: string;
 }
 /**
- * The agreement between your club and the website provider about looking after personal information. Someone with authority to act for the club accepts it once; you’ll be asked again if it changes.
- *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "agreement-acceptances".
+ * via the `definition` "events".
  */
-export interface AgreementAcceptance {
+export interface Event {
   id: string;
   tenant?: (string | null) | Tenant;
-  fullName: string;
+  title: string;
+  status: 'draft' | 'published';
   /**
-   * e.g. Club Secretary, General Manager
+   * UK time. The event leaves the website once it has started.
    */
-  jobTitle: string;
-  authorised: boolean;
-  version?: string | null;
-  acceptedBy?: (string | null) | User;
-  acceptedAt?: string | null;
+  startsAt: string;
+  category: 'social' | 'dining' | 'competition' | 'academy' | 'members';
+  /**
+   * e.g. "Clubhouse" or "Championship course"
+   */
+  venue?: string | null;
+  /**
+   * e.g. "shotgun". Shown after the time.
+   */
+  timeNote?: string | null;
+  /**
+   * One or two sentences, shown when the event is featured.
+   */
+  summary?: string | null;
+  image?: (string | null) | Media;
+  /**
+   * e.g. "£45" or "£20 entry"
+   */
+  price?: string | null;
+  /**
+   * e.g. "£38"
+   */
+  memberPrice?: string | null;
+  booking: 'book' | 'enquire' | 'soldOut';
+  capacity?: number | null;
+  /**
+   * Shown as "14 of 60 places left" when the event is featured.
+   */
+  placesLeft?: number | null;
+  link?: {
+    type?: ('page' | 'url') | null;
+    page?: (string | null) | Page;
+    /**
+     * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+     */
+    url?: string | null;
+  };
+  featured?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1580,6 +1630,7 @@ export interface PagesSelect<T extends boolean = true> {
         scorecard?: T | ScorecardBlockSelect<T>;
         courseStatus?: T | CourseStatusBlockSelect<T>;
         newsFeed?: T | NewsFeedBlockSelect<T>;
+        eventsFeed?: T | EventsFeedBlockSelect<T>;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -2063,6 +2114,19 @@ export interface NewsFeedBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EventsFeedBlock_select".
+ */
+export interface EventsFeedBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  intro?: T;
+  category?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "club-settings_select".
  */
 export interface ClubSettingsSelect<T extends boolean = true> {
@@ -2420,16 +2484,31 @@ export interface NewsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "agreement-acceptances_select".
+ * via the `definition` "events_select".
  */
-export interface AgreementAcceptancesSelect<T extends boolean = true> {
+export interface EventsSelect<T extends boolean = true> {
   tenant?: T;
-  fullName?: T;
-  jobTitle?: T;
-  authorised?: T;
-  version?: T;
-  acceptedBy?: T;
-  acceptedAt?: T;
+  title?: T;
+  status?: T;
+  startsAt?: T;
+  category?: T;
+  venue?: T;
+  timeNote?: T;
+  summary?: T;
+  image?: T;
+  price?: T;
+  memberPrice?: T;
+  booking?: T;
+  capacity?: T;
+  placesLeft?: T;
+  link?:
+    | T
+    | {
+        type?: T;
+        page?: T;
+        url?: T;
+      };
+  featured?: T;
   updatedAt?: T;
   createdAt?: T;
 }

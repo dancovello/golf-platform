@@ -5409,6 +5409,143 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.pages_blocks_events_feed": {
+      "name": "pages_blocks_events_feed",
+      "schema": "",
+      "columns": {
+        "_order": {
+          "name": "_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "_parent_id": {
+          "name": "_parent_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "_path": {
+          "name": "_path",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id": {
+          "name": "id",
+          "type": "varchar",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "style": {
+          "name": "style",
+          "type": "enum_pages_blocks_events_feed_style",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'carousel'"
+        },
+        "eyebrow": {
+          "name": "eyebrow",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'What’s on'"
+        },
+        "heading": {
+          "name": "heading",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "intro": {
+          "name": "intro",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "category": {
+          "name": "category",
+          "type": "enum_pages_blocks_events_feed_category",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "block_name": {
+          "name": "block_name",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "pages_blocks_events_feed_order_idx": {
+          "name": "pages_blocks_events_feed_order_idx",
+          "columns": [
+            {
+              "expression": "_order",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "pages_blocks_events_feed_parent_id_idx": {
+          "name": "pages_blocks_events_feed_parent_id_idx",
+          "columns": [
+            {
+              "expression": "_parent_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "pages_blocks_events_feed_path_idx": {
+          "name": "pages_blocks_events_feed_path_idx",
+          "columns": [
+            {
+              "expression": "_path",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "pages_blocks_events_feed_parent_id_fk": {
+          "name": "pages_blocks_events_feed_parent_id_fk",
+          "tableFrom": "pages_blocks_events_feed",
+          "tableTo": "pages",
+          "columnsFrom": [
+            "_parent_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.pages": {
       "name": "pages",
       "schema": "",
@@ -8892,8 +9029,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.agreement_acceptances": {
-      "name": "agreement_acceptances",
+    "public.events": {
+      "name": "events",
       "schema": "",
       "columns": {
         "id": {
@@ -8909,40 +9046,113 @@
           "primaryKey": false,
           "notNull": false
         },
-        "full_name": {
-          "name": "full_name",
+        "title": {
+          "name": "title",
           "type": "varchar",
           "primaryKey": false,
           "notNull": true
         },
-        "job_title": {
-          "name": "job_title",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "authorised": {
-          "name": "authorised",
-          "type": "boolean",
+        "status": {
+          "name": "status",
+          "type": "enum_events_status",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
-          "default": false
+          "default": "'draft'"
         },
-        "version": {
-          "name": "version",
+        "starts_at": {
+          "name": "starts_at",
+          "type": "timestamp(3) with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "category": {
+          "name": "category",
+          "type": "enum_events_category",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'social'"
+        },
+        "venue": {
+          "name": "venue",
           "type": "varchar",
           "primaryKey": false,
           "notNull": false
         },
-        "accepted_by_id": {
-          "name": "accepted_by_id",
+        "time_note": {
+          "name": "time_note",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "summary": {
+          "name": "summary",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "image_id": {
+          "name": "image_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
-        "accepted_at": {
-          "name": "accepted_at",
-          "type": "timestamp(3) with time zone",
+        "price": {
+          "name": "price",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "member_price": {
+          "name": "member_price",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "booking": {
+          "name": "booking",
+          "type": "enum_events_booking",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'book'"
+        },
+        "capacity": {
+          "name": "capacity",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "places_left": {
+          "name": "places_left",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "link_type": {
+          "name": "link_type",
+          "type": "enum_events_link_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'page'"
+        },
+        "link_page_id": {
+          "name": "link_page_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "link_url": {
+          "name": "link_url",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "featured": {
+          "name": "featured",
+          "type": "boolean",
           "primaryKey": false,
           "notNull": false
         },
@@ -8962,8 +9172,8 @@
         }
       },
       "indexes": {
-        "agreement_acceptances_tenant_idx": {
-          "name": "agreement_acceptances_tenant_idx",
+        "events_tenant_idx": {
+          "name": "events_tenant_idx",
           "columns": [
             {
               "expression": "tenant_id",
@@ -8977,11 +9187,11 @@
           "method": "btree",
           "with": {}
         },
-        "agreement_acceptances_accepted_by_idx": {
-          "name": "agreement_acceptances_accepted_by_idx",
+        "events_image_idx": {
+          "name": "events_image_idx",
           "columns": [
             {
-              "expression": "accepted_by_id",
+              "expression": "image_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -8992,8 +9202,23 @@
           "method": "btree",
           "with": {}
         },
-        "agreement_acceptances_updated_at_idx": {
-          "name": "agreement_acceptances_updated_at_idx",
+        "events_link_link_page_idx": {
+          "name": "events_link_link_page_idx",
+          "columns": [
+            {
+              "expression": "link_page_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "events_updated_at_idx": {
+          "name": "events_updated_at_idx",
           "columns": [
             {
               "expression": "updated_at",
@@ -9007,8 +9232,8 @@
           "method": "btree",
           "with": {}
         },
-        "agreement_acceptances_created_at_idx": {
-          "name": "agreement_acceptances_created_at_idx",
+        "events_created_at_idx": {
+          "name": "events_created_at_idx",
           "columns": [
             {
               "expression": "created_at",
@@ -9024,9 +9249,9 @@
         }
       },
       "foreignKeys": {
-        "agreement_acceptances_tenant_id_tenants_id_fk": {
-          "name": "agreement_acceptances_tenant_id_tenants_id_fk",
-          "tableFrom": "agreement_acceptances",
+        "events_tenant_id_tenants_id_fk": {
+          "name": "events_tenant_id_tenants_id_fk",
+          "tableFrom": "events",
           "tableTo": "tenants",
           "columnsFrom": [
             "tenant_id"
@@ -9037,12 +9262,25 @@
           "onDelete": "set null",
           "onUpdate": "no action"
         },
-        "agreement_acceptances_accepted_by_id_users_id_fk": {
-          "name": "agreement_acceptances_accepted_by_id_users_id_fk",
-          "tableFrom": "agreement_acceptances",
-          "tableTo": "users",
+        "events_image_id_media_id_fk": {
+          "name": "events_image_id_media_id_fk",
+          "tableFrom": "events",
+          "tableTo": "media",
           "columnsFrom": [
-            "accepted_by_id"
+            "image_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "events_link_page_id_pages_id_fk": {
+          "name": "events_link_page_id_pages_id_fk",
+          "tableFrom": "events",
+          "tableTo": "pages",
+          "columnsFrom": [
+            "link_page_id"
           ],
           "columnsTo": [
             "id"
@@ -9804,6 +10042,26 @@
         "club"
       ]
     },
+    "public.enum_pages_blocks_events_feed_style": {
+      "name": "enum_pages_blocks_events_feed_style",
+      "schema": "public",
+      "values": [
+        "carousel",
+        "agenda",
+        "featured"
+      ]
+    },
+    "public.enum_pages_blocks_events_feed_category": {
+      "name": "enum_pages_blocks_events_feed_category",
+      "schema": "public",
+      "values": [
+        "social",
+        "dining",
+        "competition",
+        "academy",
+        "members"
+      ]
+    },
     "public.enum_club_settings_header_menu_groups_links_link_type": {
       "name": "enum_club_settings_header_menu_groups_links_link_type",
       "schema": "public",
@@ -10005,6 +10263,42 @@
         "academy",
         "club"
       ]
+    },
+    "public.enum_events_status": {
+      "name": "enum_events_status",
+      "schema": "public",
+      "values": [
+        "draft",
+        "published"
+      ]
+    },
+    "public.enum_events_category": {
+      "name": "enum_events_category",
+      "schema": "public",
+      "values": [
+        "social",
+        "dining",
+        "competition",
+        "academy",
+        "members"
+      ]
+    },
+    "public.enum_events_booking": {
+      "name": "enum_events_booking",
+      "schema": "public",
+      "values": [
+        "book",
+        "enquire",
+        "soldOut"
+      ]
+    },
+    "public.enum_events_link_type": {
+      "name": "enum_events_link_type",
+      "schema": "public",
+      "values": [
+        "page",
+        "url"
+      ]
     }
   },
   "schemas": {},
@@ -10017,6 +10311,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "3d7960ea-adeb-43ea-bcd0-89b435ce7275",
+  "id": "458cd449-9ed5-4392-b281-df3806801958",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

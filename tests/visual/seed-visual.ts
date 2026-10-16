@@ -1249,6 +1249,135 @@ for (const [slug, p] of Object.entries(palettes)) {
     },
     { blockType: 'newsFeed', style: 'headlines', eyebrow: 'News', heading: 'Headlines' },
   ])
+
+  // Events, after the picture check's fixed date (15 July 2026). UK summer time is UTC+1.
+  const diary: [string, string, string, string, string | null, string | null, string][] = [
+    [
+      'Captain’s Drive-In Dinner',
+      'social',
+      '2026-07-24T18:00:00Z',
+      'Clubhouse',
+      '£45',
+      '£38',
+      'book',
+    ],
+    [
+      'Autumn Foursomes',
+      'competition',
+      '2026-08-01T07:00:00Z',
+      'Championship',
+      '£20 entry',
+      null,
+      'book',
+    ],
+    [
+      'Wine dinner with Berry Bros. & Rudd',
+      'dining',
+      '2026-08-08T18:30:00Z',
+      'Harry Colt room',
+      '£95',
+      '£85',
+      'book',
+    ],
+    [
+      'Winter short-game clinic',
+      'academy',
+      '2026-09-12T09:00:00Z',
+      'Academy',
+      '£30',
+      null,
+      'enquire',
+    ],
+    [
+      'Ladies’ Open',
+      'competition',
+      '2026-09-19T07:30:00Z',
+      'Championship',
+      '£35 entry',
+      null,
+      'book',
+    ],
+    [
+      'Christmas lunch and carols',
+      'dining',
+      '2026-12-06T12:30:00Z',
+      'Clubhouse',
+      '£42',
+      '£36',
+      'soldOut',
+    ],
+    [
+      'New Year’s Eve black-tie ball',
+      'social',
+      '2026-12-31T19:00:00Z',
+      'Clubhouse',
+      '£120',
+      '£110',
+      'book',
+    ],
+  ]
+  for (const [
+    i,
+    [title, category, startsAt, venue, price, memberPrice, booking],
+  ] of diary.entries()) {
+    await payload.create({
+      collection: 'events',
+      data: {
+        title,
+        category,
+        startsAt,
+        venue,
+        price,
+        memberPrice,
+        booking,
+        status: 'published',
+        image: cards[i % cards.length].id,
+        timeNote: category === 'competition' ? 'shotgun' : null,
+        link: booking === 'soldOut' ? undefined : link('Book'),
+        tenant: club.id,
+      } as never,
+    })
+  }
+
+  // The wine dinner is the featured event; the other blocks show the next ones.
+  const wineDinner = await payload.find({
+    collection: 'events',
+    where: { and: [{ tenant: { equals: club.id } }, { category: { equals: 'dining' } }] },
+    sort: 'startsAt',
+    limit: 1,
+  })
+  await payload.update({
+    collection: 'events',
+    id: wineDinner.docs[0].id,
+    data: {
+      featured: true,
+      capacity: 60,
+      placesLeft: 14,
+      summary:
+        'Five courses from Marta Ruiz, each matched by Berry Bros.’ head of fine wine. Black tie optional.',
+    } as never,
+  })
+  await page('events-block', 'What’s on', [
+    {
+      blockType: 'eventsFeed',
+      style: 'carousel',
+      eyebrow: 'What’s on',
+      heading: 'Upcoming events',
+    },
+    {
+      blockType: 'eventsFeed',
+      style: 'agenda',
+      eyebrow: 'What’s on',
+      heading: 'The diary',
+      intro: 'Dinners, competitions and clinics, open to members and guests.',
+    },
+    {
+      blockType: 'eventsFeed',
+      style: 'featured',
+      eyebrow: 'Next big night',
+      heading: 'Featured event',
+    },
+  ])
 }
 
 process.exit(0)

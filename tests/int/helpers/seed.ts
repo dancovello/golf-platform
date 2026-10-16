@@ -10,6 +10,7 @@ import type {
   Course,
   CourseStatus,
   Document,
+  Event,
   Media,
   News,
   Page,
@@ -62,6 +63,8 @@ export type World = {
   newsB: News
   agreementA: AgreementAcceptance
   agreementB: AgreementAcceptance
+  eventA: Event
+  eventB: Event
 }
 
 /** Refuses to run against anything but the golf_test database (or a golf_test_<name> copy). */
@@ -85,6 +88,7 @@ export const resetDatabase = async (payload: Payload) => {
   await payload.delete({ collection: 'courses', where: all })
   await payload.delete({ collection: 'news', where: all })
   await payload.delete({ collection: 'agreement-acceptances', where: all })
+  await payload.delete({ collection: 'events', where: all })
   await payload.delete({ collection: 'club-settings', where: all })
   await payload.delete({ collection: 'course-status', where: all })
   await payload.delete({ collection: 'payload-preferences', where: all })
@@ -225,6 +229,8 @@ export const seedWorld = async (): Promise<World> => {
     // Both clubs have accepted the data processing agreement, so editors can save settings.
     agreementA: await acceptAgreement(payload, clubA.id, 'Alice Secretary'),
     agreementB: await acceptAgreement(payload, clubB.id, 'Bob Secretary'),
+    eventA: await event(payload, 'Club A dinner', clubA.id),
+    eventB: await event(payload, 'Club B dinner', clubB.id),
   }
 }
 
@@ -233,6 +239,20 @@ export const acceptAgreement = (payload: Payload, tenant: string, fullName: stri
   payload.create({
     collection: 'agreement-acceptances',
     data: { fullName, jobTitle: 'Club Secretary', authorised: true, tenant },
+  })
+
+/** A published event a week from now. */
+export const event = (payload: Payload, title: string, tenant: string, days = 7) =>
+  payload.create({
+    collection: 'events',
+    data: {
+      title,
+      tenant,
+      status: 'published',
+      category: 'dining',
+      booking: 'book',
+      startsAt: new Date(Date.now() + days * 86_400_000).toISOString(),
+    },
   })
 
 /** A 9-hole course with one tee. */
