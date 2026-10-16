@@ -1,8 +1,10 @@
 'use server'
 
+import { after } from 'next/server'
 import { notFound } from 'next/navigation'
 
 import { sitePreviewEnabled } from '../preview'
+import { sendEnquiryAlert } from './alert'
 import type { ContactState } from './state'
 import { submitEnquiry } from './submit'
 
@@ -14,5 +16,8 @@ export async function sendEnquiry(
   form: FormData,
 ): Promise<ContactState> {
   if (!sitePreviewEnabled() || typeof clubSlug !== 'string') notFound()
-  return (await submitEnquiry(clubSlug, prev, form)) ?? notFound()
+  // The club's email alert goes after the visitor has their answer, so a slow or failed
+  // email never holds up or breaks the form (the message is already saved either way).
+  const onSaved = (id: string) => after(() => sendEnquiryAlert(id).then(() => undefined))
+  return (await submitEnquiry(clubSlug, prev, form, new Date(), onSaved)) ?? notFound()
 }

@@ -18,7 +18,7 @@ export const Enquiries: CollectionConfig = {
     useAsTitle: 'name',
     defaultColumns: ['name', 'purpose', 'status', 'reference', 'createdAt'],
     description:
-      'Messages sent from the Contact page on your website. Email alerts for new messages are coming later; for now, check here.',
+      'Messages sent from the Contact page on your website. Each new one is also emailed to your club (Club Settings → Contact page says where).',
   },
   access: { create: () => false, read: loggedIn, update: loggedIn, delete: loggedIn },
   defaultSort: '-createdAt',
@@ -119,6 +119,17 @@ export const Enquiries: CollectionConfig = {
       type: 'checkbox',
       defaultValue: false,
       access: asSent,
+    },
+    {
+      name: 'alertSentAt',
+      label: 'Emailed to the club',
+      type: 'date',
+      access: asSent,
+      admin: {
+        readOnly: true,
+        date: { pickerAppearance: 'dayAndTime', displayFormat: 'd MMM yyyy, HH:mm' },
+        description: 'Blank if the email alert wasn’t sent: check this list for anything missed.',
+      },
     },
     {
       name: 'notes',

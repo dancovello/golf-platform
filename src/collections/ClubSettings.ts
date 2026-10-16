@@ -637,7 +637,7 @@ export const ClubSettings: CollectionConfig = {
                   labels: { singular: 'Topic', plural: 'Topics' },
                   admin: {
                     description:
-                      'Every topic is always on the form. Add a topic here to name who replies to it, and an optional button shown after sending.',
+                      'Every topic is always on the form, and new messages are emailed to your footer email address. Add a topic here to send its messages somewhere else, name who replies, or show a button after sending.',
                   },
                   validate: (value: unknown) => {
                     const purposes = Array.isArray(value)
@@ -670,8 +670,9 @@ export const ClubSettings: CollectionConfig = {
                         },
                         {
                           name: 'inbox',
-                          label: 'Inbox (for email alerts, coming later)',
+                          label: 'Email new messages to',
                           type: 'email',
+                          admin: { description: 'Blank: the footer email address.' },
                         },
                       ],
                     },

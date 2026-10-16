@@ -108,8 +108,18 @@ Dan's devops contact checked and approved the review items raised in PRs #18, #2
 
 ## 2026-10-16 — Contact page enquiries
 
-- **Saved in the CMS, emailed later** (Dan, 2026-10-16). Each club's Contact page saves messages to its own "Enquiries" list. Email alerts wait for the Resend or Postmark decision; Club Settings already has an inbox per topic for then.
+- **Saved in the CMS and emailed** (Dan, 2026-10-16). Each club's Contact page saves messages to its own "Enquiries" list, then emails them to the club (see "Email: Resend" below).
 - **Only the website creates enquiries**, as trusted server code (`src/site/contact/submit.ts`). Nobody, including the super-admin, can add one through the admin or the API. Editors can mark them handled, add notes and delete them; what the visitor sent can't be changed.
 - **The club comes from the page address**, never from the form.
 - **Spam checks that keep nothing about the visitor:** a hidden box, a signed time check (sent less than 3 seconds after loading = bot; over a day old = expired), and 20 messages per club per hour. Bots caught by the first two see the normal "sent" screen. No IP addresses or other visitor details are stored.
 - **Before the first real club:** a security review of the form, and a clean-up job for messages older than the 12 months the privacy policy promises.
+
+## 2026-10-16 — Email: Resend
+
+- **Resend, not Postmark** (Dan, 2026-10-16). Free for 3,000 emails a month (100 a day), then about $20 a month for 50,000; Postmark's free plan is 100 a month. It connects to Vercel, and Payload has an official adapter (`@payloadcms/email-resend`, which calls Resend's web API with no further packages).
+- **Only for the platform's own small emails:** new Contact page messages to the club now; editors' password reset and invitations next. Clubs keep their own newsletter service.
+- **Where:** sent from Ireland (eu-west-1); Resend keeps account data and email logs in the USA. Added to Schedule 3 of the data processing agreement (version `2026-10-16-draft`) and to the privacy policy's "who we share it with".
+- **Nothing is sent without `RESEND_API_KEY`.** Payload's fallback writes whole emails into the server logs, so the app sends nothing instead. Staging and previews set `EMAIL_OVERRIDE_TO` so every email goes to one address, never to the test clubs.
+- **One sending domain:** emails come from one address on the platform's domain (`EMAIL_FROM_ADDRESS`), named after the club ("Heathcote Golf Club website"), with Reply-To set to the visitor. Until the domain exists and is verified in Resend, its test sender is used, which only delivers to the Resend account owner.
+- **Contact alerts** go to the topic's inbox in Club Settings → Contact page, or the footer email. Plain text only. They're sent after the visitor sees "sent", so a slow or failed email never breaks the form; each enquiry records when it was emailed, and a blank shows one that wasn't.
+- **Not built:** a "we've got your message" copy to the visitor. Anyone could type someone else's address into the form and have the club's website email them, so it's left out unless there's a clear need.

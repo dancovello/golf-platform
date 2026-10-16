@@ -1,5 +1,6 @@
-import { beforeAll, describe, expect, it } from 'vitest'
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
+import { sendEnquiryAlert } from '@/site/contact/alert'
 import { issueFormToken } from '@/site/contact/formToken'
 import { HOURLY_LIMIT, submitEnquiry } from '@/site/contact/submit'
 
@@ -52,6 +53,7 @@ beforeAll(async () => {
           {
             purpose: 'membership',
             replier: 'Sarah Cole, our membership secretary',
+            inbox: 'membership@club-a.example',
             nextLink: { label: 'Explore membership', type: 'page', page: w.pageA.id },
           },
         ],
@@ -264,5 +266,70 @@ describe('Club Settings → Contact page', () => {
         overrideAccess: true,
       }),
     ).rejects.toThrow(/Who replies/)
+  })
+})
+
+describe('emailing new messages to the club', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+    delete process.env.RESEND_API_KEY
+  })
+
+  const sendAndKeepID = async (fields: Record<string, string>) => {
+    let id = ''
+    await submitEnquiry(String(w.clubA.slug), { attempt: 0 }, form(fields), NOW, (saved) => {
+      id = saved
+    })
+    return id
+  }
+
+  it('sends nothing, and logs nothing, when email isn’t set up', async () => {
+    const sendEmail = vi.spyOn(w.payload, 'sendEmail')
+    const id = await sendAndKeepID({})
+    expect(await sendEnquiryAlert(id)).toBe('email-off')
+    expect(sendEmail).not.toHaveBeenCalled()
+  })
+
+  it('emails the topic’s inbox, with replies going to the visitor', async () => {
+    process.env.RESEND_API_KEY = 'test-only'
+    const sendEmail = vi.spyOn(w.payload, 'sendEmail').mockResolvedValue({})
+    const id = await sendAndKeepID({ phone: '07700 900123' })
+    expect(await sendEnquiryAlert(id)).toBe('sent')
+    expect(sendEmail).toHaveBeenCalledTimes(1)
+    const email = sendEmail.mock.calls[0][0] as Record<string, string>
+    expect(email.to).toBe('membership@club-a.example')
+    expect(email.replyTo).toBe('dan@example.com')
+    expect(email.from).toMatch(/^Test Club A website </)
+    expect(email.subject).toMatch(/^New enquiry: Membership from Dan Visitor \(TCA-ENQ-\d{4}\)$/)
+    expect(email.text).toContain('Membership type: Five-day')
+    expect(email.text).toContain('Phone: 07700 900123')
+    expect(email.text).toContain('Is there a waiting list for five-day membership?')
+    expect(email).not.toHaveProperty('html')
+    const saved = await w.payload.findByID({ collection: 'enquiries', id, overrideAccess: true })
+    expect(saved.alertSentAt).toBeTruthy()
+  })
+
+  it('uses the footer email for a topic with no inbox set', async () => {
+    process.env.RESEND_API_KEY = 'test-only'
+    const sendEmail = vi.spyOn(w.payload, 'sendEmail').mockResolvedValue({})
+    await sendEnquiryAlert(await sendAndKeepID({ purpose: 'feedback' }))
+    expect((sendEmail.mock.calls[0][0] as { to: string }).to).toBe('office@test-club-a.example')
+  })
+
+  it('keeps a visitor’s line breaks out of the email headers', async () => {
+    process.env.RESEND_API_KEY = 'test-only'
+    const sendEmail = vi.spyOn(w.payload, 'sendEmail').mockResolvedValue({})
+    await sendEnquiryAlert(await sendAndKeepID({ name: 'Dan\r\nBcc: <victim@example.com>' }))
+    const subject = (sendEmail.mock.calls[0][0] as { subject: string }).subject
+    expect(subject).not.toMatch(/[\r\n<>]/)
+  })
+
+  it('leaves "emailed" blank when sending fails, so the message isn’t lost', async () => {
+    process.env.RESEND_API_KEY = 'test-only'
+    vi.spyOn(w.payload, 'sendEmail').mockRejectedValue(new Error('Resend is down'))
+    const id = await sendAndKeepID({})
+    await expect(sendEnquiryAlert(id)).rejects.toThrow('Resend is down')
+    const saved = await w.payload.findByID({ collection: 'enquiries', id, overrideAccess: true })
+    expect(saved.alertSentAt).toBeFalsy()
   })
 })
