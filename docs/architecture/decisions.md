@@ -163,3 +163,19 @@ Dan's devops contact checked and approved the review items raised in PRs #18, #2
 
 - **Every response** (`next.config.ts`) says: only this site may frame it (`frame-ancestors 'self'`, `X-Frame-Options: SAMEORIGIN`; the admin's live preview frames the club's page on the same address), always use https (two years, without `includeSubDomains` because a club's own domain may have other sites under it), don't guess file types, send only the site's address when following a link, no camera/microphone/location/payment. `X-Powered-By` is off.
 - **Not yet:** a full content security policy limiting which scripts run. It needs a per-request code for Next.js's own inline scripts and Google Analytics, so it's its own change, ideally alongside the pen test.
+
+## 2026-10-16 — Password reset by email
+
+- **On** (Dan, 2026-10-16), wherever email is set up (`RESEND_API_KEY`) **and** the admin's address is set (`ADMIN_URL`). Elsewhere "Forgot password?" is refused as before, so reset links never end up in server logs.
+- **The link in the email always uses `ADMIN_URL`**, never the address the request came in on: anyone can ask for a reset email, and a forged address would send the reset code to someone else's site.
+- **At most one email per account every 15 minutes.** Requests in between are quietly ignored: no email, no new link, and the earlier link keeps working. This protects inboxes and Resend's free allowance (100 emails a day), which Contact page alerts share.
+- **The link works once, for one hour** (Payload's default). The 72-hour "set your password" links the super-admin makes are unchanged. Signing in afterwards still needs the authenticator code.
+- The answer is the same whether or not the address has an account, so the form can't be used to find out who has one.
+
+## 2026-10-16 — Contact form spam check: Cloudflare Turnstile
+
+- **Added** (Dan, 2026-10-16). Before, one sender with a script could use up a club's 20-messages-an-hour allowance and block real visitors. Turnstile is Cloudflare's free "are you a person?" check; most visitors never see it (it asks for a click only when unsure).
+- **On only when both keys are set** (`TURNSTILE_SITE_KEY`, public; `TURNSTILE_SECRET_KEY`, secret). Cloudflare's always-pass test keys work on staging and locally, never on production.
+- **Checked on the server after the fields**, so a form sent back for fixing keeps its check. The check must have been made for this form (`action` "contact"). The visitor's IP address isn't sent to Cloudflare.
+- **If Cloudflare can't be reached, the message isn't saved** and the visitor is asked to try again or phone or email: spam isn't let through. *Open to change if Dan prefers letting messages through during a Cloudflare outage.*
+- **Privacy:** the privacy policy's cookies section mentions it (no tracking, no consent needed), and Schedule 3 of the data processing agreement adds the spam check to Cloudflare's role, so the agreement version is now `2026-10-16b-draft` (clubs are asked to accept again).

@@ -10,6 +10,12 @@ import { APIError, ValidationError } from 'payload'
 import { enforceAccountCreationRules } from '../access/accountCreation'
 import { editorTenantID, isSuperAdmin } from '../access/roles'
 import { inviteEndpoint, passwordLinkEndpoint } from '../accounts/endpoints'
+import {
+  passwordResetByEmailEnabled,
+  RESET_EMAIL_INTERVAL_MS,
+  resetEmailHTML,
+  resetEmailSubject,
+} from '../accounts/resetEmail'
 import { resetTwoFactorEndpoint } from '../auth/resetTwoFactor'
 
 export const MIN_PASSWORD_LENGTH = 12
@@ -69,14 +75,19 @@ const enforcePasswordLength: CollectionBeforeValidateHook = ({ collection, data 
 }
 
 /**
- * - Payload's public "Forgot password?" is off until an email provider is chosen: with none,
- *   Payload writes reset links into the server logs. Only the platform's own "set your
- *   password" links (src/accounts/passwordLinks.ts) are allowed.
+ * - Payload's public "Forgot password?" emails a reset link (src/accounts/resetEmail.ts), but
+ *   only where email is set up and ADMIN_URL is known. Elsewhere it is refused: with no email
+ *   provider, Payload would write reset links into the server logs. The platform's own "set
+ *   your password" links (src/accounts/passwordLinks.ts) always work.
  * - Setting a password through a link skips beforeValidate's view of the new password, so the
  *   minimum length is checked here as well.
  */
 const passwordOperationRules: CollectionBeforeOperationHook = ({ args, operation, req }) => {
-  if (operation === 'forgotPassword' && req.context?.passwordLinkByAdmin !== true) {
+  if (
+    operation === 'forgotPassword' &&
+    req.context?.passwordLinkByAdmin !== true &&
+    !passwordResetByEmailEnabled()
+  ) {
     throw new APIError(
       'Password reset by email is not available yet. Ask your platform administrator for a new link.',
       403,
@@ -107,6 +118,13 @@ export const Users: CollectionConfig = {
     // Locks the account for 10 minutes after 5 wrong passwords.
     maxLoginAttempts: 5,
     lockTime: 10 * 60 * 1000,
+    // The link's lifetime isn't set here: a setting here would also shorten the platform's
+    // 72-hour "set your password" links. Payload's default for emailed links is one hour.
+    forgotPassword: {
+      minRequestInterval: RESET_EMAIL_INTERVAL_MS,
+      generateEmailSubject: resetEmailSubject,
+      generateEmailHTML: (args) => resetEmailHTML(String(args?.token ?? '')),
+    },
   },
   access: { ...usersAccess },
   // payload-totp would refuse even reading your own account before the code is entered; our
