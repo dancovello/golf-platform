@@ -12,7 +12,8 @@
 #   4. deploy     Vercel builds and publishes the new code (Vercel never changes the database)
 #   5. check      /health must answer "ok" on the new deployment
 #
-# GitHub emails Dan if any step fails. docs/operations/restore-runbook.md covers rolling back.
+# If any step fails, the last job opens a GitHub issue (GitHub emails Dan about it).
+# docs/operations/restore-runbook.md covers rolling back.
 name: Release
 
 on:
@@ -95,16 +96,8 @@ jobs:
           sudo apt-get install -y -qq "postgresql-client-${major}" > /dev/null
           echo "PG_BIN=/usr/lib/postgresql/${major}/bin" >> "$GITHUB_ENV"
       # Only the structure, plus the list of changes already applied. No club data is copied.
-      # Accounts aren't part of a copy, so the website's account (golf_app) is made first, as
-      # it exists on the real database: database changes that limit its rights need it.
       - name: Copy the database's structure into a throwaway database
-        run: |
-          set -euo pipefail
-          psql -q -v ON_ERROR_STOP=1 "$DRY_RUN_URL" -c "CREATE ROLE golf_app NOLOGIN"
-          "$PG_BIN/pg_dump" --schema-only --no-owner --no-privileges "$TARGET_DATABASE_URL" | psql -q -v ON_ERROR_STOP=1 "$DRY_RUN_URL"
-          if [ "$(psql "$TARGET_DATABASE_URL" -Atc "SELECT to_regclass('public.payload_migrations') IS NOT NULL")" = "t" ]; then
-            "$PG_BIN/pg_dump" --data-only --no-owner --table=payload_migrations "$TARGET_DATABASE_URL" | psql -q -v ON_ERROR_STOP=1 "$DRY_RUN_URL"
-          fi
+        run: scripts/copy-database-structure.sh "$TARGET_DATABASE_URL" "$DRY_RUN_URL"
       - name: Apply the new database changes to the copy
         env:
           DATABASE_URL: ${{ env.DRY_RUN_URL }}
@@ -181,3 +174,32 @@ jobs:
           done
           echo "The new deployment did not answer /health. See docs/operations/restore-runbook.md." | tee -a "$GITHUB_STEP_SUMMARY"
           exit 1
+
+  # A failed release stops before changing anything that hasn't been checked, but nobody would
+  # know it had stopped: GitHub's own failure emails depend on each person's settings. An issue
+  # is emailed to the repository's owner, and stays open until someone closes it.
+  report-failure:
+    needs: [target, backup, dry-run, migrate, deploy]
+    if: failure()
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    permissions:
+      issues: write
+    steps:
+      - name: Open an issue about the failed release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          ENVIRONMENT: ${{ needs.target.outputs.environment || github.ref_name }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          COMMIT: ${{ github.event.head_commit.message }}
+        run: |
+          set -euo pipefail
+          title="Release to ${ENVIRONMENT} failed"
+          body=$(printf 'The release stopped, so %s is still running the previous version.\n\n**What was being released:** %s\n\n**Details:** %s\n\nClose this issue once a release has succeeded.' "$ENVIRONMENT" "$(echo "$COMMIT" | head -1)" "$RUN_URL")
+          existing=$(gh issue list --state open --search "\"${title}\" in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh issue create --title "$title" --body "$body"
+          fi
