@@ -192,7 +192,7 @@ export interface Page {
   tenant?: (string | null) | Tenant;
   title: string;
   /**
-   * The page address, e.g. "membership" for /membership. Use "home" for the home page.
+   * The page address, e.g. "membership" for /membership. Use "home" for the home page. Left empty, it is made from the title when you publish.
    */
   slug: string;
   /**
