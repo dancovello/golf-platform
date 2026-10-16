@@ -145,6 +145,20 @@ test.describe('the super-admin (proves the checks above can see club B when allo
     await page.goto('/admin/collections/users')
     await expect(page.getByRole('link', { name: world.editorB.email })).toBeVisible()
   })
+
+  // The club selector used to narrow the Clubs list to the chosen club, which made a newly
+  // built club (the demo club) look as if it had vanished.
+  test('sees every club even with one picked in the club selector', async ({
+    superAdminPage: page,
+    world,
+  }) => {
+    await page
+      .context()
+      .addCookies([{ name: 'payload-tenant', value: world.clubA.id, url: 'http://localhost:3100' }])
+    await page.goto('/admin/collections/tenants')
+    await expect(page.getByRole('link', { name: world.clubA.name })).toBeVisible()
+    await expect(page.getByRole('link', { name: world.clubB.name })).toBeVisible()
+  })
 })
 
 test('the "create first user" address shows an explanation, not a form', async ({ page }) => {
