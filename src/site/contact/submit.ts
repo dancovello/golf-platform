@@ -77,10 +77,12 @@ export const submitEnquiry = async (
   const base = `/preview/${club.slug}`
   const attempt = prev.attempt + 1
   const values = valuesFromForm(form)
-  const fresh = issueFormToken(club.tenantID, now.getTime())
+  // The form's "shown at" time for the next attempt. Kept when it checks out, so someone fixing
+  // a mistake isn't taken for a bot by pressing Send again quickly; new only when it doesn't.
+  let nextToken = issueFormToken(club.tenantID, now.getTime())
   const keep = (extra: Partial<ContactState>): ContactState => ({
     attempt,
-    token: fresh,
+    token: nextToken,
     values,
     errors: {},
     formError: null,
@@ -98,6 +100,7 @@ export const submitEnquiry = async (
   const time = checkFormToken(form.get('token'), club.tenantID, now.getTime())
   if (time === 'too-fast') return pretendSent()
   if (time !== 'ok') return keep({ formError: EXPIRED })
+  nextToken = String(form.get('token'))
 
   const errors = validateContact(values, {
     membershipTypes: settings.membershipTypes,

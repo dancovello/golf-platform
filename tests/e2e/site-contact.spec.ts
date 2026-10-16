@@ -32,7 +32,7 @@ test('the topic decides the extra questions', async ({ page }) => {
   expect(await axe(page)).toEqual([])
 })
 
-test('shows what to fix, keeps what was typed, then sends', async ({ page }) => {
+test('shows what to fix, keeps what was typed, then sends', async ({ page, editorPage }) => {
   test.slow()
   await page.goto(`${contact}?about=membership`)
   await expect(page.getByRole('radio', { name: 'Membership', exact: true })).toBeChecked()
@@ -73,6 +73,12 @@ test('shows what to fix, keeps what was typed, then sends', async ({ page }) => 
   await expect(page.getByRole('status')).toContainText(
     /Someone from the club will reply to dan@example\.com by \w+day \d+ \w+\. Your reference is TCA-ENQ-\d{4}\./,
   )
+  // Really saved, not just the "sent" screen bots are shown: the club's editor can see it.
+  const reference = /TCA-ENQ-\d{4}/.exec((await page.getByRole('status').textContent()) ?? '')?.[0]
+  const saved = await (
+    await editorPage.request.get(`/api/enquiries?where[reference][equals]=${reference}`)
+  ).json()
+  expect(saved.totalDocs).toBe(1)
   await expect(page.getByRole('status')).toContainText('About: Membership')
   await expect(page.getByRole('status')).toContainText('“Is there a waiting list?”')
   expect(await axe(page)).toEqual([])

@@ -172,6 +172,28 @@ describe('spam checks', () => {
     expect((await send(form({})))?.sent).not.toBeNull()
   })
 
+  it('saves a corrected message sent straight after one sent back for fixing', async () => {
+    const before = (await savedIn(w.clubA.id)).length
+    const first = await submitEnquiry(
+      String(w.clubA.slug),
+      { attempt: 0 },
+      form({ email: 'not-an-email' }),
+      NOW,
+    )
+    expect(Object.keys(first?.errors ?? {})).toContain('email')
+    // Fixed and sent again one second later, with the token the page was given back.
+    const fixed = form({})
+    fixed.set('token', String(first?.token))
+    const second = await submitEnquiry(
+      String(w.clubA.slug),
+      { attempt: 1 },
+      fixed,
+      new Date(NOW.getTime() + 1_000),
+    )
+    expect(second?.sent).not.toBeNull()
+    expect(await savedIn(w.clubA.id)).toHaveLength(before + 1)
+  })
+
   it('returns nothing for a club that doesn’t exist', async () => {
     expect(await submitEnquiry('no-such-club', { attempt: 0 }, form({}), NOW)).toBeNull()
   })
