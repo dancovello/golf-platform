@@ -8,6 +8,7 @@ import { loadClubMedia, type SiteMedia } from './blocks/media'
 import { PUBLISHED } from './published'
 import type { SiteLink } from './loadClub'
 import { siteToday } from './today'
+import { idOf } from '@/blocks/types'
 
 /** An event as cards, rows and the featured panel show it. */
 export type SiteEvent = {
@@ -50,9 +51,6 @@ type EventDoc = {
   placesLeft?: number | null
   featured?: boolean | null
 }
-
-const idOf = (v: unknown) =>
-  typeof v === 'string' ? v : v && typeof v === 'object' && 'id' in v ? String(v.id) : null
 
 /** Published and not yet started. */
 const upcoming = (tenantID: string, category?: string | null): Where => ({

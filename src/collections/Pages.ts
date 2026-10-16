@@ -4,9 +4,7 @@ import { editorTenantID, isSuperAdmin, loggedIn } from '../access/roles'
 import { pageBlocks } from '../blocks'
 import { pageLivePreview } from '../site/livePreview'
 import { checkPageSameClub } from '../site/sameClub'
-
-const idOf = (v: unknown) =>
-  typeof v === 'string' ? v : v && typeof v === 'object' && 'id' in v ? String(v.id) : null
+import { idOf } from '../blocks/types'
 
 /** A page can't sit inside itself or inside one of its own child pages (which would make a
  * loop). Walks up from the chosen parent; the club's own pages only (checkPageSameClub). */

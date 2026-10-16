@@ -6,6 +6,7 @@ import { NEWS_CATEGORIES, newsCategoryLabel } from '@/collections/newsCategories
 import { type BlockContext, loadBlockContext } from './blocks/resolve'
 import { loadClubMedia, type SiteMedia } from './blocks/media'
 import { siteToday } from './today'
+import { idOf } from '@/blocks/types'
 
 /** A news article as cards and lists show it. */
 export type SiteNewsCard = {
@@ -43,9 +44,6 @@ type NewsDoc = {
   author?: string | null
   body?: unknown
 }
-
-const idOf = (v: unknown) =>
-  typeof v === 'string' ? v : v && typeof v === 'object' && 'id' in v ? String(v.id) : null
 
 /** Published, and its publish date has arrived (UK time is fine at day level). */
 const live = (tenantID: string): Where[] => [

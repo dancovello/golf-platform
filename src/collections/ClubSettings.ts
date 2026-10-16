@@ -11,9 +11,7 @@ import { checkSameClub } from '../site/sameClub'
 import { BRAND_INPUTS, type Brand, contrastProblems, DEFAULT_BRAND, isHex } from '../theme/colour'
 import { DEFAULT_FONT_SET, FONT_SETS } from '../theme/fontSets'
 import { ENQUIRY_PURPOSES } from './enquiryPurposes'
-
-const idOf = (v: unknown) =>
-  typeof v === 'string' ? v : v && typeof v === 'object' && 'id' in v ? String(v.id) : null
+import { idOf } from '../blocks/types'
 
 const colourHelp: Record<keyof Brand, string> = {
   primary: 'Brand bands, headers and solid buttons.',
