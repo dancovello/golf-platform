@@ -252,12 +252,88 @@ jobs:
           BASE_REF: ${{ github.event.pull_request.base.ref || 'main' }}
         run: node scripts/check-migrations.ts "origin/${BASE_REF}"
 
+  # The release's dry run, before merging: main's database (built from main's own changes) is
+  # copied the way a release copies the real one, and this pull request's changes are applied
+  # to the copy. Catches a change that works on an empty database but would stop a release.
   migration-dry-run:
-    name: migration-dry-run (not built yet - step 3)
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 2
+    timeout-minutes: 15
+    services:
+      # Two separate database servers, like the real one and the release's throwaway copy:
+      # accounts made on the first (golf_app) don't exist on the second.
+      main-db:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: main_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      dry-run-db:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: dry_run
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      # Throwaway databases that exist only inside this CI run. Not real secrets.
+      MAIN_DB_URL: postgres://postgres:postgres@localhost:5432/main_db
+      DRY_RUN_URL: postgres://postgres:postgres@localhost:5433/dry_run
+      BASE_REF: ${{ github.event.pull_request.base.ref }}
+      PAYLOAD_SECRET: ci-only-not-a-real-secret
+      TOTP_ENCRYPTION_KEY: '0000000000000000000000000000000000000000000000000000000000000000'
+      # Migrations load the app's settings but never touch photo storage. Not real values.
+      MEDIA_S3_ENDPOINT: http://127.0.0.1:1
+      MEDIA_S3_BUCKET: unused
+      MEDIA_S3_ACCESS_KEY_ID: unused
+      MEDIA_S3_SECRET_ACCESS_KEY: unused
+      MEDIA_PUBLIC_URL: http://127.0.0.1:1/unused
     steps:
-      - run: echo "Migration dry-runs against a Neon branch arrive in build step 3. Nothing is checked here yet."
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - name: Install a Postgres client matching the databases
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-common > /dev/null
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y > /dev/null
+          sudo apt-get install -y -qq postgresql-client-18 > /dev/null
+          echo "PG_BIN=/usr/lib/postgresql/18/bin" >> "$GITHUB_ENV"
+      - name: Build main's database from main's own changes
+        env:
+          DATABASE_URL: ${{ env.MAIN_DB_URL }}
+        run: |
+          set -euo pipefail
+          git worktree add ../base "origin/${BASE_REF}"
+          cd ../base
+          pnpm install --frozen-lockfile
+          pnpm migrate
+      - name: Copy it the way a release does
+        run: scripts/copy-database-structure.sh "$MAIN_DB_URL" "$DRY_RUN_URL"
+      - run: pnpm install --frozen-lockfile
+      - name: Apply this pull request's database changes to the copy
+        env:
+          DATABASE_URL: ${{ env.DRY_RUN_URL }}
+        run: |
+          set -euo pipefail
+          pnpm migrate 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
 
   # Doc 04 §7: the picture check. Every block page and the header/footer, in both Figma colour
   # themes, desktop and mobile, compared with the approved pictures in tests/visual/__screenshots__.
