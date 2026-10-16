@@ -46,6 +46,8 @@
   --color-status-open: #5fbf84;
   --color-status-restricted: #e3a845;
   --color-status-closed: #d95c4f;
+  /* Darker closed red for small error text: #d95c4f is below 4.5:1 on white. */
+  --color-status-closed-text: #b23a2e;
   --color-tee-white: #ffffff;
   --color-tee-yellow: #f2c230;
   --color-tee-red: #c8382e;

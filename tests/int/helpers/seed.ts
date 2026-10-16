@@ -10,6 +10,7 @@ import type {
   Course,
   CourseStatus,
   Document,
+  Enquiry,
   Event,
   Media,
   News,
@@ -65,6 +66,8 @@ export type World = {
   agreementB: AgreementAcceptance
   eventA: Event
   eventB: Event
+  enquiryA: Enquiry
+  enquiryB: Enquiry
 }
 
 /** Refuses to run against anything but the golf_test database (or a golf_test_<name> copy). */
@@ -89,6 +92,7 @@ export const resetDatabase = async (payload: Payload) => {
   await payload.delete({ collection: 'news', where: all })
   await payload.delete({ collection: 'agreement-acceptances', where: all })
   await payload.delete({ collection: 'events', where: all })
+  await payload.delete({ collection: 'enquiries', where: all })
   await payload.delete({ collection: 'club-settings', where: all })
   await payload.delete({ collection: 'course-status', where: all })
   await payload.delete({ collection: 'payload-preferences', where: all })
@@ -231,8 +235,27 @@ export const seedWorld = async (): Promise<World> => {
     agreementB: await acceptAgreement(payload, clubB.id, 'Bob Secretary'),
     eventA: await event(payload, 'Club A dinner', clubA.id),
     eventB: await event(payload, 'Club B dinner', clubB.id),
+    // Only the website creates enquiries, as trusted server code (src/site/contact/submit.ts).
+    enquiryA: await enquiry(payload, 'Ann Visitor', clubA.id),
+    enquiryB: await enquiry(payload, 'Ben Visitor', clubB.id),
   }
 }
+
+/** A message from the Contact page, saved as the website saves it. */
+export const enquiry = (payload: Payload, name: string, tenant: string) =>
+  payload.create({
+    collection: 'enquiries',
+    data: {
+      name,
+      tenant,
+      reference: `T-ENQ-${name.length}`,
+      purpose: 'general',
+      email: 'visitor@example.com',
+      message: 'Hello',
+      status: 'new',
+    },
+    overrideAccess: true,
+  })
 
 /** The club accepts the current data processing agreement (as a trusted script would). */
 export const acceptAgreement = (payload: Payload, tenant: string, fullName: string) =>

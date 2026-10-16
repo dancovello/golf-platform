@@ -57,6 +57,7 @@ export const Tenants: CollectionConfig = {
             header: { style: 'classic' },
             footer: { style: 'brandColumns' },
             announcement: { style: 'classic', tone: 'brand' },
+            contact: { replyDays: 1 },
           },
           req,
         })

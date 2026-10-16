@@ -3,6 +3,8 @@ import { notFound, redirect } from 'next/navigation'
 
 import { heroIsFullBleed } from '@/site/blocks/Hero'
 import { RenderBlocks } from '@/site/blocks/RenderBlocks'
+import { ContactPage } from '@/site/contact/ContactPage'
+import { loadContactSettings } from '@/site/contact/load'
 import { loadClubBySlug, loadClubPage } from '@/site/loadClub'
 import { eventsArchive } from '@/site/events'
 import { EventsArchive } from '@/site/events/EventsArchive'
@@ -24,9 +26,11 @@ export const generateMetadata = async ({
   params: Promise<{ club: string; path: string[] }>
 }): Promise<Metadata> => {
   const { club: clubSlug, path } = await params
-  if (!sitePreviewEnabled() || path.length !== 1 || path[0] !== 'privacy') return {}
+  if (!sitePreviewEnabled() || path.length !== 1) return {}
+  if (path[0] !== 'privacy' && path[0] !== 'contact') return {}
   const club = await loadClubBySlug(clubSlug)
-  return club ? { title: privacyPolicyTitle(club) } : {}
+  if (!club) return {}
+  return { title: path[0] === 'privacy' ? privacyPolicyTitle(club) : `Contact | ${club.name}` }
 }
 
 /** One of the club's pages on staging: its blocks, with the title as a heading unless the
@@ -53,6 +57,22 @@ export default async function ClubPagePreview({
     return (
       <ClubShell club={club} currentPath={`${base}/privacy`}>
         <ClubPrivacyPolicy club={club} base={base} />
+      </ClubShell>
+    )
+  }
+
+  // Contact is a template too: the enquiry form (src/site/contact).
+  if (path[0] === 'contact' && path.length === 1) {
+    const base = `/preview/${club.slug}`
+    const about = (await searchParams).about
+    return (
+      <ClubShell club={club} currentPath={`${base}/contact`}>
+        <ContactPage
+          club={club}
+          base={base}
+          settings={await loadContactSettings(club.tenantID)}
+          about={typeof about === 'string' ? about : null}
+        />
       </ClubShell>
     )
   }

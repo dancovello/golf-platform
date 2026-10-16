@@ -128,6 +128,21 @@ const fixtures: Record<ClubOwnedSlug, Fixture> = {
     read: (doc) => (doc as { title?: unknown }).title,
     editorsCanCreate: true,
   },
+  enquiries: {
+    ids: (w) => ({ a: w.enquiryA.id, b: w.enquiryB.id }),
+    newRecord: (tenant) => ({
+      reference: 'PLANTED',
+      purpose: 'general',
+      name: 'Planted',
+      email: 'planted@example.com',
+      message: 'Planted',
+      tenant,
+    }),
+    change: { status: 'handled' },
+    read: (doc) => (doc as { status?: unknown }).status,
+    // Only the website's Contact page creates them (src/site/contact/submit.ts).
+    editorsCanCreate: false,
+  },
   courses: {
     ids: (w) => ({ a: w.courseA.id, b: w.courseB.id }),
     newRecord: (tenant) => ({
@@ -313,6 +328,11 @@ describe('the database enforces club ownership on its own', () => {
     await expect(
       db().execute(
         sql`INSERT INTO agreement_acceptances (full_name, job_title, authorised) VALUES ('o', 'o', true)`,
+      ),
+    ).rejects.toThrow()
+    await expect(
+      db().execute(
+        sql`INSERT INTO enquiries (reference, purpose, name, email, message) VALUES ('o', 'general', 'o', 'o@example.com', 'o')`,
       ),
     ).rejects.toThrow()
   })

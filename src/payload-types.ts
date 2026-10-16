@@ -79,6 +79,7 @@ export interface Config {
     news: News;
     'agreement-acceptances': AgreementAcceptance;
     events: Event;
+    enquiries: Enquiry;
     'totp-attempts': TotpAttempt;
     'payload-kv': PayloadKv;
     'payload-preferences': PayloadPreference;
@@ -98,6 +99,7 @@ export interface Config {
     news: NewsSelect<false> | NewsSelect<true>;
     'agreement-acceptances': AgreementAcceptancesSelect<false> | AgreementAcceptancesSelect<true>;
     events: EventsSelect<false> | EventsSelect<true>;
+    enquiries: EnquiriesSelect<false> | EnquiriesSelect<true>;
     'totp-attempts': TotpAttemptsSelect<false> | TotpAttemptsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -1312,6 +1314,54 @@ export interface ClubSetting {
         }[]
       | null;
   };
+  contact: {
+    intro?: string | null;
+    /**
+     * After sending, visitors are told the date they’ll hear back by (weekends skipped).
+     */
+    replyDays: number;
+    /**
+     * e.g. Mon–Fri 8:00–17:00 · Sat 8:00–12:00
+     */
+    officeHours?: string | null;
+    /**
+     * Every topic is always on the form. Add a topic here to name who replies to it, and an optional button shown after sending.
+     */
+    purposes?:
+      | {
+          purpose: 'general' | 'visitor' | 'membership' | 'events' | 'lessons' | 'feedback';
+          /**
+           * e.g. "Sarah Cole, our membership secretary". Blank: "Someone from the club".
+           */
+          replier?: string | null;
+          inbox?: string | null;
+          nextLink?: {
+            label?: string | null;
+            type?: ('page' | 'url') | null;
+            page?: (string | null) | Page;
+            /**
+             * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+             */
+            url?: string | null;
+          };
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * The choices for "Membership type" on membership enquiries. Leave empty to let people type it.
+     */
+    membershipTypes?:
+      | {
+          label: string;
+          id?: string | null;
+        }[]
+      | null;
+    asideTitle?: string | null;
+    /**
+     * A short note under the contact details, with your booking button, e.g. "The pro shop is quickest for anything today: 01932 704 520, 7am–7pm." Blank hides it.
+     */
+    asideText?: string | null;
+  };
   privacy?: {
     /**
      * The club’s registered name if it differs from the name above, e.g. "Example Golf Club Limited". Leave blank to use the club name.
@@ -1524,6 +1574,33 @@ export interface Event {
     url?: string | null;
   };
   featured?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Messages sent from the Contact page on your website. Email alerts for new messages are coming later; for now, check here.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "enquiries".
+ */
+export interface Enquiry {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  status: 'new' | 'handled';
+  /**
+   * The visitor was given this reference.
+   */
+  reference: string;
+  purpose: 'general' | 'visitor' | 'membership' | 'events' | 'lessons' | 'feedback';
+  name: string;
+  email: string;
+  phone?: string | null;
+  membershipType?: string | null;
+  preferredDate?: string | null;
+  groupSize?: number | null;
+  message: string;
+  newsletter?: boolean | null;
+  notes?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -2309,6 +2386,37 @@ export interface ClubSettingsSelect<T extends boolean = true> {
               id?: T;
             };
       };
+  contact?:
+    | T
+    | {
+        intro?: T;
+        replyDays?: T;
+        officeHours?: T;
+        purposes?:
+          | T
+          | {
+              purpose?: T;
+              replier?: T;
+              inbox?: T;
+              nextLink?:
+                | T
+                | {
+                    label?: T;
+                    type?: T;
+                    page?: T;
+                    url?: T;
+                  };
+              id?: T;
+            };
+        membershipTypes?:
+          | T
+          | {
+              label?: T;
+              id?: T;
+            };
+        asideTitle?: T;
+        asideText?: T;
+      };
   privacy?:
     | T
     | {
@@ -2547,6 +2655,27 @@ export interface EventsSelect<T extends boolean = true> {
         url?: T;
       };
   featured?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "enquiries_select".
+ */
+export interface EnquiriesSelect<T extends boolean = true> {
+  tenant?: T;
+  status?: T;
+  reference?: T;
+  purpose?: T;
+  name?: T;
+  email?: T;
+  phone?: T;
+  membershipType?: T;
+  preferredDate?: T;
+  groupSize?: T;
+  message?: T;
+  newsletter?: T;
+  notes?: T;
   updatedAt?: T;
   createdAt?: T;
 }
