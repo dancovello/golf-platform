@@ -1,6 +1,6 @@
 /**
- * Tenant-isolation suite (CLAUDE.md non-negotiable 3). Runs as the required
- * `tenant-isolation` check. Editor A must get zero records from club B, by any route.
+ * Tenant-isolation suite (CLAUDE.md non-negotiable 3). Runs in the required
+ * `tests` CI check. Editor A must get zero records from club B, by any route.
  *
  * Every club-owned collection in src/tenancy.ts needs an entry in `fixtures` below;
  * TypeScript refuses to build until it has one, so no collection can go untested.

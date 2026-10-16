@@ -1,4 +1,4 @@
-# Makes new approved pictures for the picture check (CI job "block-regression") on GitHub's
+# Makes new approved pictures for the picture check (CI job "browser-checks") on GitHub's
 # Linux machines. Run it from the Actions tab on a branch whose blocks look right, download the
 # "block-pictures" artifact into tests/visual/__screenshots__/, review them, and commit them.
 name: Update block pictures

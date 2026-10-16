@@ -3,7 +3,7 @@ import { expect, type Page, test } from '@playwright/test'
 import { VISUAL_CLUBS, VISUAL_PAGES, VISUAL_TEMPLATES, VISUAL_VIEWPORTS } from './pages'
 
 /**
- * The block-regression check (doc 04 §7): every block page and the header/footer, in both
+ * The picture check (doc 04 §7; "Picture check" step of the browser-checks CI job): every block page and the header/footer, in both
  * colour themes, on desktop and mobile, compared with the approved pictures in
  * tests/visual/__screenshots__. A change that alters any of them fails the check.
  * Approved pictures are made on GitHub's Linux machines (workflow "Update block pictures"),

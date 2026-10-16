@@ -85,6 +85,16 @@ Dan's devops contact checked and approved the review items raised in PRs #18, #2
 - **Local development and tests** use SeaweedFS (`docker-compose.yml`), never real R2.
 - **Known gap:** a file that fails Payload's content check after a browser upload stays in the bucket, unlisted and served only as an allowed image or video type. A response header telling browsers not to second-guess the type (`X-Content-Type-Options: nosniff`) needs the custom domain in step 4. A clean-up job is a follow-up (Payload Jobs Queue).
 
+## 2026-10-15 — GitHub Actions minutes
+
+- The repo used all 3,000 monthly GitHub Actions minutes (GitHub Pro). Dan **won't pay for more**, and decided against running checks on his own Mac.
+- **The repo is public for about a week (from 2026-10-15) until the minutes reset**, because public repos get Actions minutes free. Before the switch, a full scan of every branch, past pull request and file version found no real secrets (only test values and a deliberate fake key from a closed test PR). Anything public should be treated as public for good, even after the repo goes private again.
+- Over the previous 30 days, CI used about 2,660 of those minutes, at about 14 minutes a run. Each of its ~10 jobs was billed in whole minutes and installed everything from scratch, and about 800 minutes came from CI running again after each merge into `main`.
+- **CI is now three jobs:** `quick-checks` (typecheck, lint, formatting, secret scan, dependency scan, migration guard), `tests` (every Vitest test, including the tenant-isolation suite) and `browser-checks` (the build, the picture check, and the admin-screen tenant-isolation tests). The checks themselves are unchanged. These three are the required checks on `main`.
+- **No CI run after merging into `main`.** Branch protection makes every pull request catch up with `main` first, so its own run already checked exactly what lands.
+- **Changes that can't affect anything skip the heavy jobs.** A change to only docs, Claude notes or Markdown skips `tests` and `browser-checks`, and the picture check is skipped when nothing the pictures depend on changed. GitHub counts a skipped required check as passed. `quick-checks` always runs, so the secret scan sees every change.
+- **Claude runs the checks locally and pushes a branch once it's ready**, not after every small fix, because every push re-runs CI.
+
 ## 2026-10-15 — Privacy policy on every club site
 
 - **A system page, not a CMS page.** Every club has `/privacy` (on staging, `/preview/<club>/privacy`), written from code in `src/site/privacy/`. Clubs can't edit or delete it; the footer link to it is built in. A club page with the address "privacy" can't replace it. It's served by the same route as every club page, not a route of its own: a separate route made Next.js split the shared stylesheets into a different order, which moved the news archive tabs.
