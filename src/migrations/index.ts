@@ -35,6 +35,7 @@ import * as migration_20261016_131627_contact_page from './20261016_131627_conta
 import * as migration_20261016_140458_enquiry_alerts from './20261016_140458_enquiry_alerts';
 import * as migration_20261016_145756_builtin_links from './20261016_145756_builtin_links';
 import * as migration_20261016_154202_nav_footer_control from './20261016_154202_nav_footer_control';
+import * as migration_20261016_160941_page_drafts from './20261016_160941_page_drafts';
 
 export const migrations = [
   {
@@ -220,6 +221,11 @@ export const migrations = [
   {
     up: migration_20261016_154202_nav_footer_control.up,
     down: migration_20261016_154202_nav_footer_control.down,
-    name: '20261016_154202_nav_footer_control'
+    name: '20261016_154202_nav_footer_control',
+  },
+  {
+    up: migration_20261016_160941_page_drafts.up,
+    down: migration_20261016_160941_page_drafts.down,
+    name: '20261016_160941_page_drafts'
   },
 ];

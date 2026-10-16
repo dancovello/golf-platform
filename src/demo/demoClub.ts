@@ -321,7 +321,9 @@ export const buildDemoClub = async (payload: Payload) => {
     ['accessibility', 'Accessibility'],
   ]
   for (const [slug, title] of pageTitles) {
-    pageIDs[slug] = (await create<{ id: ID }>('pages', { title, slug, layout: [] })).id
+    pageIDs[slug] = (
+      await create<{ id: ID }>('pages', { title, slug, layout: [], _status: 'published' })
+    ).id
   }
   // The site's structure: each child page and its position in its parent's drop-down.
   const tree: Record<string, string[]> = {

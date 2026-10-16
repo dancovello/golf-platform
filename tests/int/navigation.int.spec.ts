@@ -16,7 +16,7 @@ const page = async (
 ) =>
   w.payload.create({
     collection: 'pages',
-    data: { title, slug, tenant: tenant ?? w.clubA.id, ...extra } as never,
+    data: { _status: 'published', title, slug, tenant: tenant ?? w.clubA.id, ...extra } as never,
     overrideAccess: true,
   })
 

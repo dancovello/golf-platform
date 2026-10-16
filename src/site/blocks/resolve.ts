@@ -6,6 +6,7 @@ import { STATUS_STALE_HOURS, type StatusState } from '@/collections/courseStatus
 import { TEE_COLOURS, type TeeColour, yardsField } from '@/collections/courseTees'
 import { builtInLink, isSafeURL } from '@/fields/link'
 
+import { PUBLISHED } from '../published'
 import type { SiteLink } from '../loadClub'
 import { siteToday } from '../today'
 import { loadClubMedia, type SiteMedia } from './media'
@@ -249,7 +250,7 @@ export const loadBlockContext = async (
       : payload
           .find({
             collection: 'pages',
-            where: { and: [{ id: { in: pageIDs } }, { tenant: { equals: tenantID } }] },
+            where: { and: [{ id: { in: pageIDs } }, { tenant: { equals: tenantID } }, PUBLISHED] },
             select: { slug: true },
             limit: pageIDs.length,
             depth: 0,

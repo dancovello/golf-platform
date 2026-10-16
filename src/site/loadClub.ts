@@ -14,6 +14,7 @@ import { type Brand, BRAND_INPUTS, DEFAULT_BRAND, isHex } from '@/theme/colour'
 import { DEFAULT_FONT_SET, type FontSetID, isFontSetID } from '@/theme/fontSets'
 
 import { isGAMeasurementID, type PrivacySettings } from './privacy/policy'
+import { PUBLISHED } from './published'
 import { siteToday } from './today'
 
 /** A link on the public site: one of the club's pages (by slug) or a checked web address. */
@@ -358,7 +359,7 @@ export const clubPageSlugs = async (payload: Payload, tenantID: string, ids: (st
   if (wanted.length === 0) return new Map<string, string>()
   const { docs } = await payload.find({
     collection: 'pages',
-    where: { and: [{ id: { in: wanted } }, { tenant: { equals: tenantID } }] },
+    where: { and: [{ id: { in: wanted } }, { tenant: { equals: tenantID } }, PUBLISHED] },
     select: { slug: true },
     limit: wanted.length,
     depth: 0,
@@ -381,7 +382,7 @@ const clubPageFamilies = async (payload: Payload, tenantID: string, ids: (string
   const [{ docs: tops }, { docs: kids }] = await Promise.all([
     payload.find({
       collection: 'pages',
-      where: { and: [{ id: { in: wanted } }, { tenant: { equals: tenantID } }] },
+      where: { and: [{ id: { in: wanted } }, { tenant: { equals: tenantID } }, PUBLISHED] },
       select: { title: true, slug: true },
       limit: wanted.length,
       depth: 0,
@@ -394,6 +395,7 @@ const clubPageFamilies = async (payload: Payload, tenantID: string, ids: (string
           { parent: { in: wanted } },
           { tenant: { equals: tenantID } },
           { hideFromMenu: { not_equals: true } },
+          PUBLISHED,
         ],
       },
       select: { title: true, slug: true, parent: true, menuPosition: true },
@@ -442,11 +444,24 @@ const clubImages = async (payload: Payload, tenantID: string, ids: (string | nul
 }
 
 /** One of the club's pages by its address, with its blocks ready to draw, or null. */
-export const loadClubPage = async (tenantID: string, slug: string) => {
+/** One of the club's pages. `draft` (the live preview only, for the club's own editors)
+ * shows the latest draft instead of the published page. */
+export const loadClubPage = async (
+  tenantID: string,
+  slug: string,
+  { draft = false }: { draft?: boolean } = {},
+) => {
   const payload = await getPayload({ config })
   const { docs } = await payload.find({
     collection: 'pages',
-    where: { and: [{ slug: { equals: slug } }, { tenant: { equals: tenantID } }] },
+    draft,
+    where: {
+      and: [
+        { slug: { equals: slug } },
+        { tenant: { equals: tenantID } },
+        ...(draft ? [] : [PUBLISHED]),
+      ],
+    },
     select: { title: true, slug: true, layout: true, updatedAt: true },
     limit: 1,
     depth: 0,

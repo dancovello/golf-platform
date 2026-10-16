@@ -145,7 +145,10 @@ export const seedWorld = async (): Promise<World> => {
 
   // Both clubs have a page with the same slug: slugs are unique per club, not globally.
   const page = (title: string, tenant: string) =>
-    payload.create({ collection: 'pages', data: { title, slug: 'membership', tenant } })
+    payload.create({
+      collection: 'pages',
+      data: { _status: 'published', title, slug: 'membership', tenant },
+    })
   // Created automatically with each club (src/collections/Tenants.ts), then given the email
   // and address every save needs (the privacy policy uses them).
   const settings = async (clubName: string, tenant: string) => {

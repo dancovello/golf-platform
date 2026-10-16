@@ -5,6 +5,7 @@ import { EVENT_CATEGORIES, eventCategoryLabel } from '@/collections/eventCategor
 import { builtInLink, isSafeURL, linksToPage } from '@/fields/link'
 
 import { loadClubMedia, type SiteMedia } from './blocks/media'
+import { PUBLISHED } from './published'
 import type { SiteLink } from './loadClub'
 import { siteToday } from './today'
 
@@ -80,7 +81,7 @@ const toEvents = async (tenantID: string, docs: EventDoc[]): Promise<SiteEvent[]
       : payload
           .find({
             collection: 'pages',
-            where: { and: [{ id: { in: pageIDs } }, { tenant: { equals: tenantID } }] },
+            where: { and: [{ id: { in: pageIDs } }, { tenant: { equals: tenantID } }, PUBLISHED] },
             select: { slug: true },
             limit: pageIDs.length,
             depth: 0,
