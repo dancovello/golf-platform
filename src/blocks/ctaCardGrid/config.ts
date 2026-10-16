@@ -1,6 +1,6 @@
 import type { Block } from 'payload'
 
-import { linkField } from '../../fields/link'
+import { linkField, linksToPage } from '../../fields/link'
 import { type BlockDefinition, type BlockRef, idOf } from '../types'
 
 const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif']
@@ -85,7 +85,7 @@ export const ctaCardGrid: BlockDefinition = {
     const refs: BlockRef[] = []
     const page = (link: unknown, at: string) => {
       const l = (link ?? {}) as { type?: string; page?: unknown }
-      const id = l.type === 'url' ? null : idOf(l.page)
+      const id = linksToPage(l.type) ? idOf(l.page) : null
       if (id) refs.push({ collection: 'pages', id, path: `${at}.page` })
     }
     page(block.viewAll, `${path}.viewAll`)

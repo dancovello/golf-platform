@@ -1,6 +1,6 @@
 import type { Block } from 'payload'
 
-import { linkField } from '../../fields/link'
+import { linkField, linksToPage } from '../../fields/link'
 import { type BlockDefinition, type BlockRef, idOf } from '../types'
 
 export const HERO_STYLES = ['heritage', 'resort', 'bookingLed'] as const
@@ -99,7 +99,7 @@ const config: Block = {
 
 const linkRef = (link: unknown, path: string): BlockRef[] => {
   const l = (link ?? {}) as { type?: string; page?: unknown }
-  const id = l.type === 'url' ? null : idOf(l.page)
+  const id = linksToPage(l.type) ? idOf(l.page) : null
   return id ? [{ collection: 'pages', id, path: `${path}.page` }] : []
 }
 

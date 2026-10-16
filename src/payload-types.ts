@@ -247,8 +247,9 @@ export interface HeroBlock {
    */
   primaryButton?: {
     label?: string | null;
-    type?: ('page' | 'url') | null;
+    type?: ('page' | 'builtIn' | 'url') | null;
     page?: (string | null) | Page;
+    builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
     /**
      * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
      */
@@ -256,8 +257,9 @@ export interface HeroBlock {
   };
   secondaryLink?: {
     label?: string | null;
-    type?: ('page' | 'url') | null;
+    type?: ('page' | 'builtIn' | 'url') | null;
     page?: (string | null) | Page;
+    builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
     /**
      * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
      */
@@ -337,8 +339,9 @@ export interface CtaCardGridBlock {
   intro?: string | null;
   viewAll?: {
     label?: string | null;
-    type?: ('page' | 'url') | null;
+    type?: ('page' | 'builtIn' | 'url') | null;
     page?: (string | null) | Page;
+    builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
     /**
      * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
      */
@@ -354,8 +357,9 @@ export interface CtaCardGridBlock {
         eyebrow?: string | null;
         image: string | Media;
         link?: {
-          type?: ('page' | 'url') | null;
+          type?: ('page' | 'builtIn' | 'url') | null;
           page?: (string | null) | Page;
+          builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
           /**
            * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
            */
@@ -399,8 +403,9 @@ export interface TwoColumnBlock {
     | null;
   link?: {
     label?: string | null;
-    type?: ('page' | 'url') | null;
+    type?: ('page' | 'builtIn' | 'url') | null;
     page?: (string | null) | Page;
+    builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
     /**
      * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
      */
@@ -501,8 +506,9 @@ export interface RateTableBlock {
    */
   button?: {
     label?: string | null;
-    type?: ('page' | 'url') | null;
+    type?: ('page' | 'builtIn' | 'url') | null;
     page?: (string | null) | Page;
+    builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
     /**
      * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
      */
@@ -558,8 +564,9 @@ export interface DocumentListBlock {
   documents: (string | Document)[];
   viewAll?: {
     label?: string | null;
-    type?: ('page' | 'url') | null;
+    type?: ('page' | 'builtIn' | 'url') | null;
     page?: (string | null) | Page;
+    builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
     /**
      * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
      */
@@ -728,8 +735,9 @@ export interface FaqBlock {
    */
   contactLink?: {
     label?: string | null;
-    type?: ('page' | 'url') | null;
+    type?: ('page' | 'builtIn' | 'url') | null;
     page?: (string | null) | Page;
+    builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
     /**
      * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
      */
@@ -760,8 +768,9 @@ export interface TeamBlock {
    */
   action?: {
     label?: string | null;
-    type?: ('page' | 'url') | null;
+    type?: ('page' | 'builtIn' | 'url') | null;
     page?: (string | null) | Page;
+    builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
     /**
      * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
      */
@@ -772,8 +781,9 @@ export interface TeamBlock {
    */
   viewAll?: {
     label?: string | null;
-    type?: ('page' | 'url') | null;
+    type?: ('page' | 'builtIn' | 'url') | null;
     page?: (string | null) | Page;
+    builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
     /**
      * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
      */
@@ -866,8 +876,9 @@ export interface MembershipBlock {
         availability?: string | null;
         recommended?: boolean | null;
         link?: {
-          type?: ('page' | 'url') | null;
+          type?: ('page' | 'builtIn' | 'url') | null;
           page?: (string | null) | Page;
+          builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
           /**
            * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
            */
@@ -894,8 +905,9 @@ export interface MembershipBlock {
    */
   action?: {
     label?: string | null;
-    type?: ('page' | 'url') | null;
+    type?: ('page' | 'builtIn' | 'url') | null;
     page?: (string | null) | Page;
+    builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
     /**
      * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
      */
@@ -906,8 +918,9 @@ export interface MembershipBlock {
     text?: string | null;
     link?: {
       label?: string | null;
-      type?: ('page' | 'url') | null;
+      type?: ('page' | 'builtIn' | 'url') | null;
       page?: (string | null) | Page;
+      builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
       /**
        * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
        */
@@ -1033,8 +1046,9 @@ export interface CourseStatusBlock {
    * The page with the full board. The band and "Full report" link to it.
    */
   statusPage?: {
-    type?: ('page' | 'url') | null;
+    type?: ('page' | 'builtIn' | 'url') | null;
     page?: (string | null) | Page;
+    builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
     /**
      * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
      */
@@ -1130,8 +1144,9 @@ export interface ClubSetting {
      */
     booking?: {
       label?: string | null;
-      type?: ('page' | 'url') | null;
+      type?: ('page' | 'builtIn' | 'url') | null;
       page?: (string | null) | Page;
+      builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
       /**
        * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
        */
@@ -1148,8 +1163,9 @@ export interface ClubSetting {
       | {
           label: string;
           link?: {
-            type?: ('page' | 'url') | null;
+            type?: ('page' | 'builtIn' | 'url') | null;
             page?: (string | null) | Page;
+            builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
             /**
              * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
              */
@@ -1162,8 +1178,9 @@ export interface ClubSetting {
                   | {
                       link: {
                         label: string;
-                        type?: ('page' | 'url') | null;
+                        type?: ('page' | 'builtIn' | 'url') | null;
                         page?: (string | null) | Page;
+                        builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
                         /**
                          * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
                          */
@@ -1195,8 +1212,9 @@ export interface ClubSetting {
             | {
                 link: {
                   label: string;
-                  type?: ('page' | 'url') | null;
+                  type?: ('page' | 'builtIn' | 'url') | null;
                   page?: (string | null) | Page;
+                  builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
                   /**
                    * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
                    */
@@ -1223,8 +1241,9 @@ export interface ClubSetting {
       | null;
     hoursLink?: {
       label?: string | null;
-      type?: ('page' | 'url') | null;
+      type?: ('page' | 'builtIn' | 'url') | null;
       page?: (string | null) | Page;
+      builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
       /**
        * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
        */
@@ -1254,8 +1273,9 @@ export interface ClubSetting {
       | null;
     secondaryButton?: {
       label?: string | null;
-      type?: ('page' | 'url') | null;
+      type?: ('page' | 'builtIn' | 'url') | null;
       page?: (string | null) | Page;
+      builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
       /**
        * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
        */
@@ -1268,8 +1288,9 @@ export interface ClubSetting {
       | {
           link: {
             label: string;
-            type?: ('page' | 'url') | null;
+            type?: ('page' | 'builtIn' | 'url') | null;
             page?: (string | null) | Page;
+            builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
             /**
              * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
              */
@@ -1303,8 +1324,9 @@ export interface ClubSetting {
           expiresAt: string;
           link?: {
             label?: string | null;
-            type?: ('page' | 'url') | null;
+            type?: ('page' | 'builtIn' | 'url') | null;
             page?: (string | null) | Page;
+            builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
             /**
              * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
              */
@@ -1340,8 +1362,9 @@ export interface ClubSetting {
           inbox?: string | null;
           nextLink?: {
             label?: string | null;
-            type?: ('page' | 'url') | null;
+            type?: ('page' | 'builtIn' | 'url') | null;
             page?: (string | null) | Page;
+            builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
             /**
              * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
              */
@@ -1569,8 +1592,9 @@ export interface Event {
    */
   placesLeft?: number | null;
   link?: {
-    type?: ('page' | 'url') | null;
+    type?: ('page' | 'builtIn' | 'url') | null;
     page?: (string | null) | Page;
+    builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
     /**
      * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
      */
@@ -1760,6 +1784,7 @@ export interface HeroBlockSelect<T extends boolean = true> {
         label?: T;
         type?: T;
         page?: T;
+        builtIn?: T;
         url?: T;
       };
   secondaryLink?:
@@ -1768,6 +1793,7 @@ export interface HeroBlockSelect<T extends boolean = true> {
         label?: T;
         type?: T;
         page?: T;
+        builtIn?: T;
         url?: T;
       };
   id?: T;
@@ -1788,6 +1814,7 @@ export interface CtaCardGridBlockSelect<T extends boolean = true> {
         label?: T;
         type?: T;
         page?: T;
+        builtIn?: T;
         url?: T;
       };
   cards?:
@@ -1802,6 +1829,7 @@ export interface CtaCardGridBlockSelect<T extends boolean = true> {
           | {
               type?: T;
               page?: T;
+              builtIn?: T;
               url?: T;
             };
         id?: T;
@@ -1835,6 +1863,7 @@ export interface TwoColumnBlockSelect<T extends boolean = true> {
         label?: T;
         type?: T;
         page?: T;
+        builtIn?: T;
         url?: T;
       };
   id?: T;
@@ -1902,6 +1931,7 @@ export interface RateTableBlockSelect<T extends boolean = true> {
         label?: T;
         type?: T;
         page?: T;
+        builtIn?: T;
         url?: T;
       };
   asideEyebrow?: T;
@@ -1950,6 +1980,7 @@ export interface DocumentListBlockSelect<T extends boolean = true> {
         label?: T;
         type?: T;
         page?: T;
+        builtIn?: T;
         url?: T;
       };
   id?: T;
@@ -2054,6 +2085,7 @@ export interface FaqBlockSelect<T extends boolean = true> {
         label?: T;
         type?: T;
         page?: T;
+        builtIn?: T;
         url?: T;
       };
   id?: T;
@@ -2075,6 +2107,7 @@ export interface TeamBlockSelect<T extends boolean = true> {
         label?: T;
         type?: T;
         page?: T;
+        builtIn?: T;
         url?: T;
       };
   viewAll?:
@@ -2083,6 +2116,7 @@ export interface TeamBlockSelect<T extends boolean = true> {
         label?: T;
         type?: T;
         page?: T;
+        builtIn?: T;
         url?: T;
       };
   id?: T;
@@ -2123,6 +2157,7 @@ export interface MembershipBlockSelect<T extends boolean = true> {
           | {
               type?: T;
               page?: T;
+              builtIn?: T;
               url?: T;
             };
         id?: T;
@@ -2140,6 +2175,7 @@ export interface MembershipBlockSelect<T extends boolean = true> {
         label?: T;
         type?: T;
         page?: T;
+        builtIn?: T;
         url?: T;
       };
   card?:
@@ -2153,6 +2189,7 @@ export interface MembershipBlockSelect<T extends boolean = true> {
               label?: T;
               type?: T;
               page?: T;
+              builtIn?: T;
               url?: T;
             };
         note?: T;
@@ -2202,6 +2239,7 @@ export interface CourseStatusBlockSelect<T extends boolean = true> {
     | {
         type?: T;
         page?: T;
+        builtIn?: T;
         url?: T;
       };
   id?: T;
@@ -2262,6 +2300,7 @@ export interface ClubSettingsSelect<T extends boolean = true> {
               label?: T;
               type?: T;
               page?: T;
+              builtIn?: T;
               url?: T;
             };
         phone?: T;
@@ -2274,6 +2313,7 @@ export interface ClubSettingsSelect<T extends boolean = true> {
                 | {
                     type?: T;
                     page?: T;
+                    builtIn?: T;
                     url?: T;
                   };
               groups?:
@@ -2289,6 +2329,7 @@ export interface ClubSettingsSelect<T extends boolean = true> {
                                 label?: T;
                                 type?: T;
                                 page?: T;
+                                builtIn?: T;
                                 url?: T;
                               };
                           id?: T;
@@ -2316,6 +2357,7 @@ export interface ClubSettingsSelect<T extends boolean = true> {
                           label?: T;
                           type?: T;
                           page?: T;
+                          builtIn?: T;
                           url?: T;
                         };
                     id?: T;
@@ -2335,6 +2377,7 @@ export interface ClubSettingsSelect<T extends boolean = true> {
               label?: T;
               type?: T;
               page?: T;
+              builtIn?: T;
               url?: T;
             };
         email?: T;
@@ -2353,6 +2396,7 @@ export interface ClubSettingsSelect<T extends boolean = true> {
               label?: T;
               type?: T;
               page?: T;
+              builtIn?: T;
               url?: T;
             };
         legalLinks?:
@@ -2364,6 +2408,7 @@ export interface ClubSettingsSelect<T extends boolean = true> {
                     label?: T;
                     type?: T;
                     page?: T;
+                    builtIn?: T;
                     url?: T;
                   };
               id?: T;
@@ -2388,6 +2433,7 @@ export interface ClubSettingsSelect<T extends boolean = true> {
                     label?: T;
                     type?: T;
                     page?: T;
+                    builtIn?: T;
                     url?: T;
                   };
               id?: T;
@@ -2411,6 +2457,7 @@ export interface ClubSettingsSelect<T extends boolean = true> {
                     label?: T;
                     type?: T;
                     page?: T;
+                    builtIn?: T;
                     url?: T;
                   };
               id?: T;
@@ -2659,6 +2706,7 @@ export interface EventsSelect<T extends boolean = true> {
     | {
         type?: T;
         page?: T;
+        builtIn?: T;
         url?: T;
       };
   featured?: T;

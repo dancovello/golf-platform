@@ -4,7 +4,7 @@ import { layoutRefs } from '@/blocks'
 import { idOf } from '@/blocks/types'
 import { STATUS_STALE_HOURS, type StatusState } from '@/collections/courseStatusStates'
 import { TEE_COLOURS, type TeeColour, yardsField } from '@/collections/courseTees'
-import { isSafeURL } from '@/fields/link'
+import { builtInLink, isSafeURL } from '@/fields/link'
 
 import type { SiteLink } from '../loadClub'
 import { siteToday } from '../today'
@@ -303,11 +303,16 @@ export const loadBlockContext = async (
         type?: string
         page?: unknown
         url?: string
+        builtIn?: unknown
       }
       const label = raw.label?.trim() || fallbackLabel
       if (!label) return null
       if (raw.type === 'url') {
         return isSafeURL(raw.url) ? { label, link: { kind: 'url', href: raw.url.trim() } } : null
+      }
+      if (raw.type === 'builtIn') {
+        const builtIn = builtInLink(raw.builtIn)
+        return builtIn ? { label, link: builtIn } : null
       }
       const slug = pages.get(idOf(raw.page) ?? '')
       return slug ? { label, link: { kind: 'page', slug } } : null

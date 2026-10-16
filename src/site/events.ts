@@ -2,7 +2,7 @@ import config from '@payload-config'
 import { getPayload, type Where } from 'payload'
 
 import { EVENT_CATEGORIES, eventCategoryLabel } from '@/collections/eventCategories'
-import { isSafeURL } from '@/fields/link'
+import { builtInLink, isSafeURL, linksToPage } from '@/fields/link'
 
 import { loadClubMedia, type SiteMedia } from './blocks/media'
 import type { SiteLink } from './loadClub'
@@ -44,7 +44,7 @@ type EventDoc = {
   price?: string | null
   memberPrice?: string | null
   booking: 'book' | 'enquire' | 'soldOut'
-  link?: { type?: string | null; page?: unknown; url?: string | null } | null
+  link?: { type?: string | null; page?: unknown; url?: string | null; builtIn?: unknown } | null
   capacity?: number | null
   placesLeft?: number | null
   featured?: boolean | null
@@ -69,7 +69,7 @@ const toEvents = async (tenantID: string, docs: EventDoc[]): Promise<SiteEvent[]
   const pageIDs = [
     ...new Set(
       docs
-        .map((d) => (d.link?.type === 'url' ? null : idOf(d.link?.page)))
+        .map((d) => (linksToPage(d.link?.type) ? idOf(d.link?.page) : null))
         .filter((id): id is string => Boolean(id)),
     ),
   ]
@@ -94,6 +94,8 @@ const toEvents = async (tenantID: string, docs: EventDoc[]): Promise<SiteEvent[]
     if (d.booking !== 'soldOut' && d.link) {
       if (d.link.type === 'url') {
         link = isSafeURL(d.link.url) ? { kind: 'url', href: d.link.url.trim() } : null
+      } else if (d.link.type === 'builtIn') {
+        link = builtInLink(d.link.builtIn)
       } else {
         const slug = pages.get(idOf(d.link.page) ?? '')
         link = slug ? { kind: 'page', slug } : null

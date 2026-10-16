@@ -8,7 +8,7 @@ import {
   STATUS_STATES,
   type StatusState,
 } from '@/collections/courseStatusStates'
-import { isSafeURL } from '@/fields/link'
+import { builtInLink, isSafeURL, linksToPage } from '@/fields/link'
 import { loadBlockContext } from '@/site/blocks/resolve'
 import { type Brand, BRAND_INPUTS, DEFAULT_BRAND, isHex } from '@/theme/colour'
 import { DEFAULT_FONT_SET, type FontSetID, isFontSetID } from '@/theme/fontSets'
@@ -78,7 +78,13 @@ export type ClubSite = {
   privacy: PrivacySettings
 }
 
-type RawLink = { label?: string | null; type?: string | null; page?: unknown; url?: string | null }
+type RawLink = {
+  label?: string | null
+  type?: string | null
+  page?: unknown
+  url?: string | null
+  builtIn?: unknown
+}
 type RawSettings = {
   clubName?: string | null
   branding?: Partial<Brand> & {
@@ -204,13 +210,14 @@ export const loadClubBySlug = async (slug: string): Promise<ClubSite | null> => 
   const pageSlugs = await clubPageSlugs(
     payload,
     tenantID,
-    rawLinks.map((l) => idOf(l.page)),
+    rawLinks.map((l) => (linksToPage(l.type) ? idOf(l.page) : null)),
   )
   const images = await clubImages(payload, tenantID, [idOf(b.logoOnLight), idOf(b.logoOnDark)])
 
   const toLink = (raw: RawLink | null | undefined): SiteLink | null => {
     if (!raw) return null
     if (raw.type === 'url') return isSafeURL(raw.url) ? { kind: 'url', href: raw.url.trim() } : null
+    if (raw.type === 'builtIn') return builtInLink(raw.builtIn)
     const pageSlug = pageSlugs.get(idOf(raw.page) ?? '')
     return pageSlug ? { kind: 'page', slug: pageSlug } : null
   }

@@ -2,7 +2,7 @@ import config from '@payload-config'
 import { getPayload } from 'payload'
 
 import { type EnquiryPurpose, isEnquiryPurpose } from '@/collections/enquiryPurposes'
-import { isSafeURL } from '@/fields/link'
+import { builtInLink, isSafeURL, linksToPage } from '@/fields/link'
 
 import { clubPageSlugs, type LabelledLink, type SiteLink } from '../loadClub'
 
@@ -20,7 +20,13 @@ export type ContactSettings = {
   aside: { title: string; text: string } | null
 }
 
-type RawLink = { label?: string | null; type?: string | null; page?: unknown; url?: string | null }
+type RawLink = {
+  label?: string | null
+  type?: string | null
+  page?: unknown
+  url?: string | null
+  builtIn?: unknown
+}
 type RawContact = {
   intro?: string | null
   replyDays?: number | null
@@ -53,13 +59,14 @@ export const loadContactSettings = async (tenantID: string): Promise<ContactSett
   const slugs = await clubPageSlugs(
     payload,
     tenantID,
-    rows.map((r) => idOf(r.nextLink?.page)),
+    rows.map((r) => (linksToPage(r.nextLink?.type) ? idOf(r.nextLink?.page) : null)),
   )
   const toLink = (raw: RawLink | null | undefined): LabelledLink | null => {
     const label = raw?.label?.trim()
     if (!raw || !label) return null
     let link: SiteLink | null = null
     if (raw.type === 'url') link = isSafeURL(raw.url) ? { kind: 'url', href: raw.url.trim() } : null
+    else if (raw.type === 'builtIn') link = builtInLink(raw.builtIn)
     else {
       const slug = slugs.get(idOf(raw.page) ?? '')
       link = slug ? { kind: 'page', slug } : null
