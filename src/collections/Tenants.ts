@@ -1,17 +1,9 @@
 import type { CollectionBeforeValidateHook, CollectionConfig } from 'payload'
 
 import { editorTenantID, isSuperAdmin, superAdminOnly } from '../access/roles'
+import { SLUG, slugify } from '../fields/slug'
 import { DEFAULT_BRAND } from '../theme/colour'
 import { DEFAULT_FONT_SET } from '../theme/fontSets'
-
-const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
-
-export const slugify = (name: string) =>
-  name
-    .toLowerCase()
-    .normalize('NFKD')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
 
 /** New clubs get a web-safe short name from their name unless one is given. */
 const defaultSlug: CollectionBeforeValidateHook = ({ data, operation }) => {

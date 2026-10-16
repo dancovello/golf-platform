@@ -98,6 +98,10 @@ export default buildConfig({
         return typeof fn === 'function' ? fn(args as never) : false
       },
       useUsersTenantFilter: false,
+      // The Clubs list shows every club to the super-admin, not just the one picked in the club
+      // selector (it hid new clubs, e.g. the demo club). Editors can't open the Clubs list, and
+      // can only ever read their own club (Tenants.access).
+      useTenantsListFilter: false,
       // Deleting a club is refused by the database while it has accounts or content.
       cleanupAfterTenantDelete: false,
     }),
