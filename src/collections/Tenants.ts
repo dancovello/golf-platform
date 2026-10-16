@@ -30,6 +30,7 @@ export const Tenants: CollectionConfig = {
   admin: {
     useAsTitle: 'name',
     hidden: ({ user }) => !isSuperAdmin(user),
+    components: { beforeListTable: ['/admin/DemoClubPanel#DemoClubPanel'] },
   },
   access: {
     create: superAdminOnly,
