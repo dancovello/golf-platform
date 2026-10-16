@@ -70,7 +70,14 @@ const allOn = (): PolicyFacts => ({
     },
   }),
   // Not built yet, so policyFacts never turns these on; the template must still handle them.
-  features: { newsletter: true, accounts: true, bookings: true, payments: true, ga: true },
+  features: {
+    newsletter: true,
+    accounts: true,
+    bookings: true,
+    payments: true,
+    ga: true,
+    spamCheck: true,
+  },
 })
 
 const placeholders = /\{\{|\}\}|\[IF|\[END\]|\{retention|undefined|null|\[object/
@@ -84,6 +91,7 @@ describe('privacy policy, every feature off', () => {
 
   it('says nothing about bookings, accounts, payments, Google, newsletters or a cookie banner', () => {
     for (const word of [
+      /turnstile/i,
       /booking/i,
       /account/i,
       /stripe/i,
@@ -161,6 +169,7 @@ describe('privacy policy, every feature on', () => {
       RETENTION.ga,
       'Junior members under 13',
       'We use CCTV in the car park.',
+      'Cloudflare Turnstile',
     ]) {
       expect(text, phrase).toContain(phrase)
     }
@@ -207,6 +216,7 @@ describe('privacy policy facts', () => {
       bookings: false,
       payments: false,
       ga: false,
+      spamCheck: false,
     })
   })
 

@@ -10,6 +10,7 @@ import {
 
 import { ArrowRight, Check, ChevronDown, Info } from '../components/Icons'
 import type { ContactState, SentSummary } from './state'
+import { TurnstileCheck } from './TurnstileCheck'
 import {
   type ContactValues,
   FIELD_ORDER,
@@ -28,6 +29,8 @@ type Props = {
   offerNewsletter: boolean
   /** The Contact page again, for "Send another message". */
   againHref: string
+  /** Cloudflare's spam check, when it's switched on (src/site/contact/turnstile.ts). */
+  turnstileSiteKey: string | null
 }
 
 const fieldID = (field: FieldName) => `contact-${field}`
@@ -48,15 +51,30 @@ export const ContactForm = (props: Props) => {
   // A new key after each send: React clears a form once its action finishes, so the fields
   // are drawn again from what was sent.
   return (
-    <FormBody
-      key={state.attempt}
-      {...props}
-      state={state}
-      formAction={formAction}
-      pending={pending}
-    />
+    <>
+      <FormBody
+        key={state.attempt}
+        {...props}
+        state={state}
+        formAction={formAction}
+        pending={pending}
+      />
+      {/* Outside the redrawn form, so its answer survives "things to fix" (that doesn't use it
+          up). The server only uses it once the fields are right; any message back after that
+          (state.formError) means it's spent, so the check starts again. */}
+      {props.turnstileSiteKey ? (
+        <TurnstileCheck
+          siteKey={props.turnstileSiteKey}
+          action="contact"
+          formID={FORM_ID}
+          restartKey={state.formError ? state.attempt : null}
+        />
+      ) : null}
+    </>
   )
 }
+
+const FORM_ID = 'contact-form'
 
 const FormBody = ({
   state,
@@ -173,7 +191,7 @@ const FormBody = ({
   const problemCount = listed.length
 
   return (
-    <form className="cf" action={formAction} noValidate>
+    <form id={FORM_ID} className="cf" action={formAction} noValidate>
       {hasProblems ? (
         <div className="cf-alert" role="alert" tabIndex={-1} ref={summaryRef}>
           <Info size={20} />

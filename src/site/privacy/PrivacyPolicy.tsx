@@ -222,6 +222,14 @@ export const PrivacyPolicy = ({
               {essentialExamples.length > 0 ? `, such as ${essentialExamples.join(' or ')}` : ''}.
               These don’t need consent.
             </li>
+            {f.spamCheck ? (
+              <li>
+                <strong>Spam protection:</strong> our contact form uses Cloudflare Turnstile to
+                check that a message comes from a person, not a robot. It looks at technical details
+                of your browser when you use the form, doesn’t track you across websites, and
+                doesn’t need consent.
+              </li>
+            ) : null}
             {f.ga ? (
               <li>
                 <strong>Google Analytics:</strong> only runs if you accept analytics cookies in our

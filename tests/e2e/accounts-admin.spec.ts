@@ -91,10 +91,7 @@ test.describe("account actions on an editor's page", () => {
   })
 })
 
-test('public "Forgot password?" is off until an email provider is chosen', async ({
-  request,
-  world,
-}) => {
+test('public "Forgot password?" is off where email isn\'t set up', async ({ request, world }) => {
   for (const email of [world.editorA.email, 'nobody@example.com']) {
     const res = await request.post('/api/users/forgot-password', { data: { email } })
     expect(res.status()).toBe(403)
