@@ -211,6 +211,7 @@ export interface Page {
         | ScorecardBlock
         | CourseStatusBlock
         | NewsFeedBlock
+        | EventsFeedBlock
       )[]
     | null;
   updatedAt: string;
@@ -1057,6 +1058,23 @@ export interface NewsFeedBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EventsFeedBlock".
+ */
+export interface EventsFeedBlock {
+  style: 'carousel' | 'agenda' | 'featured';
+  eyebrow?: string | null;
+  heading: string;
+  intro?: string | null;
+  /**
+   * Leave empty for all events.
+   */
+  category?: ('social' | 'dining' | 'competition' | 'academy' | 'members') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'eventsFeed';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "club-settings".
  */
 export interface ClubSetting {
@@ -1612,6 +1630,7 @@ export interface PagesSelect<T extends boolean = true> {
         scorecard?: T | ScorecardBlockSelect<T>;
         courseStatus?: T | CourseStatusBlockSelect<T>;
         newsFeed?: T | NewsFeedBlockSelect<T>;
+        eventsFeed?: T | EventsFeedBlockSelect<T>;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -2089,6 +2108,19 @@ export interface NewsFeedBlockSelect<T extends boolean = true> {
   style?: T;
   eyebrow?: T;
   heading?: T;
+  category?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EventsFeedBlock_select".
+ */
+export interface EventsFeedBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  intro?: T;
   category?: T;
   id?: T;
   blockName?: T;

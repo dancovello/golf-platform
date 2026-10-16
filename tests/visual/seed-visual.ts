@@ -1338,6 +1338,46 @@ for (const [slug, p] of Object.entries(palettes)) {
       } as never,
     })
   }
+
+  // The wine dinner is the featured event; the other blocks show the next ones.
+  const wineDinner = await payload.find({
+    collection: 'events',
+    where: { and: [{ tenant: { equals: club.id } }, { category: { equals: 'dining' } }] },
+    sort: 'startsAt',
+    limit: 1,
+  })
+  await payload.update({
+    collection: 'events',
+    id: wineDinner.docs[0].id,
+    data: {
+      featured: true,
+      capacity: 60,
+      placesLeft: 14,
+      summary:
+        'Five courses from Marta Ruiz, each matched by Berry Bros.’ head of fine wine. Black tie optional.',
+    } as never,
+  })
+  await page('events-block', 'What’s on', [
+    {
+      blockType: 'eventsFeed',
+      style: 'carousel',
+      eyebrow: 'What’s on',
+      heading: 'Upcoming events',
+    },
+    {
+      blockType: 'eventsFeed',
+      style: 'agenda',
+      eyebrow: 'What’s on',
+      heading: 'The diary',
+      intro: 'Dinners, competitions and clinics, open to members and guests.',
+    },
+    {
+      blockType: 'eventsFeed',
+      style: 'featured',
+      eyebrow: 'Next big night',
+      heading: 'Featured event',
+    },
+  ])
 }
 
 process.exit(0)

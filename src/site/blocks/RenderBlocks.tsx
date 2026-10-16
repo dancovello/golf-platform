@@ -19,6 +19,7 @@ import { HoleGrid } from './HoleGrid'
 import { Scorecard } from './Scorecard'
 import { CourseStatus } from './CourseStatus'
 import { NewsFeed } from '../news/NewsFeed'
+import { EventsFeed } from '../events/EventsFeed'
 import type { BlockContext } from './resolve'
 
 import './blocks.css'
@@ -42,6 +43,7 @@ import './courseStatus.css'
 import '../components/buttons.css'
 // After buttons.css: the news styles refine the shared link buttons (same as on news pages).
 import '../news/news.css'
+import '../events/events.css'
 
 type LayoutBlock = NonNullable<Page['layout']>[number]
 
@@ -107,6 +109,8 @@ export const RenderBlocks = ({
         return <CourseStatus key={block.id ?? i} block={block} ctx={ctx} club={club} base={base} />
       case 'newsFeed':
         return <NewsFeed key={block.id ?? i} block={block} club={club} base={base} />
+      case 'eventsFeed':
+        return <EventsFeed key={block.id ?? i} block={block} club={club} base={base} />
       default:
         return null
     }

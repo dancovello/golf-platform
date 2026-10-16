@@ -99,3 +99,11 @@ describe('events can only use their own club’s photos and pages', () => {
     ).rejects.toThrow()
   })
 })
+
+describe('the Upcoming events block', () => {
+  it('limits to one category when asked, still only the club’s own', async () => {
+    const dining = await upcomingEvents(w.clubA.id, 4, 'dining')
+    expect(dining.map((e) => e.title)).toEqual(['Club A dinner', 'Wine dinner'])
+    expect(await upcomingEvents(w.clubB.id, 4, 'competition')).toEqual([])
+  })
+})
