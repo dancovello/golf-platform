@@ -9,9 +9,8 @@ import { allowAccountCreation } from '../access/accountCreation'
 export const PASSWORD_LINK_HOURS = 72
 
 /**
- * Passed as context when the platform itself creates a link. Payload's public
- * "Forgot password?" is refused without it (src/collections/Users.ts): with no email provider
- * chosen yet, Payload would write reset links into the server logs.
+ * Passed as context when the platform itself creates a link, so it works even where the public
+ * "Forgot password?" is off (src/collections/Users.ts).
  */
 export const passwordLinkByAdmin = { passwordLinkByAdmin: true }
 
