@@ -146,3 +146,11 @@ Dan's devops contact checked and approved the review items raised in PRs #18, #2
 - **Who sees drafts:** the preview (`?live=1` on the page's address) shows the draft only to someone signed in with their two-factor code who is that club's editor, or the super-admin. Anyone else adding `?live=1`, including another club's editor, sees the published page.
 - **Version history stays inside each club:** an editor can list, open and restore only their own club's page versions, and deleting a page deletes its history.
 - **Not done:** a preview for Club Settings (the menu and footer). It would show the home page after each save; possible later if wanted.
+
+## 2026-10-16 — Password reset by email
+
+- **On** (Dan, 2026-10-16), wherever email is set up (`RESEND_API_KEY`) **and** the admin's address is set (`ADMIN_URL`). Elsewhere "Forgot password?" is refused as before, so reset links never end up in server logs.
+- **The link in the email always uses `ADMIN_URL`**, never the address the request came in on: anyone can ask for a reset email, and a forged address would send the reset code to someone else's site.
+- **At most one email per account every 15 minutes.** Requests in between are quietly ignored: no email, no new link, and the earlier link keeps working. This protects inboxes and Resend's free allowance (100 emails a day), which Contact page alerts share.
+- **The link works once, for one hour** (Payload's default). The 72-hour "set your password" links the super-admin makes are unchanged. Signing in afterwards still needs the authenticator code.
+- The answer is the same whether or not the address has an account, so the form can't be used to find out who has one.
