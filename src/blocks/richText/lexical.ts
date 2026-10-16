@@ -16,6 +16,24 @@ import {
 import { isSafeURL } from '../../fields/link'
 import { type BlockRef, idOf } from '../types'
 
+/** Links to the club's own pages or a safe web address. */
+const safeLinks = () =>
+  LinkFeature({
+    enabledCollections: ['pages'],
+    fields: ({ defaultFields }) =>
+      defaultFields.map((field) =>
+        'name' in field && field.name === 'url'
+          ? {
+              ...field,
+              validate: (value: unknown, options: { siblingData?: { linkType?: string } }) =>
+                options?.siblingData?.linkType === 'internal' || isSafeURL(value)
+                  ? true
+                  : 'Use a full web address starting with https://, or mailto: / tel:.',
+            }
+          : field,
+      ) as typeof defaultFields,
+  })
+
 /**
  * The rich-text editor for club content: only H2/H3, paragraphs, bold/italic, lists, quotes,
  * links and photos (docs/design Rich Text spec: no font or colour controls for editors).
@@ -30,26 +48,29 @@ export const clubRichText = lexicalEditor({
     UnorderedListFeature(),
     OrderedListFeature(),
     BlockquoteFeature(),
-    LinkFeature({
-      enabledCollections: ['pages'],
-      fields: ({ defaultFields }) =>
-        defaultFields.map((field) =>
-          'name' in field && field.name === 'url'
-            ? {
-                ...field,
-                validate: (value: unknown, options: { siblingData?: { linkType?: string } }) =>
-                  options?.siblingData?.linkType === 'internal' || isSafeURL(value)
-                    ? true
-                    : 'Use a full web address starting with https://, or mailto: / tel:.',
-              }
-            : field,
-        ) as typeof defaultFields,
-    }),
+    safeLinks(),
     UploadFeature({
       collections: {
         media: { fields: [{ name: 'caption', label: 'Caption', type: 'text', maxLength: 120 }] },
       },
     }),
+    FixedToolbarFeature(),
+    InlineToolbarFeature(),
+  ],
+})
+
+/**
+ * The privacy policy's "Additional information": paragraphs, bold/italic, lists and links only.
+ * No headings, so the policy keeps one heading per section.
+ */
+export const privacyRichText = lexicalEditor({
+  features: () => [
+    ParagraphFeature(),
+    BoldFeature(),
+    ItalicFeature(),
+    UnorderedListFeature(),
+    OrderedListFeature(),
+    safeLinks(),
     FixedToolbarFeature(),
     InlineToolbarFeature(),
   ],

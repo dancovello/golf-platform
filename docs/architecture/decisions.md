@@ -94,3 +94,15 @@ Dan's devops contact checked and approved the review items raised in PRs #18, #2
 - **No CI run after merging into `main`.** Branch protection makes every pull request catch up with `main` first, so its own run already checked exactly what lands.
 - **Changes that can't affect anything skip the heavy jobs.** A change to only docs, Claude notes or Markdown skips `tests` and `browser-checks`, and the picture check is skipped when nothing the pictures depend on changed. GitHub counts a skipped required check as passed. `quick-checks` always runs, so the secret scan sees every change.
 - **Claude runs the checks locally and pushes a branch once it's ready**, not after every small fix, because every push re-runs CI.
+
+## 2026-10-15 — Privacy policy on every club site
+
+- **A system page, not a CMS page.** Every club has `/privacy` (on staging, `/preview/<club>/privacy`), written from code in `src/site/privacy/`. Clubs can't edit or delete it; the footer link to it is built in. A club page with the address "privacy" can't replace it. It's served by the same route as every club page, not a route of its own: a separate route made Next.js split the shared stylesheets into a different order, which moved the news archive tabs.
+- **Club Settings → Privacy & legal:** optional legal name, privacy email, newsletter service, Google Analytics ID and "Additional information" (paragraphs, lists and links only). Blank boxes fall back to the club name and footer email.
+- **Footer email and address are now required** whenever Club Settings are saved. Not a database rule: settings are created blank with each new club, and clubs saved earlier still load. Until filled in, the policy leaves those lines out.
+- **Platform name:** "Clubhouse", a working name (`PLATFORM_NAME` in `src/site/privacy/policy.ts`). Change it there when the real name is chosen.
+- **Bookings, member accounts and Stripe** parts of the policy are written but always off, because those features are out of scope for v1.
+- **Cookie banner** only for clubs with a Google Analytics ID. Google's script isn't added until the visitor accepts; "Cookie settings" in the footer reopens the banner. The choice is kept in the visitor's browser.
+- **Vercel Web Analytics isn't installed**, so the brief's sentence about it is left out of the policy (Dan, 2026-10-15). If it's switched on later, the sentence goes back in.
+- **Search engines:** the page follows the staging rule (not indexed) until real domains arrive in step 4, when the brief's "index, follow" applies.
+- **Before the first real club:** a data-protection adviser should review the wording, and the written agreement between the platform and each club that section 1 mentions must exist.

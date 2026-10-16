@@ -60,6 +60,10 @@
 .rt-prose ol {
   padding-left: var(--space-24);
 }
+/* Compound selector: the quote's text style (.t-quote-m) would otherwise reset its spacing. */
+.rt-prose > blockquote {
+  margin: var(--space-32) 0;
+}
 .rt-prose blockquote {
   margin-left: 0;
   margin-right: 0;

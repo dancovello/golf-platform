@@ -4,6 +4,7 @@ import { AnnouncementBar } from '@/site/components/AnnouncementBar'
 import { SiteFooter } from '@/site/components/SiteFooter'
 import { SiteHeader } from '@/site/components/SiteHeader'
 import type { ClubSite } from '@/site/loadClub'
+import { CookieConsent } from '@/site/privacy/CookieConsent'
 import { brandCSSVariables } from '@/theme/colour'
 
 import { fontSetVariables } from '../../fonts'
@@ -12,6 +13,8 @@ import '@/theme/theme.css'
 import '@/site/components/header.css'
 import '@/site/components/footer.css'
 import '@/site/components/announcement.css'
+import '@/site/privacy/cookieConsent.css'
+import '@/site/privacy/privacy.css'
 import './preview.css'
 
 /** A club's page frame on staging: its colours and fonts, header, page content and footer. */
@@ -40,6 +43,13 @@ export const ClubShell = ({
         {children}
       </main>
       <SiteFooter club={club} base={base} />
+      {club.privacy.gaMeasurementId ? (
+        <CookieConsent
+          gaID={club.privacy.gaMeasurementId}
+          storageKey={`cookie-consent:${club.slug}`}
+          privacyHref={`${base}/privacy`}
+        />
+      ) : null}
     </div>
   )
 }
