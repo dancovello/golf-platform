@@ -6,7 +6,7 @@
  * again before its next settings save.
  */
 
-export const AGREEMENT_VERSION = '2026-10-15-draft'
+export const AGREEMENT_VERSION = '2026-10-16-draft'
 
 /** False until a solicitor has approved the wording; the admin then shows a "draft" notice. */
 export const AGREEMENT_APPROVED = false
@@ -317,6 +317,12 @@ export const agreementText = (club: AgreementParty): AgreementSection[] => {
               'Network security and delivery; storage of photos, documents and encrypted backups',
               'Western Europe and the EU for storage; global network for delivery',
               'UK Extension to the EU–US Data Privacy Framework; UK Addendum to the EU Standard Contractual Clauses',
+            ],
+            [
+              'Resend, Inc.',
+              'Sends the website’s emails, such as new contact form messages to the Club',
+              'Sent from Ireland (AWS eu-west-1); account data and email logs stored in the USA',
+              '[Solicitor/Dan to confirm from Resend’s data processing agreement]',
             ],
             [
               'GitHub, Inc. (Microsoft)',

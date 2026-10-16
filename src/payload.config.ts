@@ -11,6 +11,7 @@ import { fileURLToPath } from 'url'
 import { isSuperAdmin } from './access/roles'
 import { guardTenantSelection } from './admin/guardTenantSelection'
 import { encryptTotpSecrets } from './auth/totpSecretEncryption'
+import { emailAdapter } from './email/adapter'
 import { collections } from './collections'
 import { usersAccess } from './collections/Users'
 import { DOCUMENT_TYPES } from './collections/Documents'
@@ -55,6 +56,8 @@ export default buildConfig({
   // Copied so Payload adding its own collections at startup never changes our list.
   collections: [...collections],
   editor: lexicalEditor(),
+  // Resend, only when its key is set (src/email/adapter.ts).
+  email: emailAdapter(),
   // GraphQL is off until it is covered by the tenant-isolation suite (see docs/architecture/decisions.md).
   graphQL: {
     disable: true,

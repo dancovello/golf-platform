@@ -61,13 +61,15 @@ const summary = (
  * - the signed time check (formToken.ts): too quick to be a person, or long expired;
  * - at most HOURLY_LIMIT messages per club per hour.
  * Bots caught by the first two are shown the normal "sent" screen, so they learn nothing.
- * Returns null for a club that doesn't exist.
+ * Returns null for a club that doesn't exist. `onSaved` gets the new enquiry's ID (the page
+ * emails the club with it, after replying to the visitor).
  */
 export const submitEnquiry = async (
   clubSlug: string,
   prev: Pick<ContactState, 'attempt'>,
   form: FormData,
   now = new Date(),
+  onSaved?: (enquiryID: string) => void,
 ): Promise<ContactState | null> => {
   const club = await loadClubBySlug(clubSlug)
   if (!club) return null
@@ -121,7 +123,7 @@ export const submitEnquiry = async (
   const optional = (field: 'phone' | 'membershipType' | 'preferredDate' | 'groupSize') =>
     shown.has(field) && values[field].trim() ? values[field].trim() : null
   const reference = await unusedReference(club.tenantID, club.name)
-  await payload.create({
+  const saved = await payload.create({
     collection: 'enquiries',
     data: {
       tenant: club.tenantID,
@@ -141,6 +143,7 @@ export const submitEnquiry = async (
     },
     overrideAccess: true,
   })
+  onSaved?.(String(saved.id))
   return keep({ values: EMPTY_VALUES, sent: summary(values, settings, reference, now, base) })
 }
 

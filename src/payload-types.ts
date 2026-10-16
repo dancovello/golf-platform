@@ -1325,7 +1325,7 @@ export interface ClubSetting {
      */
     officeHours?: string | null;
     /**
-     * Every topic is always on the form. Add a topic here to name who replies to it, and an optional button shown after sending.
+     * Every topic is always on the form, and new messages are emailed to your footer email address. Add a topic here to send its messages somewhere else, name who replies, or show a button after sending.
      */
     purposes?:
       | {
@@ -1334,6 +1334,9 @@ export interface ClubSetting {
            * e.g. "Sarah Cole, our membership secretary". Blank: "Someone from the club".
            */
           replier?: string | null;
+          /**
+           * Blank: the footer email address.
+           */
           inbox?: string | null;
           nextLink?: {
             label?: string | null;
@@ -1578,7 +1581,7 @@ export interface Event {
   createdAt: string;
 }
 /**
- * Messages sent from the Contact page on your website. Email alerts for new messages are coming later; for now, check here.
+ * Messages sent from the Contact page on your website. Each new one is also emailed to your club (Club Settings → Contact page says where).
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "enquiries".
@@ -1600,6 +1603,10 @@ export interface Enquiry {
   groupSize?: number | null;
   message: string;
   newsletter?: boolean | null;
+  /**
+   * Blank if the email alert wasn’t sent: check this list for anything missed.
+   */
+  alertSentAt?: string | null;
   notes?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -2675,6 +2682,7 @@ export interface EnquiriesSelect<T extends boolean = true> {
   groupSize?: T;
   message?: T;
   newsletter?: T;
+  alertSentAt?: T;
   notes?: T;
   updatedAt?: T;
   createdAt?: T;

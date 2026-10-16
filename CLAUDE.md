@@ -15,7 +15,7 @@ These decisions are already made. Build on them. Do not propose alternatives unl
 | App hosting | Vercel (Pro, because Hobby forbids commercial use) |
 | Media storage | Cloudflare R2. Never use local disk storage |
 | CDN / WAF / DNS | Cloudflare |
-| Email | Resend or Postmark. Not yet chosen |
+| Email | Resend (chosen 2026-10-16) |
 | Background jobs | Payload Jobs Queue |
 | Errors | Sentry |
 | Uptime | Better Stack or UptimeRobot (external, independent of the app) |
