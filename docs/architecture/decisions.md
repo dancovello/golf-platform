@@ -106,3 +106,12 @@ Dan's devops contact checked and approved the review items raised in PRs #18, #2
 - **Vercel Web Analytics isn't installed**, so the brief's sentence about it is left out of the policy (Dan, 2026-10-15). If it's switched on later, the sentence goes back in.
 - **Search engines:** the page follows the staging rule (not indexed) until real domains arrive in step 4, when the brief's "index, follow" applies.
 - **Before the first real club:** a data-protection adviser should review the wording, and the written agreement between the platform and each club that section 1 mentions must exist.
+
+## 2026-10-15 — Data processing agreement in the admin
+
+- **Every club accepts the platform's data processing agreement (UK GDPR Article 28) in the admin**, under "Data processing agreement". The wording is in code (`src/agreement/text.ts`) with a version; changing the version asks every club again.
+- **Any editor can accept**, giving their name and role and confirming they have authority. The super-admin can't accept for a club.
+- **Not accepted → the club's editors can't save Club Settings** (a clear message, and a notice at the top of the screen). The public website and other admin screens are unaffected, and the super-admin can still set a club up.
+- **Records are permanent evidence:** version, account and time are set by the server; nobody can edit or delete a record in the admin, and the website's `golf_app` database account can only add rows to that table.
+- **Draft wording, written by Claude Code from ICO guidance, awaiting Dan's solicitor.** The admin shows "Draft" until `AGREEMENT_APPROVED` is set. The provider's legal name, company number, address and contact email, and the liability clause, are left in square brackets.
+- **Before the first real club:** Dan to confirm he has accepted each supplier's own data processing terms (Vercel, Neon, Cloudflare, GitHub), which the agreement relies on, and to decide whether to move Vercel's function region from the default (Washington, D.C.) to London, next to the database.
