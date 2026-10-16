@@ -71,6 +71,10 @@ const FormBody = ({
   // Checked when you leave a field that has something in it; a fixed field clears its error.
   const [checked, setChecked] = useState<FieldErrors & Partial<Record<FieldName, null>>>({})
   const summaryRef = useRef<HTMLDivElement>(null)
+  // Pressing Send moves focus out of the field you're in. Checking that field then (and
+  // removing its error message) would move the button up under the pointer, so the click
+  // would miss it. Sending checks every field anyway.
+  const pressingSend = useRef(false)
 
   const shown = new Set(fieldsFor(purpose))
   const errors: FieldErrors = {}
@@ -91,6 +95,7 @@ const FormBody = ({
   const onBlur =
     (field: FieldName) =>
     (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+      if (pressingSend.current) return
       const value = e.currentTarget.value
       if (!value.trim() && !(field in checked) && !state.errors[field]) return
       const values = { ...state.values, purpose, [field]: value } as ContactValues
@@ -279,7 +284,17 @@ const FormBody = ({
       ) : null}
 
       <div className="cf-submit">
-        <button className="btn btn-accent t-label-button" type="submit" disabled={pending}>
+        <button
+          className="btn btn-accent t-label-button"
+          type="submit"
+          disabled={pending}
+          onPointerDown={() => {
+            pressingSend.current = true
+          }}
+          onClick={() => {
+            pressingSend.current = false
+          }}
+        >
           {pending ? 'Sending…' : 'Send message'}
           <ArrowRight />
         </button>
