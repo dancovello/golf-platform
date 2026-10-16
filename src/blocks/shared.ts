@@ -1,4 +1,5 @@
 import type { Field } from 'payload'
+import { linksToPage } from '../fields/link'
 
 import { type BlockRef, idOf } from './types'
 
@@ -44,7 +45,7 @@ export const collectRefs = (
   }
   for (const key of links) {
     const l = (block[key] ?? {}) as { type?: string; page?: unknown }
-    const id = l.type === 'url' ? null : idOf(l.page)
+    const id = linksToPage(l.type) ? idOf(l.page) : null
     if (id) refs.push({ collection: 'pages', id, path: `${path}.${key}.page` })
   }
   return refs

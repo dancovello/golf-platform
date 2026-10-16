@@ -33,6 +33,7 @@ import * as migration_20261015_201730_events_block from './20261015_201730_event
 import * as migration_20261016_083527_club_agreement from './20261016_083527_club_agreement';
 import * as migration_20261016_131627_contact_page from './20261016_131627_contact_page';
 import * as migration_20261016_140458_enquiry_alerts from './20261016_140458_enquiry_alerts';
+import * as migration_20261016_145756_builtin_links from './20261016_145756_builtin_links';
 
 export const migrations = [
   {
@@ -208,6 +209,11 @@ export const migrations = [
   {
     up: migration_20261016_140458_enquiry_alerts.up,
     down: migration_20261016_140458_enquiry_alerts.down,
-    name: '20261016_140458_enquiry_alerts'
+    name: '20261016_140458_enquiry_alerts',
+  },
+  {
+    up: migration_20261016_145756_builtin_links.up,
+    down: migration_20261016_145756_builtin_links.down,
+    name: '20261016_145756_builtin_links'
   },
 ];

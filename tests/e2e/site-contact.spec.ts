@@ -64,6 +64,7 @@ test('shows what to fix, keeps what was typed, then sends', async ({ page }) => 
   await page.getByLabel('Your message').blur()
   await expect(page.getByLabel('Your message')).not.toHaveAttribute('aria-invalid', 'true')
   await expect(page.getByText('24 / 1,000 characters')).toBeVisible()
+  // Pressing Send straight from a field whose error is now fixed: the click must still land.
   await email.fill('dan@example.com')
   await page.getByRole('button', { name: 'Send message' }).click()
 

@@ -2,6 +2,7 @@ import type { CollectionBeforeValidateHook } from 'payload'
 import { ValidationError } from 'payload'
 
 import { layoutRefs } from '../blocks'
+import { linksToPage } from '../fields/link'
 import { richTextRefs } from '../blocks/richText/lexical'
 import { type BlockRef as Ref, idOf } from '../blocks/types'
 
@@ -141,7 +142,7 @@ export const checkEventSameClub = sameClubCheck((data) => {
   const image = idOf(data.image)
   if (image) refs.push({ collection: 'media', id: image, path: 'image' })
   const link = (data.link ?? {}) as { type?: string; page?: unknown }
-  const page = link.type === 'url' ? null : idOf(link.page)
+  const page = linksToPage(link.type) ? idOf(link.page) : null
   if (page) refs.push({ collection: 'pages', id: page, path: 'link.page' })
   return refs
 })

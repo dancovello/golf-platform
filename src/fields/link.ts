@@ -10,6 +10,22 @@ const SAFE_URL = /^(https?:\/\/[^\s]+|mailto:[^\s]+|tel:\+?[0-9 ()-]+|\/[^\s]*)$
 export const isSafeURL = (value: unknown): value is string =>
   typeof value === 'string' && SAFE_URL.test(value.trim())
 
+/** Pages every club's site has without being CMS pages (the templates), by their address. */
+export const BUILT_IN_PAGES = [
+  { label: 'News', value: 'news' },
+  { label: 'Events', value: 'events' },
+  { label: 'Contact', value: 'contact' },
+  { label: 'Privacy policy', value: 'privacy' },
+] as const
+
+/** A built-in page as a website link (slug = its address under the club), or null. */
+export const builtInLink = (value: unknown): { kind: 'page'; slug: string } | null =>
+  BUILT_IN_PAGES.some((p) => p.value === value) ? { kind: 'page', slug: value as string } : null
+
+/** Whether a stored link goes to one of the club's CMS pages (rather than a web address or a
+ * built-in page). The default type is "page". */
+export const linksToPage = (type: unknown) => type !== 'url' && type !== 'builtIn'
+
 type LinkOptions = { name: string; label: string; withLabel?: boolean; required?: boolean }
 
 export const linkField = ({
@@ -35,6 +51,7 @@ export const linkField = ({
           defaultValue: 'page',
           options: [
             { label: 'One of our pages', value: 'page' },
+            { label: 'News, Events or Contact', value: 'builtIn' },
             { label: 'A web address', value: 'url' },
           ],
         },
@@ -45,9 +62,18 @@ export const linkField = ({
       label: 'Page',
       type: 'relationship',
       relationTo: 'pages',
-      admin: { condition: (_data, sibling) => sibling?.type !== 'url' },
+      admin: { condition: (_data, sibling) => linksToPage(sibling?.type) },
       validate: (value: unknown, { siblingData }: { siblingData: { type?: string } }) =>
-        !required || siblingData?.type === 'url' || value ? true : 'Choose a page.',
+        !required || !linksToPage(siblingData?.type) || value ? true : 'Choose a page.',
+    },
+    {
+      name: 'builtIn',
+      label: 'Built-in page',
+      type: 'select',
+      options: [...BUILT_IN_PAGES],
+      admin: { condition: (_data, sibling) => sibling?.type === 'builtIn' },
+      validate: (value: unknown, { siblingData }: { siblingData: { type?: string } }) =>
+        siblingData?.type !== 'builtIn' || builtInLink(value) ? true : 'Choose a page.',
     },
     {
       name: 'url',
