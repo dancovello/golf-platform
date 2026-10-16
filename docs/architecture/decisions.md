@@ -158,3 +158,8 @@ Dan's devops contact checked and approved the review items raised in PRs #18, #2
 - **Page addresses follow the same rule as news and club addresses:** lower-case letters, numbers and single dashes, up to 80 characters (`src/fields/slug.ts`, now shared by all three). Left empty, a page's address is made from its title when it is first published; not while drafting, so autosave can't fix it from the first few letters.
 - **The addresses of the built-in pages (news, events, contact, privacy) are refused for pages**, because the built-in page always wins and the club's page would never be seen.
 - **The Clubs list shows every club to the super-admin**, whichever club is picked in the club selector (the multi-tenant plugin's `useTenantsListFilter: false`). It used to show only the picked club, so the demo club looked as if it had vanished.
+
+## 2026-10-16 — Browser security headers
+
+- **Every response** (`next.config.ts`) says: only this site may frame it (`frame-ancestors 'self'`, `X-Frame-Options: SAMEORIGIN`; the admin's live preview frames the club's page on the same address), always use https (two years, without `includeSubDomains` because a club's own domain may have other sites under it), don't guess file types, send only the site's address when following a link, no camera/microphone/location/payment. `X-Powered-By` is off.
+- **Not yet:** a full content security policy limiting which scripts run. It needs a per-request code for Next.js's own inline scripts and Google Analytics, so it's its own change, ideally alongside the pen test.
