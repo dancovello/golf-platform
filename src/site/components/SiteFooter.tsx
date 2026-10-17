@@ -2,7 +2,7 @@ import type { ClubSite, LabelledLink } from '../loadClub'
 import { CookieSettingsButton } from '../privacy/CookieConsent'
 import { BookButton } from './BookButton'
 import { ArrowRight, Mail, Phone, Pin } from './Icons'
-import { isExternal, siteHref } from './links'
+import { linkTarget, NEW_TAB, siteHref } from './links'
 import { Logo } from './Logo'
 
 /**
@@ -21,11 +21,7 @@ export const SiteFooter = ({ club, base }: { club: ClubSite; base: string }) => 
   const year = new Date().getFullYear()
 
   const a = (l: LabelledLink, className: string) => (
-    <a
-      className={className}
-      href={siteHref(base, l.link)}
-      {...(isExternal(l.link) ? { rel: 'noopener' } : {})}
-    >
+    <a className={className} href={siteHref(base, l.link)} {...linkTarget(l.link)}>
       {l.label}
     </a>
   )
@@ -71,7 +67,7 @@ export const SiteFooter = ({ club, base }: { club: ClubSite; base: string }) => 
     ) : null,
     f.address ? (
       f.directions ? (
-        <a key="a" className="sf-contact t-body-s" href={f.directions} rel="noopener">
+        <a key="a" className="sf-contact t-body-s" href={f.directions} {...NEW_TAB}>
           <Pin /> {f.address}
         </a>
       ) : (
@@ -115,7 +111,7 @@ export const SiteFooter = ({ club, base }: { club: ClubSite; base: string }) => 
                   <ul className="sf-list">
                     {f.social.map((s) => (
                       <li key={s.url}>
-                        <a className="t-body-s sf-link" href={s.url} rel="noopener">
+                        <a className="t-body-s sf-link" href={s.url} {...NEW_TAB}>
                           {SOCIAL_NAMES[s.network] ?? s.network}
                         </a>
                       </li>
@@ -129,7 +125,7 @@ export const SiteFooter = ({ club, base }: { club: ClubSite; base: string }) => 
                   <a
                     className="t-label-button sf-secondary"
                     href={siteHref(base, f.secondaryButton.link)}
-                    {...(isExternal(f.secondaryButton.link) ? { rel: 'noopener' } : {})}
+                    {...linkTarget(f.secondaryButton.link)}
                   >
                     {f.secondaryButton.label} <ArrowRight />
                   </a>

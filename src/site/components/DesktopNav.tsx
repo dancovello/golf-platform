@@ -4,7 +4,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 
 import type { MenuItem } from '../loadClub'
 import { ChevronDown } from './Icons'
-import { isExternal, siteHref } from './links'
+import { linkTarget, siteHref } from './links'
 
 /**
  * Top-level menu (Figma "Nav Item") with drop-down link groups (Figma "Mega Menu", 1.2).
@@ -85,7 +85,7 @@ export const DesktopNav = ({
                   className={`sh-nav-item t-nav${current ? ' is-current' : ''}`}
                   href={href}
                   aria-current={href === currentPath ? 'page' : undefined}
-                  {...(isExternal(item.link) ? { rel: 'noopener' } : {})}
+                  {...linkTarget(item.link)}
                   onMouseEnter={() => hover(null)}
                 >
                   {item.label}
@@ -130,7 +130,7 @@ export const DesktopNav = ({
                                 className="t-body-m sh-mega-link"
                                 href={href}
                                 aria-current={href === currentPath ? 'page' : undefined}
-                                {...(isExternal(l.link) ? { rel: 'noopener' } : {})}
+                                {...linkTarget(l.link)}
                               >
                                 {l.label}
                               </a>

@@ -2,7 +2,7 @@ import type { EventsFeedBlock } from '@/payload-types'
 
 import { Photo } from '../blocks/parts'
 import { ArrowRight } from '../components/Icons'
-import { isExternal, siteHref } from '../components/links'
+import { linkTarget, siteHref } from '../components/links'
 import { featuredEvent, upcomingEvents } from '../events'
 import type { ClubSite } from '../loadClub'
 import { NewsCarousel } from '../news/NewsCarousel'
@@ -71,7 +71,7 @@ export const EventsFeed = async ({
                 <a
                   className="btn btn-accent t-label-button events-featured-button"
                   href={siteHref(base, lead.link)}
-                  {...(isExternal(lead.link) ? { rel: 'noopener' } : {})}
+                  {...linkTarget(lead.link)}
                 >
                   {lead.booking === 'enquire' ? 'Enquire' : 'Book tickets'} <ArrowRight />
                 </a>

@@ -6,6 +6,7 @@ import { isSafeURL } from '@/fields/link'
 
 import { isImage } from './parts'
 import type { BlockContext } from './resolve'
+import { NEW_TAB } from '../components/links'
 
 type Partner = { name: string; url: string | null; logo: string | null }
 
@@ -48,7 +49,7 @@ export const LogoStrip = ({ block, ctx }: { block: LogoStripBlock; ctx: BlockCon
         {p.url ? (
           <a
             href={p.url}
-            rel="noopener"
+            {...NEW_TAB}
             tabIndex={hidden ? -1 : undefined}
             aria-label={p.logo ? undefined : p.name}
           >
