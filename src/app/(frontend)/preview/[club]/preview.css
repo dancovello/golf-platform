@@ -3,6 +3,9 @@
   color: var(--color-text-primary);
   font-family: var(--font-body);
   min-height: 100vh;
+  /* Edge-to-edge carousels measure the window including any scrollbar; never let that
+     add a sideways scroll to the page. (clip, not hidden: sticky elements keep working.) */
+  overflow-x: clip;
 }
 .pv-section {
   max-width: var(--size-container);

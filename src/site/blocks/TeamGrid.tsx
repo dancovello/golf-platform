@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react'
 
-import { Close } from '../components/Icons'
+import { ChevronLeft, ChevronRight, Close } from '../components/Icons'
 import { Paragraphs } from './parts'
 import type { SitePerson } from './resolve'
 import { ContactLinks, Portrait } from './teamShared'
@@ -23,16 +23,21 @@ const NameAndRole = ({ person }: { person: SitePerson }) => (
 
 /**
  * Team style A: a 4-across portrait grid (3 on tablets, 2 on phones). A person with a bio
- * opens a profile (a native modal dialog: focus is kept inside, Esc closes it).
+ * opens a profile (a native modal dialog: focus is kept inside, Esc closes it). Previous and
+ * Next (or the arrow keys) move through everyone with a profile, in the grid's order.
  */
 export const TeamGrid = ({ people }: { people: SitePerson[] }) => {
   const dialog = useRef<HTMLDialogElement>(null)
-  const [open, setOpen] = useState<SitePerson | null>(null)
+  const profiles = people.filter((p) => p.bio)
+  const [index, setIndex] = useState<number | null>(null)
+  const open = index === null ? null : (profiles[index] ?? null)
 
   const show = (person: SitePerson) => {
-    setOpen(person)
+    setIndex(profiles.indexOf(person))
     dialog.current?.showModal()
   }
+  const step = (by: number) =>
+    setIndex((i) => (i === null ? i : (i + by + profiles.length) % profiles.length))
 
   return (
     <>
@@ -62,9 +67,14 @@ export const TeamGrid = ({ people }: { people: SitePerson[] }) => {
         ref={dialog}
         className="team-profile"
         aria-label={open ? open.name : undefined}
-        onClose={() => setOpen(null)}
+        onClose={() => setIndex(null)}
         onClick={(e) => {
           if (e.target === e.currentTarget) dialog.current?.close()
+        }}
+        onKeyDown={(e) => {
+          if (profiles.length < 2) return
+          if (e.key === 'ArrowLeft') step(-1)
+          if (e.key === 'ArrowRight') step(1)
         }}
       >
         {open ? (
@@ -89,6 +99,27 @@ export const TeamGrid = ({ people }: { people: SitePerson[] }) => {
             >
               <Close />
             </button>
+            {profiles.length > 1 && index !== null ? (
+              <nav className="team-profile-pager" aria-label="More people">
+                <button
+                  type="button"
+                  className="team-profile-step t-label-s"
+                  onClick={() => step(-1)}
+                >
+                  <ChevronLeft /> Previous
+                </button>
+                <p className="t-data-label team-profile-count" aria-live="polite">
+                  {index + 1} of {profiles.length}
+                </p>
+                <button
+                  type="button"
+                  className="team-profile-step t-label-s"
+                  onClick={() => step(1)}
+                >
+                  Next <ChevronRight />
+                </button>
+              </nav>
+            ) : null}
           </div>
         ) : null}
       </dialog>

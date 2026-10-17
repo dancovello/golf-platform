@@ -76,6 +76,17 @@
   }
 }
 
+/* Carousels run to both edges of the window (Dan, 2026-10-17). The track spills out of the
+   page column by the same amount it pads itself, so the first card still lines up with the
+   page content and snaps back to that line. */
+.hole-track,
+.tl-track,
+.news-carousel-track {
+  margin-inline: calc(50% - 50vw);
+  padding-inline: calc(50vw - 50%);
+  scroll-padding-inline: calc(50vw - 50%);
+}
+
 /* Swipe row (mobile carousels): runs to the screen edge, snaps per card, pager below. */
 .swipe-pager {
   display: none;
