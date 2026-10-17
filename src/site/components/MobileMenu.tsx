@@ -4,7 +4,7 @@ import { type ReactNode, useEffect, useRef, useState } from 'react'
 
 import type { MenuItem } from '../loadClub'
 import { ChevronLeft, ChevronRight, Close, Menu, Phone } from './Icons'
-import { isExternal, siteHref } from './links'
+import { linkTarget, siteHref } from './links'
 
 /**
  * Mobile menu button and drawer (Figma 1.3 Menu Drawer / 1.4 Sub-menu). A modal dialog:
@@ -78,7 +78,7 @@ export const MobileMenu = ({
         href={href}
         aria-current={href === currentPath ? 'page' : undefined}
         onClick={() => setOpen(false)}
-        {...(isExternal(l) ? { rel: 'noopener' } : {})}
+        {...linkTarget(l)}
       >
         {label}
       </a>

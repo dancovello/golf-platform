@@ -18,10 +18,13 @@ test('the home page shows the hero with sized photo copies and its buttons', asy
     'href',
     `${home}/membership`,
   )
-  await expect(hero.getByRole('link', { name: 'Membership' })).toHaveAttribute(
-    'href',
-    'https://example.com/join',
-  )
+  const external = hero.getByRole('link', { name: 'Membership' })
+  await expect(external).toHaveAttribute('href', 'https://example.com/join')
+  // Another website: a new tab, and screen readers are told so.
+  await expect(external).toHaveAttribute('target', '_blank')
+  await expect(external).toHaveAccessibleDescription('Opens in a new tab')
+  // The club's own page opens in the same tab.
+  await expect(hero.getByRole('link', { name: 'Visitors' })).not.toHaveAttribute('target')
   expect(await page.content()).not.toContain(world.clubB.name)
 })
 

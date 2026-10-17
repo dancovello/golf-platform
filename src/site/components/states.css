@@ -1,0 +1,115 @@
+/* Hover and pressed states for every link and button on a club's site (Dan, 2026-10-17:
+   "hover and active states on all buttons and links"). Blocks keep their own richer hover
+   effects (card lifts, image zooms); these make sure nothing is left without feedback.
+   Colours are roles or the element's own colour, so every club's palette works. Scoped to
+   .club-theme so it outranks block styles loaded earlier, and never touches the admin. */
+
+/* Pressed: everything that can be clicked dims for a moment. */
+.club-theme :is(a[href], button:not(:disabled), summary, [role='tab']) {
+  -webkit-tap-highlight-color: transparent;
+}
+.club-theme :is(a[href], button:not(:disabled), summary, [role='tab']):active {
+  opacity: 0.72;
+}
+
+/* Buttons: solid ones already darken on hover; pressed ones also move down a pixel. */
+.club-theme .btn:not(.btn-link):active {
+  transform: translateY(1px);
+}
+.club-theme .btn-outline:hover {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+.club-theme .btn-outline.is-on-dark:hover {
+  background: color-mix(in srgb, var(--color-surface-glass) 100%, white 12%);
+}
+.club-theme .btn-link:hover {
+  border-bottom-width: 2px;
+}
+
+/* Round icon buttons (close, previous/next, dismiss, play/pause, back): a soft circle. */
+.club-theme
+  :is(
+    .ab-dismiss,
+    .hero-media-control,
+    .hole-dialog-close,
+    .sh-icon-button,
+    .sh-drawer-back,
+    .team-profile-close,
+    .vw-arrow,
+    .vw-close,
+    .vw-next,
+    .vw-prev
+  ) {
+  transition: background-color 150ms ease-out;
+}
+.club-theme
+  :is(
+    .ab-dismiss,
+    .hero-media-control,
+    .hole-dialog-close,
+    .sh-icon-button,
+    .sh-drawer-back,
+    .team-profile-close,
+    .vw-arrow,
+    .vw-close,
+    .vw-next,
+    .vw-prev
+  ):hover {
+  background-color: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+/* Text links without one of their own: underline on hover. */
+.club-theme
+  :is(
+    .cg-all,
+    .cg-viewall-mobile,
+    .dl-clear,
+    .dl-download,
+    .event-link,
+    .hole-show-all,
+    .map-directions,
+    .map-load,
+    .news-all-bottom,
+    .news-all-top,
+    .news-card-link,
+    .rate-phone,
+    .sf-contact,
+    .sf-secondary,
+    .sh-drawer-phone,
+    .sh-drawer-section,
+    .sh-utility-link
+  ):hover {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+/* Logos link home: a gentle fade. */
+.club-theme :is(.sh-logo-link, .sf-logo) {
+  transition: opacity 150ms ease-out;
+}
+.club-theme :is(.sh-logo-link, .sf-logo):hover {
+  opacity: 0.8;
+}
+
+/* Tabs and filters: a light wash behind them. */
+.club-theme :is(.tab:not(.is-active), .gl-filter:not(.is-active)):hover {
+  background-color: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+/* Cookie choices are solid buttons: they darken, like the site's other solid buttons. */
+.club-theme .cc-button:hover {
+  filter: brightness(0.9);
+}
+
+/* Viewer thumbnails: the one under the pointer brightens. */
+.club-theme .vw-thumb:hover {
+  opacity: 1;
+  filter: brightness(1.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .club-theme .btn:not(.btn-link):active {
+    transform: none;
+  }
+}
