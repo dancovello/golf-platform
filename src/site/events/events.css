@@ -59,12 +59,21 @@
   background: var(--color-surface-raised);
 }
 
-/* Stacked: 3:2 photo, tag, title, meta, then price and the action. */
+/* Stacked: a raised card. 3:2 photo, tag, title, then when / where / price together and the
+   action inside the card (Dan, 2026-10-17). */
 .event-card.is-stacked {
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: var(--space-16);
   height: 100%;
+  overflow: hidden;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+  transition: box-shadow 200ms ease-out;
+}
+.event-card.is-stacked.has-link:hover {
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--color-text-primary) 10%, transparent);
 }
 .event-image {
   position: relative;
@@ -79,42 +88,149 @@
   object-fit: cover;
 }
 .event-body {
+  box-sizing: border-box;
   display: flex;
   flex: 1;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--space-8);
+  gap: var(--space-12);
+  padding: var(--space-24);
 }
 .event-card .event-tag {
-  margin: 0 0 var(--space-4);
+  margin: 0;
   padding: var(--space-4) var(--space-12);
   border-radius: var(--radius-full);
   background: var(--color-surface-subtle);
   color: var(--color-text-secondary);
 }
-.event-foot {
+.event-details {
+  display: grid;
+  gap: var(--space-8);
+  align-self: stretch;
+  margin: var(--space-4) 0 0;
+}
+.event-detail dt {
+  /* A: the icons say what each line is; the labels are for screen readers. */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.event-detail dd {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-16);
-  align-self: stretch;
-  margin-top: auto;
-  padding-top: var(--space-8);
+  gap: var(--space-8);
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+.event-detail dd svg {
+  flex: none;
+  color: var(--color-text-brand);
 }
 .event-card .event-price {
-  margin: 0;
+  color: var(--color-text-primary);
+  font-weight: 600;
 }
+/* The action: a full-width button at the foot of the card. */
 .event-action {
-  display: inline-flex;
+  box-sizing: border-box;
+  display: flex;
   align-items: center;
+  justify-content: center;
   gap: var(--space-12);
-  padding: var(--space-4) 0;
-  border-bottom: 1px solid var(--color-action-accent);
+  align-self: stretch;
+  min-height: 48px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
   white-space: nowrap;
+  transition: background-color 150ms ease-out;
+}
+/* Specific enough to beat the type styles' margin reset: the button sits at the foot of the
+   card, so buttons line up across a row of cards. */
+.event-card .event-action {
+  margin-top: auto;
+}
+.event-card.has-link:hover .event-action:not(.is-sold-out) {
+  background: var(--color-action-solid);
+  border-color: var(--color-action-solid);
+  color: var(--color-action-on-solid);
 }
 .event-action.is-sold-out {
-  border-bottom-color: transparent;
+  border-style: dashed;
   color: var(--color-text-secondary);
+}
+
+/* ---- Design options for Dan (temporary: the two not chosen are removed) ---- */
+
+/* B: labelled grid. "When / Where / Price" in small caps over each value, no icons. */
+[data-event-card='b'] .event-details {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-16) var(--space-24);
+  padding-top: var(--space-16);
+  border-top: 1px solid var(--color-border-subtle);
+}
+[data-event-card='b'] .event-detail.is-when {
+  grid-column: 1 / -1;
+}
+[data-event-card='b'] .event-detail dt {
+  position: static;
+  width: auto;
+  height: auto;
+  clip-path: none;
+  margin-bottom: var(--space-4);
+  color: var(--color-text-secondary);
+}
+[data-event-card='b'] .event-detail dd svg {
+  display: none;
+}
+[data-event-card='b'] .event-detail dd {
+  color: var(--color-text-primary);
+}
+
+/* C: price-led. When and where as one line; the price large beside the button in a footer. */
+[data-event-card='c'] .event-body {
+  position: relative;
+  padding-bottom: calc(var(--space-24) + 48px + var(--space-24));
+}
+[data-event-card='c'] .event-detail.is-price {
+  position: absolute;
+  left: var(--space-24);
+  bottom: var(--space-24);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 48px;
+}
+[data-event-card='c'] .event-detail.is-price dt {
+  position: static;
+  width: auto;
+  height: auto;
+  clip-path: none;
+  color: var(--color-text-secondary);
+}
+[data-event-card='c'] .event-price {
+  font-family: var(--font-display);
+  font-size: var(--type-heading-m);
+  font-weight: 400;
+  line-height: 1.1;
+}
+[data-event-card='c'] .event-action {
+  position: absolute;
+  right: var(--space-24);
+  bottom: var(--space-24);
+  padding: 0 var(--space-24);
+  border-color: var(--color-action-accent);
+  background: var(--color-action-accent);
+  color: var(--color-action-on-accent);
+}
+[data-event-card='c'] .event-body::after {
+  content: '';
+  position: absolute;
+  left: var(--space-24);
+  right: var(--space-24);
+  bottom: calc(var(--space-24) + 48px + var(--space-12));
+  border-top: 1px solid var(--color-border-subtle);
 }
 
 /* Row: date box, category, title, meta, arrow; rows divided by subtle rules. */
