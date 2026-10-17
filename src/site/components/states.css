@@ -20,7 +20,7 @@
   background: color-mix(in srgb, currentColor 8%, transparent);
 }
 .club-theme .btn-outline.is-on-dark:hover {
-  background: color-mix(in srgb, var(--color-surface-glass) 100%, white 12%);
+  background: color-mix(in srgb, var(--color-text-on-inverse) 20%, transparent);
 }
 .club-theme .btn-link:hover {
   border-bottom-width: 2px;
