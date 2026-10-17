@@ -1,10 +1,11 @@
 import type { CollectionConfig } from 'payload'
 
-import { loggedIn } from '../access/roles'
+import { clubContentCreate, loggedIn } from '../access/roles'
 import { imageField } from '../blocks/shared'
 import { linkField } from '../fields/link'
 import { checkEventSameClub } from '../site/sameClub'
 import { EVENT_CATEGORIES } from './eventCategories'
+import { clubBannerField } from '../tenancy'
 
 // Club-owned (src/tenancy.ts): the club is required and editors only see their own events.
 // The website shows published events until they start, at /events and in Events blocks.
@@ -16,10 +17,11 @@ export const Events: CollectionConfig = {
     useAsTitle: 'title',
     defaultColumns: ['title', 'startsAt', 'category', 'status'],
   },
-  access: { create: loggedIn, read: loggedIn, update: loggedIn, delete: loggedIn },
+  access: { create: clubContentCreate, read: loggedIn, update: loggedIn, delete: loggedIn },
   hooks: { beforeValidate: [checkEventSameClub] },
   defaultSort: 'startsAt',
   fields: [
+    clubBannerField,
     { name: 'title', label: 'Title', type: 'text', required: true, maxLength: 80 },
     {
       type: 'row',
