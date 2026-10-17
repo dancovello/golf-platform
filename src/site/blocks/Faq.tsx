@@ -1,7 +1,7 @@
 import type { FaqBlock } from '@/payload-types'
 
 import { ArrowRight, Clock, Mail, Phone } from '../components/Icons'
-import { isExternal, siteHref } from '../components/links'
+import { linkTarget, siteHref } from '../components/links'
 import type { ClubSite } from '../loadClub'
 import { FaqSearch } from './FaqSearch'
 import { type FaqItem, faqID } from './faqShared'
@@ -112,7 +112,7 @@ export const Faq = ({
                 <a
                   className="btn btn-outline t-label-button"
                   href={siteHref(base, contact.link)}
-                  {...(isExternal(contact.link) ? { rel: 'noopener' } : {})}
+                  {...linkTarget(contact.link)}
                 >
                   {contact.label} <ArrowRight />
                 </a>

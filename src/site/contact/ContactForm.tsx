@@ -20,6 +20,7 @@ import {
   fieldsFor,
   MESSAGE_MAX,
 } from './validate'
+import { NEW_TAB } from '../components/links'
 
 type Props = {
   action: (prev: ContactState, form: FormData) => Promise<ContactState>
@@ -348,7 +349,7 @@ const Sent = ({ sent, againHref }: { sent: SentSummary; againHref: string }) => 
           <a
             className="btn btn-solid t-label-button"
             href={sent.next.href}
-            {...(sent.next.external ? { rel: 'noopener' } : {})}
+            {...(sent.next.external ? NEW_TAB : {})}
           >
             {sent.next.label}
             <ArrowRight />

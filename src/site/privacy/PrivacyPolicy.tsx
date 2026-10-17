@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 
 import { formatPolicyDate, type PolicyFacts, RETENTION } from './policy'
+import { NEW_TAB } from '../components/links'
 
 type Section = { key: string; title: string; show?: boolean; body: ReactNode }
 
@@ -201,7 +202,7 @@ export const PrivacyPolicy = ({
             <p>
               <strong>Payments.</strong> Stripe processes card payments as an independent controller
               of that payment data. You can read{' '}
-              <a href="https://stripe.com/gb/privacy" rel="noopener">
+              <a href="https://stripe.com/gb/privacy" {...NEW_TAB}>
                 Stripe’s privacy policy
               </a>
               . We never see or store your full card number.
@@ -364,7 +365,7 @@ export const PrivacyPolicy = ({
           </p>
           <p>
             You can also complain to the Information Commissioner’s Office (ICO) at{' '}
-            <a href="https://ico.org.uk/make-a-complaint" rel="noopener">
+            <a href="https://ico.org.uk/make-a-complaint" {...NEW_TAB}>
               ico.org.uk/make-a-complaint
             </a>{' '}
             or on <a href="tel:03031231113">0303 123 1113</a>.
