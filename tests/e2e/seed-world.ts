@@ -69,6 +69,33 @@ await w.payload.create({
   } as never,
 })
 
+// A gallery in "Viewer" style below a hero (tests/e2e/site-gallery.spec.ts): opening the page
+// must not jump down to it.
+await w.payload.create({
+  collection: 'pages',
+  data: {
+    _status: 'published',
+    title: 'Photo library',
+    slug: 'photo-library',
+    tenant: w.clubA.id,
+    layout: [
+      {
+        blockType: 'hero',
+        style: 'heritage',
+        mediaType: 'image',
+        image: heroPhoto.id,
+        headline: 'Photo library',
+      },
+      {
+        blockType: 'gallery',
+        style: 'viewer',
+        heading: 'On the course',
+        images: galleryPhotos.slice(0, 8).map((m) => ({ image: m.id })),
+      },
+    ],
+  } as never,
+})
+
 // Club A's document library (tests/e2e/site-documents.spec.ts).
 const libraryDocs = []
 for (const [title, category, lastReviewed] of [
