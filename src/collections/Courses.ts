@@ -1,9 +1,10 @@
 import type { CollectionConfig, Field } from 'payload'
 
-import { loggedIn } from '../access/roles'
+import { clubContentCreate, loggedIn } from '../access/roles'
 import { imageField } from '../blocks/shared'
 import { checkCourseSameClub } from '../site/sameClub'
 import { TEE_COLOURS, yardsField } from './courseTees'
+import { clubBannerField } from '../tenancy'
 
 const yards = (colour: (typeof TEE_COLOURS)[number]): Field => ({
   name: yardsField(colour.value),
@@ -25,9 +26,10 @@ export const Courses: CollectionConfig = {
     defaultColumns: ['name', 'updatedAt'],
     description: 'Each course’s holes and tees, for the Hole-by-hole and Scorecard blocks.',
   },
-  access: { create: loggedIn, read: loggedIn, update: loggedIn, delete: loggedIn },
+  access: { create: clubContentCreate, read: loggedIn, update: loggedIn, delete: loggedIn },
   hooks: { beforeValidate: [checkCourseSameClub] },
   fields: [
+    clubBannerField,
     {
       name: 'name',
       label: 'Name',

@@ -68,3 +68,48 @@ test('no upload link for file types outside the allowed list', async ({ editorPa
     expect(res.ok(), `${filename} as ${mimeType}`).toBe(false)
   }
 })
+
+// A bulk upload shares one form between its files. Each must still get its own folder: they
+// used to share one, and every file after the first failed with "invalid: prefix".
+test('a bulk upload saves every photo, without needing descriptions', async ({
+  editorPage: page,
+}) => {
+  await openReady(page, '/admin/collections/media')
+  const count = async () =>
+    ((await (await page.request.get('/api/media?limit=0')).json()) as { totalDocs: number })
+      .totalDocs
+  const before = await count()
+  await page.getByRole('button', { name: 'Bulk Upload' }).click()
+  await page
+    .locator('input[type="file"]')
+    .last()
+    .setInputFiles([
+      { name: 'bulk-one.png', mimeType: 'image/png', buffer: TINY_PNG },
+      { name: 'bulk-two.png', mimeType: 'image/png', buffer: TINY_PNG },
+    ])
+  await expect(page.getByText('bulk-two.png')).toBeVisible()
+  await page.getByRole('button', { name: 'Save', exact: true }).click()
+  await expect.poll(count).toBe(before + 2)
+  await expect(page.getByText(/invalid: prefix/)).toHaveCount(0)
+})
+
+test('the photo library shows thumbnails, and marks photos without a description', async ({
+  editorPage: page,
+}) => {
+  // Saved without a description: allowed.
+  await openReady(page, '/admin/collections/media/create')
+  await page
+    .locator('input[type="file"]')
+    .setInputFiles({ name: 'no-words.png', mimeType: 'image/png', buffer: TINY_PNG })
+  await page.getByRole('button', { name: 'Save' }).click()
+  await expect(page).toHaveURL(/\/admin\/collections\/media\/[0-9a-f-]{36}/)
+
+  await openReady(page, '/admin/collections/media')
+  const row = page.getByRole('row').filter({ hasText: 'no-words.png' })
+  // The photo itself, not a generic file icon.
+  await expect(row.getByRole('img', { name: /no-words\.png/ })).toHaveAttribute(
+    'src',
+    /^http:\/\/127\.0\.0\.1:8333\/.*\.webp(\?|$)/,
+  )
+  await expect(row.getByText('Needs description')).toBeVisible()
+})

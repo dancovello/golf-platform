@@ -287,9 +287,9 @@ export interface Media {
   id: string;
   tenant?: (string | null) | Tenant;
   /**
-   * What the photo shows, for people using screen readers, e.g. "The 7th green at sunset". Required.
+   * What the photo shows, read aloud to people using screen readers, e.g. "The 7th green at sunset". Optional, but please add one for any photo that matters to the page.
    */
-  alt: string;
+  alt?: string | null;
   prefix?: string | null;
   _objectKey?: string | null;
   updatedAt: string;
@@ -1114,23 +1114,23 @@ export interface ClubSetting {
    */
   branding: {
     /**
-     * Brand bands, headers and solid buttons. Six-digit colour code, e.g. #1B2A22.
+     * Brand bands, headers and solid buttons. Pick it from the swatch, or type a six-digit colour code, e.g. #1B2A22.
      */
     primary: string;
     /**
-     * A softer supporting colour, mixed into subtle backgrounds and eyebrow text. Six-digit colour code, e.g. #717E6A.
+     * A softer supporting colour, mixed into subtle backgrounds and eyebrow text. Pick it from the swatch, or type a six-digit colour code, e.g. #717E6A.
      */
     secondary: string;
     /**
-     * The main call-to-action colour. Used sparingly. Six-digit colour code, e.g. #B39462.
+     * The main call-to-action colour. Used sparingly. Pick it from the swatch, or type a six-digit colour code, e.g. #B39462.
      */
     accent: string;
     /**
-     * The page background. Usually a near-white. Six-digit colour code, e.g. #FAF7F1.
+     * The page background. Usually a near-white. Pick it from the swatch, or type a six-digit colour code, e.g. #FAF7F1.
      */
     light: string;
     /**
-     * Body text and headings. Usually a near-black. Six-digit colour code, e.g. #111814.
+     * Body text and headings. Usually a near-black. Pick it from the swatch, or type a six-digit colour code, e.g. #111814.
      */
     dark: string;
     fontSet: 'heritage' | 'editorial' | 'contemporary';

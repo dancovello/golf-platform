@@ -1,0 +1,53 @@
+
+/* Club Settings → brand colours: the swatch that opens the colour picker (src/admin/ColourField). */
+.brand-colour-swatch {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  margin-right: var(--base, 8px);
+  padding: 2px;
+  border: 1px solid var(--theme-elevation-150);
+  border-radius: var(--style-radius-s);
+  background: var(--theme-input-bg);
+  cursor: pointer;
+}
+.brand-colour-swatch::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+.brand-colour-swatch::-webkit-color-swatch {
+  border: 0;
+  border-radius: calc(var(--style-radius-s) - 2px);
+}
+/* Swatch and code box side by side, every box the same width; the help text underneath. */
+.field-type.text:has(.brand-colour-swatch) {
+  flex: 1 1 100%;
+  width: 100%;
+  max-width: 560px;
+}
+.field-type.text:has(.brand-colour-swatch) .field-type__wrap {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+}
+.field-type.text:has(.brand-colour-swatch) .field-description {
+  grid-column: 1 / -1;
+}
+
+/* Super-admin only: which club a page, story or event is for (src/admin/ClubBanner). */
+.club-banner {
+  margin: 0 0 calc(var(--base) * 1.5);
+  padding: calc(var(--base) * 0.75) var(--base);
+  border-left: 3px solid var(--theme-success-500);
+  border-radius: var(--style-radius-s);
+  background: var(--theme-elevation-50);
+}
+
+/* Photo library: a photo without a description (src/admin/DescriptionCell). */
+.needs-description {
+  display: inline-block;
+  padding: 2px calc(var(--base) * 0.5);
+  border-radius: var(--style-radius-s);
+  background: var(--theme-warning-100);
+  color: var(--theme-warning-800);
+  font-size: 0.85em;
+}
