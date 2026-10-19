@@ -187,3 +187,10 @@ Dan's devops contact checked and approved the review items raised in PRs #18, #2
 - **Photo descriptions are optional** (Dan, 2026-10-17: they held people up). This relaxes doc 05's "alt text is required on every image": a photo without one is treated as decoration on the website (screen readers skip it), and the photo library marks it "Needs description" so it can be added later.
 - **Photo library thumbnails** use the 640px copy's own address. Payload's default thumbnail address went through its file route, which can't find files kept in their own folders, so every photo showed as a file icon.
 - **Bulk upload fixed:** a bulk upload shares one form between its files, so they all asked for the same storage folder and every file after the first failed with "invalid: prefix". Each file now gets its own new folder on the server, whatever the form sends.
+
+## 2026-10-19 — Layout: carousels, scorecard, people profiles, event cards
+
+- **Carousels run edge to edge** (Dan, 2026-10-17): the news, events, hole and timeline carousels spill to both window edges while the first card lines up with the page column.
+- **A 9-hole scorecard fills the width** instead of a narrow card.
+- **People profiles have Previous / Next** (and the arrow keys), with "3 of 8".
+- **Event cards: option A** (Dan, 2026-10-19, from three options). A raised card: photo, category, title, then date and time, place and price together with small icons, and a full-width Book button at the foot (buttons line up across a row).

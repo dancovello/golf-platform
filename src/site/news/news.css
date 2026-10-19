@@ -518,8 +518,9 @@ a.pagination-step:hover .pagination-word {
   grid-auto-columns: calc((100% - 2 * var(--space-24)) / 3);
   grid-auto-flow: column;
   gap: var(--space-24);
-  margin: 0;
-  padding: 0;
+  /* Sideways spacing comes from the edge-to-edge carousel rule (blocks.css). */
+  margin-block: 0;
+  padding-block: 0;
   overflow-x: auto;
   list-style: none;
   scroll-snap-type: x mandatory;
@@ -721,6 +722,8 @@ a.pagination-step:hover .pagination-word {
   }
 
   .news-carousel.blk {
+    /* No side padding on phones: the carousel runs edge to edge and pads itself. */
+    --blk-gutter: 0px;
     padding: var(--space-64) 0;
   }
   .news-carousel .blk-header {

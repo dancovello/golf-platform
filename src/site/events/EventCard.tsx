@@ -1,5 +1,5 @@
 import { Photo } from '../blocks/parts'
-import { ArrowRight, ChevronRight } from '../components/Icons'
+import { ArrowRight, ChevronRight, Clock, Pin } from '../components/Icons'
 import { linkTarget, siteHref } from '../components/links'
 import type { SiteEvent } from '../events'
 
@@ -22,6 +22,15 @@ export const eventMeta = (e: SiteEvent) => {
   const day = `${weekday} ${date} ${londonMonth(d)}`
   const time = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', ...LONDON })
   return [day, e.timeNote ? `${time} ${e.timeNote}` : time, e.venue].filter(Boolean).join(' · ')
+}
+
+/** "Thu 22 Oct · 19:00" (with a time note: "08:00 shotgun"), without the place. */
+export const eventWhen = (e: SiteEvent) => {
+  const d = new Date(e.startsAt)
+  const weekday = d.toLocaleDateString('en-GB', { weekday: 'short', ...LONDON })
+  const date = d.toLocaleDateString('en-GB', { day: 'numeric', ...LONDON })
+  const time = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', ...LONDON })
+  return `${weekday} ${date} ${londonMonth(d)} · ${e.timeNote ? `${time} ${e.timeNote}` : time}`
 }
 
 /** "£45 · Members £38" */
@@ -98,6 +107,7 @@ export const EventCard = ({
       </article>
     )
   }
+  const soldOut = event.booking === 'soldOut'
   return (
     <article className={`event-card is-stacked${event.link ? ' has-link' : ''}`}>
       <div className="event-image">
@@ -115,19 +125,38 @@ export const EventCard = ({
         <h3 className="t-heading-m event-title">
           <Title event={event} base={base} className="event-title-text" />
         </h3>
-        <p className="t-body-s event-meta">
-          <time dateTime={event.startsAt}>{eventMeta(event)}</time>
-        </p>
-        <div className="event-foot">
-          {price ? <p className="t-label-s event-price">{price}</p> : <span />}
-          <span
-            className={`t-label-button event-action${event.booking === 'soldOut' ? ' is-sold-out' : ''}`}
-            aria-hidden="true"
-          >
-            {bookingLabel(event)}
-            {event.link ? <ArrowRight /> : null}
-          </span>
-        </div>
+        {/* When, where and how much, together (Dan, 2026-10-17). */}
+        <dl className="event-details">
+          <div className="event-detail is-when">
+            <dt className="t-data-label">When</dt>
+            <dd className="t-body-s">
+              <Clock />
+              <time dateTime={event.startsAt}>{eventWhen(event)}</time>
+            </dd>
+          </div>
+          {event.venue ? (
+            <div className="event-detail is-where">
+              <dt className="t-data-label">Where</dt>
+              <dd className="t-body-s">
+                <Pin />
+                {event.venue}
+              </dd>
+            </div>
+          ) : null}
+          {price ? (
+            <div className="event-detail is-price">
+              <dt className="t-data-label">Price</dt>
+              <dd className="t-body-m event-price">{price}</dd>
+            </div>
+          ) : null}
+        </dl>
+        <span
+          className={`t-label-button event-action${soldOut ? ' is-sold-out' : ''}`}
+          aria-hidden="true"
+        >
+          {bookingLabel(event)}
+          {event.link && !soldOut ? <ArrowRight /> : null}
+        </span>
       </div>
     </article>
   )

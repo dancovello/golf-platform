@@ -90,8 +90,9 @@
   gap: var(--space-48);
   align-items: start;
 }
+/* A 9-hole course: its one panel fills the width (Dan, 2026-10-17: no narrow card). */
 .sc-nines:has(> :only-child) {
-  grid-template-columns: minmax(0, 576px);
+  grid-template-columns: minmax(0, 1fr);
 }
 .sc .sc-panel {
   display: flex;

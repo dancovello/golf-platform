@@ -1,8 +1,9 @@
 /* Shared by every block: section spacing and block headers (Figma block specs: section
    padding 96/40, tablet 64/32, mobile 56/20; container 1200; header→content gap 48). */
 .blk {
+  --blk-gutter: var(--space-40);
   box-sizing: border-box;
-  padding: var(--space-96) var(--space-40);
+  padding: var(--space-96) var(--blk-gutter);
   background: var(--color-surface-canvas);
   color: var(--color-text-primary);
   font-family: var(--font-body);
@@ -59,12 +60,14 @@
 }
 @media (max-width: 1023px) {
   .blk {
-    padding: var(--space-64) var(--space-32);
+    --blk-gutter: var(--space-32);
+    padding: var(--space-64) var(--blk-gutter);
   }
 }
 @media (max-width: 767px) {
   .blk {
-    padding: 56px 20px;
+    --blk-gutter: 20px;
+    padding: 56px var(--blk-gutter);
   }
   .blk-header {
     flex-direction: column;
@@ -74,6 +77,21 @@
   .blk-header.is-centred {
     align-items: center;
   }
+}
+
+/* Carousels run to both edges of the window (Dan, 2026-10-17). The track spills out of the
+   page column by the same amount it pads itself, so the first card still lines up with the
+   page content and snaps back to that line. */
+.hole-track,
+.tl-track,
+.news-carousel-track {
+  /* How far the page column sits from the window edge: the block's side padding, or more
+     once the window is wider than the column. Written out (not 50%) because scroll-padding
+     measures % against the carousel itself, which put the snap line at the window edge. */
+  --bleed: max(var(--blk-gutter), (100vw - var(--size-container)) / 2);
+  margin-inline: calc(-1 * var(--bleed));
+  padding-inline: var(--bleed);
+  scroll-padding-inline: var(--bleed);
 }
 
 /* Swipe row (mobile carousels): runs to the screen edge, snaps per card, pager below. */
