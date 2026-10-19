@@ -1,4 +1,4 @@
-import { randomBytes } from 'node:crypto'
+import { randomBytes, randomUUID } from 'node:crypto'
 
 import type { CollectionBeforeOperationHook, Config, Plugin } from 'payload'
 
@@ -12,7 +12,9 @@ export const withRandomCode = (filename: string) =>
  * 1. Only the allowed file types get a link. Payload checks that the declared type is *a* valid
  *    type but not that it's on the collection's list, and the file is stored and served with the
  *    declared type, so without this a web page could be uploaded and served as a web page.
- * 2. Every stored file name starts with a random code, so two clubs never pick the same name.
+ * 2. Every file gets its own new random folder (src/media/folders.ts), chosen here rather than
+ *    by the form: a bulk upload shares one form between all its files.
+ * 3. Every stored file name starts with a random code, so two clubs never pick the same name.
  *    Payload keeps file names unique by checking every club's files, ignoring access rules:
  *    without the code, club A uploading "hero.jpg" when club B has one gets "hero-1.jpg",
  *    which tells club A that another club exists (CLAUDE.md non-negotiable 2).
@@ -45,7 +47,14 @@ export const guardBrowserUploads =
                   { status: 400 },
                 )
               }
-              const renamed = { ...body, filename: withRandomCode(body.filename) }
+              // A new random folder for every file, whatever the form sent: a bulk upload
+              // copies one form for all its files, so they all asked for the same folder and
+              // every file after the first was refused (the "prefix" error, 2026-10-17).
+              const renamed = {
+                ...body,
+                filename: withRandomCode(body.filename),
+                docPrefix: `${body.collectionSlug}/${randomUUID()}`,
+              }
               req.json = async () => renamed
               return endpoint.handler(req)
             },
