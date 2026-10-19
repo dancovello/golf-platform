@@ -110,7 +110,7 @@
   margin: var(--space-4) 0 0;
 }
 .event-detail dt {
-  /* A: the icons say what each line is; the labels are for screen readers. */
+  /* The icons say what each line is; the labels are for screen readers. */
   position: absolute;
   width: 1px;
   height: 1px;
@@ -159,78 +159,6 @@
 .event-action.is-sold-out {
   border-style: dashed;
   color: var(--color-text-secondary);
-}
-
-/* ---- Design options for Dan (temporary: the two not chosen are removed) ---- */
-
-/* B: labelled grid. "When / Where / Price" in small caps over each value, no icons. */
-[data-event-card='b'] .event-details {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-16) var(--space-24);
-  padding-top: var(--space-16);
-  border-top: 1px solid var(--color-border-subtle);
-}
-[data-event-card='b'] .event-detail.is-when {
-  grid-column: 1 / -1;
-}
-[data-event-card='b'] .event-detail dt {
-  position: static;
-  width: auto;
-  height: auto;
-  clip-path: none;
-  margin-bottom: var(--space-4);
-  color: var(--color-text-secondary);
-}
-[data-event-card='b'] .event-detail dd svg {
-  display: none;
-}
-[data-event-card='b'] .event-detail dd {
-  color: var(--color-text-primary);
-}
-
-/* C: price-led. When and where as one line; the price large beside the button in a footer. */
-[data-event-card='c'] .event-body {
-  position: relative;
-  padding-bottom: calc(var(--space-24) + 48px + var(--space-24));
-}
-[data-event-card='c'] .event-detail.is-price {
-  position: absolute;
-  left: var(--space-24);
-  bottom: var(--space-24);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  height: 48px;
-}
-[data-event-card='c'] .event-detail.is-price dt {
-  position: static;
-  width: auto;
-  height: auto;
-  clip-path: none;
-  color: var(--color-text-secondary);
-}
-[data-event-card='c'] .event-price {
-  font-family: var(--font-display);
-  font-size: var(--type-heading-m);
-  font-weight: 400;
-  line-height: 1.1;
-}
-[data-event-card='c'] .event-action {
-  position: absolute;
-  right: var(--space-24);
-  bottom: var(--space-24);
-  padding: 0 var(--space-24);
-  border-color: var(--color-action-accent);
-  background: var(--color-action-accent);
-  color: var(--color-action-on-accent);
-}
-[data-event-card='c'] .event-body::after {
-  content: '';
-  position: absolute;
-  left: var(--space-24);
-  right: var(--space-24);
-  bottom: calc(var(--space-24) + 48px + var(--space-12));
-  border-top: 1px solid var(--color-border-subtle);
 }
 
 /* Row: date box, category, title, meta, arrow; rows divided by subtle rules. */
