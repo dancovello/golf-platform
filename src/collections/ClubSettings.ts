@@ -26,7 +26,10 @@ const colourField = (name: keyof Brand): Field => ({
   type: 'text',
   required: true,
   defaultValue: DEFAULT_BRAND[name],
-  admin: { description: `${colourHelp[name]} Six-digit colour code, e.g. ${DEFAULT_BRAND[name]}.` },
+  admin: {
+    description: `${colourHelp[name]} Pick it from the swatch, or type a six-digit colour code, e.g. ${DEFAULT_BRAND[name]}.`,
+    components: { Field: '/admin/ColourField#ColourField' },
+  },
   validate: (value: unknown) =>
     isHex(value) ? true : 'Enter a six-digit colour code like #1B2A22.',
 })
