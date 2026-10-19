@@ -722,6 +722,8 @@ a.pagination-step:hover .pagination-word {
   }
 
   .news-carousel.blk {
+    /* No side padding on phones: the carousel runs edge to edge and pads itself. */
+    --blk-gutter: 0px;
     padding: var(--space-64) 0;
   }
   .news-carousel .blk-header {
