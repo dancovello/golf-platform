@@ -148,3 +148,10 @@ test('a question gets an answer card in place of the best match, on the panel an
   await page.goto(`${base}/search?q=next+event`)
   await expect(page.getByRole('region', { name: /^Next event: Event 1/ })).toBeVisible()
 })
+
+test('tablets have a search button in the header', async ({ page }) => {
+  await page.setViewportSize({ width: 800, height: 1024 })
+  await page.goto(base)
+  await page.locator('.sh-mobile').getByRole('link', { name: 'Search' }).click()
+  await expect(page.getByRole('dialog', { name: /^Search / })).toBeVisible()
+})
