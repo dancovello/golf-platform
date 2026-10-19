@@ -28,3 +28,13 @@ test('the viewer opens at a photo, moves with the arrow keys and closes with Esc
   await expect(viewer).toBeHidden()
   await expect(third).toBeFocused()
 })
+
+test('a page with an on-page viewer opens at the top, not scrolled down to it', async ({
+  page,
+}) => {
+  await page.goto('/preview/test-club-a/photo-library')
+  await expect(page.getByRole('heading', { name: 'On the course' })).toBeAttached()
+  // Give the viewer time to set itself up; the page must still be at the top.
+  await page.waitForLoadState('networkidle')
+  expect(await page.evaluate(() => window.scrollY)).toBe(0)
+})

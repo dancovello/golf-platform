@@ -43,8 +43,11 @@
 }
 
 /* A and C: full-bleed, copy bottom-left, legibility scrim (never a colour tint) */
+/* Fills the rest of the window below the header (--hero-offset, measured by HeroFit; the
+   fallback is a typical header with an announcement bar). Taller only if the copy needs it. */
 .hero-full {
-  min-height: clamp(640px, 85vh, 960px);
+  box-sizing: border-box;
+  min-height: max(480px, calc(100svh - var(--hero-offset, 160px)));
   display: flex;
   align-items: flex-end;
   padding: var(--space-80) 0;
@@ -171,7 +174,7 @@
     padding: 0 var(--space-24);
   }
   .hero-full {
-    min-height: max(480px, 100svh - 64px);
+    min-height: max(420px, calc(100svh - var(--hero-offset, 104px)));
     padding: var(--space-80) 0 var(--space-40);
   }
   .hero-scrim {

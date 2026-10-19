@@ -93,7 +93,8 @@
 }
 .rt-toc-wide {
   position: sticky;
-  top: var(--space-32);
+  /* Clear of the sticky site header. */
+  top: calc(var(--size-nav-clearance) + var(--space-32));
 }
 .rt-toc-narrow {
   display: none;
