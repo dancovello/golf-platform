@@ -45,6 +45,10 @@ export const ClubShell = ({
       <span id={NEW_TAB_NOTE_ID} hidden>
         Opens in a new tab
       </span>
+      {/* First on the page, before the announcement bar, so it's the first thing Tab reaches. */}
+      <a className="sh-skip" href="#main">
+        Skip to content
+      </a>
       {club.announcement ? <AnnouncementBar data={club.announcement} base={base} /> : null}
       <SiteHeader club={club} base={base} currentPath={currentPath} overHero={overHero} />
       <main id="main" tabIndex={-1}>

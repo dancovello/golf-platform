@@ -55,9 +55,6 @@ export const SiteHeader = ({
       className={`sh sh-${style}${transparent ? ' is-over-hero' : ''}`}
       threshold={style === 'classic' ? 200 : 0}
     >
-      <a className="sh-skip" href="#main">
-        Skip to content
-      </a>
       <div className="sh-desktop">
         {style === 'classic' ? (
           <>

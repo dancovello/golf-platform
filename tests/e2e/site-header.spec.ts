@@ -109,3 +109,16 @@ test('the footer shows club A details and nothing of club B', async ({ page, wor
   await expect(footer.getByText(`© ${new Date().getFullYear()} Test Club A`)).toBeVisible()
   expect(await page.content()).not.toContain(world.clubB.name)
 })
+
+test('"Skip to content" is the first thing Tab reaches, and hidden until then', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/preview/test-club-a')
+  const skip = page.getByRole('link', { name: 'Skip to content' })
+  // Hidden (a 1px box), so it never covers the announcement bar on phones.
+  expect((await skip.boundingBox())?.height ?? 0).toBeLessThanOrEqual(1)
+  await page.keyboard.press('Tab')
+  await expect(skip).toBeFocused()
+  expect((await skip.boundingBox())?.height ?? 0).toBeGreaterThan(20)
+})

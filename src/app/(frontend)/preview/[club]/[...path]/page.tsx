@@ -134,7 +134,7 @@ export default async function ClubPagePreview({
     >
       {live ? <LiveRefresh /> : null}
       {startsWithHero ? null : (
-        <section className="pv-section">
+        <section className="pv-section pv-page-title">
           <h1 className="t-display-l">{page.title}</h1>
         </section>
       )}
