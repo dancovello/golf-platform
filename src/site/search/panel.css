@@ -36,6 +36,13 @@
   border-radius: var(--radius-sm);
   color: inherit;
 }
+/* In the phone header from tablet width up; narrower phones search from the menu, so long
+   club names keep their room (decisions.md, site search parts 2–4). */
+@media (max-width: 767px) {
+  .sh-search.is-tablet-only {
+    display: none;
+  }
+}
 .sh-cell-end,
 .sh-actions {
   display: flex;

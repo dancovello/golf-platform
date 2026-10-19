@@ -41,6 +41,8 @@ export const SiteHeader = ({
         <Logo club={club} compact onDark={transparent} />
       </a>
       <div className="sh-mobile-actions">
+        {/* Tablets only: phones search from the menu, as in Figma "Header / Mobile". */}
+        <SearchTrigger base={base} className="is-tablet-only" />
         <BookButton club={club} base={base} short arrow={false} className="is-compact" />
         <MobileMenu
           menu={menu}
