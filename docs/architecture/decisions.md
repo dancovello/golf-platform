@@ -186,3 +186,10 @@ Dan's devops contact checked and approved the review items raised in PRs #18, #2
 - **A 9-hole scorecard fills the width** instead of a narrow card.
 - **People profiles have Previous / Next** (and the arrow keys), with "3 of 8".
 - **Event cards: option A** (Dan, 2026-10-19, from three options). A raised card: photo, category, title, then date and time, place and price together with small icons, and a full-width Book button at the foot (buttons line up across a row).
+
+## 2026-10-19 — UX and accessibility pass
+
+- **Web interface guidelines review** of the club site's code: no anti-patterns (no zoom blocking, no `transition: all`, no clickable divs, every image has dimensions). Added site-wide: a fallback keyboard focus ring, no tap delay, jump links that stop below the sticky header, balanced heading lines, and pop-ups that don't scroll the page behind them.
+- **Skip link** was permanently visible on phones (the announcement bar is taller than its old "hide 100px above the header" trick). Now properly hidden until focused, and the first thing Tab reaches.
+- **Page titles** without a hero no longer leave a double-height gap before the first block, and line up with the blocks on tablet and phone.
+- **Automated accessibility scan (axe, WCAG 2.2 AA)** of 24 demo pages, desktop and phone: news and event labels moved from the accent colour (too faint on light backgrounds) to the brand text colour; every sideways-scrolling area (scorecards, hole lists, privacy tables, hole carousel) can be reached and scrolled with the keyboard; partner names and the disabled "Previous" fixed. The scan now finds no issues.
