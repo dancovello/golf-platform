@@ -1,10 +1,11 @@
 import type { CollectionBeforeValidateHook, CollectionConfig } from 'payload'
 import { ValidationError } from 'payload'
 
-import { loggedIn } from '../access/roles'
+import { clubContentCreate, loggedIn } from '../access/roles'
 import { uploadFolder } from '../media/folders'
 import { randomServerUploadName } from '../media/uploadGuards'
 import { DOCUMENT_CATEGORIES } from './documentCategories'
+import { clubBannerField } from '../tenancy'
 
 /** Files a club can offer for download: PDF and Word. Checked by their real contents. */
 export const DOCUMENT_TYPES = [
@@ -42,7 +43,7 @@ export const Documents: CollectionConfig = {
     useAsTitle: 'title',
     defaultColumns: ['title', 'category', 'lastReviewed', 'updatedAt'],
   },
-  access: { create: loggedIn, read: loggedIn, update: loggedIn, delete: loggedIn },
+  access: { create: clubContentCreate, read: loggedIn, update: loggedIn, delete: loggedIn },
   hooks: {
     beforeOperation: [folder.assignFolder, randomServerUploadName],
     beforeValidate: [policiesNeedReviewDate],
@@ -53,6 +54,7 @@ export const Documents: CollectionConfig = {
     filenameCompoundIndex: ['filename', 'prefix'],
   },
   fields: [
+    clubBannerField,
     { name: 'title', label: 'Title', type: 'text', required: true, maxLength: 80 },
     {
       type: 'row',
