@@ -33,7 +33,7 @@ export default async function ClubSearch({ params, searchParams }: Props) {
   const club = await loadClubBySlug((await params).club)
   if (!club) notFound()
   const base = siteBase(club.slug)
-  const view = await loadSearch(club.tenantID, readFilters(await searchParams))
+  const view = await loadSearch(club, base, readFilters(await searchParams))
   return (
     <ClubShell club={club} currentPath={`${base}/search`}>
       <SearchResults club={club} base={base} view={view} />

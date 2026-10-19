@@ -1,5 +1,6 @@
 import { headers } from 'next/headers'
 
+import { type Answer, findAnswer } from '@/search/answers'
 import type { SearchKind } from '@/search/build'
 import {
   type GroupedSearch,
@@ -14,6 +15,7 @@ import {
 import { allowSearch, visitorKey } from '@/search/rateLimit'
 import { searchWords, tidyQuery } from '@/search/words'
 
+import type { ClubSite } from '../loadClub'
 import { kindFromParam } from './kinds'
 
 /** Results on one page of a single kind's tab. */
@@ -58,15 +60,22 @@ export type SearchView =
       total: number
       whenCounts: Record<SearchWhen, number>
       suggestion: string | null
+      /** "Top answer" above the results, on the All tab (spec §4). */
+      answer: Answer | null
     }
 
 /** Everything the results page shows for these filters, for one club. */
-export const loadSearch = async (tenantID: string, filters: SearchFilters): Promise<SearchView> => {
+export const loadSearch = async (
+  club: ClubSite,
+  base: string,
+  filters: SearchFilters,
+): Promise<SearchView> => {
+  const tenantID = club.tenantID
   const words = searchWords(filters.q)
   if (filters.q.length < 2 || words.length === 0) return { state: 'empty', filters }
   if (!allowSearch(visitorKey(await headers()))) return { state: 'busy', filters }
 
-  const [grouped, list, whenCounts] = await Promise.all([
+  const [grouped, list, whenCounts, answer] = await Promise.all([
     filters.kind
       ? Promise.resolve(null)
       : searchGrouped(tenantID, filters.q, {
@@ -84,6 +93,7 @@ export const loadSearch = async (tenantID: string, filters: SearchFilters): Prom
         })
       : Promise.resolve(null),
     searchWhenCounts(tenantID, filters.q, filters.kind),
+    filters.kind || filters.when ? Promise.resolve(null) : findAnswer(club, base, filters.q),
   ])
   const counts = (grouped ?? list)!.counts
   return {
@@ -96,5 +106,6 @@ export const loadSearch = async (tenantID: string, filters: SearchFilters): Prom
     total: (grouped ?? list)!.total,
     whenCounts,
     suggestion: (grouped ?? list)!.suggestion,
+    answer,
   }
 }

@@ -25,6 +25,10 @@ export type SearchDetails = {
   action?: { label: string; link: SiteLink } | null
   /** People: their email in two halves (ProtectedEmail); only the results page shows it. */
   email?: { user: string; domain: string } | null
+  /** People: shown on their answer card (src/search/answers.ts). */
+  department?: string
+  qualification?: string | null
+  phone?: string | null
   /** Documents: e.g. "PDF" and "240 KB", and the page that lists them. */
   fileType?: string
   fileSize?: string
@@ -159,7 +163,13 @@ export const buildClubEntries = async (
                 .filter(Boolean)
                 .join('\n') || null,
             link,
-            details: { image: person.photo, email: person.email },
+            details: {
+              image: person.photo,
+              email: person.email,
+              department: departmentName(person.department),
+              qualification: person.qualification,
+              phone: person.phone,
+            },
             date: null,
             visibleFrom: null,
             visibleUntil: null,

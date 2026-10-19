@@ -4,7 +4,7 @@ import type { Payload } from 'payload'
 import { buildClubEntries } from './build'
 
 /** Raise this when the way entries are built changes, so every club's index is rebuilt. */
-export const SEARCH_INDEX_VERSION = 1
+export const SEARCH_INDEX_VERSION = 2
 
 // The parts of Payload's Postgres adapter used here.
 type Executor = { execute: (query: ReturnType<typeof sql>) => Promise<{ rows: unknown[] }> }

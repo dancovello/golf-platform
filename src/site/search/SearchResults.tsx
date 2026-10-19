@@ -2,18 +2,20 @@ import type { SearchKind } from '@/search/build'
 import type { SearchResult, SearchSort, SearchWhen } from '@/search/query'
 import { MAX_QUERY } from '@/search/words'
 
-import { quickLinks } from '../components/PageNotFound'
+import { quickLinks } from '../components/quickLinks'
 import { ArrowRight, Check, ChevronDown, Close, Search } from '../components/Icons'
 import { linkTarget, siteHref } from '../components/links'
 import type { ClubSite } from '../loadClub'
 import { Pagination } from '../news/Pagination'
 import { KIND_ORDER, KINDS } from './kinds'
 import { RESULTS_PER_PAGE, type SearchFilters, type SearchView } from './load'
+import { AnswerCard } from './AnswerCard'
 import { ResultRow } from './ResultRow'
 
 import '../blocks/blocks.css'
 import '../components/buttons.css'
 import '../news/news.css'
+import './panel.css'
 import './search.css'
 
 /** The results address with these filters, so every view can be shared (spec §5). */
@@ -332,7 +334,7 @@ export const SearchResults = ({
     )
   }
 
-  const { counts, total, words, grouped, list, whenCounts, suggestion } = view
+  const { counts, total, words, grouped, list, whenCounts, suggestion, answer } = view
   const kindsWithResults = KIND_ORDER.filter((k) => counts[k] > 0).length
   const summary =
     total === 0
@@ -359,7 +361,7 @@ export const SearchResults = ({
           {total > 0 ? <Sort base={base} filters={filters} /> : null}
         </div>
 
-        {total === 0 && !filters.when && !filters.kind ? (
+        {total === 0 && !filters.when && !filters.kind && !answer ? (
           <div className="srch-none">
             <h2 className="t-display-l srch-none-title">Nothing for “{filters.q}”</h2>
             {suggestion ? (
@@ -377,15 +379,18 @@ export const SearchResults = ({
           </div>
         ) : (
           <>
-            <Tabs base={base} filters={filters} counts={counts} total={total} />
+            {total > 0 ? (
+              <Tabs base={base} filters={filters} counts={counts} total={total} />
+            ) : null}
             <div className="srch-columns">
               <div className="srch-results">
-                {total === 0 ? (
+                {total === 0 && !answer ? (
                   <p className="t-body-m srch-message">
                     Nothing matches these filters.{' '}
                     <a href={searchHref(base, { q: filters.q })}>Show every result</a>.
                   </p>
                 ) : null}
+                {answer ? <AnswerCard answer={answer} /> : null}
                 {grouped?.groups.map((g) => (
                   <Group
                     key={g.kind}

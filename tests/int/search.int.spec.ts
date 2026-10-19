@@ -1,7 +1,9 @@
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import { buildDemoClub, DEMO_SLUG } from '@/demo/demoClub'
+import { findAnswer } from '@/search/answers'
 import { ensureFreshIndex } from '@/search/fresh'
+import { loadClubBySlug } from '@/site/loadClub'
 import { searchClub, searchGrouped } from '@/search/query'
 
 import { rt } from '../shared/richText'
@@ -248,4 +250,42 @@ describe('on a full club site (the demo club)', () => {
     expect((await searchClub(demo, 'secretary')).counts.person).toBeGreaterThan(0)
     expect((await searchClub(demo, 'memebrship')).suggestion).toBe('membership')
   }, 120_000)
+
+  it('answers questions from the club’s own facts, citing where they came from', async () => {
+    const club = await loadClubBySlug(DEMO_SLUG)
+    if (!club) throw new Error('demo club missing')
+    const base = `/preview/${DEMO_SLUG}`
+    const ask = (q: string) => findAnswer(club, base, q)
+
+    const hours = await ask('opening hours')
+    expect(hours?.kind).toBe('hours')
+    expect(hours?.facts.length).toBeGreaterThan(0)
+
+    const status = await ask('is the course open')
+    expect(status?.kind).toBe('status')
+    expect(status?.title).toMatch(/^Course (open|restricted|closed)$/)
+    expect(status?.source).toMatch(/updated/i)
+
+    const fees = await ask('green fees')
+    expect(fees?.kind).toBe('fees')
+    expect(fees?.source).toMatch(/^From .+, updated /)
+    expect(fees?.facts[0]?.value).toMatch(/\d/)
+
+    // One person, by the job in their role; a topic word in a role is not a person.
+    expect((await ask('secretary'))?.kind).toBe('person')
+    expect(await ask('membership')).toBeNull()
+    // Two people fit "pro": a list, not an answer. Two kinds of question: no answer.
+    expect(await ask('pro')).toBeNull()
+    expect(await ask('course open hours')).toBeNull()
+  }, 120_000)
+
+  it('never answers with another club’s facts', async () => {
+    const club = await loadClubBySlug(DEMO_SLUG)
+    if (!club) throw new Error('demo club missing')
+    const other = { ...club, tenantID: w.clubA.id, footer: { ...club.footer, hours: [] } }
+    // Club A has no course status, prices or opening hours of the demo club's.
+    const fees = await findAnswer(other, '/preview/test-club-a', 'green fees')
+    expect(fees).toBeNull()
+    expect(await findAnswer(other, '/preview/test-club-a', 'secretary')).toBeNull()
+  })
 })
