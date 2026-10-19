@@ -12,11 +12,6 @@
   margin: 0 auto;
   padding: var(--space-96) var(--space-40);
 }
-/* A page's title when it has no hero: the first block's own top spacing does the rest, so
-   the title isn't followed by a double-height gap. */
-.pv-section.pv-page-title {
-  padding-bottom: 0;
-}
 .pv-muted {
   color: var(--color-text-secondary);
 }

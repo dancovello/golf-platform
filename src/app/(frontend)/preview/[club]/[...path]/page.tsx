@@ -133,11 +133,9 @@ export default async function ClubPagePreview({
       overHero={page.layout[0] ? heroIsFullBleed(page.layout[0]) : false}
     >
       {live ? <LiveRefresh /> : null}
-      {startsWithHero ? null : (
-        <section className="pv-section pv-page-title">
-          <h1 className="t-display-l">{page.title}</h1>
-        </section>
-      )}
+      {/* No visible title on pages without a hero (Dan, 2026-10-19), but screen readers and
+          search engines still need one main heading per page. */}
+      {startsWithHero ? null : <h1 className="visually-hidden">{page.title}</h1>}
       <RenderBlocks
         layout={page.layout}
         ctx={page.ctx}
