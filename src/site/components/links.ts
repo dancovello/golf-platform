@@ -1,10 +1,23 @@
-import type { SiteLink } from '../loadClub'
+import type { MenuItem, SiteLink } from '../loadClub'
 
 /** Where the club's site lives: /preview/<club> on staging until real domains (step 4). */
 export const siteHref = (base: string, link: SiteLink | null): string => {
   if (!link) return base || '/'
   if (link.kind === 'url') return link.href
   return link.slug === 'home' ? base || '/' : `${base}/${link.slug}`
+}
+
+/**
+ * Which top-level menu item to underline as the current section: at most one. A page can sit
+ * under several items (Contact under both Visitors and About), so an item that links straight
+ * to the page wins, then the first item listing it in a drop-down. -1 when none does.
+ */
+export const currentMenuIndex = (menu: MenuItem[], base: string, currentPath: string): number => {
+  const direct = menu.findIndex((item) => item.link && siteHref(base, item.link) === currentPath)
+  if (direct !== -1) return direct
+  return menu.findIndex((item) =>
+    item.groups.some((g) => g.links.some((l) => siteHref(base, l.link) === currentPath)),
+  )
 }
 
 export const isExternal = (link: SiteLink | null) =>

@@ -24,7 +24,15 @@ export const BookButton = ({
       href={siteHref(base, booking.link)}
       {...linkTarget(booking.link)}
     >
-      {short ? 'Book' : booking.label}
+      {short ? (
+        'Book'
+      ) : (
+        <>
+          <span className="sh-book-full">{booking.label}</span>
+          {/* Shown instead of the full label where the desktop header is tight (header.css). */}
+          <span className="sh-book-short">Book</span>
+        </>
+      )}
       {arrow ? <ArrowRight size={20} /> : null}
     </a>
   )

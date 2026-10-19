@@ -80,12 +80,12 @@ export const SiteHeader = ({
                 </div>
               ) : null}
               <div className="sh-main">
-                <div className="sh-container sh-row sh-row-classic">
-                  <div className="sh-cell-start">{nav}</div>
+                <div className="sh-container sh-row">
                   <a className="sh-logo-link" href={home} aria-label={`${club.name}, home`}>
                     <Logo club={club} />
                   </a>
                   <div className="sh-cell-end">
+                    {nav}
                     <SearchTrigger base={base} />
                     <BookButton club={club} base={base} />
                   </div>

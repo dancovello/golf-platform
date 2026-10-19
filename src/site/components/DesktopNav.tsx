@@ -4,7 +4,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 
 import type { MenuItem } from '../loadClub'
 import { ChevronDown } from './Icons'
-import { linkTarget, siteHref } from './links'
+import { currentMenuIndex, linkTarget, siteHref } from './links'
 
 /**
  * Top-level menu (Figma "Nav Item") with drop-down link groups (Figma "Mega Menu", 1.2).
@@ -56,13 +56,7 @@ export const DesktopNav = ({
     }, 150)
   }
 
-  const isCurrent = (item: MenuItem) => {
-    const hrefs = [
-      ...(item.link ? [siteHref(base, item.link)] : []),
-      ...item.groups.flatMap((g) => g.links.map((l) => siteHref(base, l.link))),
-    ]
-    return hrefs.some((h) => h === currentPath)
-  }
+  const currentIndex = currentMenuIndex(menu, base, currentPath)
 
   return (
     <nav
@@ -76,7 +70,7 @@ export const DesktopNav = ({
     >
       <ul className="sh-nav-list">
         {menu.map((item, i) => {
-          const current = isCurrent(item)
+          const current = i === currentIndex
           if (item.groups.length === 0) {
             const href = siteHref(base, item.link)
             return (
