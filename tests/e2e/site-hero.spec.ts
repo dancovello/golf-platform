@@ -46,3 +46,22 @@ test('/home redirects to the club home', async ({ page }) => {
   await page.goto(`${home}/home`)
   await expect(page).toHaveURL(new RegExp(`${home}$`))
 })
+
+for (const size of [
+  { name: 'desktop', width: 1440, height: 900 },
+  { name: 'phone', width: 375, height: 812 },
+]) {
+  test(`the hero fills the window below the header, no further (${size.name})`, async ({
+    page,
+  }) => {
+    await page.setViewportSize(size)
+    await page.goto(home)
+    const hero = page.getByRole('main').locator('section').first()
+    await expect
+      .poll(async () => {
+        const box = await hero.boundingBox()
+        return Math.round((box?.y ?? 0) + (box?.height ?? 0))
+      })
+      .toBe(size.height)
+  })
+}

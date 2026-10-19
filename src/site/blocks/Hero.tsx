@@ -2,6 +2,7 @@ import type { HeroBlock } from '@/payload-types'
 
 import { Button } from '../components/Button'
 import type { ClubSite } from '../loadClub'
+import { HeroFit } from './HeroFit'
 import { HeroVideo } from './HeroVideo'
 import type { SiteMedia } from './media'
 import type { BlockContext } from './resolve'
@@ -92,6 +93,7 @@ export const Hero = ({
   const booking = club.header.booking
   return (
     <section className={`hero hero-full hero-${style}`}>
+      <HeroFit />
       <Media image={image} video={video} sizes="100vw" />
       <div className="hero-scrim" aria-hidden="true" />
       <div className="hero-container hero-copy">
