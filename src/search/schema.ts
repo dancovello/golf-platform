@@ -6,9 +6,9 @@ import {
   integer,
   jsonb,
   pgTable,
-  primaryKey,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
   varchar,
 } from '@payloadcms/db-postgres/drizzle/pg-core'
@@ -29,6 +29,7 @@ const tsvector = customType<{ data: string }>({ dataType: () => 'tsvector' })
 export const searchEntries = pgTable(
   'search_entries',
   {
+    id: uuid('id').primaryKey().defaultRandom(),
     tenant: uuid('tenant_id')
       .notNull()
       .references(() => tenantsID, { onDelete: 'cascade' }),
@@ -57,7 +58,9 @@ export const searchEntries = pgTable(
     ),
   },
   (t) => [
-    primaryKey({ name: 'search_entries_pkey', columns: [t.tenant, t.kind, t.sourceID] }),
+    // One row per item. (Not a three-column primary key: local schema auto-sync can't read those
+    // back from the database and stops.)
+    uniqueIndex('search_entries_source_idx').on(t.tenant, t.kind, t.sourceID),
     index('search_entries_search_idx').using('gin', t.search),
   ],
 )

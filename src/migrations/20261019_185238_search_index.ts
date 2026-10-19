@@ -9,6 +9,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
    CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
    CREATE TABLE "search_entries" (
+  	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
   	"tenant_id" uuid NOT NULL,
   	"kind" varchar(16) NOT NULL,
   	"source_id" uuid NOT NULL,
@@ -21,8 +22,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"date" timestamp with time zone,
   	"visible_from" timestamp with time zone,
   	"visible_until" timestamp with time zone,
-  	"search" "tsvector" GENERATED ALWAYS AS (setweight(to_tsvector('english', coalesce("title", '')), 'A') || setweight(to_tsvector('english', coalesce("eyebrow", '') || ' ' || coalesce("excerpt", '')), 'B') || setweight(to_tsvector('english', coalesce("body", '')), 'C')) STORED,
-  	CONSTRAINT "search_entries_pkey" PRIMARY KEY("tenant_id","kind","source_id")
+  	"search" "tsvector" GENERATED ALWAYS AS (setweight(to_tsvector('english', coalesce("title", '')), 'A') || setweight(to_tsvector('english', coalesce("eyebrow", '') || ' ' || coalesce("excerpt", '')), 'B') || setweight(to_tsvector('english', coalesce("body", '')), 'C')) STORED
   );
   
   CREATE TABLE "search_state" (
@@ -35,6 +35,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   
   ALTER TABLE "search_entries" ADD CONSTRAINT "search_entries_tenant_id_tenants_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenants"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "search_state" ADD CONSTRAINT "search_state_tenant_id_tenants_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenants"("id") ON DELETE cascade ON UPDATE no action;
+  CREATE UNIQUE INDEX "search_entries_source_idx" ON "search_entries" USING btree ("tenant_id","kind","source_id");
   CREATE INDEX "search_entries_search_idx" ON "search_entries" USING gin ("search");`)
 }
 

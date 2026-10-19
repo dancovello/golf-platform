@@ -16851,6 +16851,13 @@
       "name": "search_entries",
       "schema": "",
       "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
         "tenant_id": {
           "name": "tenant_id",
           "type": "uuid",
@@ -16935,6 +16942,33 @@
         }
       },
       "indexes": {
+        "search_entries_source_idx": {
+          "name": "search_entries_source_idx",
+          "columns": [
+            {
+              "expression": "tenant_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "kind",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "source_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
         "search_entries_search_idx": {
           "name": "search_entries_search_idx",
           "columns": [
@@ -16966,16 +17000,7 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {
-        "search_entries_pkey": {
-          "name": "search_entries_pkey",
-          "columns": [
-            "tenant_id",
-            "kind",
-            "source_id"
-          ]
-        }
-      },
+      "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
@@ -18564,6 +18589,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "48affbfd-1c2a-4a75-ac27-a627cc1a14a2",
+  "id": "3fb167ea-5e47-4899-b654-8aaebbf2a863",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }
