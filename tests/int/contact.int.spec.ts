@@ -260,6 +260,21 @@ describe("Cloudflare's spam check, when it's switched on", () => {
     expect(await savedIn(w.clubA.id)).toHaveLength(before)
   })
 
+  it('never takes messages on production with the check switched off, and logs why', async () => {
+    vi.stubEnv('TURNSTILE_SITE_KEY', '')
+    vi.stubEnv('TURNSTILE_SECRET_KEY', '')
+    vi.stubEnv('VERCEL_ENV', 'production')
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    const before = (await savedIn(w.clubA.id)).length
+    expect((await send(withCheck(null)))?.formError).toMatch(/phone or email us/)
+    expect(await savedIn(w.clubA.id)).toHaveLength(before)
+    expect(logged).toHaveBeenCalledWith(expect.stringMatching(/TURNSTILE_SECRET_KEY/))
+    logged.mockRestore()
+    // Staging and local still take messages without it.
+    vi.stubEnv('VERCEL_ENV', 'preview')
+    expect((await send(withCheck(null)))?.sent).not.toBeNull()
+  })
+
   it('checks the fields first, so an answer is not spent on a form sent back for fixing', async () => {
     const fetchMock = cloudflare({ success: true, action: 'contact' })
     const data = withCheck('token')
