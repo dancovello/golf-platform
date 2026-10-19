@@ -46,7 +46,7 @@
     "sharp": "0.35.5"
   },
   "devDependencies": {
-    "@axe-core/playwright": "4.10.2",
+    "@axe-core/playwright": "4.13.0",
     "@playwright/test": "1.64.0",
     "@types/node": "24.19.2",
     "@types/react": "19.3.0",

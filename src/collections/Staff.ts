@@ -1,9 +1,10 @@
 import type { CollectionConfig } from 'payload'
 
-import { loggedIn } from '../access/roles'
+import { clubContentCreate, loggedIn } from '../access/roles'
 import { imageField } from '../blocks/shared'
 import { checkStaffSameClub } from '../site/sameClub'
 import { STAFF_DEPARTMENTS } from './staffDepartments'
+import { clubBannerField } from '../tenancy'
 
 const PHONE = /^\+?[0-9 ()-]{6,30}$/
 
@@ -18,9 +19,10 @@ export const Staff: CollectionConfig = {
     defaultColumns: ['name', 'role', 'department', 'updatedAt'],
     description: 'People shown by Team blocks. A missing photo shows their initials instead.',
   },
-  access: { create: loggedIn, read: loggedIn, update: loggedIn, delete: loggedIn },
+  access: { create: clubContentCreate, read: loggedIn, update: loggedIn, delete: loggedIn },
   hooks: { beforeValidate: [checkStaffSameClub] },
   fields: [
+    clubBannerField,
     {
       type: 'row',
       fields: [

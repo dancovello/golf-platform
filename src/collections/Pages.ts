@@ -7,13 +7,14 @@ import type {
 } from 'payload'
 import { text as textRules } from 'payload/shared'
 
-import { editorTenantID, isSuperAdmin, loggedIn } from '../access/roles'
+import { clubContentCreate, editorTenantID, isSuperAdmin, loggedIn } from '../access/roles'
 import { pageBlocks } from '../blocks'
 import { BUILT_IN_PAGES } from '../fields/link'
 import { SLUG, SLUG_MESSAGE, slugify } from '../fields/slug'
 import { pageLivePreview } from '../site/livePreview'
 import { checkPageSameClub } from '../site/sameClub'
 import { idOf } from '../blocks/types'
+import { clubBannerField } from '../tenancy'
 
 /** A page can't sit inside itself or inside one of its own child pages (which would make a
  * loop). Walks up from the chosen parent; the club's own pages only (checkPageSameClub). */
@@ -69,7 +70,7 @@ export const Pages: CollectionConfig = {
   // the published version (src/site/published.ts). The history keeps the last 50 versions.
   versions: { drafts: { autosave: { interval: 800 } }, maxPerDoc: 50 },
   access: {
-    create: loggedIn,
+    create: clubContentCreate,
     read: loggedIn,
     update: loggedIn,
     delete: loggedIn,
@@ -85,6 +86,7 @@ export const Pages: CollectionConfig = {
   indexes: [{ fields: ['tenant', 'slug'], unique: true }],
   hooks: { beforeValidate: [defaultSlug, checkPageSameClub] },
   fields: [
+    clubBannerField,
     { name: 'title', type: 'text', required: true },
     {
       name: 'slug',
