@@ -1,13 +1,15 @@
 import { ArrowRight, ChevronRight } from './Icons'
+import { CompactSearch } from '../search/CompactSearch'
 import { linkTarget, siteHref } from './links'
 import type { ClubSite, SiteLink } from '../loadClub'
 
+import '../search/search.css'
 import './notFound.css'
 
 type QuickLink = { label: string; link: SiteLink }
 
 /** Up to three useful places: the booking button, then the menu's direct links. */
-const quickLinks = (club: ClubSite): QuickLink[] => {
+export const quickLinks = (club: ClubSite): QuickLink[] => {
   const links: QuickLink[] = []
   if (club.header.booking) links.push(club.header.booking)
   for (const item of club.header.menu) {
@@ -19,8 +21,7 @@ const quickLinks = (club: ClubSite): QuickLink[] => {
 
 /**
  * Figma "1.15 Page not found (404)": a friendly headline and a few ways on. Links are buttons on
- * desktop and a list of rows on phones (doc 14 §3). The design's "Search the site" box waits
- * for site search (an open decision), so it is left out rather than shown not working.
+ * desktop and a list of rows on phones (doc 14 §3), with the "Search the site" box above them.
  */
 export const PageNotFound = ({ club, base }: { club: ClubSite; base: string }) => {
   const links = [
@@ -35,8 +36,10 @@ export const PageNotFound = ({ club, base }: { club: ClubSite; base: string }) =
         <p className="t-eyebrow nf-eyebrow">Error 404</p>
         <h1 className="t-display-xl nf-title">Lost in the heather</h1>
         <p className="t-body-l nf-text">
-          The page you’re after has moved or never existed. Start from one of these instead.
+          The page you’re after has moved or never existed. Search the site, or start from one of
+          these.
         </p>
+        <CompactSearch base={base} id="nf-search" className="nf-search" />
         <ul className="nf-links">
           {links.map((l) => (
             <li key={l.label}>

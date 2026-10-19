@@ -28,6 +28,11 @@ export const Close = ({ size = 24 }: IconProps) => (
     <path d="M6 6l12 12M18 6L6 18" />
   </svg>
 )
+export const ArrowUpRight = ({ size = 20 }: IconProps) => (
+  <svg {...base(size)}>
+    <path d="M7 17L17 7M17 15V7H9" />
+  </svg>
+)
 export const ChevronRight = ({ size = 20 }: IconProps) => (
   <svg {...base(size)}>
     <path d="M9 6l6 6-6 6" />

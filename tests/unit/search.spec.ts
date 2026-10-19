@@ -103,4 +103,11 @@ describe('search rate limit', () => {
     expect(visitorKey(new Headers({ 'x-real-ip': '8.8.8.8' }))).toBe('8.8.8.8')
     expect(visitorKey(new Headers())).toBe('unknown')
   })
+
+  it('ignores a made-up cf-connecting-ip until the site is behind Cloudflare', () => {
+    const forged = new Headers({ 'cf-connecting-ip': '6.6.6.6', 'x-real-ip': '8.8.8.8' })
+    expect(visitorKey(forged, undefined)).toBe('8.8.8.8')
+    expect(visitorKey(new Headers({ 'cf-connecting-ip': '6.6.6.6' }), undefined)).toBe('unknown')
+    expect(visitorKey(forged, 'cloudflare')).toBe('6.6.6.6')
+  })
 })
