@@ -75,21 +75,22 @@ test('a bulk upload saves every photo, without needing descriptions', async ({
   editorPage: page,
 }) => {
   await openReady(page, '/admin/collections/media')
-  const count = async () =>
-    ((await (await page.request.get('/api/media?limit=0')).json()) as { totalDocs: number })
-      .totalDocs
-  const before = await count()
+  // Its own file names, so other tests uploading at the same time don't affect the result.
+  const names = [`bulk-${Date.now()}-one.png`, `bulk-${Date.now()}-two.png`]
+  const saved = async (name: string) =>
+    (
+      (await (
+        await page.request.get(`/api/media?limit=0&where[filename][like]=${name}`)
+      ).json()) as { totalDocs: number }
+    ).totalDocs
   await page.getByRole('button', { name: 'Bulk Upload' }).click()
   await page
     .locator('input[type="file"]')
     .last()
-    .setInputFiles([
-      { name: 'bulk-one.png', mimeType: 'image/png', buffer: TINY_PNG },
-      { name: 'bulk-two.png', mimeType: 'image/png', buffer: TINY_PNG },
-    ])
-  await expect(page.getByText('bulk-two.png')).toBeVisible()
+    .setInputFiles(names.map((name) => ({ name, mimeType: 'image/png', buffer: TINY_PNG })))
+  await expect(page.getByText(names[1])).toBeVisible()
   await page.getByRole('button', { name: 'Save', exact: true }).click()
-  await expect.poll(count).toBe(before + 2)
+  for (const name of names) await expect.poll(() => saved(name)).toBe(1)
   await expect(page.getByText(/invalid: prefix/)).toHaveCount(0)
 })
 

@@ -2,7 +2,7 @@ import { Fragment, type ReactNode } from 'react'
 
 import { isSafeURL } from '@/fields/link'
 
-import { isExternal, siteHref } from '../components/links'
+import { linkTarget, siteHref } from '../components/links'
 import { isImage, Photo } from './parts'
 import type { BlockContext } from './resolve'
 
@@ -104,11 +104,7 @@ export const RichTextContent = ({
         if (!isSafeURL(url)) return <span key={i}>{inline(n.children)}</span>
         const href = url.trim()
         return (
-          <a
-            key={i}
-            href={href}
-            {...(isExternal({ kind: 'url', href }) ? { rel: 'noopener' } : {})}
-          >
+          <a key={i} href={href} {...linkTarget({ kind: 'url', href })}>
             {inline(n.children)}
           </a>
         )

@@ -14,6 +14,7 @@ import {
 } from './documentsShared'
 import { TextLink } from './parts'
 import type { BlockContext } from './resolve'
+import { NEW_TAB } from '../components/links'
 
 /**
  * Document List (docs/design/11), three styles: A Grouped (categories down the left, rows
@@ -72,7 +73,7 @@ export const DocumentList = ({
 
   const row = (d: DocRow) => (
     <li key={d.id}>
-      <a className="dl-row" href={d.url} aria-label={downloadLabel(d)} download>
+      <a className="dl-row" href={d.url} aria-label={downloadLabel(d)} {...NEW_TAB}>
         <span className="dl-icon" aria-hidden="true">
           <FileIcon />
         </span>
@@ -95,7 +96,7 @@ export const DocumentList = ({
           <ul className="dl-cards">
             {docs.map((d) => (
               <li key={d.id}>
-                <a className="dl-card" href={d.url} aria-label={downloadLabel(d)} download>
+                <a className="dl-card" href={d.url} aria-label={downloadLabel(d)} {...NEW_TAB}>
                   <span className="dl-card-top">
                     <span className="dl-icon-plain" aria-hidden="true">
                       <FileIcon />

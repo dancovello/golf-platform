@@ -151,7 +151,8 @@
 }
 .tl-ledger-intro {
   position: sticky;
-  top: var(--space-32);
+  /* Clear of the sticky site header. */
+  top: calc(var(--size-nav-clearance) + var(--space-32));
 }
 .tl .tl-intro {
   margin-top: var(--space-16);

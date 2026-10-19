@@ -37,3 +37,10 @@ test('a policy not reviewed for over a year is flagged, not hidden', async ({ pa
   // "Today" is pinned to 15 July 2026 for the browser tests; reviewed 20 January 2025.
   await expect(page.locator('.dl-overdue').filter({ hasText: '20 January 2025' })).toBeVisible()
 })
+
+test('documents open in a new tab', async ({ page }) => {
+  await page.goto(url)
+  const download = page.locator('.dl-table tbody tr').first().getByRole('link')
+  await expect(download).toHaveAttribute('target', '_blank')
+  await expect(download).toHaveAccessibleDescription('Opens in a new tab')
+})

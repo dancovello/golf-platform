@@ -4,6 +4,7 @@ import { ArrowRight, Clock, Mail, Phone } from '../components/Icons'
 import type { ClubSite } from '../loadClub'
 import { MapFrame } from './MapFrame'
 import { StaticMap } from './StaticMap'
+import { NEW_TAB } from '../components/links'
 
 const MODE_NAMES: Record<string, string> = {
   car: 'By car',
@@ -59,7 +60,7 @@ export const MapBlock = ({ block, club }: { block: MapBlockData; club: ClubSite 
       <a
         className={`btn btn-${variant} t-label-button map-directions`}
         href={directions}
-        rel="noopener"
+        {...NEW_TAB}
       >
         Get directions <ArrowRight />
       </a>
@@ -104,7 +105,7 @@ export const MapBlock = ({ block, club }: { block: MapBlockData; club: ClubSite 
           <div className="blk-header">
             <div>{heading}</div>
             {directions ? (
-              <a className="btn btn-outline t-label-button" href={directions} rel="noopener">
+              <a className="btn btn-outline t-label-button" href={directions} {...NEW_TAB}>
                 Get directions <ArrowRight />
               </a>
             ) : null}
@@ -148,7 +149,7 @@ export const MapBlock = ({ block, club }: { block: MapBlockData; club: ClubSite 
               <a
                 className="btn btn-link t-label-button"
                 href={`https://what3words.com/${what3words}`}
-                rel="noopener"
+                {...NEW_TAB}
               >
                 what3words <ArrowRight />
               </a>

@@ -14157,7 +14157,7 @@
           "name": "alt",
           "type": "varchar",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "prefix": {
           "name": "prefix",
@@ -14382,6 +14382,42 @@
           "type": "varchar",
           "primaryKey": false,
           "notNull": false
+        },
+        "sizes_w3200_url": {
+          "name": "sizes_w3200_url",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sizes_w3200_width": {
+          "name": "sizes_w3200_width",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sizes_w3200_height": {
+          "name": "sizes_w3200_height",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sizes_w3200_mime_type": {
+          "name": "sizes_w3200_mime_type",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sizes_w3200_filesize": {
+          "name": "sizes_w3200_filesize",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sizes_w3200_filename": {
+          "name": "sizes_w3200_filename",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {
@@ -14531,6 +14567,21 @@
           "columns": [
             {
               "expression": "sizes_w2400_filename",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "media_sizes_w3200_sizes_w3200_filename_idx": {
+          "name": "media_sizes_w3200_sizes_w3200_filename_idx",
+          "columns": [
+            {
+              "expression": "sizes_w3200_filename",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -18319,6 +18370,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "75671b4e-583a-4b88-84ae-8227660d80d7",
+  "id": "5281e771-a626-46f8-a6d0-28ce520deaca",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }
