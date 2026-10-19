@@ -180,6 +180,14 @@ Dan's devops contact checked and approved the review items raised in PRs #18, #2
 - **If Cloudflare can't be reached, the message isn't saved** and the visitor is asked to try again or phone or email: spam isn't let through. *Open to change if Dan prefers letting messages through during a Cloudflare outage.*
 - **Privacy:** the privacy policy's cookies section mentions it (no tracking, no consent needed), and Schedule 3 of the data processing agreement adds the spam check to Cloudflare's role, so the agreement version is now `2026-10-16b-draft` (clubs are asked to accept again).
 
+## 2026-10-17 — Admin: colour picker, club content, photo descriptions, uploads
+
+- **Brand colours have a colour picker** (Dan): a swatch beside each colour code opens the computer's own colour picker. The code is still what's saved and checked for readability.
+- **The super-admin can add club content only once a club is picked** in the club selector (Dan chose this over "never"): pages, news, events, team, courses, photos and documents. The server refuses it otherwise, and the form says "You're adding this for <club>" (editors don't see this; they have one club). Trusted scripts (demo club, tests) are unaffected.
+- **Photo descriptions are optional** (Dan, 2026-10-17: they held people up). This relaxes doc 05's "alt text is required on every image": a photo without one is treated as decoration on the website (screen readers skip it), and the photo library marks it "Needs description" so it can be added later.
+- **Photo library thumbnails** use the 640px copy's own address. Payload's default thumbnail address went through its file route, which can't find files kept in their own folders, so every photo showed as a file icon.
+- **Bulk upload fixed:** a bulk upload shares one form between its files, so they all asked for the same storage folder and every file after the first failed with "invalid: prefix". Each file now gets its own new folder on the server, whatever the form sends.
+
 ## 2026-10-19 — Layout: carousels, scorecard, people profiles, event cards
 
 - **Carousels run edge to edge** (Dan, 2026-10-17): the news, events, hole and timeline carousels spill to both window edges while the first card lines up with the page column.
