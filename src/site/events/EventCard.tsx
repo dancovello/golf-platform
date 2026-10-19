@@ -1,6 +1,6 @@
 import { Photo } from '../blocks/parts'
 import { ArrowRight, ChevronRight } from '../components/Icons'
-import { isExternal, siteHref } from '../components/links'
+import { linkTarget, siteHref } from '../components/links'
 import type { SiteEvent } from '../events'
 
 const LONDON = { timeZone: 'Europe/London' } as const
@@ -53,7 +53,7 @@ const Title = ({
     <a
       className={`event-link ${className}`}
       href={siteHref(base, event.link)}
-      {...(isExternal(event.link) ? { rel: 'noopener' } : {})}
+      {...linkTarget(event.link)}
     >
       {event.title}
     </a>
