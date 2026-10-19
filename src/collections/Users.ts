@@ -102,6 +102,17 @@ const passwordOperationRules: CollectionBeforeOperationHook = ({ args, operation
   return args
 }
 
+/**
+ * The login cookie (and payload-totp's code cookie, which copies these settings) is only ever
+ * sent over https on Vercel: staging, previews and production. Payload's default sends it over
+ * plain http too. Local development and the browser tests run on http://localhost, so they
+ * keep the default.
+ */
+export const loginCookieSettings = (env: Record<string, string | undefined> = process.env) => ({
+  sameSite: 'Lax' as const,
+  secure: Boolean(env.VERCEL_ENV),
+})
+
 const visibleToSuperAdmins = (_data: unknown, _sibling: unknown, { user }: { user: unknown }) =>
   isSuperAdmin(user)
 
@@ -125,6 +136,7 @@ export const Users: CollectionConfig = {
       generateEmailSubject: resetEmailSubject,
       generateEmailHTML: (args) => resetEmailHTML(String(args?.token ?? '')),
     },
+    cookies: loginCookieSettings(),
   },
   access: { ...usersAccess },
   // payload-totp would refuse even reading your own account before the code is entered; our

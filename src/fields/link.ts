@@ -4,8 +4,10 @@ import type { Field, GroupField } from 'payload'
  * Where a link may point: the club's own pages, or a web, email or phone address.
  * Anything else (e.g. "javascript:") is refused, because these end up as links on the
  * public site. Pages are checked to belong to the same club in src/site/sameClub.ts.
+ * An address on the site starts with one "/": browsers read "//example.com" and "/\example.com"
+ * as another website, so those are refused.
  */
-const SAFE_URL = /^(https?:\/\/[^\s]+|mailto:[^\s]+|tel:\+?[0-9 ()-]+|\/[^\s]*)$/i
+const SAFE_URL = /^(https?:\/\/[^\s]+|mailto:[^\s]+|tel:\+?[0-9 ()-]+|\/(?![/\\])[^\s]*)$/i
 
 export const isSafeURL = (value: unknown): value is string =>
   typeof value === 'string' && SAFE_URL.test(value.trim())
