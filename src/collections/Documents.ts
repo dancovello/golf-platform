@@ -6,6 +6,7 @@ import { uploadFolder } from '../media/folders'
 import { randomServerUploadName } from '../media/uploadGuards'
 import { DOCUMENT_CATEGORIES } from './documentCategories'
 import { clubBannerField } from '../tenancy'
+import { searchHooks } from '../search/hooks'
 
 /** Files a club can offer for download: PDF and Word. Checked by their real contents. */
 export const DOCUMENT_TYPES = [
@@ -47,6 +48,7 @@ export const Documents: CollectionConfig = {
   hooks: {
     beforeOperation: [folder.assignFolder, randomServerUploadName],
     beforeValidate: [policiesNeedReviewDate],
+    ...searchHooks,
   },
   upload: {
     mimeTypes: DOCUMENT_TYPES,

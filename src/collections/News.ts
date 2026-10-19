@@ -7,6 +7,7 @@ import { SLUG, SLUG_MESSAGE, slugify } from '../fields/slug'
 import { checkNewsSameClub } from '../site/sameClub'
 import { NEWS_CATEGORIES } from './newsCategories'
 import { clubBannerField } from '../tenancy'
+import { searchHooks } from '../search/hooks'
 
 /** A new article gets its web address from its title unless one is typed (at most 80 long). */
 const defaultSlug: CollectionBeforeValidateHook = ({ data }) => {
@@ -29,7 +30,7 @@ export const News: CollectionConfig = {
   access: { create: clubContentCreate, read: loggedIn, update: loggedIn, delete: loggedIn },
   // An address only has to be unique within one club.
   indexes: [{ fields: ['tenant', 'slug'], unique: true }],
-  hooks: { beforeValidate: [defaultSlug, checkNewsSameClub] },
+  hooks: { beforeValidate: [defaultSlug, checkNewsSameClub], ...searchHooks },
   defaultSort: '-publishedAt',
   fields: [
     clubBannerField,

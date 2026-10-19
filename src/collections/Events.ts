@@ -6,6 +6,7 @@ import { linkField } from '../fields/link'
 import { checkEventSameClub } from '../site/sameClub'
 import { EVENT_CATEGORIES } from './eventCategories'
 import { clubBannerField } from '../tenancy'
+import { searchHooks } from '../search/hooks'
 
 // Club-owned (src/tenancy.ts): the club is required and editors only see their own events.
 // The website shows published events until they start, at /events and in Events blocks.
@@ -18,7 +19,7 @@ export const Events: CollectionConfig = {
     defaultColumns: ['title', 'startsAt', 'category', 'status'],
   },
   access: { create: clubContentCreate, read: loggedIn, update: loggedIn, delete: loggedIn },
-  hooks: { beforeValidate: [checkEventSameClub] },
+  hooks: { beforeValidate: [checkEventSameClub], ...searchHooks },
   defaultSort: 'startsAt',
   fields: [
     clubBannerField,

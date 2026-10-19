@@ -5,6 +5,7 @@ import { imageField } from '../blocks/shared'
 import { checkCourseSameClub } from '../site/sameClub'
 import { TEE_COLOURS, yardsField } from './courseTees'
 import { clubBannerField } from '../tenancy'
+import { searchHooks } from '../search/hooks'
 
 const yards = (colour: (typeof TEE_COLOURS)[number]): Field => ({
   name: yardsField(colour.value),
@@ -27,7 +28,7 @@ export const Courses: CollectionConfig = {
     description: 'Each course’s holes and tees, for the Hole-by-hole and Scorecard blocks.',
   },
   access: { create: clubContentCreate, read: loggedIn, update: loggedIn, delete: loggedIn },
-  hooks: { beforeValidate: [checkCourseSameClub] },
+  hooks: { beforeValidate: [checkCourseSameClub], ...searchHooks },
   fields: [
     clubBannerField,
     {
