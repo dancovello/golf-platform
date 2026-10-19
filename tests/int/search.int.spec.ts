@@ -1,5 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest'
 
+import { buildDemoClub, DEMO_SLUG } from '@/demo/demoClub'
 import { ensureFreshIndex } from '@/search/fresh'
 import { searchClub, searchGrouped } from '@/search/query'
 
@@ -208,10 +209,9 @@ describe('the website’s database account can use the index', () => {
     const client = await pool.connect()
     await client.query('SET ROLE golf_app')
     try {
-      await client.query(
-        `UPDATE search_state SET changes = changes + 1 WHERE tenant_id = $1`,
-        [w.clubA.id],
-      )
+      await client.query(`UPDATE search_state SET changes = changes + 1 WHERE tenant_id = $1`, [
+        w.clubA.id,
+      ])
       await client.query(
         `INSERT INTO search_entries (tenant_id, kind, source_id, title, link)
          VALUES ($1, 'page', $2, 'Role check', '{}'::jsonb)`,
@@ -229,4 +229,23 @@ describe('the website’s database account can use the index', () => {
       client.release()
     }
   })
+})
+
+describe('on a full club site (the demo club)', () => {
+  it('finds its pages, people and documents, with a passage from the page', async () => {
+    await buildDemoClub(w.payload)
+    const { docs } = await w.payload.find({
+      collection: 'tenants',
+      where: { slug: { equals: DEMO_SLUG } },
+      depth: 0,
+    })
+    const demo = String(docs[0]!.id)
+    const membership = await searchClub(demo, 'membership')
+    expect(membership.counts.page).toBeGreaterThan(0)
+    expect(membership.counts.document).toBeGreaterThan(0)
+    const page = membership.results.find((r) => r.kind === 'page')
+    expect(page?.excerpt?.toLowerCase()).toContain('membership')
+    expect((await searchClub(demo, 'secretary')).counts.person).toBeGreaterThan(0)
+    expect((await searchClub(demo, 'memebrship')).suggestion).toBe('membership')
+  }, 120_000)
 })

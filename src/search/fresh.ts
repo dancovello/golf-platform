@@ -22,11 +22,7 @@ export const ensureFreshIndex = async (payload: Payload, tenantID: string): Prom
     sql`SELECT changes, built_changes, version FROM search_state WHERE tenant_id = ${tenantID}`,
   )
   const state = rows[0] as StateRow | undefined
-  if (
-    state &&
-    state.built_changes === state.changes &&
-    state.version === SEARCH_INDEX_VERSION
-  ) {
+  if (state && state.built_changes === state.changes && state.version === SEARCH_INDEX_VERSION) {
     return false
   }
   await rebuildIndex(payload, tenantID, state?.changes ?? 0)
@@ -41,7 +37,9 @@ export const rebuildIndex = async (payload: Payload, tenantID: string, changes: 
   const entries = await buildClubEntries(payload, tenantID)
   await database(payload).transaction(async (tx) => {
     // One rebuild per club at a time.
-    await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtextextended(${`search:${tenantID}`}, 0))`)
+    await tx.execute(
+      sql`SELECT pg_advisory_xact_lock(hashtextextended(${`search:${tenantID}`}, 0))`,
+    )
     await tx.execute(sql`DELETE FROM search_entries WHERE tenant_id = ${tenantID}`)
     for (let i = 0; i < entries.length; i += 200) {
       const rows = entries.slice(i, i + 200).map(

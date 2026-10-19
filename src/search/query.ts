@@ -7,11 +7,9 @@ import { siteToday } from '@/site/today'
 
 import { SEARCH_KINDS, type SearchDetails, type SearchKind } from './build'
 import { ensureFreshIndex } from './fresh'
+import { MAX_QUERY, MIN_QUERY, passage, searchWords, tidyQuery } from './words'
 
-/** Longer searches are cut to this (a search is a few words, never a paragraph). */
-export const MAX_QUERY = 100
-/** Searches start at two characters (spec §3). */
-export const MIN_QUERY = 2
+export { MAX_QUERY, MIN_QUERY }
 
 export const WHEN_OPTIONS = ['upcoming', 'past', 'older'] as const
 export type SearchWhen = (typeof WHEN_OPTIONS)[number]
@@ -30,16 +28,11 @@ export type SearchResult = {
 
 export type SearchCounts = Record<SearchKind, number>
 
-/** A visitor's words, tidied: lower case, letters and numbers only, at most eight words. */
-export const searchWords = (q: string): string[] =>
-  (q.slice(0, MAX_QUERY).toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? []).slice(0, 8)
-
-export const tidyQuery = (q: unknown): string =>
-  typeof q === 'string' ? q.replace(/\s+/g, ' ').trim().slice(0, MAX_QUERY) : ''
-
 // Results whose title is this close to the search count as matches even when spelt
-// differently ("twilite" finds "Twilight"). 0 = nothing alike, 1 = the same.
-const TYPO_MATCH = 0.45
+// differently ("twilite" finds "Twilight"). 0 = nothing alike, 1 = the same. Only for searches
+// of four letters or more: shorter ones look like too many words.
+const TYPO_MATCH = 0.5
+const TYPO_MIN_LENGTH = 4
 // Words in the club's own content this close to a searched word are offered as "Did you mean".
 const SUGGEST_MATCH = 0.4
 
@@ -66,19 +59,26 @@ const matching = (tenantID: string, q: string, words: string[], when: SearchWhen
         : when === 'older'
           ? sql`AND date <= ${yearAgo}::timestamptz`
           : sql``
+  const typo =
+    q.length >= TYPO_MIN_LENGTH ? sql`OR word_similarity(${q}, title) >= ${TYPO_MATCH}` : sql``
   return sql`
-    SELECT kind, source_id, title, eyebrow, excerpt, link, details, date,
+    SELECT kind, source_id, title, eyebrow, excerpt, body, link, details, date,
       ts_rank(search, to_tsquery('english', ${prefix})) + word_similarity(${q}, title) * 0.5 AS rank
     FROM search_entries
     WHERE tenant_id = ${tenantID}
       AND (visible_from IS NULL OR visible_from <= ${now}::timestamptz)
       AND (visible_until IS NULL OR visible_until > ${now}::timestamptz)
-      AND (search @@ to_tsquery('english', ${prefix}) OR word_similarity(${q}, title) >= ${TYPO_MATCH})
+      AND (search @@ to_tsquery('english', ${prefix}) ${typo})
       ${whenClause}`
 }
 
+/** The columns a result row needs (a page's text only to pick its passage, see toResult). */
+const SHOWN = sql`kind, source_id, title, eyebrow, link, details, date, rank,
+  CASE WHEN kind = 'page' THEN body END AS body, excerpt`
+
 type Row = {
   kind: SearchKind
+  body?: string | null
   source_id: string
   title: string
   eyebrow: string | null
@@ -88,12 +88,12 @@ type Row = {
   date: string | Date | null
 }
 
-const toResult = (r: Row): SearchResult => ({
+const toResult = (r: Row, words: string[]): SearchResult => ({
   kind: r.kind,
   id: String(r.source_id),
   title: r.title,
   eyebrow: r.eyebrow,
-  excerpt: r.excerpt,
+  excerpt: (r.kind === 'page' && passage(r.body ?? null, words)) || r.excerpt,
   link: r.link,
   details: r.details ?? {},
   date: r.date ? new Date(r.date).toISOString() : null,
@@ -123,7 +123,9 @@ const suggestion = async (db: Executor, tenantID: string, words: string[]) => {
       SELECT word, similarity(word, ${word}) AS score FROM (
         SELECT DISTINCT lower(w) AS word
         FROM search_entries,
-          regexp_split_to_table(title || ' ' || coalesce(excerpt, ''), '[^[:alnum:]]+') AS w
+          regexp_split_to_table(
+            title || ' ' || coalesce(excerpt, '') || ' ' || coalesce(body, ''), '[^[:alnum:]]+'
+          ) AS w
         WHERE tenant_id = ${tenantID} AND length(w) > 2
       ) words
       WHERE similarity(word, ${word}) >= ${SUGGEST_MATCH}
@@ -178,12 +180,18 @@ export const searchClub = async (
       ? sql`ORDER BY date DESC NULLS LAST, rank DESC, title`
       : sql`ORDER BY rank DESC, title`
   const { rows } = await db.execute(sql`
-    SELECT * FROM (${matched}) m
+    SELECT ${SHOWN} FROM (${matched}) m
     ${kind ? sql`WHERE kind = ${kind}` : sql``}
     ${order}
     LIMIT ${Math.min(Math.max(options.limit ?? 20, 1), 100)}
     OFFSET ${Math.max(options.offset ?? 0, 0)}`)
-  return { query, results: (rows as Row[]).map(toResult), counts, total, suggestion: null }
+  return {
+    query,
+    results: (rows as Row[]).map((r) => toResult(r, words)),
+    counts,
+    total,
+    suggestion: null,
+  }
 }
 
 /**
@@ -214,7 +222,7 @@ export const searchGrouped = async (
   if (total === 0) return { ...empty, suggestion: await suggestion(db, tenantID, words) }
 
   const { rows } = await db.execute(sql`
-    SELECT * FROM (
+    SELECT ${SHOWN}, place, overall FROM (
       SELECT m.*, row_number() OVER (PARTITION BY kind ORDER BY rank DESC, title) AS place,
         row_number() OVER (ORDER BY rank DESC, title) AS overall
       FROM (${matched}) m
@@ -223,13 +231,16 @@ export const searchGrouped = async (
     ORDER BY rank DESC, title`)
   const all = rows as (Row & { overall: number | string })[]
   const bestRow = all.find((r) => Number(r.overall) === 1) ?? null
-  const best = bestRow ? toResult(bestRow) : null
+  const best = bestRow ? toResult(bestRow, words) : null
   const groups = SEARCH_KINDS.map((kind) => ({
     kind,
     results: all
-      .filter((r) => r.kind === kind && !(best && r.kind === best.kind && String(r.source_id) === best.id))
+      .filter(
+        (r) =>
+          r.kind === kind && !(best && r.kind === best.kind && String(r.source_id) === best.id),
+      )
       .slice(0, perKind)
-      .map(toResult),
+      .map((r) => toResult(r, words)),
   })).filter((g) => g.results.length > 0)
   return { query, best, groups, counts, total, suggestion: null }
 }

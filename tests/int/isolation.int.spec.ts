@@ -416,7 +416,11 @@ describe('site search never crosses clubs', () => {
   })
 
   it('every index row belongs to a club, and rows follow their club', async () => {
-    const db = (w.payload.db as unknown as { drizzle: { execute: (q: unknown) => Promise<{ rows: unknown[] }> } }).drizzle
+    const db = (
+      w.payload.db as unknown as {
+        drizzle: { execute: (q: unknown) => Promise<{ rows: unknown[] }> }
+      }
+    ).drizzle
     const { rows } = await db.execute(sql`
       SELECT count(*)::int AS n FROM search_entries e
       JOIN tenants t ON t.id = e.tenant_id
