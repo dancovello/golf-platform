@@ -71,7 +71,9 @@
   margin-bottom: var(--space-48);
   border-bottom: 0;
 }
-.holes-cards [role='tabpanel'] {
+/* The holes span the full width under the header: a tab panel on 18-hole courses, the list
+   itself on 9-hole courses (no tabs), which otherwise squeezed the header to nothing. */
+.holes-cards .blk-container > :not(.blk-header, .tabs) {
   grid-column: 1 / -1;
 }
 .hole-cards {

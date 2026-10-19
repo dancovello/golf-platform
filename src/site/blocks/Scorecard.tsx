@@ -5,6 +5,7 @@ import { Paragraphs } from './parts'
 import type { BlockContext, SiteCourse } from './resolve'
 import { fmt, halves, Summary, sum, TeeLabel } from './scorecardParts'
 import { TeeScorecard } from './TeeScorecard'
+import { NEW_TAB } from '../components/links'
 
 /** Style A: one table per nine, holes across; a row per tee, then par and stroke index. */
 const Classic = ({ course }: { course: SiteCourse }) => (
@@ -148,7 +149,7 @@ export const Scorecard = ({ block, ctx }: { block: ScorecardBlock; ctx: BlockCon
             <h2 className="t-heading-l blk-heading">{block.heading}</h2>
           </div>
           {download && style !== 'teeSelector' ? (
-            <a className="btn btn-outline t-label-button" href={download.url}>
+            <a className="btn btn-outline t-label-button" href={download.url} {...NEW_TAB}>
               Download scorecard ({download.type}) <Download size={20} />
             </a>
           ) : null}

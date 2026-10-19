@@ -34,13 +34,18 @@ export const Media: CollectionConfig = {
     // A file name only has to be unique inside its own random folder. A site-wide unique name
     // would rename club A's "hero.jpg" to "hero-1.jpg" if club B had one, hinting club B exists.
     filenameCompoundIndex: ['filename', 'prefix'],
-    // Smaller copies of every photo, so phones don't download the full-size file. WebP, never
-    // larger than the original. Videos are stored as uploaded.
-    imageSizes: [640, 1024, 1600, 2400].map((width) => ({
+    // Copies of every photo at set widths, so phones don't download the full-size file and big
+    // high-resolution screens get a sharp one (3200 covers a full-width photo on a 1600px-wide
+    // retina screen). WebP, never larger than the original. Quality 88 with sharp colour edges:
+    // 80 showed blocks and bands in smooth skies. Videos are stored as uploaded.
+    imageSizes: [640, 1024, 1600, 2400, 3200].map((width) => ({
       name: `w${width}`,
       width,
       withoutEnlargement: true,
-      formatOptions: { format: 'webp' as const, options: { quality: 80 } },
+      formatOptions: {
+        format: 'webp' as const,
+        options: { quality: 88, smartSubsample: true },
+      },
     })),
     adminThumbnail: 'w640',
     focalPoint: true,

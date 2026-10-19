@@ -72,7 +72,8 @@
 }
 .faq-intro {
   position: sticky;
-  top: var(--space-32);
+  /* Clear of the sticky site header. */
+  top: calc(var(--size-nav-clearance) + var(--space-32));
 }
 .faq-card {
   padding: var(--space-32);

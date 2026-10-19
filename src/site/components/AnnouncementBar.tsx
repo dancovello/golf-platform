@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 import type { SiteAnnouncement } from '../loadClub'
 import { ChevronLeft, ChevronRight, Close, Phone } from './Icons'
-import { isExternal, siteHref } from './links'
+import { linkTarget, siteHref } from './links'
 
 const ROTATE_MS = 6000
 const KEY = 'announcement-dismissed'
@@ -128,10 +128,7 @@ export const AnnouncementBar = ({ data, base }: { data: SiteAnnouncement; base: 
                   </button>
                 ) : null}
                 {item.link ? (
-                  <a
-                    href={siteHref(base, item.link.link)}
-                    {...(isExternal(item.link.link) ? { rel: 'noopener' } : {})}
-                  >
+                  <a href={siteHref(base, item.link.link)} {...linkTarget(item.link.link)}>
                     {item.link.label}
                   </a>
                 ) : null}

@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 
 import { Download, Search } from '../components/Icons'
 import { type DocRow, downloadLabel } from './documentsShared'
+import { NEW_TAB } from '../components/links'
 
 /**
  * Document library (Document List C): search as you type (title and category) and category
@@ -91,7 +92,7 @@ export const DocumentLibrary = ({ docs, heading }: { docs: DocRow[]; heading: st
                     className="dl-download t-label-s"
                     href={d.url}
                     aria-label={downloadLabel(d)}
-                    download
+                    {...NEW_TAB}
                   >
                     Download <Download />
                   </a>
