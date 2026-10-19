@@ -160,7 +160,7 @@ describe('site search finds what the site shows', () => {
   })
 
   it('gives the header panel a best match and up to two of each kind', async () => {
-    const grouped = await searchGrouped(w.clubA.id, 'twilight')
+    const grouped = await searchGrouped(w.clubA.id, 'twilight', { best: true })
     expect(grouped.best).not.toBeNull()
     expect(grouped.groups.every((g) => g.results.length <= 2)).toBe(true)
     const shown = [grouped.best, ...grouped.groups.flatMap((g) => g.results)].map((r) => r?.id)

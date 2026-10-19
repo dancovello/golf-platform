@@ -194,53 +194,80 @@ export const searchClub = async (
   }
 }
 
-/**
- * The header panel while typing (spec §3): the best match, then up to `perKind` of each kind
- * (best first), with how many there are of each.
- */
-export const searchGrouped = async (
-  tenantID: string,
-  rawQuery: string,
-  perKind = 2,
-): Promise<{
+export type GroupedSearch = {
   query: string
+  /** The single best result, kept out of its group (header panel only). */
   best: SearchResult | null
   groups: { kind: SearchKind; results: SearchResult[] }[]
   counts: SearchCounts
   total: number
   suggestion: string | null
-}> => {
+}
+
+/**
+ * Up to `perKind` results of each kind, best first (or newest), with how many there are of
+ * each: the results page's "All" tab and, with `best`, the header panel while typing (spec §3:
+ * the best match, then up to two of each kind).
+ */
+export const searchGrouped = async (
+  tenantID: string,
+  rawQuery: string,
+  options: { perKind?: number; best?: boolean; when?: SearchWhen | null; sort?: SearchSort } = {},
+): Promise<GroupedSearch> => {
+  const perKind = options.perKind ?? 2
   const query = tidyQuery(rawQuery)
   const words = searchWords(query)
   const empty = { query, best: null, groups: [], counts: emptyCounts(), total: 0, suggestion: null }
   if (query.length < MIN_QUERY || words.length === 0) return empty
 
   const db = await connection(tenantID)
-  const matched = matching(tenantID, query, words, null)
+  const matched = matching(tenantID, query, words, options.when ?? null)
   const counts = await countKinds(db, matched)
   const total = Object.values(counts).reduce((a, b) => a + b, 0)
   if (total === 0) return { ...empty, suggestion: await suggestion(db, tenantID, words) }
 
+  const order =
+    options.sort === 'newest' ? sql`date DESC NULLS LAST, rank DESC, title` : sql`rank DESC, title`
   const { rows } = await db.execute(sql`
     SELECT ${SHOWN}, place, overall FROM (
-      SELECT m.*, row_number() OVER (PARTITION BY kind ORDER BY rank DESC, title) AS place,
+      SELECT m.*, row_number() OVER (PARTITION BY kind ORDER BY ${order}) AS place,
         row_number() OVER (ORDER BY rank DESC, title) AS overall
       FROM (${matched}) m
     ) ranked
     WHERE place <= ${perKind + 1} OR overall = 1
-    ORDER BY rank DESC, title`)
+    ORDER BY place`)
   const all = rows as (Row & { overall: number | string })[]
-  const bestRow = all.find((r) => Number(r.overall) === 1) ?? null
+  const bestRow = options.best ? (all.find((r) => Number(r.overall) === 1) ?? null) : null
   const best = bestRow ? toResult(bestRow, words) : null
   const groups = SEARCH_KINDS.map((kind) => ({
     kind,
     results: all
-      .filter(
-        (r) =>
-          r.kind === kind && !(best && r.kind === best.kind && String(r.source_id) === best.id),
-      )
+      .filter((r) => r.kind === kind && !(bestRow && r === bestRow))
       .slice(0, perKind)
       .map((r) => toResult(r, words)),
   })).filter((g) => g.results.length > 0)
   return { query, best, groups, counts, total, suggestion: null }
+}
+
+/** How many results fall in each date range, for the results page's "When" filter. */
+export const searchWhenCounts = async (
+  tenantID: string,
+  rawQuery: string,
+  kind: SearchKind | null = null,
+): Promise<Record<SearchWhen, number>> => {
+  const query = tidyQuery(rawQuery)
+  const words = searchWords(query)
+  const none = { upcoming: 0, past: 0, older: 0 }
+  if (query.length < MIN_QUERY || words.length === 0) return none
+  const db = await connection(tenantID)
+  const now = siteToday().toISOString()
+  const yearAgo = new Date(new Date(now).getTime() - 365 * 24 * 60 * 60 * 1000).toISOString()
+  const { rows } = await db.execute(sql`
+    SELECT
+      count(*) FILTER (WHERE date > ${now}::timestamptz)::int AS upcoming,
+      count(*) FILTER (WHERE date <= ${now}::timestamptz AND date > ${yearAgo}::timestamptz)::int AS past,
+      count(*) FILTER (WHERE date <= ${yearAgo}::timestamptz)::int AS older
+    FROM (${matching(tenantID, query, words, null)}) m
+    ${kind ? sql`WHERE kind = ${kind}` : sql``}`)
+  return { ...none, ...(rows[0] as Record<SearchWhen, number>) }
 }

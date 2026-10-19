@@ -416,7 +416,7 @@ describe('site search never crosses clubs', () => {
       const page = await searchClub(w.clubA.id, q, { limit: 100 })
       expect(page.results.filter((r) => ofClubB().has(r.id))).toEqual([])
       expect(page.results.map((r) => r.title)).not.toContain('Searchable Bravo')
-      const grouped = await searchGrouped(w.clubA.id, q)
+      const grouped = await searchGrouped(w.clubA.id, q, { best: true })
       const shown = [grouped.best, ...grouped.groups.flatMap((g) => g.results)]
       expect(shown.filter((r) => r && ofClubB().has(r.id))).toEqual([])
     }

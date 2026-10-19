@@ -35,9 +35,18 @@ export const allowSearch = (visitor: string, now = Date.now()): boolean => {
   return true
 }
 
-/** Who is searching: the address Vercel (or later Cloudflare) saw the request come from. */
-export const visitorKey = (headers: Headers): string =>
-  headers.get('cf-connecting-ip')?.trim() ||
+/**
+ * Who is searching: the address the request came from, as the host saw it. Vercel sets
+ * x-real-ip and x-forwarded-for itself and overwrites anything the visitor sends, so those are
+ * trusted. cf-connecting-ip is only trusted once the site really is behind Cloudflare
+ * (TRUSTED_PROXY=cloudflare, from build step 4): until then any visitor could send a made-up
+ * one with every request and never reach the limit.
+ */
+export const visitorKey = (
+  headers: Headers,
+  trustedProxy: string | undefined = process.env.TRUSTED_PROXY,
+): string =>
+  (trustedProxy === 'cloudflare' ? headers.get('cf-connecting-ip')?.trim() : undefined) ||
   headers.get('x-real-ip')?.trim() ||
   headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
   'unknown'
