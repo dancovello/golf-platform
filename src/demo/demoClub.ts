@@ -285,7 +285,7 @@ export const buildDemoClub = async (payload: Payload) => {
       { colour: 'red', rating: 70.2, slope: 121 },
     ],
     holes: holeCard.slice(0, 9).map(([name, par, , , yardsYellow, yardsRed], i) => ({
-      name: `${name} (Heathland)`,
+      name,
       par,
       strokeIndex: [5, 1, 9, 3, 7, 8, 2, 4, 6][i],
       yardsYellow: yardsYellow - 40,

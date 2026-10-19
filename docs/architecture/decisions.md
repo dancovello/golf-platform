@@ -179,3 +179,10 @@ Dan's devops contact checked and approved the review items raised in PRs #18, #2
 - **Checked on the server after the fields**, so a form sent back for fixing keeps its check. The check must have been made for this form (`action` "contact"). The visitor's IP address isn't sent to Cloudflare.
 - **If Cloudflare can't be reached, the message isn't saved** and the visitor is asked to try again or phone or email: spam isn't let through. *Open to change if Dan prefers letting messages through during a Cloudflare outage.*
 - **Privacy:** the privacy policy's cookies section mentions it (no tracking, no consent needed), and Schedule 3 of the data processing agreement adds the spam check to Cloudflare's role, so the agreement version is now `2026-10-16b-draft` (clubs are asked to accept again).
+
+## 2026-10-19 — Layout: carousels, scorecard, people profiles, event cards
+
+- **Carousels run edge to edge** (Dan, 2026-10-17): the news, events, hole and timeline carousels spill to both window edges while the first card lines up with the page column.
+- **A 9-hole scorecard fills the width** instead of a narrow card.
+- **People profiles have Previous / Next** (and the arrow keys), with "3 of 8".
+- **Event cards: option A** (Dan, 2026-10-19, from three options). A raised card: photo, category, title, then date and time, place and price together with small icons, and a full-width Book button at the foot (buttons line up across a row).
