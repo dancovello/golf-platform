@@ -11,7 +11,14 @@ import { NEW_TAB } from '../components/links'
 const Classic = ({ course }: { course: SiteCourse }) => (
   <>
     {halves(course.holes).map((p) => (
-      <div key={p.label} className="sc-scroll">
+      // Scrolls sideways on phones, so it can be focused and scrolled from the keyboard.
+      <div
+        key={p.label}
+        className="sc-scroll"
+        tabIndex={0}
+        role="region"
+        aria-label={`${course.name}, ${p.label.toLowerCase()}`}
+      >
         <table className="sc-table sc-classic">
           <caption className="visually-hidden">
             {course.name}, {p.label.toLowerCase()}

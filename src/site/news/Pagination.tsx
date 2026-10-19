@@ -29,7 +29,11 @@ export const Pagination = ({
           <ChevronLeft size={18} /> <span className="pagination-word">Previous</span>
         </a>
       ) : (
-        <span className="pagination-step is-disabled t-label-button" aria-hidden="true">
+        <span
+          className="pagination-step is-disabled t-label-button"
+          aria-hidden="true"
+          aria-disabled="true"
+        >
           <ChevronLeft size={18} /> <span className="pagination-word">Previous</span>
         </span>
       )}
@@ -60,7 +64,11 @@ export const Pagination = ({
           <span className="pagination-word">Next</span> <ChevronRight size={18} />
         </a>
       ) : (
-        <span className="pagination-step is-disabled t-label-button" aria-hidden="true">
+        <span
+          className="pagination-step is-disabled t-label-button"
+          aria-hidden="true"
+          aria-disabled="true"
+        >
           <span className="pagination-word">Next</span> <ChevronRight size={18} />
         </span>
       )}

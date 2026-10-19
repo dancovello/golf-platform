@@ -28,8 +28,10 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
+/* Brand colour on light backgrounds: the accent (lightened for dark bands) was too faint
+   to read here (axe colour-contrast, 2026-10-17). Dark bands keep the accent, below. */
 .news-eyebrow {
-  color: var(--color-text-accent);
+  color: var(--color-text-brand);
 }
 
 /* Link button (Figma Button / Link): accent underline, arrow nudges 4px on hover. */
@@ -84,7 +86,7 @@
   gap: var(--space-8);
 }
 .news-meta {
-  color: var(--color-text-accent);
+  color: var(--color-text-brand);
 }
 .news-title {
   display: -webkit-box;
@@ -460,7 +462,7 @@ a.pagination-step:hover .pagination-word {
   text-decoration: none;
 }
 .post-nav-link .t-eyebrow {
-  color: var(--color-text-accent);
+  color: var(--color-text-brand);
 }
 .post-nav-link.is-next {
   grid-column: 2;
@@ -807,7 +809,8 @@ a.pagination-step:hover .pagination-word {
   color: var(--color-text-on-inverse);
 }
 .news-carousel.is-headlines .news-eyebrow,
-.news-carousel.is-headlines .news-meta {
+.news-carousel.is-headlines .news-meta,
+.on-brand :is(.news-eyebrow, .news-meta) {
   color: var(--color-text-accent);
 }
 .news-carousel.is-headlines .news-arrow {

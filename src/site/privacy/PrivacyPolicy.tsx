@@ -169,7 +169,12 @@ export const PrivacyPolicy = ({
             We only collect what we need for the purpose below. The “legal basis” is the reason the
             law allows us to use it.
           </p>
-          <div className="pp-table-wrap">
+          <div
+            className="pp-table-wrap"
+            tabIndex={0}
+            role="region"
+            aria-label="What we collect and why"
+          >
             <table className="pp-table">
               <caption className="pp-sr-only">What we collect and why</caption>
               <thead>
@@ -279,7 +284,12 @@ export const PrivacyPolicy = ({
       title: 'How long we keep it',
       body: (
         <>
-          <div className="pp-table-wrap">
+          <div
+            className="pp-table-wrap"
+            tabIndex={0}
+            role="region"
+            aria-label="How long we keep it"
+          >
             <table className="pp-table">
               <caption className="pp-sr-only">How long we keep it</caption>
               <thead>

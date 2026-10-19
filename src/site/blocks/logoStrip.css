@@ -45,11 +45,11 @@
   opacity: 0.85;
   transition: opacity 150ms ease-out;
 }
+/* A partner without a logo: their name. Full strength, so it's readable (axe contrast). */
 .ls-wordmark {
   text-align: center;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  opacity: 0.85;
 }
 .ls-slot a:hover .ls-logo,
 .ls-slot a:hover .ls-wordmark,
