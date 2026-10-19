@@ -1,5 +1,5 @@
 import { ArrowRight, ChevronRight } from './Icons'
-import { isExternal, siteHref } from './links'
+import { linkTarget, siteHref } from './links'
 import type { ClubSite, SiteLink } from '../loadClub'
 
 import './notFound.css'
@@ -40,11 +40,7 @@ export const PageNotFound = ({ club, base }: { club: ClubSite; base: string }) =
         <ul className="nf-links">
           {links.map((l) => (
             <li key={l.label}>
-              <a
-                className="nf-link t-label-button"
-                href={href(l)}
-                {...(isExternal(l.link) ? { rel: 'noopener' } : {})}
-              >
+              <a className="nf-link t-label-button" href={href(l)} {...linkTarget(l.link)}>
                 <span>{l.label}</span>
                 <ArrowRight />
                 <ChevronRight />

@@ -1,6 +1,6 @@
 import type { SiteLink } from '../loadClub'
 import { ArrowRight } from './Icons'
-import { isExternal, siteHref } from './links'
+import { linkTarget, siteHref } from './links'
 
 /** Figma "Button": Style = Accent / Solid / Outline / Link, Surface = Light / Dark. */
 export type ButtonStyle = 'accent' | 'solid' | 'outline' | 'link'
@@ -23,7 +23,7 @@ export const Button = ({
   <a
     className={`btn btn-${style}${onDark ? ' is-on-dark' : ''} t-label-button`}
     href={siteHref(base, link)}
-    {...(isExternal(link) ? { rel: 'noopener' } : {})}
+    {...linkTarget(link)}
   >
     {label}
     {arrow ? <ArrowRight /> : null}

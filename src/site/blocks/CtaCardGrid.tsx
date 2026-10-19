@@ -2,7 +2,7 @@ import type { CtaCardGridBlock } from '@/payload-types'
 
 import { Button } from '../components/Button'
 import { ArrowRight } from '../components/Icons'
-import { isExternal, siteHref } from '../components/links'
+import { linkTarget, siteHref } from '../components/links'
 import type { BlockContext, ResolvedLink } from './resolve'
 import { SwipeRow } from './SwipeRow'
 
@@ -15,8 +15,8 @@ type Card = {
 }
 
 /**
- * CTA Card Grid (docs/design/09), three styles. The whole card is one link; the "Explore"
- * line and arrows inside it are decoration. Phones: A swipes (with a "View all" card last),
+ * CTA Card Grid (docs/design/09), three styles. The whole card is one link; arrows inside it
+ * are decoration. No "Explore" label (Dan, 2026-10-17): it looked like a separate link. Phones: A swipes (with a "View all" card last),
  * B stacks as image strips, C stacks as a numbered list (docs/design/13).
  */
 export const CtaCardGrid = ({
@@ -60,7 +60,7 @@ export const CtaCardGrid = ({
       style={{ objectPosition: card.image.position }}
     />
   )
-  const external = (l: ResolvedLink) => (isExternal(l.link) ? { rel: 'noopener' } : {})
+  const external = (l: ResolvedLink) => linkTarget(l.link)
   const sizes = `(max-width: 767px) 82vw, (max-width: 1023px) 50vw, ${Math.round(1200 / columns)}px`
 
   const cardEls = cards.map((card, i) => {
@@ -101,9 +101,6 @@ export const CtaCardGrid = ({
         <div className="cg-body">
           <h3 className="t-heading-m cg-title">{card.title}</h3>
           {card.description ? <p className="t-body-s cg-description">{card.description}</p> : null}
-          <span className="t-label-button cg-more" aria-hidden="true">
-            Explore <ArrowRight />
-          </span>
         </div>
       </a>
     )

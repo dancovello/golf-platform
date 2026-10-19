@@ -68,10 +68,16 @@ export const Viewer = ({
   }, [onClose])
 
   useEffect(() => {
-    // Keep the current thumbnail in view; preload the neighbours.
-    thumbs.current
-      ?.querySelector<HTMLElement>('[aria-current="true"]')
-      ?.scrollIntoView({ block: 'nearest', inline: 'center' })
+    // Keep the current thumbnail in view by sliding the strip sideways. Not scrollIntoView:
+    // that also scrolls the page, which jumped visitors down to an on-page gallery on load.
+    const strip = thumbs.current
+    const current = strip?.querySelector<HTMLElement>('[aria-current="true"]')
+    if (strip && current) {
+      const s = strip.getBoundingClientRect()
+      const c = current.getBoundingClientRect()
+      strip.scrollTo({ left: strip.scrollLeft + c.left - s.left - (s.width - c.width) / 2 })
+    }
+    // Preload the neighbours.
     for (const step of [-1, 1]) {
       const n = items[(index + step + count) % count]
       if (n) Object.assign(new Image(), { srcset: n.srcSet ?? '', src: n.src, sizes: '100vw' })
