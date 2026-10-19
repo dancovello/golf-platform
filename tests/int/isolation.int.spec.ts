@@ -346,3 +346,86 @@ describe('the database enforces club ownership on its own', () => {
     await expect(db().execute(sql`DELETE FROM tenants WHERE id = ${lonely.id}`)).rejects.toThrow()
   })
 })
+
+describe('site search never crosses clubs', () => {
+  // Each club gets a published page showing its own team member, document and course, so
+  // every kind of result exists in both clubs' indexes.
+  beforeAll(async () => {
+    for (const [tenant, staff, doc, course, name] of [
+      [w.clubA.id, w.staffA.id, w.docA.id, w.courseA.id, 'Alpha'],
+      [w.clubB.id, w.staffB.id, w.docB.id, w.courseB.id, 'Bravo'],
+    ]) {
+      await w.payload.create({
+        collection: 'pages',
+        data: {
+          _status: 'published',
+          title: `Searchable ${name}`,
+          slug: `searchable-${name.toLowerCase()}`,
+          tenant,
+          layout: [
+            { blockType: 'team', style: 'grid', heading: 'Team', people: [staff] },
+            { blockType: 'documentList', style: 'grouped', heading: 'Files', documents: [doc] },
+            { blockType: 'scorecard', heading: 'Card', course },
+          ],
+        } as never,
+      })
+    }
+  })
+
+  const ofClubB = () =>
+    new Set([w.pageB.id, w.newsB.id, w.eventB.id, w.docB.id, w.staffB.id, w.courseB.id])
+  const ofClubA = () =>
+    new Set([w.pageA.id, w.newsA.id, w.eventA.id, w.docA.id, w.staffA.id, w.courseA.id])
+
+  const queries = () => [
+    'membership',
+    'searchable',
+    'club',
+    'local rules',
+    w.newsB.title,
+    w.eventB.title,
+    w.staffB.name,
+    w.courseB.name,
+    'bravo',
+  ]
+
+  it("club A's searches return none of club B's content", async () => {
+    const { searchClub, searchGrouped } = await import('@/search/query')
+    for (const q of queries()) {
+      const page = await searchClub(w.clubA.id, q, { limit: 100 })
+      expect(page.results.filter((r) => ofClubB().has(r.id))).toEqual([])
+      expect(page.results.map((r) => r.title)).not.toContain('Searchable Bravo')
+      const grouped = await searchGrouped(w.clubA.id, q)
+      const shown = [grouped.best, ...grouped.groups.flatMap((g) => g.results)]
+      expect(shown.filter((r) => r && ofClubB().has(r.id))).toEqual([])
+    }
+  })
+
+  it("club B's searches return none of club A's content, but do find club B's", async () => {
+    const { searchClub } = await import('@/search/query')
+    const foundB = new Set<string>()
+    for (const q of queries()) {
+      const page = await searchClub(w.clubB.id, q, { limit: 100 })
+      expect(page.results.filter((r) => ofClubA().has(r.id))).toEqual([])
+      page.results.forEach((r) => foundB.add(r.id))
+    }
+    // Not an empty pass: club B's own page, team member, document and course are found.
+    for (const id of [w.pageB.id, w.staffB.id, w.docB.id, w.courseB.id]) {
+      expect(foundB.has(id)).toBe(true)
+    }
+  })
+
+  it('every index row belongs to a club, and rows follow their club', async () => {
+    const db = (
+      w.payload.db as unknown as {
+        drizzle: { execute: (q: unknown) => Promise<{ rows: unknown[] }> }
+      }
+    ).drizzle
+    const { rows } = await db.execute(sql`
+      SELECT count(*)::int AS n FROM search_entries e
+      JOIN tenants t ON t.id = e.tenant_id
+      WHERE (e.tenant_id = ${w.clubA.id} AND e.source_id IN (${w.pageB.id}, ${w.staffB.id}, ${w.docB.id}, ${w.courseB.id}))
+         OR (e.tenant_id = ${w.clubB.id} AND e.source_id IN (${w.pageA.id}, ${w.staffA.id}, ${w.docA.id}, ${w.courseA.id}))`)
+    expect((rows[0] as { n: number }).n).toBe(0)
+  })
+})

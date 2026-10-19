@@ -5,6 +5,7 @@ import { imageField } from '../blocks/shared'
 import { checkStaffSameClub } from '../site/sameClub'
 import { STAFF_DEPARTMENTS } from './staffDepartments'
 import { clubBannerField } from '../tenancy'
+import { searchHooks } from '../search/hooks'
 
 const PHONE = /^\+?[0-9 ()-]{6,30}$/
 
@@ -20,7 +21,7 @@ export const Staff: CollectionConfig = {
     description: 'People shown by Team blocks. A missing photo shows their initials instead.',
   },
   access: { create: clubContentCreate, read: loggedIn, update: loggedIn, delete: loggedIn },
-  hooks: { beforeValidate: [checkStaffSameClub] },
+  hooks: { beforeValidate: [checkStaffSameClub], ...searchHooks },
   fields: [
     clubBannerField,
     {

@@ -133,6 +133,20 @@ const find = async (where: Where, limit: number) => {
   })
 }
 
+/** Every upcoming event, soonest first (site search: src/search/build.ts). */
+export const clubEvents = async (tenantID: string): Promise<SiteEvent[]> => {
+  const payload = await getPayload({ config })
+  const { docs } = await payload.find({
+    collection: 'events',
+    where: upcoming(tenantID),
+    sort: 'startsAt',
+    pagination: false,
+    depth: 0,
+    overrideAccess: true,
+  })
+  return toEvents(tenantID, docs as unknown as EventDoc[])
+}
+
 /** The next events, soonest first, optionally in one category (Events blocks). */
 export const upcomingEvents = async (
   tenantID: string,

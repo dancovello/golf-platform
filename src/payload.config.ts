@@ -18,6 +18,7 @@ import { DOCUMENT_TYPES } from './collections/Documents'
 import { MEDIA_TYPES } from './collections/Media'
 import { guardBrowserUploads } from './media/uploadGuards'
 import { mediaStorageSettings } from './media/storage'
+import { addSearchTables } from './search/schema'
 import { clubOwnedCollections } from './tenancy'
 
 const media = mediaStorageSettings()
@@ -77,6 +78,12 @@ export default buildConfig({
     // (docs/plans/step-2-spike-findings.md, finding 3).
     idType: 'uuid',
     migrationDir: path.resolve(dirname, 'migrations'),
+    // The site search index: two plain tables only the website's server code reads
+    // (src/search/schema.ts).
+    afterSchemaInit: [addSearchTables],
+    // Search's spelling tolerance needs pg_trgm. Migrations add it everywhere else (the
+    // website's own account can't); locally, schema auto-sync needs it first.
+    extensions: process.env.NODE_ENV === 'development' ? ['pg_trgm'] : [],
   }),
   telemetry: false,
   // Makes the smaller photo copies (src/collections/Media.ts).

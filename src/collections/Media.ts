@@ -4,6 +4,7 @@ import { clubContentCreate, loggedIn } from '../access/roles'
 import { randomServerUploadName } from '../media/uploadGuards'
 import { uploadFolder } from '../media/folders'
 import { clubBannerField } from '../tenancy'
+import { searchHooks } from '../search/hooks'
 
 /** Photos and videos a club can use in its blocks. Images are checked by their actual
  * contents, not their name; anything not on this list is refused. No SVG: it can carry code. */
@@ -28,7 +29,7 @@ export const Media: CollectionConfig = {
   // Listed by file name: the description is optional, so it may be blank.
   admin: { useAsTitle: 'filename', defaultColumns: ['filename', 'alt', 'updatedAt'] },
   access: { create: clubContentCreate, read: loggedIn, update: loggedIn, delete: loggedIn },
-  hooks: { beforeOperation: [folder.assignFolder, randomServerUploadName] },
+  hooks: { beforeOperation: [folder.assignFolder, randomServerUploadName], ...searchHooks },
   upload: {
     mimeTypes: MEDIA_TYPES,
     // Files live in R2, never on the app's disk.

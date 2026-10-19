@@ -15,6 +15,7 @@ import { pageLivePreview } from '../site/livePreview'
 import { checkPageSameClub } from '../site/sameClub'
 import { idOf } from '../blocks/types'
 import { clubBannerField } from '../tenancy'
+import { searchHooks } from '../search/hooks'
 
 /** A page can't sit inside itself or inside one of its own child pages (which would make a
  * loop). Walks up from the chosen parent; the club's own pages only (checkPageSameClub). */
@@ -33,9 +34,10 @@ const validParent: Validate = async (value, { id, req }) => {
   return true
 }
 
-/** Addresses of the pages every club's site already has (News, Events, Contact, Privacy). A
- * page with one of these would never be shown: the built-in page always wins. */
-const RESERVED = new Set<string>(BUILT_IN_PAGES.map((p) => p.value))
+/** Addresses of the pages every club's site already has (News, Events, Contact, Privacy and
+ * the search results). A page with one of these would never be shown: the built-in page
+ * always wins. */
+const RESERVED = new Set<string>([...BUILT_IN_PAGES.map((p) => p.value), 'search'])
 
 const validSlug: TextFieldSingleValidation = (value, args) => {
   const basics = textRules(value, args) // required, length
@@ -84,7 +86,7 @@ export const Pages: CollectionConfig = {
   },
   // A slug only has to be unique within one club, so two clubs can both have /membership.
   indexes: [{ fields: ['tenant', 'slug'], unique: true }],
-  hooks: { beforeValidate: [defaultSlug, checkPageSameClub] },
+  hooks: { beforeValidate: [defaultSlug, checkPageSameClub], ...searchHooks },
   fields: [
     clubBannerField,
     { name: 'title', type: 'text', required: true },
