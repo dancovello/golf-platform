@@ -216,6 +216,27 @@ describe.each(slugs)('%s: editor A gets nothing from club B', (slug) => {
     expect(f.read(await p().findByID({ collection: slug, id: b }))).toEqual(before)
   })
 
+  it("cannot move one of club A's records into club B", async () => {
+    const { a } = f.ids(w)
+    const tenantOf = async () => {
+      const doc = await p().findByID({ collection: slug, id: a, depth: 0 })
+      return (doc as { tenant?: unknown }).tenant
+    }
+    expect(await tenantOf()).toBe(w.clubA.id)
+    await errorOf(() =>
+      p().update({ collection: slug, id: a, data: { tenant: w.clubB.id }, ...asEditorA() }),
+    )
+    await errorOf(() =>
+      p().update({
+        collection: slug,
+        where: { id: { equals: a } },
+        data: { tenant: w.clubB.id },
+        ...asEditorA(),
+      }),
+    )
+    expect(await tenantOf()).toBe(w.clubA.id)
+  })
+
   it('cannot create a record in club B', async () => {
     const before = (
       await p().count({ collection: slug, where: { tenant: { equals: w.clubB.id } } })

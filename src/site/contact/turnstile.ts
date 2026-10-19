@@ -21,7 +21,13 @@ export type TurnstileResult = 'ok' | 'failed' | 'unavailable'
  */
 export const verifyTurnstile = async (token: unknown): Promise<TurnstileResult> => {
   const secret = process.env.TURNSTILE_SECRET_KEY
-  if (!secret) return 'ok'
+  if (!secret) {
+    // Staging and local: the check is optional. Production never takes messages without it:
+    // a script could fill a club's hourly allowance and block real visitors.
+    if (process.env.VERCEL_ENV !== 'production') return 'ok'
+    console.error('Contact form refused a message: TURNSTILE_SECRET_KEY is not set on production')
+    return 'unavailable'
+  }
   if (typeof token !== 'string' || !token || token.length > 2048) return 'failed'
   try {
     const response = await fetch(VERIFY_URL, {
