@@ -60,7 +60,8 @@ export const CourseGuide = ({
           </div>
         ) : null}
       </div>
-      <ol className={`hole-guide${expanded ? ' is-expanded' : ''}`}>
+      {/* A sideways swipe row on phones, so it can be focused and scrolled from the keyboard. */}
+      <ol className={`hole-guide${expanded ? ' is-expanded' : ''}`} tabIndex={0} aria-label="Holes">
         {shown.map((hole, i) => (
           <li
             key={hole.number}

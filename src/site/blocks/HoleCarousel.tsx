@@ -75,7 +75,8 @@ export const HoleCarousel = ({
           </button>
         </div>
       </div>
-      <div ref={track} className="hole-track" role="list" aria-label={heading}>
+      {/* Scrolls sideways, so it can be focused and scrolled from the keyboard too. */}
+      <div ref={track} className="hole-track" role="list" aria-label={heading} tabIndex={0}>
         {holes.map((hole) => (
           <article
             key={hole.number}

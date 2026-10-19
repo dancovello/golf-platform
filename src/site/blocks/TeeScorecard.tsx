@@ -50,7 +50,12 @@ export const TeeScorecard = ({ course }: { course: SiteCourse }) => {
         </div>
       ) : null}
       <Summary course={course} tees={tee ? [tee] : []} ratingTee={tee} />
-      <div className="sc-scroll">
+      <div
+        className="sc-scroll"
+        tabIndex={0}
+        role="region"
+        aria-label={`${course.name}, ${tee?.name ?? ''} tees`}
+      >
         <table className="sc-table sc-strip">
           <caption className="visually-hidden">
             {course.name}, {tee?.name} tees

@@ -250,6 +250,9 @@
 }
 .event-card .event-category {
   margin: 0;
+  color: var(--color-text-brand);
+}
+.on-brand .event-card .event-category {
   color: var(--color-text-accent);
 }
 .event-chevron {
