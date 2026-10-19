@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 
+import { askedFor } from '@/search/intents'
 import { passage, searchWords, wordMatcher } from '@/search/words'
 import {
   SEARCHES_PER_MINUTE,
@@ -109,5 +110,28 @@ describe('search rate limit', () => {
     expect(visitorKey(forged, undefined)).toBe('8.8.8.8')
     expect(visitorKey(new Headers({ 'cf-connecting-ip': '6.6.6.6' }), undefined)).toBe('unknown')
     expect(visitorKey(forged, 'cloudflare')).toBe('6.6.6.6')
+  })
+})
+
+describe('what a search is asking for (smart answers)', () => {
+  const kinds = (q: string) => [...askedFor(q)].sort()
+
+  it('recognises the five kinds of question', () => {
+    expect(kinds('is the course open')).toEqual(['status'])
+    expect(kinds('buggies')).toEqual(['status'])
+    expect(kinds('opening hours')).toEqual(['hours'])
+    expect(kinds('when does the bar open')).toEqual(['hours'])
+    expect(kinds('green fees')).toEqual(['fees'])
+    expect(kinds('how much')).toEqual(['fees'])
+    expect(kinds('next competition')).toEqual(['event'])
+  })
+
+  it('asks for nothing in particular for a plain search', () => {
+    expect(kinds('membership')).toEqual([])
+    expect(kinds('juniors')).toEqual([])
+  })
+
+  it('notices when a search fits more than one kind (which then gets no answer)', () => {
+    expect(kinds('course open hours').length).toBeGreaterThan(1)
   })
 })

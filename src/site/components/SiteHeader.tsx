@@ -2,7 +2,11 @@ import type { ClubSite } from '../loadClub'
 import { BookButton } from './BookButton'
 import { DesktopNav } from './DesktopNav'
 import { HeaderScroll } from './HeaderScroll'
+import { SearchPanel } from '../search/SearchPanel'
+import { SearchTrigger } from '../search/SearchTrigger'
 import { Phone } from './Icons'
+import { isExternal, siteHref } from './links'
+import { quickLinks } from './quickLinks'
 import { Logo } from './Logo'
 import { MobileMenu } from './MobileMenu'
 
@@ -11,8 +15,8 @@ import { MobileMenu } from './MobileMenu'
  * "C · App bar"), plus the mobile header and drawer below 1024px.
  *
  * Left out for v1, though the designs show them: Log in / My bookings (member accounts are
- * out of scope), search (no site search yet) and the live course status (arrives with the
- * Course Status block).
+ * out of scope) and the live course status (arrives with the Course Status block). Search opens
+ * the search panel (src/site/search).
  */
 export const SiteHeader = ({
   club,
@@ -43,6 +47,7 @@ export const SiteHeader = ({
           base={base}
           currentPath={currentPath}
           logo={<Logo club={club} compact />}
+          searchHref={`${base}/search`}
           phone={phone}
           bookButton={<BookButton club={club} base={base} className="is-block" />}
         />
@@ -51,63 +56,90 @@ export const SiteHeader = ({
   )
 
   return (
-    <HeaderScroll
-      className={`sh sh-${style}${transparent ? ' is-over-hero' : ''}`}
-      threshold={style === 'classic' ? 200 : 0}
-    >
-      <div className="sh-desktop">
-        {style === 'classic' ? (
-          <>
-            {phone ? (
-              <div className="sh-utility">
-                <div className="sh-container sh-utility-inner">
-                  <span />
-                  <a
-                    className="t-label-s sh-utility-link"
-                    href={`tel:${phone.replace(/[^+0-9]/g, '')}`}
-                  >
-                    <Phone /> {phone}
+    <>
+      <HeaderScroll
+        className={`sh sh-${style}${transparent ? ' is-over-hero' : ''}`}
+        threshold={style === 'classic' ? 200 : 0}
+      >
+        <div className="sh-desktop">
+          {style === 'classic' ? (
+            <>
+              {phone ? (
+                <div className="sh-utility">
+                  <div className="sh-container sh-utility-inner">
+                    <span />
+                    <a
+                      className="t-label-s sh-utility-link"
+                      href={`tel:${phone.replace(/[^+0-9]/g, '')}`}
+                    >
+                      <Phone /> {phone}
+                    </a>
+                  </div>
+                </div>
+              ) : null}
+              <div className="sh-main">
+                <div className="sh-container sh-row sh-row-classic">
+                  <div className="sh-cell-start">{nav}</div>
+                  <a className="sh-logo-link" href={home} aria-label={`${club.name}, home`}>
+                    <Logo club={club} />
                   </a>
+                  <div className="sh-cell-end">
+                    <SearchTrigger base={base} />
+                    <BookButton club={club} base={base} />
+                  </div>
                 </div>
               </div>
-            ) : null}
+            </>
+          ) : style === 'transparent' ? (
             <div className="sh-main">
-              <div className="sh-container sh-row sh-row-classic">
-                <div className="sh-cell-start">{nav}</div>
+              <div className="sh-container sh-row">
                 <a className="sh-logo-link" href={home} aria-label={`${club.name}, home`}>
-                  <Logo club={club} />
-                </a>
-                <div className="sh-cell-end">
-                  <BookButton club={club} base={base} />
-                </div>
-              </div>
-            </div>
-          </>
-        ) : style === 'transparent' ? (
-          <div className="sh-main">
-            <div className="sh-container sh-row">
-              <a className="sh-logo-link" href={home} aria-label={`${club.name}, home`}>
-                <Logo club={club} onDark={transparent} />
-              </a>
-              {nav}
-              <BookButton club={club} base={base} short />
-            </div>
-          </div>
-        ) : (
-          <div className="sh-main">
-            <div className="sh-container sh-row">
-              <div className="sh-appbar-left">
-                <a className="sh-logo-link" href={home} aria-label={`${club.name}, home`}>
-                  <Logo club={club} compact />
+                  <Logo club={club} onDark={transparent} />
                 </a>
                 {nav}
+                <div className="sh-actions">
+                  <SearchTrigger base={base} />
+                  <BookButton club={club} base={base} short />
+                </div>
               </div>
-              <BookButton club={club} base={base} short arrow={false} />
             </div>
-          </div>
-        )}
-      </div>
-      {mobile}
-    </HeaderScroll>
+          ) : (
+            <div className="sh-main">
+              <div className="sh-container sh-row">
+                <div className="sh-appbar-left">
+                  <a className="sh-logo-link" href={home} aria-label={`${club.name}, home`}>
+                    <Logo club={club} compact />
+                  </a>
+                  {nav}
+                </div>
+                <div className="sh-actions">
+                  <SearchTrigger base={base} />
+                  <BookButton club={club} base={base} short arrow={false} />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+        {mobile}
+      </HeaderScroll>
+      <SearchPanel
+        base={base}
+        clubSlug={club.slug}
+        clubName={club.name}
+        phone={phone ?? club.announcement?.phone ?? null}
+        shortcuts={quickLinks(club).map((l) => ({
+          label: l.label,
+          detail: null,
+          href: siteHref(base, l.link),
+          newTab: isExternal(l.link),
+        }))}
+        contact={{
+          label: 'Contact the club',
+          detail: phone ?? club.announcement?.phone ?? null,
+          href: siteHref(base, { kind: 'page', slug: 'contact' }),
+          newTab: false,
+        }}
+      />
+    </>
   )
 }

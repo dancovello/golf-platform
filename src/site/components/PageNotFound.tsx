@@ -1,23 +1,11 @@
 import { ArrowRight, ChevronRight } from './Icons'
 import { CompactSearch } from '../search/CompactSearch'
 import { linkTarget, siteHref } from './links'
-import type { ClubSite, SiteLink } from '../loadClub'
+import type { ClubSite } from '../loadClub'
+import { type QuickLink, quickLinks } from './quickLinks'
 
 import '../search/search.css'
 import './notFound.css'
-
-type QuickLink = { label: string; link: SiteLink }
-
-/** Up to three useful places: the booking button, then the menu's direct links. */
-export const quickLinks = (club: ClubSite): QuickLink[] => {
-  const links: QuickLink[] = []
-  if (club.header.booking) links.push(club.header.booking)
-  for (const item of club.header.menu) {
-    if (links.length >= 3) break
-    if (item.link) links.push({ label: item.label, link: item.link })
-  }
-  return links
-}
 
 /**
  * Figma "1.15 Page not found (404)": a friendly headline and a few ways on. Links are buttons on

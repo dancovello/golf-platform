@@ -3,7 +3,8 @@
 import { type ReactNode, useEffect, useRef, useState } from 'react'
 
 import type { MenuItem } from '../loadClub'
-import { ChevronLeft, ChevronRight, Close, Menu, Phone } from './Icons'
+import { openSearch } from '../search/events'
+import { ChevronLeft, ChevronRight, Close, Menu, Phone, Search } from './Icons'
 import { linkTarget, siteHref } from './links'
 
 /**
@@ -18,6 +19,7 @@ export const MobileMenu = ({
   logo,
   phone,
   bookButton,
+  searchHref,
 }: {
   menu: MenuItem[]
   base: string
@@ -25,6 +27,8 @@ export const MobileMenu = ({
   logo: ReactNode
   phone: string | null
   bookButton: ReactNode
+  /** Phones search from the menu (Figma "Header / Mobile" has no search button). */
+  searchHref?: string
 }) => {
   const [open, setOpen] = useState(false)
   const [section, setSection] = useState<number | null>(null)
@@ -146,24 +150,41 @@ export const MobileMenu = ({
                 </div>
               ))
             ) : (
-              <ul className="sh-drawer-sections">
-                {menu.map((item, i) => (
-                  <li key={i}>
-                    {item.groups.length > 0 ? (
-                      <button
-                        type="button"
-                        className="t-heading-m sh-drawer-section"
-                        onClick={() => setSection(i)}
-                      >
-                        {item.label}
-                        <ChevronRight />
-                      </button>
-                    ) : (
-                      link(item.label, item.link, 't-heading-m sh-drawer-section')
-                    )}
-                  </li>
-                ))}
-              </ul>
+              <>
+                {searchHref ? (
+                  <a
+                    className="sh-drawer-search"
+                    href={searchHref}
+                    onClick={(e) => {
+                      // Opens the full-screen search sheet; focus comes back to the menu button.
+                      e.preventDefault()
+                      close()
+                      openSearch()
+                    }}
+                  >
+                    <Search size={16} />
+                    <span className="t-body-s">Search the site</span>
+                  </a>
+                ) : null}
+                <ul className="sh-drawer-sections">
+                  {menu.map((item, i) => (
+                    <li key={i}>
+                      {item.groups.length > 0 ? (
+                        <button
+                          type="button"
+                          className="t-heading-m sh-drawer-section"
+                          onClick={() => setSection(i)}
+                        >
+                          {item.label}
+                          <ChevronRight />
+                        </button>
+                      ) : (
+                        link(item.label, item.link, 't-heading-m sh-drawer-section')
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </>
             )}
           </div>
           <div className="sh-drawer-foot">
