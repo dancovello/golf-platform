@@ -43,6 +43,7 @@ import * as migration_20261019_210255_nav_dropdown_style from './20261019_210255
 import * as migration_20261020_092237_media_tone from './20261020_092237_media_tone';
 import * as migration_20261020_112739_menu_sections from './20261020_112739_menu_sections';
 import * as migration_20261020_164723_club_domains from './20261020_164723_club_domains';
+import * as migration_20261020_212250_privacy_cleanup from './20261020_212250_privacy_cleanup';
 
 export const migrations = [
   {
@@ -268,6 +269,11 @@ export const migrations = [
   {
     up: migration_20261020_164723_club_domains.up,
     down: migration_20261020_164723_club_domains.down,
-    name: '20261020_164723_club_domains'
+    name: '20261020_164723_club_domains',
+  },
+  {
+    up: migration_20261020_212250_privacy_cleanup.up,
+    down: migration_20261020_212250_privacy_cleanup.down,
+    name: '20261020_212250_privacy_cleanup'
   },
 ];

@@ -18,6 +18,7 @@ import { DOCUMENT_TYPES } from './collections/Documents'
 import { MEDIA_TYPES } from './collections/Media'
 import { guardBrowserUploads } from './media/uploadGuards'
 import { mediaStorageSettings } from './media/storage'
+import { jobs } from './privacy/jobs'
 import { addSearchTables } from './search/schema'
 import { clubOwnedCollections } from './tenancy'
 
@@ -57,6 +58,8 @@ export default buildConfig({
   // Copied so Payload adding its own collections at startup never changes our list.
   collections: [...collections],
   editor: lexicalEditor(),
+  // Background jobs (decided stack: Payload Jobs Queue). Only the nightly clean-up so far.
+  jobs,
   // Resend, only when its key is set (src/email/adapter.ts).
   email: emailAdapter(),
   // GraphQL is off until it is covered by the tenant-isolation suite (see docs/architecture/decisions.md).

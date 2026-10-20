@@ -14,7 +14,8 @@ export const POLICY_LAST_UPDATED = '2026-10-16'
 
 /** How long each kind of information is kept. One list, so it can become per-club later. */
 export const RETENTION = {
-  enquiries: '12 months after our last reply',
+  enquiries:
+    '12 months after we mark it answered, or 12 months after it arrives if it is never marked answered',
   newsletter: 'Until you unsubscribe',
   accounts: 'While your account is open, then 2 years',
   bookings: '6 years, for accounting and tax',

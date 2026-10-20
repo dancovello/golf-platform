@@ -1,4 +1,4 @@
-import type { CollectionConfig, FieldAccess } from 'payload'
+import type { CollectionBeforeChangeHook, CollectionConfig, FieldAccess } from 'payload'
 
 import { loggedIn } from '../access/roles'
 import { ENQUIRY_PURPOSES } from './enquiryPurposes'
@@ -10,6 +10,20 @@ const asSent: { update: FieldAccess } = { update: () => false }
 // messages. Only the website's Contact page creates them (src/site/contact/submit.ts, as
 // trusted server code), so nobody can add one through the admin or the API. Editors mark
 // them handled, add notes, and can delete them (spam, or someone asking to be forgotten).
+/**
+ * Records when an enquiry is marked handled (and clears it if it's reopened). The nightly
+ * clean-up deletes enquiries 12 months after this date, as the privacy policy says
+ * (src/privacy/cleanUp.ts). Set by the server only; nobody can type it.
+ */
+const stampHandled: CollectionBeforeChangeHook = ({ data, originalDoc }) => {
+  if (!data || data.status === undefined) return data
+  const wasHandled = originalDoc?.status === 'handled'
+  if (data.status === 'handled' && !wasHandled) data.handledAt = new Date().toISOString()
+  if (data.status === 'handled' && wasHandled) data.handledAt = originalDoc?.handledAt ?? null
+  if (data.status !== 'handled') data.handledAt = null
+  return data
+}
+
 export const Enquiries: CollectionConfig = {
   slug: 'enquiries',
   labels: { singular: 'Enquiry', plural: 'Enquiries' },
@@ -23,6 +37,7 @@ export const Enquiries: CollectionConfig = {
   },
   access: { create: () => false, read: loggedIn, update: loggedIn, delete: loggedIn },
   defaultSort: '-createdAt',
+  hooks: { beforeChange: [stampHandled] },
   fields: [
     {
       type: 'row',
@@ -137,6 +152,20 @@ export const Enquiries: CollectionConfig = {
       label: 'Notes (only you can see these)',
       type: 'textarea',
       maxLength: 2000,
+    },
+    {
+      name: 'handledAt',
+      label: 'Marked handled on',
+      type: 'date',
+      // Set by stampHandled above, never typed.
+      access: { create: () => false, update: () => false },
+      admin: {
+        readOnly: true,
+        position: 'sidebar',
+        date: { pickerAppearance: 'dayAndTime', displayFormat: 'd MMMM yyyy, HH:mm' },
+        description: 'Deleted automatically 12 months after this date (privacy policy).',
+        condition: (data) => Boolean(data?.handledAt),
+      },
     },
   ],
 }
