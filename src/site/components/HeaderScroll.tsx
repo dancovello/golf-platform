@@ -11,11 +11,13 @@ const REVEAL_AFTER = 48
  * and comes back on scroll up). The CSS does the rest.
  */
 export const HeaderScroll = ({
+  id,
   children,
   className,
   style,
   threshold = 200,
 }: {
+  id?: string
   children: ReactNode
   className: string
   style?: CSSProperties
@@ -55,7 +57,8 @@ export const HeaderScroll = ({
     return () => window.removeEventListener('scroll', onScroll)
   }, [threshold])
   return (
-    <header ref={ref} className={className} style={style}>
+    // data-compact is set by the script after the header (headerFit.ts), before React loads.
+    <header ref={ref} id={id} className={className} style={style} suppressHydrationWarning>
       {children}
     </header>
   )

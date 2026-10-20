@@ -358,7 +358,57 @@ for (const style of ['classic', 'transparent', 'appBar'] as const) {
         style,
         phone: '01932 704 500',
         booking: { label: 'Book a tee time', type: 'url', url: 'https://booking.example.com' },
-        menu: [{ label: 'Visitors', link: { type: 'page', page: about.id } }],
+        // Nine items, like Cottrell Park's: too many to fit across a laptop (headerFit.ts).
+        menu: [
+          'Golf',
+          'Visitors',
+          'Membership',
+          'Clubhouse',
+          'About',
+          'Saltmarsh Links Resort',
+          'Weddings',
+          'What’s on',
+          'Contact us',
+        ].map((label) => ({ label, link: { type: 'page', page: about.id } })),
+      },
+    },
+  })
+}
+
+// Six short items: these fit across a laptop and must stay a full menu.
+{
+  const club = await w.payload.create({
+    collection: 'tenants',
+    data: { name: 'Test Club Six', slug: 'header-six' },
+  })
+  const { docs } = await w.payload.find({
+    collection: 'club-settings',
+    where: { tenant: { equals: club.id } },
+    limit: 1,
+  })
+  const about = await w.payload.create({
+    collection: 'pages',
+    data: {
+      _status: 'published',
+      title: 'About the club',
+      slug: 'about',
+      tenant: club.id,
+      layout: [],
+    } as never,
+  })
+  await w.payload.update({
+    collection: 'club-settings',
+    id: docs[0].id,
+    data: {
+      clubName: 'Test Club Six',
+      footer: { email: 'office@six.example', address: '6 Fairway Road\nTesttown\nTE6 6ST' },
+      header: {
+        style: 'classic',
+        booking: { label: 'Book a tee time', type: 'url', url: 'https://booking.example.com' },
+        menu: ['Golf', 'Visitors', 'Members', 'Clubhouse', 'News', 'Contact'].map((label) => ({
+          label,
+          link: { type: 'page', page: about.id },
+        })),
       },
     },
   })

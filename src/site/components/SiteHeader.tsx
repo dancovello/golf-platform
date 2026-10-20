@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react'
 import type { ClubSite } from '../loadClub'
 import { BookButton } from './BookButton'
 import { DesktopNav } from './DesktopNav'
+import { fitHeaderScript } from './headerFit'
 import { HeaderScroll } from './HeaderScroll'
 import { SearchPanel } from '../search/SearchPanel'
 import { SearchTrigger } from '../search/SearchTrigger'
@@ -14,12 +15,15 @@ import { MobileMenu } from './MobileMenu'
 
 /**
  * The site header in the club's chosen style (Figma "Header / A · Classic", "B · Transparent",
- * "C · App bar"), plus the mobile header and drawer below 1024px.
+ * "C · App bar"), plus the mobile header and drawer below 1024px, or wherever the full header
+ * doesn't fit across the screen (headerFit.ts).
  *
  * Left out for v1, though the designs show them: Log in / My bookings (member accounts are
  * out of scope) and the live course status (arrives with the Course Status block). Search opens
  * the search panel (src/site/search).
  */
+const HEADER_ID = 'site-header'
+
 export const SiteHeader = ({
   club,
   base,
@@ -75,6 +79,7 @@ export const SiteHeader = ({
   return (
     <>
       <HeaderScroll
+        id={HEADER_ID}
         className={`sh sh-${style}${transparent ? ' is-over-hero on-image' : ''}`}
         style={transparent ? heroShading : undefined}
         threshold={style === 'classic' ? 200 : 0}
@@ -140,6 +145,7 @@ export const SiteHeader = ({
         </div>
         {mobile}
       </HeaderScroll>
+      <script dangerouslySetInnerHTML={{ __html: fitHeaderScript(HEADER_ID) }} />
       <SearchPanel
         base={base}
         clubSlug={club.slug}
