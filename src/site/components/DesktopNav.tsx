@@ -50,6 +50,9 @@ export const DesktopNav = ({
   const [box, setBox] = useState<{ left: number; top: number; width: number; height: number }>()
   // Opened from the keyboard: no motion (spec 17).
   const [instant, setInstant] = useState(false)
+  // Opened from closed: the panel appears under its item instead of gliding from where it was
+  // last. It only glides when moving from one open section to another.
+  const [placing, setPlacing] = useState(false)
   const navRef = useRef<HTMLElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -101,6 +104,16 @@ export const DesktopNav = ({
     return () => window.removeEventListener('resize', place)
   }, [open])
 
+  // Once the panel has been drawn in place, let it glide again for the next section.
+  useEffect(() => {
+    if (!placing) return
+    // Two frames: the first is drawn at the new place, the second turns the glide back on.
+    let frame = requestAnimationFrame(() => {
+      frame = requestAnimationFrame(() => setPlacing(false))
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [placing, box])
+
   useEffect(() => {
     if (open === null || !focusFirst.current) return
     focusFirst.current = false
@@ -132,6 +145,7 @@ export const DesktopNav = ({
     cancel()
     openedByHover.current = how === 'hover' && i !== null
     setInstant(how === 'key')
+    if (open === null && i !== null) setPlacing(true)
     setOpen(i)
     if (i !== null) setShown(i)
   }
@@ -211,7 +225,7 @@ export const DesktopNav = ({
       </ul>
       <div
         ref={panelRef}
-        className={`sh-dd${open !== null ? ' is-open' : ''}${instant ? ' is-instant' : ''}`}
+        className={`sh-dd${open !== null ? ' is-open' : ''}${instant ? ' is-instant' : ''}${placing ? ' is-placing' : ''}`}
         hidden={visible === null}
         style={
           box

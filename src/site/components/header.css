@@ -212,7 +212,8 @@
 }
 
 /* Drop-down panel (Figma "Nav Dropdown / 1 · Panel" and "2 · Panel + section tile", spec 17).
-   One panel for every section: DesktopNav places it (--dd-*) and it glides between sections. */
+   One panel for every section: DesktopNav places it (--dd-*). It opens and closes in place, and
+   glides only when moving from one open section to the next. */
 .sh-dd {
   position: absolute;
   z-index: 1;
@@ -251,6 +252,10 @@
 .sh-dd.is-instant {
   animation: none;
   transition: none;
+}
+/* Opening from closed: appear under the item, no glide from the last position. */
+.sh-dd.is-open.is-placing {
+  transition: opacity 240ms ease-out;
 }
 @keyframes sh-dd-open {
   from {
