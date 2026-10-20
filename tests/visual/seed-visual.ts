@@ -148,12 +148,8 @@ for (const [slug, p] of Object.entries(palettes)) {
         menu: [
           {
             label: 'Golf',
-            groups: [
-              {
-                heading: 'Play',
-                links: [{ link: { label: 'Green fees', type: 'page', page: about.id } }],
-              },
-            ],
+            kind: 'manual',
+            links: [{ link: { label: 'Green fees', type: 'page', page: about.id } }],
           },
           { label: 'Visitors', link: { type: 'page', page: about.id } },
           { label: 'Membership', link: { type: 'page', page: about.id } },

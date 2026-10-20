@@ -275,14 +275,10 @@ await w.payload.update({
       menu: [
         {
           label: 'Golf',
-          groups: [
-            {
-              heading: 'Play',
-              links: [
-                { link: { label: 'Green fees', type: 'url', url: 'https://example.com/fees' } },
-                { link: { label: 'Membership', type: 'page', page: w.pageA.id } },
-              ],
-            },
+          kind: 'manual',
+          links: [
+            { link: { label: 'Green fees', type: 'url', url: 'https://example.com/fees' } },
+            { link: { label: 'Membership', type: 'page', page: w.pageA.id } },
           ],
         },
         { label: 'Membership', link: { type: 'page', page: w.pageA.id } },

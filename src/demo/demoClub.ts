@@ -388,50 +388,45 @@ export const buildDemoClub = async (payload: Payload) => {
         phone: '01932 704 500',
         booking,
         // Golf, Visitors, Membership and Clubhouse list their page's child pages (kept up to
-        // date as pages are added); About shows a drop-down with hand-picked, headed groups.
+        // date as pages are added); About shows a drop-down of links typed in.
         menu: [
           {
             label: 'Golf',
             kind: 'children',
-            page: pageIDs.courses,
+            sections: [{ page: pageIDs.courses }],
             includeParent: true,
           },
           {
             label: 'Visitors',
             kind: 'children',
-            page: pageIDs.visitors,
+            sections: [{ page: pageIDs.visitors }],
             includeParent: true,
             extraLinks: [menuLink('Contact the club', builtIn('contact'))],
           },
-          { label: 'Membership', kind: 'children', page: pageIDs.membership, includeParent: true },
+          {
+            label: 'Membership',
+            kind: 'children',
+            sections: [{ page: pageIDs.membership }],
+            includeParent: true,
+          },
           {
             label: 'Clubhouse',
             kind: 'children',
-            page: pageIDs.clubhouse,
+            sections: [{ page: pageIDs.clubhouse }],
             includeParent: true,
             extraLinks: [menuLink('What’s on', builtIn('events'))],
           },
           {
             label: 'About',
             kind: 'manual',
-            groups: [
-              {
-                heading: 'The club',
-                links: [
-                  menuLink('Our story', to('about')),
-                  menuLink('Our history', to('history')),
-                  menuLink('Our team', to('team')),
-                  menuLink('Partners', to('partners')),
-                ],
-              },
-              {
-                heading: 'Stay informed',
-                links: [
-                  menuLink('News', builtIn('news')),
-                  menuLink('Club documents', to('documents')),
-                  menuLink('Contact', builtIn('contact')),
-                ],
-              },
+            links: [
+              menuLink('Our story', to('about')),
+              menuLink('Our history', to('history')),
+              menuLink('Our team', to('team')),
+              menuLink('Partners', to('partners')),
+              menuLink('News', builtIn('news')),
+              menuLink('Club documents', to('documents')),
+              menuLink('Contact', builtIn('contact')),
             ],
           },
         ],
