@@ -241,3 +241,14 @@ Recorded afterwards from PRs #106, #108, #109 and #112–#116.
 - **Dashboard quick wins** (#113, from Dan's dashboard review). The sidebar is grouped: Website, Club information, Messages, Settings, and Platform (super-admin only). Footer settings are split into labelled sections. Fields that don't apply to the chosen design style are hidden.
 - **Menu items, redesigned** (#114). "What it does" is now one of three choices: one page or link, a drop-down of 1–3 pages (each page is a column heading with up to 8 of its child pages, then "All … pages"), or a drop-down of typed links. "Link groups" became one "Links" list, because the website never showed group headings. A "What visitors will see" box previews the drop-down. Link text can be left blank and the page's name is used. The migration only adds data; the old fields stay hidden as a fallback.
 - **Known gap:** the footer column "Links" custom check replaces Payload's own maximum-rows check.
+
+## 2026-10-20: Club home screen (plan part E, first item)
+
+- **A home screen above the dashboard's sections** (`src/admin/ClubHome.tsx`). A club's editor sees:
+  - **Get your website ready, x of 6 done:** add your logo, choose your colours, footer email and postal address, set up your menu, publish your home page, accept the data processing agreement. Each step links to the right screen, and the card disappears once all six are done. Checked from the club's real data (`src/admin/clubSetup.ts`), never from wording.
+  - **Messages:** the five newest unhandled Contact page messages, and a link to all of them.
+  - **Everyday jobs:** update the course status, add a news story, add an event, edit the home page.
+  - **Course status:** as shown on the website, with "Not updated today" after 24 hours.
+- **The super-admin** sees the same for the club picked in the club selector, plus every club's setup progress.
+- Every query names the club; the editor's page is checked for club B data in the browser tests.
+- **Still to do from the review:** a Club Settings preview (refresh on save), a page-tree view, and previews for News and Events.
