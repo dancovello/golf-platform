@@ -72,16 +72,18 @@ const summary = (
  * emails the club with it, after replying to the visitor).
  */
 export const submitEnquiry = async (
-  clubSlug: string,
+  /** The club's short name (its pages then start at its staging preview address), or the club
+   * and where its pages start, for a club on its own domain. */
+  clubRef: string | { slug: string; base: string },
   prev: Pick<ContactState, 'attempt'>,
   form: FormData,
   now = new Date(),
   onSaved?: (enquiryID: string) => void,
 ): Promise<ContactState | null> => {
-  const club = await loadClubBySlug(clubSlug)
+  const club = await loadClubBySlug(typeof clubRef === 'string' ? clubRef : clubRef.slug)
   if (!club) return null
   const settings = await loadContactSettings(club.tenantID)
-  const base = siteBase(club.slug)
+  const base = typeof clubRef === 'string' ? siteBase(club.slug) : clubRef.base
   const attempt = prev.attempt + 1
   const values = valuesFromForm(form)
   // The form's "shown at" time for the next attempt. Kept when it checks out, so someone fixing

@@ -22,7 +22,7 @@ This is a **solo-founder project**: Dan handles product, design, and project man
 
 Each club can get their site two ways: a **self-serve-leaning** tier (club provides branding, gets the template provisioned, largely fills in their own content) or a **paid build** tier (Dan and Claude assemble the actual pages for them). Exact pricing and the boundary between the two tiers is still open — see `03-open-questions-and-next-steps.md`.
 
-The onboarding mechanics — how a club goes from signing up to having an invited CMS user who can edit *only* their own site — are specified in `claude/04-infrastructure-architecture-and-guardrails.md`.
+The onboarding mechanics — how a club goes from signing up to having an invited CMS user who can edit *only* their own site — are specified in `docs/architecture/04-infrastructure-architecture-and-guardrails.md`.
 
 ## What's been done so far
 
@@ -30,26 +30,26 @@ The onboarding mechanics — how a club goes from signing up to having an invite
 2. **Found official websites** for 93 unique clubs (100 ranked entries collapse to 93 clubs because several clubs have multiple ranked courses sharing one site — e.g. Sunningdale Old/New, Woburn's three courses). One club, Queenwood, has no public website at all.
 3. **Ran a full design/UX audit** of all 93 sites — rated each Excellent/Good/Average/Poor/Very Poor, catalogued the content types (pages) and reusable UI blocks/components each site uses. Result: 51 clubs (55%) rated Good or better, 26 (28%) rated Poor or Very Poor, 5 need a manual recheck (they blocked automated review with a JS wall, SSL error, or robots.txt lockout — could be modern SPAs, could be broken, worth a five-minute look in a real browser).
 4. **Synthesised a content model and block library** for the Payload build — see `02-content-model-and-block-library.md`.
-5. **Wrote concrete visual/UX design direction for every block** — layout measurements, imagery rules, content constraints, and do/avoid guidance per block, each traced back to a specific audited site — see `claude/05-block-design-direction.md`. Both this and item 4 are published together as one designed reference artifact: **Clubhouse Blueprint** (https://claude.ai/code/artifact/3ed00485-8ff1-4c13-8982-46e65edf382f) — Part 03 is the block library, Part 04 is the design direction.
-6. **Planned the infrastructure, security, and AI-safe process guardrails** for building this as a solo founder plus a devops friend plus Claude — see `claude/04-infrastructure-architecture-and-guardrails.md`. Published as a designed reference artifact: **Clubhouse Foundations** (https://claude.ai/code/artifact/d5886cd7-5aa5-4c3d-b1ad-2fe86673088d).
+5. **Wrote concrete visual/UX design direction for every block** — layout measurements, imagery rules, content constraints, and do/avoid guidance per block, each traced back to a specific audited site — see `docs/design/05-block-design-direction.md`. Both this and item 4 are published together as one designed reference artifact: **Clubhouse Blueprint** (https://claude.ai/code/artifact/3ed00485-8ff1-4c13-8982-46e65edf382f) — Part 03 is the block library, Part 04 is the design direction.
+6. **Planned the infrastructure, security, and AI-safe process guardrails** for building this as a solo founder plus a devops friend plus Claude — see `docs/architecture/04-infrastructure-architecture-and-guardrails.md`. Published as a designed reference artifact: **Clubhouse Foundations** (https://claude.ai/code/artifact/d5886cd7-5aa5-4c3d-b1ad-2fe86673088d).
 
 ## Where things live
 
 - `01-research-club-list.md` — the full 93-club list: rank, club name, official URL, design rating, keep/discard status, reference-site groupings, and recurring anti-patterns.
 - `02-content-model-and-block-library.md` — the Payload content model (Pages / Collections / Globals) and the full reusable block catalogue with build-order recommendation.
-- `claude/05-block-design-direction.md` — concrete visual/UX direction per block (layout, imagery, content rules, do/avoid), grounded in the audit.
+- `docs/design/05-block-design-direction.md` — concrete visual/UX direction per block (layout, imagery, content rules, do/avoid), grounded in the audit.
 - `03-open-questions-and-next-steps.md` — decisions still open, follow-ups to run.
-- `claude/04-infrastructure-architecture-and-guardrails.md` — the infrastructure, security, multi-tenancy, and AI-safe process plan, including the concrete client-onboarding workflow.
-- `claude/clubhouse-blueprint.html` — the full HTML source of the Clubhouse Blueprint artifact, mirrored into the project so it's readable without leaving the project (identical content to the published artifact link below).
-- `claude/clubhouse-foundations.html` — the full HTML source of the Clubhouse Foundations artifact, mirrored the same way.
+- `docs/architecture/04-infrastructure-architecture-and-guardrails.md` — the infrastructure, security, multi-tenancy, and AI-safe process plan, including the concrete client-onboarding workflow.
 - **Artifact:** Clubhouse Blueprint (https://claude.ai/code/artifact/3ed00485-8ff1-4c13-8982-46e65edf382f) — audit findings, content model, block library, and per-block design direction, meant for sharing.
 - **Artifact:** Clubhouse Foundations (https://claude.ai/code/artifact/d5886cd7-5aa5-4c3d-b1ad-2fe86673088d) — the infrastructure and guardrails plan, meant for sharing (e.g. with the devops friend).
 - **Spreadsheet:** `Top100_England_Golf_Clubs_Websites.xlsx` / `.csv` — the richest version of the per-club data (rating, one-line rationale, content types found, UI blocks observed, standout feature per club). Delivered directly to Dan in chat rather than stored in this project (binary uploads aren't supported here) — ask him to re-share if a future session needs it.
 
 ## Note on doc numbering
 
-Two independent numbering sequences exist in this project: the bare-named docs (`00`–`03`) and the `claude/`-namespaced docs (`04`, `05`). They're both sequential within their own namespace — not a conflict, just two series. If you're adding a new doc, check both before picking the next number.
+Docs share one numbering sequence across folders: `docs/product/` (00–03, 12, 14), `docs/architecture/` (04), `docs/design/` (05–11, 13). Check every folder before picking the next number. Build plans live in `docs/plans/`, operations guides (backups, restores, security checks) in `docs/operations/`, and decisions made during the build in `docs/architecture/decisions.md`.
 
-## Current phase
+## Current phase (2026-10-20)
 
-Research, design direction, and infrastructure/process planning are done. Not yet started: actual Payload schema implementation, final pricing and packaging for the self-serve vs. paid-build tiers, and any UK-wide (Scotland/Wales/NI) expansion of the research. See the open-questions doc for specifics.
+Research, design direction and planning are done, and the platform is built through step 5 of the build order: club accounts and isolation tests, backups and the release pipeline, and the full club template (blocks, news, events, contact, privacy, site search, demo club) running on staging.
+
+Next: club domains (step 4), error alerts and uptime monitoring (step 6), the first restore drill, and the first real club. Pricing, the platform name and the legal wording are still open. See `03-open-questions-and-next-steps.md` for the current list.

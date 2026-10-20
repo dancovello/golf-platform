@@ -52,6 +52,21 @@ const live = (tenantID: string): Where[] => [
   { publishedAt: { less_than_equal: siteToday().toISOString() } },
 ]
 
+/** Every published article's address and when it last changed (the club's sitemap). */
+export const newsForSitemap = async (tenantID: string) => {
+  const payload = await getPayload({ config })
+  const { docs } = await payload.find({
+    collection: 'news',
+    where: { and: live(tenantID) },
+    select: { slug: true, updatedAt: true },
+    sort: '-publishedAt',
+    limit: 1000,
+    depth: 0,
+    overrideAccess: true,
+  })
+  return docs.map((d) => ({ slug: String(d.slug), updatedAt: d.updatedAt ?? null }))
+}
+
 const toCards = async (tenantID: string, docs: NewsDoc[]): Promise<SiteNewsCard[]> => {
   const payload = await getPayload({ config })
   const photos = await loadClubMedia(
