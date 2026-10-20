@@ -1,6 +1,6 @@
 import type { MenuItem, SiteLink } from '../loadClub'
 
-/** Where the club's site lives: /preview/<club> on staging until real domains (step 4). */
+/** A link's address on the club's site. `base` is "" on its own domain, "/preview/<club>" on staging. */
 export const siteHref = (base: string, link: SiteLink | null): string => {
   if (!link) return base || '/'
   if (link.kind === 'url') return link.href
