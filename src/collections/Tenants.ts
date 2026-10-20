@@ -20,6 +20,7 @@ export const Tenants: CollectionConfig = {
   // logged-in user, across clubs (docs/plans/step-2-spike-findings.md, finding 2).
   lockDocuments: false,
   admin: {
+    group: 'Platform',
     useAsTitle: 'name',
     hidden: ({ user }) => !isSuperAdmin(user),
     components: { beforeListTable: ['/admin/DemoClubPanel#DemoClubPanel'] },

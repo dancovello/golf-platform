@@ -24,6 +24,7 @@ export const News: CollectionConfig = {
   labels: { singular: 'News article', plural: 'News' },
   lockDocuments: false,
   admin: {
+    group: 'Website',
     useAsTitle: 'title',
     defaultColumns: ['title', 'category', 'status', 'publishedAt'],
   },

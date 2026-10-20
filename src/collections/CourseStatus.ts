@@ -10,6 +10,7 @@ export const CourseStatus: CollectionConfig = {
   labels: { singular: 'Course status', plural: 'Course status' },
   lockDocuments: false,
   admin: {
+    group: 'Website',
     useAsTitle: 'state',
     description:
       'Update whenever the course changes. If it isn’t updated for 24 hours the website says so and asks visitors to call.',
