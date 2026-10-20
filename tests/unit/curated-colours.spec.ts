@@ -47,16 +47,30 @@ describe('suggested brand colours', () => {
   // The promise to clubs: any mix of suggested shades looks as designed, with no text colour
   // swapped for readability (src/theme/colour.ts).
   it('keep every designed text colour in every combination, eyebrows on bands aside', () => {
+    // Each text colour depends on Light, Dark and one of the other three (page text on
+    // Secondary, brand text on Primary, accent and photo text on Accent). So every Light and
+    // Dark pair is tried with every shade of each of the other three in turn: the same
+    // coverage as all 1.2 million mixes, in a fraction of the time.
     const [primary, secondary, accent, light, dark] = BRAND_INPUTS.map(shadesFor)
     const failures: string[] = []
-    for (const p of primary)
-      for (const s of secondary)
-        for (const a of accent)
-          for (const l of light)
-            for (const d of dark) {
-              const brand = { primary: p, secondary: s, accent: a, light: l, dark: d }
-              if (!keepsDesignedColours(brand)) failures.push(JSON.stringify(brand))
-            }
+    for (const l of light)
+      for (const d of dark) {
+        const base = {
+          primary: primary[0],
+          secondary: secondary[0],
+          accent: accent[0],
+          light: l,
+          dark: d,
+        }
+        const brands = [
+          ...primary.map((p) => ({ ...base, primary: p })),
+          ...secondary.map((s) => ({ ...base, secondary: s })),
+          ...accent.map((a) => ({ ...base, accent: a })),
+        ]
+        for (const brand of brands) {
+          if (!keepsDesignedColours(brand)) failures.push(JSON.stringify(brand))
+        }
+      }
     expect(failures.slice(0, 5)).toEqual([])
   })
 
