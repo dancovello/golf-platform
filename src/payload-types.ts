@@ -67,19 +67,19 @@ export interface Config {
   };
   blocks: {};
   collections: {
-    users: User;
-    tenants: Tenant;
     pages: Page;
-    'club-settings': ClubSetting;
-    media: Media;
-    documents: Document;
+    news: News;
+    events: Event;
+    'course-status': CourseStatus;
     staff: Staff;
     courses: Course;
-    'course-status': CourseStatus;
-    news: News;
-    'agreement-acceptances': AgreementAcceptance;
-    events: Event;
+    documents: Document;
+    media: Media;
     enquiries: Enquiry;
+    'club-settings': ClubSetting;
+    users: User;
+    'agreement-acceptances': AgreementAcceptance;
+    tenants: Tenant;
     'totp-attempts': TotpAttempt;
     'payload-kv': PayloadKv;
     'payload-preferences': PayloadPreference;
@@ -87,19 +87,19 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
-    users: UsersSelect<false> | UsersSelect<true>;
-    tenants: TenantsSelect<false> | TenantsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
-    'club-settings': ClubSettingsSelect<false> | ClubSettingsSelect<true>;
-    media: MediaSelect<false> | MediaSelect<true>;
-    documents: DocumentsSelect<false> | DocumentsSelect<true>;
+    news: NewsSelect<false> | NewsSelect<true>;
+    events: EventsSelect<false> | EventsSelect<true>;
+    'course-status': CourseStatusSelect<false> | CourseStatusSelect<true>;
     staff: StaffSelect<false> | StaffSelect<true>;
     courses: CoursesSelect<false> | CoursesSelect<true>;
-    'course-status': CourseStatusSelect<false> | CourseStatusSelect<true>;
-    news: NewsSelect<false> | NewsSelect<true>;
-    'agreement-acceptances': AgreementAcceptancesSelect<false> | AgreementAcceptancesSelect<true>;
-    events: EventsSelect<false> | EventsSelect<true>;
+    documents: DocumentsSelect<false> | DocumentsSelect<true>;
+    media: MediaSelect<false> | MediaSelect<true>;
     enquiries: EnquiriesSelect<false> | EnquiriesSelect<true>;
+    'club-settings': ClubSettingsSelect<false> | ClubSettingsSelect<true>;
+    users: UsersSelect<false> | UsersSelect<true>;
+    'agreement-acceptances': AgreementAcceptancesSelect<false> | AgreementAcceptancesSelect<true>;
+    tenants: TenantsSelect<false> | TenantsSelect<true>;
     'totp-attempts': TotpAttemptsSelect<false> | TotpAttemptsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -138,50 +138,6 @@ export interface UserAuthOperations {
     email: string;
     password: string;
   };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
- */
-export interface User {
-  id: string;
-  role?: ('editor' | 'super-admin') | null;
-  tenant?: (string | null) | Tenant;
-  totpSecret?: string | null;
-  hasTotp?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  resetPasswordRequestedAt?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  sessions?:
-    | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
-      }[]
-    | null;
-  password?: string | null;
-  collection: 'users';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tenants".
- */
-export interface Tenant {
-  id: string;
-  name: string;
-  /**
-   * Lower-case letters, numbers and dashes, e.g. "royal-example". Filled in from the club name if left empty. Used in staging preview addresses.
-   */
-  slug?: string | null;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -230,6 +186,20 @@ export interface Page {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenants".
+ */
+export interface Tenant {
+  id: string;
+  name: string;
+  /**
+   * Lower-case letters, numbers and dashes, e.g. "royal-example". Filled in from the club name if left empty. Used in staging preview addresses.
+   */
+  slug?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1115,6 +1085,172 @@ export interface EventsFeedBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "news".
+ */
+export interface News {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  title: string;
+  status: 'draft' | 'published';
+  /**
+   * Shown on the article. A future date keeps it hidden until then.
+   */
+  publishedAt: string;
+  category: 'course' | 'competitions' | 'clubhouse' | 'membership' | 'academy' | 'club';
+  /**
+   * One or two sentences, shown on cards and under the title.
+   */
+  excerpt?: string | null;
+  image?: (string | null) | Media;
+  imageCaption?: string | null;
+  /**
+   * e.g. "Owen Pryce, Course Manager"
+   */
+  author?: string | null;
+  body?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Filled in from the title. e.g. "hollow-tining-week" for /news/hollow-tining-week.
+   */
+  slug?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events".
+ */
+export interface Event {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  title: string;
+  status: 'draft' | 'published';
+  /**
+   * UK time. The event leaves the website once it has started.
+   */
+  startsAt: string;
+  category: 'social' | 'dining' | 'competition' | 'academy' | 'members';
+  /**
+   * e.g. "Clubhouse" or "Championship course"
+   */
+  venue?: string | null;
+  /**
+   * e.g. "shotgun". Shown after the time.
+   */
+  timeNote?: string | null;
+  /**
+   * One or two sentences, shown when the event is featured.
+   */
+  summary?: string | null;
+  image?: (string | null) | Media;
+  /**
+   * e.g. "£45" or "£20 entry"
+   */
+  price?: string | null;
+  /**
+   * e.g. "£38"
+   */
+  memberPrice?: string | null;
+  booking: 'book' | 'enquire' | 'soldOut';
+  capacity?: number | null;
+  /**
+   * Shown as "14 of 60 places left" when the event is featured.
+   */
+  placesLeft?: number | null;
+  link?: {
+    type?: ('page' | 'builtIn' | 'url') | null;
+    page?: (string | null) | Page;
+    builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+    /**
+     * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+     */
+    url?: string | null;
+  };
+  featured?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Update whenever the course changes. If it isn’t updated for 24 hours the website says so and asks visitors to call.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "course-status".
+ */
+export interface CourseStatus {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  state: 'open' | 'restricted' | 'closed';
+  /**
+   * e.g. "All 36 holes in play. Temporary green on the 7th."
+   */
+  reason?: string | null;
+  /**
+   * e.g. Buggies: Restricted, "Paths only". Up to six.
+   */
+  facilities?:
+    | {
+        label: string;
+        state: 'open' | 'restricted' | 'closed';
+        /**
+         * Defaults to the status, e.g. "Open".
+         */
+        value?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * e.g. "the Course Manager". Shown beside the time.
+   */
+  changedBy?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Messages sent from the Contact page on your website. Each new one is also emailed to your club (Club Settings → Contact page says where).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "enquiries".
+ */
+export interface Enquiry {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  status: 'new' | 'handled';
+  /**
+   * The visitor was given this reference.
+   */
+  reference: string;
+  purpose: 'general' | 'visitor' | 'membership' | 'events' | 'lessons' | 'feedback';
+  name: string;
+  email: string;
+  phone?: string | null;
+  membershipType?: string | null;
+  preferredDate?: string | null;
+  groupSize?: number | null;
+  message: string;
+  newsletter?: boolean | null;
+  /**
+   * Blank if the email alert wasn’t sent: check this list for anything missed.
+   */
+  alertSentAt?: string | null;
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "club-settings".
  */
 export interface ClubSetting {
@@ -1188,9 +1324,6 @@ export interface ClubSetting {
     menu?:
       | {
           label: string;
-          /**
-           * Blank on items saved before this choice existed: they keep working as before.
-           */
           kind?: ('link' | 'children' | 'manual') | null;
           link?: {
             type?: ('page' | 'builtIn' | 'url') | null;
@@ -1255,7 +1388,7 @@ export interface ClubSetting {
   footer: {
     style: 'brandColumns' | 'lightColumns' | 'editorial';
     /**
-     * One or two lines under the logo (styles A and B), e.g. "Heathland golf since 1926, twenty minutes from Heathrow."
+     * One or two lines under the logo, e.g. "Heathland golf since 1926, twenty minutes from Heathrow."
      */
     about?: string | null;
     /**
@@ -1284,6 +1417,24 @@ export interface ClubSetting {
                 id?: string | null;
               }[]
             | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * e.g. Terms, Accessibility. The privacy policy link is added for you, and “Cookie settings” too if you use Google Analytics.
+     */
+    legalLinks?:
+      | {
+          link: {
+            label: string;
+            type?: ('page' | 'builtIn' | 'url') | null;
+            page?: (string | null) | Page;
+            builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+            /**
+             * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+             */
+            url?: string | null;
+          };
           id?: string | null;
         }[]
       | null;
@@ -1322,9 +1473,6 @@ export interface ClubSetting {
      * Shown in the footer and the privacy policy. Required.
      */
     address?: string | null;
-    /**
-     * Shown in style C.
-     */
     social?:
       | {
           network: 'instagram' | 'facebook' | 'x' | 'youtube' | 'linkedin' | 'tiktok';
@@ -1342,24 +1490,6 @@ export interface ClubSetting {
        */
       url?: string | null;
     };
-    /**
-     * e.g. Terms, Accessibility. The privacy policy link is added for you, and “Cookie settings” too if you use Google Analytics.
-     */
-    legalLinks?:
-      | {
-          link: {
-            label: string;
-            type?: ('page' | 'builtIn' | 'url') | null;
-            page?: (string | null) | Page;
-            builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
-            /**
-             * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
-             */
-            url?: string | null;
-          };
-          id?: string | null;
-        }[]
-      | null;
   };
   /**
    * A short notice above the header on every page, between its start and end dates.
@@ -1510,85 +1640,34 @@ export interface ClubSetting {
   createdAt: string;
 }
 /**
- * Update whenever the course changes. If it isn’t updated for 24 hours the website says so and asks visitors to call.
- *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "course-status".
+ * via the `definition` "users".
  */
-export interface CourseStatus {
+export interface User {
   id: string;
+  role?: ('editor' | 'super-admin') | null;
   tenant?: (string | null) | Tenant;
-  state: 'open' | 'restricted' | 'closed';
-  /**
-   * e.g. "All 36 holes in play. Temporary green on the 7th."
-   */
-  reason?: string | null;
-  /**
-   * e.g. Buggies: Restricted, "Paths only". Up to six.
-   */
-  facilities?:
+  totpSecret?: string | null;
+  hasTotp?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  resetPasswordRequestedAt?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
     | {
-        label: string;
-        state: 'open' | 'restricted' | 'closed';
-        /**
-         * Defaults to the status, e.g. "Open".
-         */
-        value?: string | null;
-        id?: string | null;
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
       }[]
     | null;
-  /**
-   * e.g. "the Course Manager". Shown beside the time.
-   */
-  changedBy?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "news".
- */
-export interface News {
-  id: string;
-  tenant?: (string | null) | Tenant;
-  title: string;
-  status: 'draft' | 'published';
-  /**
-   * Shown on the article. A future date keeps it hidden until then.
-   */
-  publishedAt: string;
-  category: 'course' | 'competitions' | 'clubhouse' | 'membership' | 'academy' | 'club';
-  /**
-   * One or two sentences, shown on cards and under the title.
-   */
-  excerpt?: string | null;
-  image?: (string | null) | Media;
-  imageCaption?: string | null;
-  /**
-   * e.g. "Owen Pryce, Course Manager"
-   */
-  author?: string | null;
-  body?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  /**
-   * Filled in from the title. e.g. "hollow-tining-week" for /news/hollow-tining-week.
-   */
-  slug?: string | null;
-  updatedAt: string;
-  createdAt: string;
+  password?: string | null;
+  collection: 'users';
 }
 /**
  * The agreement between your club and the website provider about looking after personal information. Someone with authority to act for the club accepts it once; you’ll be asked again if it changes.
@@ -1608,91 +1687,6 @@ export interface AgreementAcceptance {
   version?: string | null;
   acceptedBy?: (string | null) | User;
   acceptedAt?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "events".
- */
-export interface Event {
-  id: string;
-  tenant?: (string | null) | Tenant;
-  title: string;
-  status: 'draft' | 'published';
-  /**
-   * UK time. The event leaves the website once it has started.
-   */
-  startsAt: string;
-  category: 'social' | 'dining' | 'competition' | 'academy' | 'members';
-  /**
-   * e.g. "Clubhouse" or "Championship course"
-   */
-  venue?: string | null;
-  /**
-   * e.g. "shotgun". Shown after the time.
-   */
-  timeNote?: string | null;
-  /**
-   * One or two sentences, shown when the event is featured.
-   */
-  summary?: string | null;
-  image?: (string | null) | Media;
-  /**
-   * e.g. "£45" or "£20 entry"
-   */
-  price?: string | null;
-  /**
-   * e.g. "£38"
-   */
-  memberPrice?: string | null;
-  booking: 'book' | 'enquire' | 'soldOut';
-  capacity?: number | null;
-  /**
-   * Shown as "14 of 60 places left" when the event is featured.
-   */
-  placesLeft?: number | null;
-  link?: {
-    type?: ('page' | 'builtIn' | 'url') | null;
-    page?: (string | null) | Page;
-    builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
-    /**
-     * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
-     */
-    url?: string | null;
-  };
-  featured?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * Messages sent from the Contact page on your website. Each new one is also emailed to your club (Club Settings → Contact page says where).
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "enquiries".
- */
-export interface Enquiry {
-  id: string;
-  tenant?: (string | null) | Tenant;
-  status: 'new' | 'handled';
-  /**
-   * The visitor was given this reference.
-   */
-  reference: string;
-  purpose: 'general' | 'visitor' | 'membership' | 'events' | 'lessons' | 'feedback';
-  name: string;
-  email: string;
-  phone?: string | null;
-  membershipType?: string | null;
-  preferredDate?: string | null;
-  groupSize?: number | null;
-  message: string;
-  newsletter?: boolean | null;
-  /**
-   * Blank if the email alert wasn’t sent: check this list for anything missed.
-   */
-  alertSentAt?: string | null;
-  notes?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1755,43 +1749,6 @@ export interface PayloadMigration {
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users_select".
- */
-export interface UsersSelect<T extends boolean = true> {
-  role?: T;
-  tenant?: T;
-  totpSecret?: T;
-  hasTotp?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  email?: T;
-  resetPasswordToken?: T;
-  resetPasswordExpiration?: T;
-  salt?: T;
-  hash?: T;
-  resetPasswordRequestedAt?: T;
-  loginAttempts?: T;
-  lockUntil?: T;
-  sessions?:
-    | T
-    | {
-        id?: T;
-        createdAt?: T;
-        expiresAt?: T;
-      };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tenants_select".
- */
-export interface TenantsSelect<T extends boolean = true> {
-  name?: T;
-  slug?: T;
-  updatedAt?: T;
-  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2337,6 +2294,251 @@ export interface EventsFeedBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "news_select".
+ */
+export interface NewsSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  status?: T;
+  publishedAt?: T;
+  category?: T;
+  excerpt?: T;
+  image?: T;
+  imageCaption?: T;
+  author?: T;
+  body?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events_select".
+ */
+export interface EventsSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  status?: T;
+  startsAt?: T;
+  category?: T;
+  venue?: T;
+  timeNote?: T;
+  summary?: T;
+  image?: T;
+  price?: T;
+  memberPrice?: T;
+  booking?: T;
+  capacity?: T;
+  placesLeft?: T;
+  link?:
+    | T
+    | {
+        type?: T;
+        page?: T;
+        builtIn?: T;
+        url?: T;
+      };
+  featured?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "course-status_select".
+ */
+export interface CourseStatusSelect<T extends boolean = true> {
+  tenant?: T;
+  state?: T;
+  reason?: T;
+  facilities?:
+    | T
+    | {
+        label?: T;
+        state?: T;
+        value?: T;
+        id?: T;
+      };
+  changedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "staff_select".
+ */
+export interface StaffSelect<T extends boolean = true> {
+  tenant?: T;
+  name?: T;
+  role?: T;
+  department?: T;
+  qualification?: T;
+  photo?: T;
+  bio?: T;
+  email?: T;
+  phone?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "courses_select".
+ */
+export interface CoursesSelect<T extends boolean = true> {
+  tenant?: T;
+  name?: T;
+  tees?:
+    | T
+    | {
+        colour?: T;
+        rating?: T;
+        slope?: T;
+        id?: T;
+      };
+  holes?:
+    | T
+    | {
+        name?: T;
+        par?: T;
+        strokeIndex?: T;
+        yardsWhite?: T;
+        yardsYellow?: T;
+        yardsRed?: T;
+        yardsBlue?: T;
+        image?: T;
+        tip?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documents_select".
+ */
+export interface DocumentsSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  category?: T;
+  lastReviewed?: T;
+  prefix?: T;
+  _objectKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media_select".
+ */
+export interface MediaSelect<T extends boolean = true> {
+  tenant?: T;
+  alt?: T;
+  tone?:
+    | T
+    | {
+        bright?: T;
+        average?: T;
+      };
+  prefix?: T;
+  _objectKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+  sizes?:
+    | T
+    | {
+        w640?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        w1024?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        w1600?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        w2400?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        w3200?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "enquiries_select".
+ */
+export interface EnquiriesSelect<T extends boolean = true> {
+  tenant?: T;
+  status?: T;
+  reference?: T;
+  purpose?: T;
+  name?: T;
+  email?: T;
+  phone?: T;
+  membershipType?: T;
+  preferredDate?: T;
+  groupSize?: T;
+  message?: T;
+  newsletter?: T;
+  alertSentAt?: T;
+  notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "club-settings_select".
  */
 export interface ClubSettingsSelect<T extends boolean = true> {
@@ -2449,6 +2651,20 @@ export interface ClubSettingsSelect<T extends boolean = true> {
                   };
               id?: T;
             };
+        legalLinks?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    label?: T;
+                    type?: T;
+                    page?: T;
+                    builtIn?: T;
+                    url?: T;
+                  };
+              id?: T;
+            };
         hours?:
           | T
           | {
@@ -2483,20 +2699,6 @@ export interface ClubSettingsSelect<T extends boolean = true> {
               page?: T;
               builtIn?: T;
               url?: T;
-            };
-        legalLinks?:
-          | T
-          | {
-              link?:
-                | T
-                | {
-                    label?: T;
-                    type?: T;
-                    page?: T;
-                    builtIn?: T;
-                    url?: T;
-                  };
-              id?: T;
             };
       };
   announcement?:
@@ -2578,195 +2780,30 @@ export interface ClubSettingsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media_select".
+ * via the `definition` "users_select".
  */
-export interface MediaSelect<T extends boolean = true> {
-  tenant?: T;
-  alt?: T;
-  tone?:
-    | T
-    | {
-        bright?: T;
-        average?: T;
-      };
-  prefix?: T;
-  _objectKey?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
-  sizes?:
-    | T
-    | {
-        w640?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-        w1024?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-        w1600?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-        w2400?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-        w3200?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-      };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "documents_select".
- */
-export interface DocumentsSelect<T extends boolean = true> {
-  tenant?: T;
-  title?: T;
-  category?: T;
-  lastReviewed?: T;
-  prefix?: T;
-  _objectKey?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "staff_select".
- */
-export interface StaffSelect<T extends boolean = true> {
-  tenant?: T;
-  name?: T;
+export interface UsersSelect<T extends boolean = true> {
   role?: T;
-  department?: T;
-  qualification?: T;
-  photo?: T;
-  bio?: T;
+  tenant?: T;
+  totpSecret?: T;
+  hasTotp?: T;
+  updatedAt?: T;
+  createdAt?: T;
   email?: T;
-  phone?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "courses_select".
- */
-export interface CoursesSelect<T extends boolean = true> {
-  tenant?: T;
-  name?: T;
-  tees?:
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  resetPasswordRequestedAt?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+  sessions?:
     | T
     | {
-        colour?: T;
-        rating?: T;
-        slope?: T;
         id?: T;
+        createdAt?: T;
+        expiresAt?: T;
       };
-  holes?:
-    | T
-    | {
-        name?: T;
-        par?: T;
-        strokeIndex?: T;
-        yardsWhite?: T;
-        yardsYellow?: T;
-        yardsRed?: T;
-        yardsBlue?: T;
-        image?: T;
-        tip?: T;
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "course-status_select".
- */
-export interface CourseStatusSelect<T extends boolean = true> {
-  tenant?: T;
-  state?: T;
-  reason?: T;
-  facilities?:
-    | T
-    | {
-        label?: T;
-        state?: T;
-        value?: T;
-        id?: T;
-      };
-  changedBy?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "news_select".
- */
-export interface NewsSelect<T extends boolean = true> {
-  tenant?: T;
-  title?: T;
-  status?: T;
-  publishedAt?: T;
-  category?: T;
-  excerpt?: T;
-  image?: T;
-  imageCaption?: T;
-  author?: T;
-  body?: T;
-  slug?: T;
-  updatedAt?: T;
-  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2785,54 +2822,11 @@ export interface AgreementAcceptancesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "events_select".
+ * via the `definition` "tenants_select".
  */
-export interface EventsSelect<T extends boolean = true> {
-  tenant?: T;
-  title?: T;
-  status?: T;
-  startsAt?: T;
-  category?: T;
-  venue?: T;
-  timeNote?: T;
-  summary?: T;
-  image?: T;
-  price?: T;
-  memberPrice?: T;
-  booking?: T;
-  capacity?: T;
-  placesLeft?: T;
-  link?:
-    | T
-    | {
-        type?: T;
-        page?: T;
-        builtIn?: T;
-        url?: T;
-      };
-  featured?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "enquiries_select".
- */
-export interface EnquiriesSelect<T extends boolean = true> {
-  tenant?: T;
-  status?: T;
-  reference?: T;
-  purpose?: T;
+export interface TenantsSelect<T extends boolean = true> {
   name?: T;
-  email?: T;
-  phone?: T;
-  membershipType?: T;
-  preferredDate?: T;
-  groupSize?: T;
-  message?: T;
-  newsletter?: T;
-  alertSentAt?: T;
-  notes?: T;
+  slug?: T;
   updatedAt?: T;
   createdAt?: T;
 }

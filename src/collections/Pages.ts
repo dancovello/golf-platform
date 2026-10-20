@@ -64,6 +64,7 @@ export const Pages: CollectionConfig = {
   slug: 'pages',
   lockDocuments: false,
   admin: {
+    group: 'Website',
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'parent', '_status', 'updatedAt'],
     livePreview: pageLivePreview,

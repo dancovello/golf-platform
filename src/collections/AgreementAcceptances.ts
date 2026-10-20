@@ -22,6 +22,7 @@ export const AgreementAcceptances: CollectionConfig = {
   labels: { singular: 'Data processing agreement', plural: 'Data processing agreement' },
   lockDocuments: false,
   admin: {
+    group: 'Settings',
     useAsTitle: 'fullName',
     defaultColumns: ['fullName', 'jobTitle', 'version', 'acceptedAt'],
     description:
