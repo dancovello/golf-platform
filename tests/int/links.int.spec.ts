@@ -28,14 +28,10 @@ describe('links to the built-in pages (News, Events, Contact, Privacy policy)', 
         { label: 'News', link: { type: 'builtIn', builtIn: 'news' } },
         {
           label: 'Club',
-          groups: [
-            {
-              heading: 'More',
-              links: [
-                { link: { label: 'Events', type: 'builtIn', builtIn: 'events' } },
-                { link: { label: 'Privacy', type: 'builtIn', builtIn: 'privacy' } },
-              ],
-            },
+          kind: 'manual',
+          links: [
+            { link: { label: 'Events', type: 'builtIn', builtIn: 'events' } },
+            { link: { label: 'Privacy', type: 'builtIn', builtIn: 'privacy' } },
           ],
         },
       ],

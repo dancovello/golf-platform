@@ -1,3 +1,4 @@
+import { sql } from '@payloadcms/db-postgres'
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import { loadClubBySlug } from '@/site/loadClub'
@@ -30,6 +31,8 @@ const saveSettings = (data: Record<string, unknown>) =>
   })
 
 const club = () => loadClubBySlug(String(w.clubA.slug))
+const errorPaths = (e: unknown) =>
+  ((e as { data?: { errors?: { path: string }[] } }).data?.errors ?? []).map((x) => x.path)
 
 beforeAll(async () => {
   w = await seedWorld()
@@ -79,7 +82,7 @@ describe('a menu item that shows a page’s child pages', () => {
           {
             label: 'Golf',
             kind: 'children',
-            page: golf.id,
+            sections: [{ page: golf.id }],
             extraLinks: [
               { link: { label: 'Book', type: 'url', url: 'https://booking.example.com' } },
             ],
@@ -114,13 +117,13 @@ describe('a menu item that shows a page’s child pages', () => {
       header: {
         style: 'classic',
         menu: [
-          { label: 'Lonely', kind: 'children', page: lonely.id },
-          { label: 'Single', kind: 'children', page: single.id },
+          { label: 'Lonely', kind: 'children', sections: [{ page: lonely.id }] },
+          { label: 'Single', kind: 'children', sections: [{ page: single.id }] },
         ],
       },
     })
     const [first, second] = (await club())!.header.menu
-    const plain = { overview: null, image: null, children: [] }
+    const plain = { overview: null, image: null, children: [], columns: null }
     expect(first).toEqual({ label: 'Lonely', link: { kind: 'page', slug: 'lonely' }, ...plain })
     expect(second).toEqual({ label: 'Single', link: { kind: 'page', slug: 'single' }, ...plain })
   })
@@ -145,8 +148,8 @@ describe('a menu item that shows a page’s child pages', () => {
     await page('pictured-a', 'Pictured A', { parent: pictured.id })
     await page('pictured-b', 'Pictured B', { parent: pictured.id })
     const menu = [
-      { label: 'Pictured', kind: 'children', page: pictured.id },
-      { label: 'Golf', kind: 'children', page: golf.id },
+      { label: 'Pictured', kind: 'children', sections: [{ page: pictured.id }] },
+      { label: 'Golf', kind: 'children', sections: [{ page: golf.id }] },
     ]
     await saveSettings({ header: { style: 'classic', dropdown: 'panel', menu } })
     expect((await club())!.header.menu[0].image).toBeNull()
@@ -158,46 +161,213 @@ describe('a menu item that shows a page’s child pages', () => {
   })
 
   it('refuses another club’s page', async () => {
-    await expect(
-      saveSettings({
-        header: { style: 'classic', menu: [{ label: 'B', kind: 'children', page: w.pageB.id }] },
-      }),
-    ).rejects.toThrow()
+    const error = await saveSettings({
+      header: {
+        style: 'classic',
+        menu: [{ label: 'B', kind: 'children', sections: [{ page: w.pageB.id }] }],
+      },
+    }).catch((e: unknown) => e)
+    expect(errorPaths(error)).toContain('header.menu.0.sections.0.page')
+    expect(JSON.stringify(error)).not.toContain('Club B')
+  })
+
+  it('needs at least one page, and takes at most three', async () => {
+    const menu = (sections: unknown[]) => ({
+      header: { style: 'classic', menu: [{ label: 'Golf', kind: 'children', sections }] },
+    })
+    await expect(saveSettings(menu([]))).rejects.toThrow()
+    const four = Array.from({ length: 4 }, () => ({ page: golf.id }))
+    await expect(saveSettings(menu(four))).rejects.toThrow()
   })
 })
 
-describe('menu items saved before this change', () => {
-  it('still work: groups make one drop-down list without headings, otherwise a link', async () => {
+describe('a menu item with a drop-down of two or three pages', () => {
+  let club2: { id: string }
+  beforeAll(async () => {
+    club2 = await page('clubhouse', 'Clubhouse')
+    for (let i = 1; i <= 10; i++) {
+      await page(`room-${i}`, `Room ${String(i).padStart(2, '0')}`, { parent: club2.id })
+    }
+  })
+
+  it('shows one column per page: the page as its heading, then its child pages', async () => {
+    await saveSettings({
+      header: {
+        style: 'classic',
+        menu: [{ kind: 'children', sections: [{ page: golf.id }, { page: club2.id }] }],
+      },
+    })
+    const item = (await club())!.header.menu[0]
+    // No text given: the first page's name.
+    expect(item.label).toBe('Golf')
+    expect(item.link).toBeNull()
+    expect(item.overview).toBeNull()
+    expect(item.columns?.map((c) => c.heading)).toEqual([
+      { label: 'Golf', link: { kind: 'page', slug: 'golf' } },
+      { label: 'Clubhouse', link: { kind: 'page', slug: 'clubhouse' } },
+    ])
+    expect(item.columns?.[0].links.map((l) => l.label)).toEqual([
+      'Course status',
+      'The courses',
+      'Brand new page',
+      'Alpha page',
+      'Zed page',
+    ])
+    expect(item.columns?.[0].more).toBeNull()
+    // Every link, for working out which menu item the current page sits under.
+    expect(item.children.map((l) => l.label)).toContain('Clubhouse')
+    expect(item.children.map((l) => l.label)).toContain('Zed page')
+  })
+
+  it('lists 8 child pages a column, then "All … pages" to the page itself', async () => {
+    const columns = (await club())!.header.menu[0].columns!
+    expect(columns[1].links.map((l) => l.label)).toEqual(
+      Array.from({ length: 8 }, (_, i) => `Room 0${i + 1}`),
+    )
+    expect(columns[1].more).toEqual({
+      label: 'All Clubhouse pages',
+      link: { kind: 'page', slug: 'clubhouse' },
+    })
+  })
+
+  it('leaves out a page that isn’t published', async () => {
+    const draft = await w.payload.create({
+      collection: 'pages',
+      data: {
+        _status: 'draft',
+        title: 'Draft',
+        slug: 'draft-section',
+        tenant: w.clubA.id,
+      } as never,
+      overrideAccess: true,
+    })
     await saveSettings({
       header: {
         style: 'classic',
         menu: [
-          { label: 'Plain', link: { type: 'page', page: w.pageA.id } },
           {
-            label: 'Groups',
-            groups: [
-              {
-                heading: 'Play',
-                links: [{ link: { label: 'Fees', type: 'page', page: w.pageA.id } }],
-              },
-              { links: [{ link: { label: 'News', type: 'builtIn', builtIn: 'news' } }] },
-            ],
-          },
-          {
-            label: 'One link',
-            kind: 'manual',
-            groups: [{ links: [{ link: { label: 'News', type: 'builtIn', builtIn: 'news' } }] }],
+            label: 'Golf',
+            kind: 'children',
+            sections: [{ page: draft.id }, { page: golf.id }],
           },
         ],
       },
     })
-    const [plain, groups, single] = (await club())!.header.menu
+    const item = (await club())!.header.menu[0]
+    // Only one page left: the usual one-page drop-down.
+    expect(item.columns).toBeNull()
+    expect(item.overview).toEqual({ kind: 'page', slug: 'golf' })
+  })
+})
+
+describe('menu text left blank', () => {
+  it('uses the name of the page or built-in page the item goes to', async () => {
+    await saveSettings({
+      header: {
+        style: 'classic',
+        menu: [
+          { kind: 'link', link: { type: 'page', page: golf.id } },
+          { kind: 'link', link: { type: 'builtIn', builtIn: 'events' } },
+        ],
+      },
+    })
+    expect((await club())!.header.menu.map((m) => m.label)).toEqual(['Golf', 'Events'])
+  })
+
+  it('is refused for a web address, and for a drop-down of typed links', async () => {
+    const menu = (item: Record<string, unknown>) => ({ header: { style: 'classic', menu: [item] } })
+    await expect(
+      saveSettings(menu({ kind: 'link', link: { type: 'url', url: 'https://example.com' } })),
+    ).rejects.toThrow()
+    await expect(
+      saveSettings(
+        menu({ kind: 'manual', links: [{ link: { type: 'builtIn', builtIn: 'news' } }] }),
+      ),
+    ).rejects.toThrow()
+  })
+})
+
+describe('a drop-down of links I type', () => {
+  it('lists them in order; a link to a page without text shows the page’s name', async () => {
+    await saveSettings({
+      header: {
+        style: 'classic',
+        menu: [
+          {
+            label: 'About',
+            kind: 'manual',
+            links: [
+              { link: { type: 'page', page: golf.id } },
+              { link: { label: 'Booking', type: 'url', url: 'https://booking.example.com' } },
+              { link: { type: 'builtIn', builtIn: 'contact' } },
+            ],
+          },
+        ],
+      },
+    })
+    const item = (await club())!.header.menu[0]
+    expect(item.children.map((l) => l.label)).toEqual(['Golf', 'Booking', 'Contact'])
+    expect(item.overview).toBeNull()
+    expect(item.columns).toBeNull()
+  })
+
+  it('needs at least one link, and text for a web address', async () => {
+    const menu = (links: unknown[]) => ({
+      header: { style: 'classic', menu: [{ label: 'About', kind: 'manual', links }] },
+    })
+    await expect(saveSettings(menu([]))).rejects.toThrow()
+    await expect(
+      saveSettings(menu([{ link: { type: 'url', url: 'https://example.com' } }])),
+    ).rejects.toThrow()
+  })
+
+  it('refuses another club’s page', async () => {
+    const error = await saveSettings({
+      header: {
+        style: 'classic',
+        menu: [
+          { label: 'About', kind: 'manual', links: [{ link: { type: 'page', page: w.pageB.id } }] },
+        ],
+      },
+    }).catch((e: unknown) => e)
+    expect(errorPaths(error)).toContain('header.menu.0.links.0.link.page')
+  })
+})
+
+describe('menu items saved before this change', () => {
+  // As the database holds them from before "What it does" (blank) and before the new
+  // "Pages in the drop-down" and "Links" lists. The 20261020 migration copies them over;
+  // the site still reads the old fields if a new list is empty.
+  it('still work: link groups make one list, a single chosen page its child pages', async () => {
+    const saved = await saveSettings({
+      header: {
+        style: 'classic',
+        menu: [
+          { label: 'Plain', kind: 'link', link: { type: 'page', page: w.pageA.id } },
+          { label: 'Groups', kind: 'link' },
+          { label: 'Golf', kind: 'link' },
+        ],
+      },
+    })
+    const [, groups, oldGolf] = (saved as { header: { menu: { id: string }[] } }).header.menu
+    const run = (query: ReturnType<typeof sql>) => w.payload.db.drizzle.execute(query)
+    await run(sql`UPDATE club_settings_header_menu SET kind = NULL WHERE id = ${groups.id}`)
+    await run(
+      sql`UPDATE club_settings_header_menu SET kind = 'children', page_id = ${golf.id} WHERE id = ${oldGolf.id}`,
+    )
+    await run(sql`INSERT INTO club_settings_header_menu_groups (_order, _parent_id, id, heading)
+      VALUES (1, ${groups.id}, 'legacy-g1', 'Play'), (2, ${groups.id}, 'legacy-g2', NULL)`)
+    await run(sql`INSERT INTO club_settings_header_menu_groups_links
+      (_order, _parent_id, id, link_label, link_type, link_page_id, link_built_in)
+      VALUES (1, 'legacy-g1', 'legacy-l1', 'Fees', 'page', ${w.pageA.id}, NULL),
+             (1, 'legacy-g2', 'legacy-l2', 'News', 'builtIn', NULL, 'news')`)
+    const [plain, legacyGroups, legacyGolf] = (await club())!.header.menu
     expect(plain.link).toEqual({ kind: 'page', slug: 'membership' })
-    expect(groups.children.map((l) => l.label)).toEqual(['Fees', 'News'])
+    expect(legacyGroups.children.map((l) => l.label)).toEqual(['Fees', 'News'])
     // Links you choose have no section page, so no "Overview".
-    expect(groups.overview).toBeNull()
-    expect(single.children).toEqual([])
-    expect(single.link).toEqual({ kind: 'page', slug: 'news' })
+    expect(legacyGroups.overview).toBeNull()
+    expect(legacyGolf.overview).toEqual({ kind: 'page', slug: 'golf' })
+    expect(legacyGolf.children.map((l) => l.label)).toContain('Alpha page')
   })
 })
 
@@ -220,10 +390,12 @@ describe('footer link columns', () => {
         source: 'manual',
         links: [{ link: { label: 'Contact', type: 'builtIn', builtIn: 'contact' } }],
       },
-      { heading: 'More', links: [{ link: { label: 'Fees', type: 'page', page: w.pageA.id } }] },
+      { heading: 'More', links: [{ link: { type: 'page', page: w.pageA.id } }] },
     ])
     const columns = (await club())!.footer.linkColumns
     expect(columns.map((c) => c.heading)).toEqual(['Golf', 'Club', 'More'])
+    // No text given: the page's name.
+    expect(columns[2].links.map((l) => l.label)).toEqual(['Membership (Club A)'])
     expect(columns[0].links.map((l) => l.label)).toEqual([
       'Course status',
       'The courses',

@@ -11,13 +11,14 @@ const parent = (label: string, slugs: string[]): MenuItem => ({
   overview: null,
   image: null,
   children: slugs.map((s) => ({ label: s, link: page(s) })),
+  columns: null,
 })
 
 const base = '/preview/heathcote'
 const menu: MenuItem[] = [
   parent('Golf', ['course', 'scorecard']),
   parent('Visitors', ['green-fees', 'contact']),
-  { label: 'News', link: page('news'), overview: null, image: null, children: [] },
+  { label: 'News', link: page('news'), overview: null, image: null, children: [], columns: null },
   parent('About', ['history', 'contact']),
 ]
 

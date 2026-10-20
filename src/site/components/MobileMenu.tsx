@@ -138,14 +138,28 @@ export const MobileMenu = ({
           </div>
           <div className="sh-drawer-body">
             {current ? (
-              <ul className="sh-drawer-group">
-                {current.overview ? (
-                  <li>{link('Overview', current.overview, 't-body-l sh-drawer-sublink')}</li>
-                ) : null}
-                {current.children.map((l, k) => (
-                  <li key={k}>{link(l.label, l.link, 't-body-l sh-drawer-sublink')}</li>
-                ))}
-              </ul>
+              current.columns ? (
+                // Two or three pages: each one a small heading, with its child pages under it.
+                current.columns.map((c, k) => (
+                  <div key={k} className="sh-drawer-column">
+                    {link(c.heading.label, c.heading.link, 't-eyebrow sh-drawer-column-head')}
+                    <ul className="sh-drawer-group">
+                      {[...c.links, ...(c.more ? [c.more] : [])].map((l, j) => (
+                        <li key={j}>{link(l.label, l.link, 't-body-l sh-drawer-sublink')}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ))
+              ) : (
+                <ul className="sh-drawer-group">
+                  {current.overview ? (
+                    <li>{link('Overview', current.overview, 't-body-l sh-drawer-sublink')}</li>
+                  ) : null}
+                  {current.children.map((l, k) => (
+                    <li key={k}>{link(l.label, l.link, 't-body-l sh-drawer-sublink')}</li>
+                  ))}
+                </ul>
+              )
             ) : (
               <>
                 {searchHref ? (

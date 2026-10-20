@@ -33,14 +33,10 @@ describe('header and menu settings', () => {
         { label: 'Membership', link: { type: 'page', page: w.pageA.id } },
         {
           label: 'Golf',
-          groups: [
-            {
-              heading: 'Play',
-              links: [
-                { link: { label: 'Green fees', type: 'url', url: 'https://example.com/fees' } },
-                { link: { label: 'Lessons', type: 'url', url: 'https://example.com/lessons' } },
-              ],
-            },
+          kind: 'manual',
+          links: [
+            { link: { label: 'Green fees', type: 'url', url: 'https://example.com/fees' } },
+            { link: { label: 'Lessons', type: 'url', url: 'https://example.com/lessons' } },
           ],
         },
       ],

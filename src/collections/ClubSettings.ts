@@ -1,6 +1,10 @@
 import type { CollectionBeforeValidateHook, CollectionConfig, Field, Validate } from 'payload'
 import { APIError } from 'payload'
-import { email as emailFormat, textarea as textareaRules } from 'payload/shared'
+import {
+  array as arrayRules,
+  email as emailFormat,
+  textarea as textareaRules,
+} from 'payload/shared'
 
 import { isSuperAdmin, loggedIn, superAdminOnly } from '../access/roles'
 import { clubHasAccepted } from '../agreement/acceptance'
@@ -12,6 +16,35 @@ import { BRAND_INPUTS, type Brand, DEFAULT_BRAND, isHex } from '../theme/colour'
 import { DEFAULT_FONT_SET, FONT_SETS } from '../theme/fontSets'
 import { ENQUIRY_PURPOSES } from './enquiryPurposes'
 import { idOf } from '../blocks/types'
+
+type MenuRow = {
+  kind?: string | null
+  link?: { type?: string | null } | null
+  groups?: unknown[] | null
+}
+
+/** What a menu item does. Items saved before "What it does" existed have it blank: with link
+ * groups they were drop-downs of typed links, otherwise links (as on the site, loadClub.ts). */
+const menuKind = (row: MenuRow | undefined) =>
+  row?.kind ?? ((row?.groups?.length ?? 0) > 0 ? 'manual' : 'link')
+
+/** A menu item's text can be left blank when the site can use a page's name instead: not for
+ * a drop-down of typed links, nor a link to a web address. */
+const menuTextNeeded = (row: MenuRow | undefined) =>
+  menuKind(row) === 'manual' || (menuKind(row) === 'link' && row?.link?.type === 'url')
+
+/** A menu item's list that needs at least one row when the item is that kind, unless the
+ * item still has what it used before (its old page or link groups, which the site falls back
+ * to). Also runs Payload's own list checks (most rows etc.), which a custom check replaces. */
+const neededForKind =
+  (kind: 'children' | 'manual', message: string): Validate =>
+  (value, options) => {
+    const row = options.siblingData as MenuRow & { page?: unknown }
+    const before = kind === 'children' ? Boolean(row?.page) : (row?.groups?.length ?? 0) > 0
+    return menuKind(row) === kind && !(Array.isArray(value) && value.length > 0) && !before
+      ? message
+      : (arrayRules as Validate)(value, options)
+  }
 
 const colourHelp: Record<keyof Brand, string> = {
   primary: 'Brand bands, headers and solid buttons.',
@@ -238,7 +271,7 @@ export const ClubSettings: CollectionConfig = {
                   labels: { singular: 'Menu item', plural: 'Menu items' },
                   admin: {
                     description:
-                      'Up to 10 items, left to right; drag to reorder. If they don’t all fit across a computer screen, visitors get the menu button instead, as on phones. Each is a link, or opens a drop-down: either the child pages of one of your pages (kept up to date for you) or links you choose.',
+                      'Up to 10 items, left to right; drag to reorder. If they don’t all fit across a computer screen, visitors get the menu button instead, as on phones.',
                     initCollapsed: true,
                     components: { RowLabel: '/admin/MenuRowLabel#MenuRowLabel' },
                   },
@@ -250,25 +283,28 @@ export const ClubSettings: CollectionConfig = {
                           name: 'label',
                           label: 'Text',
                           type: 'text',
-                          required: true,
                           maxLength: 24,
+                          admin: {
+                            description: 'Blank: the name of the (first) page it goes to.',
+                          },
+                          validate: (value: unknown, { siblingData }: { siblingData: MenuRow }) =>
+                            value || !menuTextNeeded(siblingData)
+                              ? true
+                              : 'Enter the text for this menu item.',
                         },
                         {
                           name: 'kind',
                           label: 'What it does',
-                          type: 'select',
+                          type: 'radio',
+                          defaultValue: 'link',
                           options: [
-                            { label: 'Goes to a page or link', value: 'link' },
-                            { label: 'Drop-down: a page’s child pages', value: 'children' },
-                            { label: 'Drop-down: links I choose', value: 'manual' },
+                            { label: 'Goes to one page or link', value: 'link' },
+                            { label: 'Opens a drop-down of pages', value: 'children' },
+                            { label: 'Opens a drop-down of links I type', value: 'manual' },
                           ],
+                          admin: { layout: 'vertical' },
                         },
                       ],
-                    },
-                    {
-                      name: 'sizeWarning',
-                      type: 'ui',
-                      admin: { components: { Field: '/admin/MenuSizeWarning#MenuSizeWarning' } },
                     },
                     {
                       ...linkField({
@@ -278,35 +314,40 @@ export const ClubSettings: CollectionConfig = {
                         required: false,
                       }),
                       admin: {
-                        condition: (_data, row) =>
-                          row?.kind !== 'manual' && row?.kind !== 'children',
+                        condition: (_data, row) => menuKind(row) === 'link',
                       },
                     },
                     {
-                      name: 'page',
-                      label: 'Page whose child pages to show',
-                      type: 'relationship',
-                      relationTo: 'pages',
-                      filterOptions: ({ data }) =>
-                        data?.tenant ? { tenant: { equals: idOf(data.tenant) } } : true,
+                      name: 'sections',
+                      label: 'Pages in the drop-down',
+                      type: 'array',
+                      maxRows: 3,
+                      labels: { singular: 'Page', plural: 'Pages' },
                       admin: {
                         condition: (_data, row) => row?.kind === 'children',
                         description:
-                          'Its child pages (set on each page, under "Parent page") make up the drop-down, in their "Position" order.',
+                          'One page: its child pages fill the drop-down. Two or three: one column each, headed by the page, with its child pages underneath. A page’s child pages are the ones with it as their "Parent page".',
                       },
-                      validate: (
-                        value: unknown,
-                        { siblingData }: { siblingData: { kind?: string } },
-                      ) => (siblingData?.kind !== 'children' || value ? true : 'Choose a page.'),
+                      validate: neededForKind('children', 'Add at least one page.'),
+                      fields: [
+                        {
+                          name: 'page',
+                          label: 'Page',
+                          type: 'relationship',
+                          relationTo: 'pages',
+                          required: true,
+                          filterOptions: ({ data }) =>
+                            data?.tenant ? { tenant: { equals: idOf(data.tenant) } } : true,
+                        },
+                      ],
                     },
                     {
-                      name: 'includeParent',
-                      label: 'Show that page itself at the top of the drop-down',
-                      type: 'checkbox',
-                      defaultValue: true,
-                      // No longer used: the drop-down's "Overview" link goes to that page
-                      // (spec 17, Dan 2026-10-19). Kept so saved menus don't change.
-                      admin: { hidden: true },
+                      name: 'preview',
+                      type: 'ui',
+                      admin: {
+                        condition: (_data, row) => row?.kind === 'children',
+                        components: { Field: '/admin/MenuDropdownPreview#MenuDropdownPreview' },
+                      },
                     },
                     {
                       name: 'extraLinks',
@@ -315,36 +356,46 @@ export const ClubSettings: CollectionConfig = {
                       maxRows: 4,
                       labels: { singular: 'Extra link', plural: 'Extra links' },
                       admin: {
-                        condition: (_data, row) => row?.kind === 'children',
+                        condition: (_data, row) =>
+                          row?.kind === 'children' && (row?.sections?.length ?? 0) <= 1,
                         description: 'e.g. your booking site, or News, Events or Contact.',
                       },
-                      fields: [linkField({ name: 'link', label: 'Link' })],
+                      fields: [linkField({ name: 'link', label: 'Link', textFromPage: true })],
+                    },
+                    {
+                      name: 'links',
+                      label: 'Links',
+                      type: 'array',
+                      maxRows: 12,
+                      labels: { singular: 'Link', plural: 'Links' },
+                      admin: { condition: (_data, row) => menuKind(row) === 'manual' },
+                      validate: neededForKind('manual', 'Add at least one link.'),
+                      fields: [linkField({ name: 'link', label: 'Link', textFromPage: true })],
+                    },
+                    // Replaced by "Pages in the drop-down" and "Links" (Dan 2026-10-20). Kept,
+                    // hidden, so nothing saved is lost; the 20261020 migration copied them over.
+                    {
+                      name: 'page',
+                      type: 'relationship',
+                      relationTo: 'pages',
+                      admin: { hidden: true },
+                    },
+                    {
+                      name: 'includeParent',
+                      type: 'checkbox',
+                      defaultValue: true,
+                      admin: { hidden: true },
                     },
                     {
                       name: 'groups',
-                      label: 'Link groups',
                       type: 'array',
-                      maxRows: 3,
-                      labels: { singular: 'Group', plural: 'Groups' },
-                      admin: {
-                        condition: (_data, row) =>
-                          row?.kind === 'manual' || (!row?.kind && (row?.groups?.length ?? 0) > 0),
-                        description: 'Up to 3 groups side by side, each with its own heading.',
-                      },
+                      admin: { hidden: true },
                       fields: [
-                        {
-                          name: 'heading',
-                          label: 'Heading (optional)',
-                          type: 'text',
-                          maxLength: 30,
-                        },
+                        { name: 'heading', type: 'text' },
                         {
                           name: 'links',
-                          label: 'Links',
                           type: 'array',
-                          minRows: 1,
-                          maxRows: 8,
-                          fields: [linkField({ name: 'link', label: 'Link' })],
+                          fields: [linkField({ name: 'link', label: 'Link', required: false })],
                         },
                       ],
                     },
@@ -467,7 +518,7 @@ export const ClubSettings: CollectionConfig = {
                             (Array.isArray(value) && value.length > 0)
                               ? true
                               : 'Add at least one link.',
-                          fields: [linkField({ name: 'link', label: 'Link' })],
+                          fields: [linkField({ name: 'link', label: 'Link', textFromPage: true })],
                         },
                       ],
                     },
@@ -481,7 +532,7 @@ export const ClubSettings: CollectionConfig = {
                           'e.g. Terms, Accessibility. The privacy policy link is added for you, and “Cookie settings” too if you use Google Analytics.',
                         initCollapsed: true,
                       },
-                      fields: [linkField({ name: 'link', label: 'Link' })],
+                      fields: [linkField({ name: 'link', label: 'Link', textFromPage: true })],
                     },
                   ],
                 },
@@ -524,6 +575,7 @@ export const ClubSettings: CollectionConfig = {
                       name: 'hoursLink',
                       label: 'Link under the hours (optional)',
                       required: false,
+                      textFromPage: true,
                     }),
                   ],
                 },
@@ -620,6 +672,7 @@ export const ClubSettings: CollectionConfig = {
                       name: 'secondaryButton',
                       label: 'Second button (optional)',
                       required: false,
+                      textFromPage: true,
                     }),
                   ],
                 },
@@ -733,7 +786,12 @@ export const ClubSettings: CollectionConfig = {
                         },
                       ],
                     },
-                    linkField({ name: 'link', label: 'Link (optional)', required: false }),
+                    linkField({
+                      name: 'link',
+                      label: 'Link (optional)',
+                      required: false,
+                      textFromPage: true,
+                    }),
                   ],
                 },
               ],

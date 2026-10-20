@@ -9,7 +9,8 @@ import {
   STATUS_STATES,
   type StatusState,
 } from '@/collections/courseStatusStates'
-import { builtInLink, isSafeURL, linksToPage } from '@/fields/link'
+import { COLUMN_LINK_LIMIT } from './menuLimits'
+import { builtInLabel, builtInLink, isSafeURL, linksToPage } from '@/fields/link'
 import { measureMissing } from '@/media/measure'
 import { loadClubMedia, type SiteMedia } from '@/site/blocks/media'
 import { loadBlockContext } from '@/site/blocks/resolve'
@@ -34,8 +35,13 @@ export type MenuItem = {
   overview: SiteLink | null
   /** The section page's hero photo, for the "Panel + picture" drop-down style only. */
   image: SiteMedia | null
+  /** Every link in the drop-down. With `columns`, all their headings and links in order. */
   children: LabelledLink[]
+  /** A drop-down of two or three pages: one column each. Null for every other menu item. */
+  columns: MenuColumn[] | null
 }
+/** A drop-down column: a page, then its child pages (the first few, then "All … pages"). */
+export type MenuColumn = { heading: LabelledLink; links: LabelledLink[]; more: LabelledLink | null }
 export type DropdownStyle = 'panel' | 'panelTile'
 export type SiteImage = {
   url: string
@@ -177,6 +183,7 @@ export const loadClubBySlug = cache(async (slug: string): Promise<ClubSite | nul
     ...(h.booking ? [h.booking] : []),
     ...(h.menu ?? []).flatMap((m) => [
       ...(m.link ? [m.link] : []),
+      ...(m.links ?? []).map((l) => l.link ?? {}),
       ...(m.groups ?? []).flatMap((g) => (g.links ?? []).map((l) => l.link ?? {})),
       ...(m.extraLinks ?? []).map((l) => l.link ?? {}),
     ]),
@@ -187,10 +194,17 @@ export const loadClubBySlug = cache(async (slug: string): Promise<ClubSite | nul
     ...(s.announcement?.items ?? []).map((i) => i.link ?? {}),
   ]
   const dropdown: DropdownStyle = h.dropdown === 'panelTile' ? 'panelTile' : 'panel'
-  const sectionPages = (h.menu ?? []).map((m) => (m.kind === 'children' ? idOf(m.page) : null))
+  /** A drop-down's pages: "Pages in the drop-down", or the one page chosen before that list
+   * existed (copied over by the 20261020 migration; kept as a fallback). */
+  const sectionsOf = (m: NonNullable<typeof h.menu>[number]): string[] => {
+    const chosen = (m.sections ?? []).flatMap((x) => idOf(x.page) ?? [])
+    const legacy = idOf(m.page)
+    return chosen.length > 0 ? chosen : legacy ? [legacy] : []
+  }
+  const sectionPages = (h.menu ?? []).flatMap((m) => (m.kind === 'children' ? sectionsOf(m) : []))
   // These don't depend on each other, so they're looked up at the same time.
-  const [pageSlugs, images, family, heroPhotos] = await Promise.all([
-    clubPageSlugs(
+  const [pages, images, family, heroPhotos] = await Promise.all([
+    clubPages(
       payload,
       tenantID,
       rawLinks.map((l) => (linksToPage(l.type) ? idOf(l.page) : null)),
@@ -210,13 +224,19 @@ export const loadClubBySlug = cache(async (slug: string): Promise<ClubSite | nul
     if (!raw) return null
     if (raw.type === 'url') return isSafeURL(raw.url) ? { kind: 'url', href: raw.url.trim() } : null
     if (raw.type === 'builtIn') return builtInLink(raw.builtIn)
-    const pageSlug = pageSlugs.get(idOf(raw.page) ?? '')
-    return pageSlug ? { kind: 'page', slug: pageSlug } : null
+    const page = pages.get(idOf(raw.page) ?? '')
+    return page ? { kind: 'page', slug: page.slug } : null
+  }
+  /** What a link left without text shows: the name of the page it goes to. */
+  const nameOf = (raw: RawLink | null | undefined): string | undefined => {
+    if (!raw || raw.type === 'url') return undefined
+    if (raw.type === 'builtIn') return builtInLabel(raw.builtIn)
+    return pages.get(idOf(raw.page) ?? '')?.title
   }
 
   const labelled = (raw: RawLink | null | undefined): LabelledLink | null => {
     const link = toLink(raw)
-    const label = raw?.label?.trim()
+    const label = raw?.label?.trim() || nameOf(raw)
     return link && label ? { label, link } : null
   }
   const text = (v: string | null | undefined) => v?.trim() || null
@@ -247,41 +267,76 @@ export const loadClubBySlug = cache(async (slug: string): Promise<ClubSite | nul
       dropdown,
       menu: (h.menu ?? [])
         .map((m): MenuItem => {
-          const label = m.label?.trim() ?? ''
-          const plain = (link: SiteLink | null): MenuItem => ({
-            label,
+          const text = m.label?.trim() ?? ''
+          const plain = (link: SiteLink | null, name?: string): MenuItem => ({
+            label: text || name || '',
             link,
             overview: null,
             image: null,
             children: [],
+            columns: null,
           })
           // Items saved before "What it does" existed: groups mean a drop-down.
           const kind = m.kind ?? ((m.groups ?? []).length > 0 ? 'manual' : 'link')
-          if (kind === 'link') return plain(toLink(m.link))
+          if (kind === 'link') return plain(toLink(m.link), nameOf(m.link))
           if (kind === 'children') {
-            // The section page itself is reached through "Overview", so it isn't listed.
-            const parentID = idOf(m.page) ?? ''
-            const parent = family.parents.get(parentID)
+            // Only this club's published pages: anything else is left out.
+            const sections = sectionsOf(m).flatMap((id) => {
+              const page = family.parents.get(id)
+              return page ? [{ id, page }] : []
+            })
+            const label = text || sections[0]?.page.label || ''
+            if (sections.length > 1) {
+              const columns = sections.map(({ id, page }): MenuColumn => {
+                const links = family.children.get(id) ?? []
+                return {
+                  heading: page,
+                  links: links.slice(0, COLUMN_LINK_LIMIT),
+                  more:
+                    links.length > COLUMN_LINK_LIMIT
+                      ? { label: `All ${page.label} pages`, link: page.link }
+                      : null,
+                }
+              })
+              return {
+                label,
+                link: null,
+                overview: null,
+                image: null,
+                children: columns.flatMap((c) => [
+                  c.heading,
+                  ...c.links,
+                  ...(c.more ? [c.more] : []),
+                ]),
+                columns,
+              }
+            }
+            // One page: its child pages. The page itself is reached through "Overview", so it
+            // isn't listed.
+            const parentID = sections[0]?.id ?? ''
+            const parent = sections[0]?.page
             const children = [
               ...(family.children.get(parentID) ?? []),
               ...(m.extraLinks ?? []).flatMap((l) => labelled(l.link) ?? []),
             ]
             // A page with fewer than two child pages is just a link to it.
-            if (children.length < 2) return plain(parent?.link ?? null)
+            if (children.length < 2) return plain(parent?.link ?? null, label)
             return {
               label,
               link: parent?.link ?? null,
               overview: parent?.link ?? null,
               image: heroPhotos.get(parentID) ?? null,
               children,
+              columns: null,
             }
           }
-          // "Links I choose": the drop-down shows every group's links as one list.
-          const children = (m.groups ?? []).flatMap((g) =>
-            (g.links ?? []).flatMap((l) => labelled(l.link) ?? []),
-          )
-          if (children.length < 2) return plain(children[0]?.link ?? null)
-          return { label, link: null, overview: null, image: null, children }
+          // "Links I type": one list. Before that list existed, the links of every group (whose
+          // headings were never shown); the 20261020 migration copied them over.
+          const typed =
+            (m.links ?? []).length > 0 ? m.links : (m.groups ?? []).flatMap((g) => g.links ?? [])
+          const children = (typed ?? []).flatMap((l) => labelled(l.link) ?? [])
+          if (children.length < 2) return plain(children[0]?.link ?? null, children[0]?.label)
+          return { label: text, link: null, overview: null, image: null, children, columns: null }
         })
         .filter((m) => m.label && (m.link || m.children.length > 0)),
     },
@@ -337,20 +392,24 @@ export const loadClubBySlug = cache(async (slug: string): Promise<ClubSite | nul
   }
 })
 
-/** Slugs of the given pages, only if they belong to this club. */
-export const clubPageSlugs = async (payload: Payload, tenantID: string, ids: (string | null)[]) => {
+/** Addresses and names of the given pages, only if they belong to this club. */
+const clubPages = async (payload: Payload, tenantID: string, ids: (string | null)[]) => {
   const wanted = [...new Set(ids.filter((id): id is string => Boolean(id)))]
-  if (wanted.length === 0) return new Map<string, string>()
+  if (wanted.length === 0) return new Map<string, { slug: string; title: string }>()
   const { docs } = await payload.find({
     collection: 'pages',
     where: { and: [{ id: { in: wanted } }, { tenant: { equals: tenantID } }, PUBLISHED] },
-    select: { slug: true },
+    select: { slug: true, title: true },
     limit: wanted.length,
     depth: 0,
     overrideAccess: true,
   })
-  return new Map(docs.map((d) => [String(d.id), String(d.slug)]))
+  return new Map(docs.map((d) => [String(d.id), { slug: String(d.slug), title: d.title }]))
 }
+
+/** Slugs of the given pages, only if they belong to this club. */
+export const clubPageSlugs = async (payload: Payload, tenantID: string, ids: (string | null)[]) =>
+  new Map([...(await clubPages(payload, tenantID, ids))].map(([id, p]) => [id, p.slug]))
 
 /**
  * For menu items and footer columns that list a page's child pages: each chosen page (as a

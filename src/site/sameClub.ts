@@ -19,6 +19,8 @@ const settingsRefs = (data: Record<string, unknown>): Ref[] => {
     menu?: {
       link?: { page?: unknown }
       page?: unknown
+      sections?: { page?: unknown }[]
+      links?: { link?: { page?: unknown } }[]
       extraLinks?: { link?: { page?: unknown } }[]
       groups?: { links?: { link?: { page?: unknown } }[] }[]
     }[]
@@ -31,6 +33,10 @@ const settingsRefs = (data: Record<string, unknown>): Ref[] => {
   header.menu?.forEach((item, i) => {
     page(item.link?.page, `header.menu.${i}.link.page`)
     page(item.page, `header.menu.${i}.page`)
+    item.sections?.forEach((section, k) =>
+      page(section.page, `header.menu.${i}.sections.${k}.page`),
+    )
+    item.links?.forEach((l, k) => page(l.link?.page, `header.menu.${i}.links.${k}.link.page`))
     item.extraLinks?.forEach((l, k) =>
       page(l.link?.page, `header.menu.${i}.extraLinks.${k}.link.page`),
     )
