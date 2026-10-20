@@ -135,8 +135,19 @@ export const seedWorld = async (): Promise<World> => {
   await ensureMediaBucket()
   await resetDatabase(payload)
 
-  const clubA = await payload.create({ collection: 'tenants', data: { name: 'Test Club A' } })
-  const clubB = await payload.create({ collection: 'tenants', data: { name: 'Test Club B' } })
+  // Web addresses (build step 4). Browsers send *.localhost to this computer, so the browser
+  // tests can visit each club on "its own domain". The second address forwards to the first.
+  const clubA = await payload.create({
+    collection: 'tenants',
+    data: {
+      name: 'Test Club A',
+      domains: [{ hostname: 'club-a.localhost' }, { hostname: 'old-club-a.localhost' }],
+    },
+  })
+  const clubB = await payload.create({
+    collection: 'tenants',
+    data: { name: 'Test Club B', domains: [{ hostname: 'club-b.localhost' }] },
+  })
   const superAdminID = (
     await createSuperAdmin(payload, { email: 'super@example.com', password: PASSWORD })
   ).id

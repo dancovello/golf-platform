@@ -85,6 +85,7 @@ Node 24 and pnpm (via corepack: `corepack pnpm …` if `pnpm` isn't on PATH). Lo
 - **Backups:** `.github/workflows/backup.yml` runs nightly and before each release, encrypted with the public key in `ops/backup-recipient.txt`. Restore procedure: `docs/operations/restore-runbook.md`.
 - **Migrations:** never edit a merged migration; the `migration-guard` CI check blocks it. Data-deleting changes need Dan's `approved-destructive-migration` label.
 - Decisions made after doc 04 are in `docs/architecture/decisions.md`.
+- **Security checks:** run in a separate chat with the prompt in `docs/operations/security-checks.md` (read-only; it writes a dated report).
 
 <!-- BEGIN:nextjs-agent-rules -->
 
