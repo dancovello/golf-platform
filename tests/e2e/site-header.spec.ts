@@ -81,6 +81,79 @@ test.describe('mobile header', () => {
   })
 })
 
+// A menu too long for the screen gets the menu button instead (src/site/components/headerFit.ts).
+// Clubs seeded in tests/e2e/seed-world.ts: header-<style> have nine items, header-six six short.
+test.describe('menu that does not fit', () => {
+  test.use({ viewport: { width: 1366, height: 900 } })
+
+  const noSidewaysScroll = async (page: import('@playwright/test').Page) => {
+    const { scrollWidth, clientWidth } = await page.evaluate(() => ({
+      scrollWidth: document.documentElement.scrollWidth,
+      clientWidth: document.documentElement.clientWidth,
+    }))
+    expect(scrollWidth, 'the page scrolls sideways').toBe(clientWidth)
+  }
+
+  for (const style of ['classic', 'transparent', 'appbar']) {
+    test(`header style ${style}: nine items switch to the menu button`, async ({ page }) => {
+      await page.goto(`/preview/header-${style}/about`)
+      await page.evaluate(() => document.fonts.ready)
+      await expect(page.getByRole('navigation', { name: 'Main' })).toBeHidden()
+      const menuButton = page.getByRole('button', { name: 'Menu', exact: true })
+      await expect(menuButton).toBeVisible()
+      await noSidewaysScroll(page)
+
+      await menuButton.click()
+      const drawer = page.getByRole('dialog', { name: 'Menu' })
+      for (const label of ['Golf', 'Saltmarsh Links Resort', 'Contact us'])
+        await expect(drawer.getByRole('link', { name: label })).toBeVisible()
+    })
+  }
+
+  test('six short items stay a full menu', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await page.goto('/preview/header-six/about')
+    await page.evaluate(() => document.fonts.ready)
+    const nav = page.getByRole('navigation', { name: 'Main' })
+    for (const label of ['Golf', 'Contact'])
+      await expect(nav.getByRole('link', { name: label })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Menu', exact: true })).toBeHidden()
+    await noSidewaysScroll(page)
+  })
+
+  test('the check runs again when the window or the menu changes', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await page.goto('/preview/header-six/about')
+    const nav = page.getByRole('navigation', { name: 'Main' })
+    const menuButton = page.getByRole('button', { name: 'Menu', exact: true })
+    await expect(nav).toBeVisible()
+
+    await page.setViewportSize({ width: 900, height: 800 })
+    await expect(menuButton).toBeVisible()
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await expect(nav).toBeVisible()
+    await expect(menuButton).toBeHidden()
+
+    // A label grows (as when a web font arrives): the row no longer fits.
+    await nav
+      .getByRole('link', { name: 'Clubhouse' })
+      .evaluate((a) => (a.textContent = 'The Clubhouse, Restaurant and Function Rooms'))
+    await expect(menuButton).toBeVisible()
+    await expect(nav).toBeHidden()
+    await noSidewaysScroll(page)
+  })
+
+  test('decided before the page loads its scripts, so the full menu never flashes', async ({
+    page,
+  }) => {
+    // Block the app's scripts: only the small script after the header runs.
+    await page.route(/\/_next\/static\/.*\.js(\?|$)/, (route) => route.abort())
+    await page.goto('/preview/header-classic/about')
+    await expect(page.locator('header.sh')).toHaveAttribute('data-compact', 'true')
+    await expect(page.getByRole('button', { name: 'Menu', exact: true })).toBeVisible()
+  })
+})
+
 test.describe('narrow phone', () => {
   test.use({ viewport: { width: 360, height: 780 } })
 
