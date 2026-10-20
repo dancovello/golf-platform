@@ -36,6 +36,7 @@ Production was last released on 2026-10-11. From now on releases to production h
 - **The devops friend's scope.** What he owns (infrastructure, monitoring, restore drills, periodic security review) versus what stays automated. Dan is checking with him (2026-10-20), starting with the first restore drill.
 - **Security audit budget.** A paid penetration test before the first cohort of paying clubs.
 - **Booking providers.** Clubs use IntelligentGolf, BRS Golf, ClubV1/HowDidiDo and GolfGenius. Today every club gets a "Book a tee time" button that links to its own system. Decide whether any provider gets a proper embed.
+- **Contact form spam check beyond 8 clubs.** Cloudflare's free plan allows 10 addresses per Turnstile widget (found 2026-10-20). Staging and production use two, and each club's domain needs one (it covers `www` too), so one widget lasts for 8 clubs. Before the 8th club: per-club keys (a small code change: a widget per group of clubs, keys chosen by the club's address), or Cloudflare's paid plan.
 - **Weather in the course status band** (needs a provider, e.g. the free Open-Meteo) and a **styled map image** (Mapbox or Google, paid). Both are left out until decided.
 - **Dashboard next steps** from the 2026-10-20 review: a club home screen (quick actions, new enquiries, setup checklist), a preview for Club Settings (refresh on save, or drafts), a page-tree view, previews for News and Events.
 

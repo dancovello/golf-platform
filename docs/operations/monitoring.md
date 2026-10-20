@@ -15,7 +15,7 @@ Each report holds the error, where in the code it happened, and the page's addre
 
 Sentry is listed in Schedule 3 of the data processing agreement (version `2026-10-20-draft`, so clubs are asked to accept again) and in the privacy policy's "who we share it with".
 
-## Your checklist (about 15 minutes, no card needed)
+## Your checklist (about 10 minutes, no card needed)
 
 ### Sentry
 
@@ -26,15 +26,15 @@ Sentry is listed in Schedule 3 of the data processing agreement (version `2026-1
 5. In Vercel → golf-platform → Settings → Environment Variables, add **`SENTRY_DSN`** with that value for **Production** and **Staging**.
 6. It switches on with the next release, or a manual redeploy.
 
-### Uptime check
+### Uptime check: wait until the platform has its own domain
 
-Sentry's free plan includes one uptime monitor, which runs from Sentry's servers, not ours:
+**Don't set this up yet.** Production's `.vercel.app` address is behind Vercel's login, so an outside check would get "not allowed" and report the site as down all the time (checked 2026-10-20). Until the platform has its own domain, the release job checks `/health` after every release instead. Staging stays behind the login for good, so it's never checked from outside.
 
-1. Sentry → **Uptime** (under Insights, or Alerts → Create alert → Uptime monitor).
-2. URL: production's `/health` address (e.g. `https://<production address>/health`). Interval: every 5 minutes.
-3. Alert to your email.
+Once the platform's own domain is connected, set up Sentry's one free uptime monitor. It runs from Sentry's servers, not ours:
 
-Staging is behind the Vercel login, so it can't be checked from outside. Its release job already checks `/health` after every release.
+1. Sentry → **Monitors** → **Add Monitor** → **Uptime Monitor**.
+2. **URL:** production's `/health` on the platform's domain, e.g. `https://<platform domain>/health`. **Method:** GET. **Interval:** 5 minutes. Leave the other settings as they are (it counts as down after 3 failed checks in a row).
+3. **Add an alert for it.** Sentry doesn't email about uptime unless you create one: Alerts → **Create Alert** → **Uptime Monitor** → choose the monitor → action **Send a notification to** your email.
 
 **Why not Better Stack, as planned?** Its free tier says "free for personal projects". UptimeRobot's free plan was limited to non-commercial use in 2024, and it's unclear whether that changed. One check on production is enough while no club is live. **Before several clubs are live**, choose a paid uptime plan (roughly £5–£20 a month) that can check each club's home page.
 

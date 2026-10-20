@@ -278,6 +278,7 @@ Recorded afterwards from PRs #106, #108, #109 and #112–#116.
 - **Off unless `SENTRY_DSN` is set.** Reports carry no cookies, headers, form contents, query strings, accounts or IP addresses; email addresses are blanked; no tracing or breadcrumbs.
 - **EU data storage (Frankfurt)**, chosen when the Sentry organisation is created (available on the free plan). Added to Schedule 3 of the data processing agreement (version `2026-10-20-draft`, so clubs accept again) and to the privacy policy.
 - **Uptime: Sentry's one free uptime monitor on production `/health`**, instead of Better Stack, whose free tier is "for personal projects". A paid uptime plan that can check each club's home page is needed before several clubs are live.
+- **Correction (2026-10-20, after checking):** production's `.vercel.app` address is behind Vercel's login, so the uptime monitor waits until the platform has its own domain; until then the release job's `/health` check is the only one. Sentry doesn't email about uptime unless an alert is created for the monitor. Turnstile's free plan allows 10 addresses per widget, so each club's domain is added to the widget when it's connected (`docs/operations/connect-club-domain.md`, step 4); one widget lasts for 8 clubs (open question in doc 03).
 - Setup steps for Dan: `docs/operations/monitoring.md`.
 
 ## 2026-10-20: Club home screen (plan part E, first item)
