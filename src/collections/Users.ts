@@ -121,6 +121,7 @@ export const Users: CollectionConfig = {
   labels: { singular: 'Account', plural: 'Accounts' },
   lockDocuments: false,
   admin: {
+    group: 'Settings',
     useAsTitle: 'email',
     defaultColumns: ['email', 'updatedAt'],
     components: { beforeListTable: ['/admin/InviteEditorButton#InviteEditorButton'] },

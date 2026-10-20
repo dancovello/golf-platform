@@ -18,17 +18,19 @@ import { Users } from './Users'
 // one defines its own create, read, update and delete access functions, and
 // tests/unit/tenancy-guard.spec.ts that each is either club-owned or platform-level.
 export const collections: CollectionConfig[] = [
-  Users,
-  Tenants,
+  // In sidebar order: each collection's admin.group sets its heading, and the headings
+  // appear in the order their first collection does here.
   Pages,
-  ClubSettings,
-  Media,
-  Documents,
+  News,
+  Events,
+  CourseStatus,
   Staff,
   Courses,
-  CourseStatus,
-  News,
-  AgreementAcceptances,
-  Events,
+  Documents,
+  Media,
   Enquiries,
+  ClubSettings,
+  Users,
+  AgreementAcceptances,
+  Tenants,
 ]

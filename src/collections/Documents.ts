@@ -41,6 +41,7 @@ export const Documents: CollectionConfig = {
   labels: { singular: 'Document', plural: 'Documents' },
   lockDocuments: false,
   admin: {
+    group: 'Club information',
     useAsTitle: 'title',
     defaultColumns: ['title', 'category', 'lastReviewed', 'updatedAt'],
   },

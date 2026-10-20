@@ -16,6 +16,7 @@ export const Staff: CollectionConfig = {
   labels: { singular: 'Team member', plural: 'Team & staff' },
   lockDocuments: false,
   admin: {
+    group: 'Club information',
     useAsTitle: 'name',
     defaultColumns: ['name', 'role', 'department', 'updatedAt'],
     description: 'People shown by Team blocks. A missing photo shows their initials instead.',

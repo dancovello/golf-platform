@@ -28,7 +28,11 @@ export const Media: CollectionConfig = {
   labels: { singular: 'Photo or video', plural: 'Photos and videos' },
   lockDocuments: false,
   // Listed by file name: the description is optional, so it may be blank.
-  admin: { useAsTitle: 'filename', defaultColumns: ['filename', 'alt', 'updatedAt'] },
+  admin: {
+    group: 'Club information',
+    useAsTitle: 'filename',
+    defaultColumns: ['filename', 'alt', 'updatedAt'],
+  },
   access: { create: clubContentCreate, read: loggedIn, update: loggedIn, delete: loggedIn },
   hooks: {
     beforeOperation: [folder.assignFolder, randomServerUploadName],

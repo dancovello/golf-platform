@@ -15,6 +15,7 @@ export const Enquiries: CollectionConfig = {
   labels: { singular: 'Enquiry', plural: 'Enquiries' },
   lockDocuments: false,
   admin: {
+    group: 'Messages',
     useAsTitle: 'name',
     defaultColumns: ['name', 'purpose', 'status', 'reference', 'createdAt'],
     description:
