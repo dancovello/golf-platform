@@ -1183,7 +1183,7 @@ export interface ClubSetting {
      */
     dropdown: 'panel' | 'panelTile';
     /**
-     * Up to 6 items, left to right; drag to reorder. Each is a link, or opens a drop-down: either the child pages of one of your pages (kept up to date for you) or links you choose.
+     * Up to 10 items, left to right; drag to reorder. If they don’t all fit across a computer screen, visitors get the menu button instead, as on phones. Each is a link, or opens a drop-down: either the child pages of one of your pages (kept up to date for you) or links you choose.
      */
     menu?:
       | {

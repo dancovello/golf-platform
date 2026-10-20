@@ -197,6 +197,8 @@
   background: none;
   cursor: pointer;
   text-decoration: none;
+  /* One line always: a menu that doesn't fit switches to the menu button (headerFit.ts). */
+  white-space: nowrap;
 }
 .sh-nav-item:hover,
 .sh-nav-item.is-current {
@@ -473,9 +475,32 @@
   cursor: pointer;
 }
 
-/* Mobile header and drawer (below 1024px) */
+/* Mobile header and drawer: below 1024px, or wherever the full header doesn't fit across the
+   screen (data-compact, set by headerFit.ts). */
 .sh-mobile {
   display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-16);
+  height: 64px;
+  padding: 0 var(--space-20, 20px);
+}
+/* On narrow phones a long club name gives way (wraps, or the logo scales down), never the
+   buttons: nothing may push the page wider than the screen. */
+.sh-mobile .sh-logo-link {
+  min-width: 0;
+}
+.sh-mobile .sh-logo-img {
+  max-width: min(160px, 100%);
+}
+.sh-mobile .sh-wordmark {
+  min-width: 0;
+  white-space: normal;
+  text-align: center;
+}
+.sh-mobile .sh-wordmark-name {
+  text-wrap: balance;
+  overflow-wrap: anywhere;
 }
 @media (max-width: 1023px) {
   .sh-desktop {
@@ -483,32 +508,26 @@
   }
   .sh-mobile {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-16);
-    height: 64px;
-    padding: 0 var(--space-20, 20px);
-  }
-  /* On narrow phones a long club name gives way (wraps, or the logo scales down), never the
-     buttons: nothing may push the page wider than the screen. */
-  .sh-mobile .sh-logo-link {
-    min-width: 0;
-  }
-  .sh-mobile .sh-logo-img {
-    max-width: min(160px, 100%);
-  }
-  .sh-mobile .sh-wordmark {
-    min-width: 0;
-    white-space: normal;
-    text-align: center;
-  }
-  .sh-mobile .sh-wordmark-name {
-    text-wrap: balance;
-    overflow-wrap: anywhere;
   }
   .sh-transparent.is-over-hero {
     position: sticky;
   }
+}
+/* The full header stays laid out, invisibly and out of reach, so it can be measured again. */
+.sh[data-compact='true'] .sh-desktop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+}
+.sh[data-compact='true'] .sh-mobile {
+  display: flex;
+}
+.sh-transparent.is-over-hero[data-compact='true'] {
+  position: sticky;
 }
 .sh-mobile-actions {
   flex-shrink: 0;

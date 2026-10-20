@@ -232,11 +232,13 @@ export const ClubSettings: CollectionConfig = {
                   name: 'menu',
                   label: 'Menu',
                   type: 'array',
-                  maxRows: 6,
+                  // Ten fits clubs with big sites. A menu too long for the screen switches
+                  // to the menu button on its own (src/site/components/headerFit.ts).
+                  maxRows: 10,
                   labels: { singular: 'Menu item', plural: 'Menu items' },
                   admin: {
                     description:
-                      'Up to 6 items, left to right; drag to reorder. Each is a link, or opens a drop-down: either the child pages of one of your pages (kept up to date for you) or links you choose.',
+                      'Up to 10 items, left to right; drag to reorder. If they don’t all fit across a computer screen, visitors get the menu button instead, as on phones. Each is a link, or opens a drop-down: either the child pages of one of your pages (kept up to date for you) or links you choose.',
                     initCollapsed: true,
                     components: { RowLabel: '/admin/MenuRowLabel#MenuRowLabel' },
                   },

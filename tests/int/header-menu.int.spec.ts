@@ -68,6 +68,18 @@ describe('header and menu settings', () => {
     })
   })
 
+  it('takes up to 10 menu items, and refuses an 11th', async () => {
+    const items = (n: number) =>
+      Array.from({ length: n }, (_, i) => ({
+        label: `Item ${i + 1}`,
+        link: { type: 'page', page: w.pageA.id },
+      }))
+    await saveHeader({ menu: items(10) })
+    expect((await loadClubBySlug('test-club-a'))?.header.menu).toHaveLength(10)
+    const error = await saveHeader({ menu: items(11) }).catch((e: unknown) => e)
+    expect(errorPaths(error)).toContain('header.menu')
+  })
+
   it("refuses a menu link to club B's page, without saying whether it exists", async () => {
     const error = await saveHeader({
       menu: [{ label: 'Sneaky', link: { type: 'page', page: w.pageB.id } }],
