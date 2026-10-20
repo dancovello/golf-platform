@@ -71,6 +71,7 @@ describe('brand colour contract', () => {
       expect(theme.page).toEqual({
         text: tenant.brand.dark,
         muted: designed['text/secondary'],
+        faint: mix(tenant.brand.dark, 60, tenant.brand.light),
         eyebrow: designed['text/brand'],
       })
       expect(theme.brand.text).toBe(designed['action/on-solid'])
@@ -122,6 +123,7 @@ describe('brand colour contract', () => {
         reads(theme.page.muted, bg)
         reads(theme.page.eyebrow, bg)
       }
+      for (const bg of [brand.light, RAISED]) reads(theme.page.faint, bg)
       reads(theme.brand.text, brand.primary)
       reads(theme.brand.muted, brand.primary)
       reads(theme.brand.eyebrow, brand.primary)

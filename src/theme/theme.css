@@ -38,6 +38,7 @@
   /* Text on the page, cards and the light tint */
   --color-text-primary: var(--ink-page);
   --color-text-secondary: var(--ink-page-muted);
+  --color-text-faint: var(--ink-page-faint);
   --color-text-brand: var(--ink-page-eyebrow);
 
   /* Text on photos (re-pointed by .on-brand) */

@@ -32,6 +32,7 @@ Every fill, stroke and text colour binds to a `color/*` role in the Figma **Them
 | color/action/on-solid | auto: Light or Dark, whichever has higher contrast on Primary (Rule 4 fallback) |
 | color/text/primary | = Dark (Rule 4 fallback) |
 | color/text/secondary | color-mix(in srgb, Dark 68%, Light), else text/primary |
+| color/text/faint | color-mix(in srgb, Dark 60%, Light) — small counts beside headings, on Light and white only (not the tint); else text/secondary, else text/primary |
 | color/text/brand | color-mix(in srgb, Secondary 70%, Dark) — eyebrows on light; else text/primary |
 | color/text/on-inverse | On photos: the lighter of Light and Dark. On brand surfaces: = on-solid |
 | color/text/on-inverse-muted | on-inverse at 80% (on brand surfaces, only if it still passes) |
