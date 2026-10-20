@@ -5,7 +5,7 @@
  */
 import type { Page } from '@playwright/test'
 
-import { expect, test } from './fixtures'
+import { expect, openReady, test } from './fixtures'
 import type { World } from './world'
 
 test.describe("club A's editor", () => {
@@ -22,6 +22,14 @@ test.describe("club A's editor", () => {
     await page.goto('/admin/collections/pages')
     await expect(page.getByRole('link', { name: world.pageA.title })).toBeVisible()
     await expect(page.getByText(world.pageB.title)).toHaveCount(0)
+  })
+
+  test("the enquiries list shows only club A's messages", async ({ editorPage: page }) => {
+    await page.goto('/admin/collections/enquiries')
+    await expect(page.getByRole('link', { name: 'Ann Visitor' })).toBeVisible()
+    await expect(page.getByText('Ben Visitor')).toHaveCount(0)
+    // Messages only arrive from the website, so there's no "Create new".
+    await expect(page.getByRole('link', { name: /Create new/i })).toHaveCount(0)
   })
 
   test('the accounts list shows only club A editors', async ({ editorPage: page, world }) => {
@@ -136,6 +144,40 @@ test.describe('the super-admin (proves the checks above can see club B when allo
     await expect(page.getByRole('link', { name: world.clubB.name })).toBeVisible()
     await page.goto('/admin/collections/users')
     await expect(page.getByRole('link', { name: world.editorB.email })).toBeVisible()
+  })
+
+  // The club selector used to narrow the Clubs list to the chosen club, which made a newly
+  // built club (the demo club) look as if it had vanished.
+  test('sees every club even with one picked in the club selector', async ({
+    superAdminPage: page,
+    world,
+  }) => {
+    await page
+      .context()
+      .addCookies([{ name: 'payload-tenant', value: world.clubA.id, url: 'http://localhost:3100' }])
+    await page.goto('/admin/collections/tenants')
+    await expect(page.getByRole('link', { name: world.clubA.name })).toBeVisible()
+    await expect(page.getByRole('link', { name: world.clubB.name })).toBeVisible()
+  })
+
+  // Dan, 2026-10-17: with no club picked it wasn't clear which club new content was for.
+  test('can only add club content once a club is picked, and is told which club', async ({
+    superAdminPage: page,
+    world,
+  }) => {
+    await page.context().clearCookies({ name: 'payload-tenant' })
+    await openReady(page, '/admin/collections/news')
+    await expect(page.getByRole('link', { name: 'Create New' })).toHaveCount(0)
+    const refused = await page.request.post('/api/news', {
+      data: { title: 'No club picked', tenant: world.clubA.id },
+    })
+    expect(refused.status()).toBe(403)
+
+    await page
+      .context()
+      .addCookies([{ name: 'payload-tenant', value: world.clubA.id, url: 'http://localhost:3100' }])
+    await openReady(page, '/admin/collections/news/create')
+    await expect(page.getByText(`You’re adding this for ${world.clubA.name}.`)).toBeVisible()
   })
 })
 

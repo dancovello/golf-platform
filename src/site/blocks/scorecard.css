@@ -1,0 +1,204 @@
+/* Scorecard (Figma page "Hole-by-Hole + Scorecard", docs/design/09 and 13). */
+
+.sc .sc-note {
+  margin: var(--space-24) 0 0;
+  color: var(--color-text-secondary);
+}
+.sc .sc-tee {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  white-space: nowrap;
+}
+
+/* Scorecard Cell: height 44, numbers centred and tabular; totals on the subtle surface. */
+.sc-scroll {
+  overflow-x: auto;
+}
+.sc-scroll + .sc-scroll {
+  margin-top: var(--space-40);
+}
+.sc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.sc-table th,
+.sc-table td {
+  height: 44px;
+  padding: 0 var(--space-8);
+  border-bottom: 1px solid var(--color-border-subtle);
+  font-weight: 400;
+  text-align: center;
+}
+.sc-table thead th {
+  border-bottom-color: var(--color-border-strong);
+  color: var(--color-text-secondary);
+}
+.sc-table th[scope='row'],
+.sc-table thead th:first-child {
+  text-align: left;
+}
+.sc-table .is-total,
+.sc-table tr.is-total > * {
+  background: var(--color-surface-subtle);
+  font-weight: 500;
+}
+.sc-table abbr {
+  text-decoration: none;
+}
+
+/* A: classic. Label column 140, sticky when the card scrolls sideways. */
+.sc-classic th[scope='row'],
+.sc-classic thead th:first-child {
+  position: sticky;
+  left: 0;
+  width: 140px;
+  min-width: 140px;
+  background: var(--color-surface-canvas);
+}
+.sc-classic td,
+.sc-classic thead th:not(:first-child) {
+  min-width: 52px;
+}
+
+/* The figures band (A below the card; C above the strip). */
+.sc .sc-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-24) var(--space-64);
+  margin: var(--space-40) 0 0;
+  padding: var(--space-24) var(--space-32);
+  background: var(--color-surface-subtle);
+}
+.sc .sc-summary div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sc .sc-summary dt {
+  color: var(--color-text-secondary);
+}
+.sc .sc-summary dd {
+  margin: 0;
+}
+
+/* B: vertical. Two raised panels, gap 48. */
+.sc-nines {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-48);
+  align-items: start;
+}
+/* A 9-hole course: its one panel fills the width (Dan, 2026-10-17: no narrow card). */
+.sc-nines:has(> :only-child) {
+  grid-template-columns: minmax(0, 1fr);
+}
+.sc .sc-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  padding: var(--space-24);
+  background: var(--color-surface-raised);
+}
+.sc-vertical th[scope='row'] {
+  text-align: center;
+}
+.sc-vertical th[scope='row'] a {
+  color: inherit;
+  text-underline-offset: 3px;
+}
+.sc-vertical tfoot th[scope='row'] {
+  text-align: left;
+}
+
+/* C: tee selector. Picker beside the heading; figures; one strip of all holes. */
+.sc-teeSelector-block .blk-container {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: var(--space-24);
+}
+.sc-teeSelector-block .blk-container > * {
+  grid-column: 1 / -1;
+}
+.sc-teeSelector-block .blk-header {
+  grid-column: 1;
+}
+.sc .sc-tee-picker {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: end;
+  margin-bottom: var(--space-48);
+}
+.sc-teeSelector-block .sc-summary {
+  margin: 0 0 var(--space-40);
+  padding: var(--space-24) 0;
+  border-top: 1px solid var(--color-border-subtle);
+  border-bottom: 1px solid var(--color-border-subtle);
+  background: none;
+}
+.sc-teeSelector-block .sc-summary div {
+  flex: 1;
+}
+.sc-strip th[scope='row'],
+.sc-strip thead th:first-child {
+  position: sticky;
+  left: 0;
+  width: 112px;
+  min-width: 112px;
+  background: var(--color-surface-canvas);
+}
+.sc-strip td,
+.sc-strip thead th:not(:first-child) {
+  min-width: 44px;
+}
+
+@media (max-width: 1023px) {
+  .sc-nines {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .sc .blk-header .btn {
+    align-self: stretch;
+    justify-content: center;
+  }
+  .sc-scroll {
+    margin: 0 -20px;
+    padding: 0 20px;
+  }
+  .sc .sc-summary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-16);
+    padding: var(--space-24) 20px;
+  }
+  .sc-teeSelector-block .blk-container {
+    display: block;
+  }
+  .sc .sc-tee-picker {
+    display: flex;
+    gap: var(--space-8);
+    margin: 0 -20px var(--space-24);
+    padding: 0 20px;
+    border: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .sc .sc-tee-picker .tab {
+    flex: none;
+    white-space: nowrap;
+  }
+  .sc-teeSelector-block .sc-summary {
+    padding: var(--space-24) 0;
+  }
+  .sc .sc-panel {
+    margin: 0 -20px;
+    padding: var(--space-24) 20px;
+  }
+  .sc-vertical th,
+  .sc-vertical td {
+    padding: 0 var(--space-4);
+  }
+}

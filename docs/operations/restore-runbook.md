@@ -30,7 +30,36 @@
 4. **Drill:** delete the branch. **Real incident:** follow Neon's prompt to restore the snapshot to the production branch, or point the app at the restored branch. Agree which one with Dan first.
 
 ## 3. Restore from the nightly off-site copy (Cloudflare R2: survives problems with Neon itself)
-> **Completed with step 3.5**, once the nightly backup exists: where the files are, how to decrypt them with the key in the password manager, and the exact `pg_restore` command into a temporary Neon database.
+Backups are made nightly at 02:30 UTC, and before every release (named `…-pre-release`). They're kept for 30 days.
+
+> **Stated exception to golden rule 2:** the off-site copy is encrypted, so it must be decrypted somewhere to restore it. That's **the devops contact's own computer**, which must have full-disk encryption turned on, and only for the length of the drill. Delete every decrypted file at the end (step 6).
+
+**One-time setup on that computer:** `brew install age libpq`, then add the Postgres tools to the PATH with `echo 'export PATH="$(brew --prefix libpq)/bin:$PATH"' >> ~/.zshrc` and open a new Terminal.
+
+1. **Download the backup.** Cloudflare dashboard → **R2** → `golf-platform-backups` → `production/` → pick the file (e.g. `2026-11-02T0230Z-nightly.dump.age`) → **Download**. Also download its `.sha256` file.
+2. **Check it isn't damaged.** In Terminal, in the download folder:
+   ```bash
+   shasum -a 256 2026-11-02T0230Z-nightly.dump.age
+   ```
+   The result must match the contents of the `.sha256` file.
+3. **Get the unlock key.** Copy the whole "Golf backups: age private key" entry from the password manager into a file:
+   ```bash
+   pbpaste > golf-key.txt
+   ```
+4. **Decrypt:**
+   ```bash
+   age --decrypt -i golf-key.txt -o restore.dump 2026-11-02T0230Z-nightly.dump.age
+   ```
+5. **Load it into an empty, temporary database inside Neon.** Neon → `golf-production` → **Databases** → **New database** named `restore_check` (owner `neondb_owner`) → **Connect** → choose database `restore_check`, **untick Connection pooling**, copy the string, then run:
+   ```bash
+   pg_restore --no-owner --no-privileges --dbname "PASTE-CONNECTION-STRING" restore.dump
+   ```
+   Check the copy (section 4), using database `restore_check`.
+6. **Clean up, every time:**
+   ```bash
+   rm -f golf-key.txt restore.dump *.dump.age *.sha256
+   ```
+   Also delete the `restore_check` database in Neon (Databases → ⋯ → Delete), and empty the computer's Trash.
 
 ## 4. Checking a restored copy
 Do all of these against the **copy**, not production:

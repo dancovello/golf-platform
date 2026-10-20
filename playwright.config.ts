@@ -23,10 +23,33 @@ export default defineConfig({
     { name: 'setup', testMatch: /setup\.ts$/ },
     {
       name: 'chromium',
+      testIgnore: /tests\/visual\//,
       use: { ...devices['Desktop Chrome'] },
       dependencies: ['setup'],
     },
+    // The picture check (CI job "block-regression"): pnpm exec playwright test --project=visual
+    {
+      name: 'visual-setup',
+      testDir: './tests/visual',
+      testMatch: /setup-visual\.ts$/,
+      dependencies: ['setup'],
+    },
+    {
+      name: 'visual',
+      testDir: './tests/visual',
+      testMatch: /\.spec\.ts$/,
+      use: { ...devices['Desktop Chrome'], deviceScaleFactor: 1 },
+      dependencies: ['visual-setup'],
+    },
   ],
+  // Approved pictures, one set, made on Linux (see tests/visual/blocks.spec.ts).
+  snapshotPathTemplate: 'tests/visual/__screenshots__/{arg}{ext}',
+  // Never write approved pictures as a side effect (e.g. a missing one on a Mac): only the
+  // "Update block pictures" workflow makes them, with an explicit --update-snapshots.
+  updateSnapshots: 'none',
+  expect: {
+    toHaveScreenshot: { maxDiffPixelRatio: 0.002 },
+  },
   webServer: {
     command: `node_modules/.bin/next start -p ${port}`,
     url: `${baseURL}/health`,
@@ -34,6 +57,12 @@ export default defineConfig({
     timeout: 120_000,
     // When APP_DATABASE_URL is set (CI does), the website runs as the limited golf_app account,
     // proving it can do everything it needs without owner rights. Seeding still uses the owner.
-    env: process.env.APP_DATABASE_URL ? { DATABASE_URL: process.env.APP_DATABASE_URL } : undefined,
+    // SITE_PREVIEW turns on the staging-only club preview pages (src/site/preview.ts).
+    env: {
+      SITE_PREVIEW: 'on',
+      // Pins "today" for date-dependent blocks (src/site/today.ts), so pictures are stable.
+      SITE_FIXED_TODAY: '2026-07-15',
+      ...(process.env.APP_DATABASE_URL ? { DATABASE_URL: process.env.APP_DATABASE_URL } : {}),
+    },
   },
 })

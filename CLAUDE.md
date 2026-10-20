@@ -15,7 +15,7 @@ These decisions are already made. Build on them. Do not propose alternatives unl
 | App hosting | Vercel (Pro, because Hobby forbids commercial use) |
 | Media storage | Cloudflare R2. Never use local disk storage |
 | CDN / WAF / DNS | Cloudflare |
-| Email | Resend or Postmark. Not yet chosen |
+| Email | Resend (chosen 2026-10-16) |
 | Background jobs | Payload Jobs Queue |
 | Errors | Sentry |
 | Uptime | Better Stack or UptimeRobot (external, independent of the app) |
@@ -67,7 +67,7 @@ Node 24 and pnpm (via corepack: `corepack pnpm …` if `pnpm` isn't on PATH). Lo
 
 | Task | Command |
 |---|---|
-| Start local database | `docker compose up -d` (dev DB `golf_dev`, test DB `golf_test`, port 54329) |
+| Start local services | `docker compose up -d` (Postgres: dev DB `golf_dev`, test DB `golf_test`, port 54329; photo storage stand-in on port 8333) |
 | Dev server | `pnpm dev` (schema auto-sync is on here only) |
 | Typecheck | `pnpm typecheck` |
 | Lint + formatting | `pnpm lint` and `pnpm format:check` |
@@ -80,8 +80,19 @@ Node 24 and pnpm (via corepack: `corepack pnpm …` if `pnpm` isn't on PATH). Lo
 - Every collection must be listed in `src/collections/index.ts` and define create/read/update/delete access. `tests/unit/access-guard.spec.ts` enforces this.
 - Accounts are created only by trusted scripts that pass `allowAccountCreation` context (`src/access/accountCreation.ts`).
 - `pnpm format` must never touch `docs/`, `.claude/` or Markdown. `.prettierignore` covers this.
-- **Releases:** merging into `main` releases to staging; merging a release PR (`main` → `production`) releases to production. `.github/workflows/release.yml` runs: pre-release backup → dry run of the database changes on a structure-only copy → migrate (owner account, GitHub secrets only) → Vercel deploy → `/health` check. Vercel never changes the database (`scripts/vercel-build.sh` only builds), and `vercel.json` turns off Vercel's own automatic deploys of `main` and `production`.
+- **Releases:** merging into `main` releases to staging; merging a release PR (`main` → `production`) releases to production. `.github/workflows/release.yml` runs: pre-release backup → dry run of the database changes on a structure-only copy → migrate (owner account, GitHub secrets only) → Vercel deploy → `/health` check; a failure opens a GitHub issue. Vercel never changes the database (`scripts/vercel-build.sh` only builds), and `vercel.json` turns off Vercel's own automatic deploys of `main` and `production`.
 - **Database accounts:** the website uses the limited `golf_app` account (read/write data only). Only the release workflow uses the owner account.
 - **Backups:** `.github/workflows/backup.yml` runs nightly and before each release, encrypted with the public key in `ops/backup-recipient.txt`. Restore procedure: `docs/operations/restore-runbook.md`.
 - **Migrations:** never edit a merged migration; the `migration-guard` CI check blocks it. Data-deleting changes need Dan's `approved-destructive-migration` label.
 - Decisions made after doc 04 are in `docs/architecture/decisions.md`.
+- **Security checks:** run in a separate chat with the prompt in `docs/operations/security-checks.md` (read-only; it writes a dated report).
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

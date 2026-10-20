@@ -1,0 +1,205 @@
+/* Announcement bar (Figma page "Announcement Bar"). Above the header, not sticky. */
+
+.ab {
+  box-sizing: border-box;
+  position: relative;
+  z-index: 31;
+  padding: var(--space-8) var(--space-40);
+  font-family: var(--font-body);
+}
+.ab *,
+.ab *::before,
+.ab *::after {
+  box-sizing: border-box;
+}
+.ab.is-brand {
+  background: var(--color-surface-brand);
+  color: var(--color-text-on-inverse);
+}
+.ab.is-accent {
+  background: var(--color-action-accent);
+  color: var(--color-action-on-accent);
+}
+.ab.is-subtle {
+  border-bottom: 1px solid var(--color-border-subtle);
+  background: var(--color-surface-subtle);
+  color: var(--color-text-primary);
+}
+.ab-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-24);
+  max-width: var(--size-container);
+  min-height: 28px;
+  margin: 0 auto;
+}
+.ab-classic .ab-inner {
+  justify-content: center;
+}
+.ab-notice {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--space-16);
+  min-width: 0;
+}
+.ab-classic .ab-notice {
+  justify-content: center;
+}
+.ab-text {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-16);
+  min-width: 0;
+}
+.ab .ab-message {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+.ab .ab-message.is-expanded {
+  display: block;
+}
+.ab-links {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-16);
+  white-space: nowrap;
+}
+.ab-links a,
+.ab-links button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.ab .ab-tag {
+  flex: none;
+  padding: var(--space-4) var(--space-12);
+  border-radius: var(--radius-full);
+  background: var(--color-action-accent);
+  color: var(--color-action-on-accent);
+}
+.ab .ab-until {
+  padding: 2px var(--space-8);
+  border: 1px solid currentColor;
+  border-radius: var(--radius-full);
+  opacity: 0.8;
+}
+.ab-controls {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-16);
+}
+.ab-classic .ab-controls {
+  position: absolute;
+  right: var(--space-24);
+}
+.ab-pager {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  font-variant-numeric: tabular-nums;
+}
+.ab-pager button,
+.ab-dismiss {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+.ab :focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+.ab-utilities {
+  display: flex;
+  align-items: center;
+  gap: var(--space-24);
+}
+.ab-status,
+.ab-phone {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  color: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.ab-phone:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 1023px) {
+  .ab {
+    padding: var(--space-8) var(--space-24);
+  }
+  .ab .ab-message:not(.is-expanded) {
+    -webkit-line-clamp: 2;
+  }
+  .ab-text {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+  }
+  .ab-classic .ab-inner,
+  .ab-classic .ab-notice {
+    justify-content: flex-start;
+  }
+  .ab-classic .ab-controls {
+    position: static;
+  }
+}
+
+@media (max-width: 767px) {
+  .ab {
+    padding: var(--space-12) 20px;
+  }
+  .ab-inner {
+    align-items: flex-start;
+    gap: var(--space-12);
+  }
+  .ab-rotator .ab-notice {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-8);
+  }
+  /* C on phones: the utilities shrink to the status dot and a phone icon. */
+  .ab-utility-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .ab-utilities {
+    gap: var(--space-12);
+  }
+}
+
+/* Header B over a hero: with a bar above it, the header starts below the bar (still over the
+   hero; `top: auto` keeps it where the bar ends) and is pinned to the top once the page
+   scrolls. */
+.ab + .sh-transparent.is-over-hero {
+  position: absolute;
+  top: auto;
+}
+.ab + .sh-transparent.is-over-hero[data-scrolled='true'] {
+  position: fixed;
+  top: 0;
+}

@@ -1,0 +1,229 @@
+/* Timeline. Figma page "Timeline"; docs/design/11 and 13. Roles only. */
+.tl ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.tl .tl-title {
+  margin: var(--space-8) 0;
+}
+.tl .tl-text {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+.tl-year {
+  display: block;
+  color: var(--color-text-brand);
+}
+
+/* A · Alternating: centre spine, accent markers, copy and photo swap sides */
+.tl-spine {
+  position: relative;
+}
+.tl-spine::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  border-left: 1px solid var(--color-border-strong);
+}
+.tl-entry {
+  display: grid;
+  grid-template-columns: 1fr 48px 1fr;
+  align-items: center;
+  padding: var(--space-32) 0;
+}
+.tl-entry .tl-copy {
+  grid-column: 1;
+  text-align: right;
+}
+.tl-entry .tl-media {
+  grid-column: 3;
+}
+.tl-entry.is-right .tl-copy {
+  grid-column: 3;
+  grid-row: 1;
+  text-align: left;
+}
+.tl-entry.is-right .tl-media {
+  grid-column: 1;
+  grid-row: 1;
+}
+.tl-entry .tl-marker {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: center;
+}
+.tl-marker {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-action-accent);
+}
+.tl-entry .tl-copy,
+.tl-entry .tl-media {
+  max-width: 480px;
+}
+.tl-entry:not(.is-right) .tl-copy,
+.tl-entry.is-right .tl-media {
+  justify-self: end;
+}
+.tl-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+}
+
+/* B · Horizontal: header with pager on the right; 330px cards, 3.5 visible */
+.tl-h-layout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  column-gap: var(--space-24);
+}
+.tl-h-layout > .blk-header {
+  flex: 1 1 320px;
+}
+.tl-h-layout > .tl-track {
+  flex: 1 1 100%;
+}
+.tl-pager {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+  margin-bottom: var(--space-48);
+}
+.tl-pager button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--color-border-on-inverse);
+  border-radius: var(--radius-full);
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+.tl-pager button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.tl-track {
+  display: flex;
+  gap: var(--space-32);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.tl-track::-webkit-scrollbar {
+  display: none;
+}
+.tl-card {
+  flex: 0 0 330px;
+  padding-top: var(--space-24);
+  border-top: 1px solid var(--color-border-on-inverse-subtle);
+  scroll-snap-align: start;
+}
+.tl-card .tl-marker {
+  margin-bottom: var(--space-24);
+}
+.tl-horizontal .tl-year {
+  color: var(--color-text-on-inverse);
+  margin-bottom: var(--space-16);
+}
+.tl-horizontal .tl-text {
+  color: var(--color-text-on-inverse-muted);
+}
+
+/* C · Ledger: sticky 360 intro + ruled list, year | title and line */
+.tl-ledger-grid {
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap: var(--space-96);
+  align-items: start;
+}
+.tl-ledger-intro {
+  position: sticky;
+  /* Clear of the sticky site header. */
+  top: calc(var(--size-nav-clearance) + var(--space-32));
+}
+.tl .tl-intro {
+  margin-top: var(--space-16);
+}
+.tl-ledger-list {
+  border-top: 1px solid var(--color-border-strong);
+}
+.tl-ledger-list li {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: var(--space-24);
+  padding: var(--space-24) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.tl-ledger .tl-year {
+  font-variant-numeric: tabular-nums;
+}
+.tl-ledger .tl-title {
+  margin-top: 0;
+}
+
+@media (max-width: 1023px) {
+  .tl-ledger-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-40);
+  }
+  .tl-ledger-intro {
+    position: static;
+  }
+}
+@media (max-width: 767px) {
+  /* A: spine on the left edge, every entry text then photo */
+  .tl-spine::before {
+    left: 4px;
+  }
+  .tl-entry,
+  .tl-entry.is-right {
+    grid-template-columns: 32px minmax(0, 1fr);
+    row-gap: var(--space-16);
+    padding: var(--space-24) 0;
+  }
+  .tl-entry .tl-marker,
+  .tl-entry.is-right .tl-marker {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+    align-self: start;
+    margin-top: 0.8em;
+  }
+  .tl-entry .tl-copy,
+  .tl-entry.is-right .tl-copy {
+    grid-column: 2;
+    grid-row: 1;
+    text-align: left;
+    justify-self: start;
+  }
+  .tl-entry .tl-media,
+  .tl-entry.is-right .tl-media {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: stretch;
+    max-width: none;
+  }
+  .tl-pager {
+    margin-bottom: var(--space-32);
+  }
+  .tl-card {
+    flex-basis: 80vw;
+  }
+  .tl-ledger-list li {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+}

@@ -1,0 +1,678 @@
+/* Site header, mobile header and menu drawer. Figma: Booking platform page, "Header / A–C",
+   "Header / Mobile", "Menu Drawer", "Nav Dropdown", "Nav Item". Colours are roles only. */
+
+.sh {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--color-surface-canvas);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  transition:
+    background-color 200ms ease-out,
+    color 200ms ease-out,
+    box-shadow 200ms ease-out;
+}
+.sh *,
+.sh *::before,
+.sh *::after {
+  box-sizing: border-box;
+}
+.sh a,
+.sh button {
+  color: inherit;
+}
+.sh :focus-visible {
+  outline: 2px solid var(--color-action-accent);
+  outline-offset: 2px;
+}
+/* Hidden until a keyboard user tabs to it. Not moved off the top: on phones the
+   announcement bar above the header is taller than the old -100px, so it showed through. */
+.sh-skip {
+  position: absolute;
+  left: var(--space-16);
+  top: var(--space-8);
+  z-index: 60;
+  padding: var(--space-8) var(--space-16);
+  background: var(--color-surface-raised);
+}
+.sh-skip:not(:focus) {
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.sh-container {
+  max-width: var(--size-container);
+  margin: 0 auto;
+}
+.sh-main {
+  padding: var(--space-24) var(--space-40);
+}
+.sh-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-24);
+}
+/* Classic: logo on the left; menu, search and booking button grouped on the right. */
+.sh-cell-end {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-24);
+}
+.sh-logo-link {
+  display: inline-flex;
+  text-decoration: none;
+}
+
+/* Logo, or the club name as a wordmark */
+.sh-logo-img {
+  display: block;
+  max-height: 50px;
+  max-width: 220px;
+  width: auto;
+}
+.sh-logo-img.is-compact {
+  max-height: 36px;
+  max-width: 160px;
+}
+/* When neither uploaded logo reads on the background (src/site/components/Logo.tsx). */
+.sh-logo-img.is-recoloured-white {
+  filter: brightness(0) invert(1);
+}
+.sh-logo-img.is-recoloured-black {
+  filter: brightness(0);
+}
+/* Style B shows the photo logo over the hero and the page logo once the header is solid. */
+.sh:not([data-scrolled='true']) .sh-logo-solid,
+.sh[data-scrolled='true'] .sh-logo-over {
+  display: none;
+}
+.sh-wordmark {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  white-space: nowrap;
+}
+.sh-wordmark-name {
+  font-family: var(--font-display);
+  font-size: var(--type-heading-caps);
+  line-height: 1.1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.sh-wordmark-strapline {
+  font-size: 11px;
+  line-height: 1.33;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+.sh-wordmark.is-compact .sh-wordmark-name {
+  font-size: 22px;
+}
+.sh-wordmark.is-compact .sh-wordmark-strapline {
+  font-size: 8px;
+}
+
+/* A · Classic: utility row collapses on scroll down, main row gains a rule and shadow */
+.sh-utility {
+  background: var(--color-surface-subtle);
+  padding: 0 var(--space-40);
+  max-height: 36px;
+  overflow: hidden;
+  transition: max-height 200ms ease-out;
+}
+.sh-utility-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 36px;
+}
+.sh-utility-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  text-decoration: none;
+}
+.sh[data-hidden-utility='true'] .sh-utility {
+  max-height: 0;
+}
+.sh[data-scrolled='true'] {
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--brand-dark) 8%, transparent);
+}
+.sh-classic[data-scrolled='true'] .sh-main {
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+/* B · Transparent: over a hero until the page scrolls, at every width (the phone header too),
+   so its light logo and icons always have the photo behind them. */
+.sh-transparent.is-over-hero {
+  position: fixed;
+  left: 0;
+  right: 0;
+}
+.sh-transparent.is-over-hero:not([data-scrolled='true']) {
+  background: transparent;
+  color: var(--color-text-on-inverse);
+  border-bottom: 1px solid var(--color-border-on-inverse-subtle);
+}
+.sh-transparent.is-over-hero:not([data-scrolled='true']) .sh-wordmark-strapline {
+  color: var(--color-text-accent);
+}
+
+/* C · App bar: compact raised bar, always visible */
+.sh-appBar {
+  background: var(--color-surface-raised);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.sh-appBar .sh-main {
+  padding: var(--space-12) var(--space-40);
+}
+.sh-appbar-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-48);
+}
+
+/* Top-level menu */
+.sh-nav-list {
+  display: flex;
+  gap: var(--space-32);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.sh-nav-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-8) 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  cursor: pointer;
+  text-decoration: none;
+  /* One line always: a menu that doesn't fit switches to the menu button (headerFit.ts). */
+  white-space: nowrap;
+}
+.sh-nav-item:hover,
+.sh-nav-item.is-current {
+  border-bottom-color: var(--color-action-accent);
+}
+.sh-transparent.is-over-hero:not([data-scrolled='true']) .sh-nav-item.is-current {
+  border-bottom-color: var(--color-text-accent);
+}
+.sh-nav-item[aria-expanded='true'] svg {
+  transform: rotate(180deg);
+}
+
+/* Drop-down panel (Figma "Nav Dropdown / 1 · Panel" and "2 · Panel + section tile", spec 17).
+   One panel for every section: DesktopNav places it (--dd-*). It opens and closes in place, and
+   glides only when moving from one open section to the next. */
+.sh-dd {
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: var(--dd-width, auto);
+  height: var(--dd-height, auto);
+  transform: translate(var(--dd-left, 0), var(--dd-top, 100%));
+  overflow: hidden;
+  background: var(--color-surface-raised);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow:
+    0 2px 6px color-mix(in srgb, var(--brand-dark) 6%, transparent),
+    0 20px 48px color-mix(in srgb, var(--brand-dark) 12%, transparent);
+  opacity: 0;
+  transition:
+    opacity 180ms ease-in,
+    transform 280ms ease-out,
+    width 280ms ease-out,
+    height 280ms ease-out;
+}
+.sh-dd[hidden] {
+  display: none;
+}
+.sh-dd.is-open {
+  opacity: 1;
+  animation: sh-dd-open 240ms ease-out;
+  transition:
+    opacity 240ms ease-out,
+    transform 280ms ease-out,
+    width 280ms ease-out,
+    height 280ms ease-out;
+}
+.sh-dd.is-instant {
+  animation: none;
+  transition: none;
+}
+/* Opening from closed: appear under the item, no glide from the last position. */
+.sh-dd.is-open.is-placing {
+  transition: opacity 240ms ease-out;
+}
+@keyframes sh-dd-open {
+  from {
+    opacity: 0;
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 -64px 0);
+  }
+}
+/* Fixed widths per column count, so the panel can measure and morph to them. Borders count. */
+.sh-dd-section {
+  box-sizing: border-box;
+  width: 338px;
+  animation: sh-dd-content 200ms ease-out;
+}
+.sh-dd-section.cols-2 {
+  width: 618px;
+}
+.sh-dd-section.cols-3 {
+  width: 898px;
+}
+.sh-dd-section.has-tile {
+  display: flex;
+  width: 558px;
+  min-height: 168px;
+}
+.sh-dd-section.has-tile.cols-2 {
+  width: 818px;
+}
+.sh-dd-section.has-tile.cols-3 {
+  width: 1078px;
+}
+.sh-dd-section[hidden] {
+  display: none;
+}
+@keyframes sh-dd-content {
+  from {
+    opacity: 0;
+  }
+}
+.sh-dd-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-16);
+  padding: 20px var(--space-24) var(--space-16);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.sh-dd-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sh-dd-overview {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.sh-dd-overview:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--color-action-accent);
+  text-underline-offset: 4px;
+}
+/* Picture tile: the section page's hero photo, or the brand colour without one. */
+.sh-dd-tile {
+  position: relative;
+  isolation: isolate;
+  flex: 0 0 236px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 6px;
+  padding: 20px 22px;
+  background: var(--color-surface-brand);
+  color: var(--color-text-on-inverse);
+}
+.sh-dd-tile img {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.sh-dd-tile.has-image::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--brand-dark) 0%, transparent),
+    color-mix(in srgb, var(--brand-dark) 15%, transparent) 45%,
+    color-mix(in srgb, var(--brand-dark) 85%, transparent)
+  );
+}
+.sh-dd-tile .sh-dd-title {
+  flex: none;
+  white-space: normal;
+}
+.sh-dd-tile .sh-dd-overview {
+  color: var(--color-text-on-inverse-muted);
+}
+/* Child pages flow top to bottom into columns of up to 6. */
+.sh-dd-links {
+  margin: 0;
+  padding: 10px;
+  list-style: none;
+  column-gap: var(--space-4);
+}
+.has-tile .sh-dd-links {
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-12);
+}
+.cols-2 .sh-dd-links {
+  column-count: 2;
+}
+.cols-3 .sh-dd-links {
+  column-count: 3;
+}
+.sh-dd-links li {
+  break-inside: avoid;
+}
+.sh-dd-link {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-12);
+  padding: var(--space-12) 14px;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+}
+/* Long labels wrap to two lines, then end in "…". */
+.sh-dd-link span {
+  flex: 1;
+  min-width: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+.sh-dd-link svg {
+  flex: none;
+  margin-top: 3px;
+  opacity: 0;
+}
+.sh-dd-link:hover,
+.sh-dd-link:focus-visible {
+  background: var(--color-surface-subtle);
+}
+.sh-dd-link:hover svg,
+.sh-dd-link:focus-visible svg {
+  opacity: 1;
+}
+.sh-dd-link[aria-current='page'] {
+  color: var(--color-text-brand);
+}
+
+/* A drop-down of two or three pages: one column per page, headed by the page itself. */
+.sh-dd-cols {
+  display: grid;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
+  gap: var(--space-4);
+  padding: 10px;
+}
+.sh-dd-col {
+  min-width: 0;
+}
+.sh-dd-col-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  padding: var(--space-12) 14px var(--space-4);
+  color: var(--color-text-brand);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.sh-dd-col-head svg {
+  opacity: 0;
+}
+.sh-dd-col-head:hover,
+.sh-dd-col-head:focus-visible {
+  text-decoration: underline;
+}
+.sh-dd-col-head:hover svg,
+.sh-dd-col-head:focus-visible svg {
+  opacity: 1;
+}
+.sh-dd-col-links {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.sh-dd-more {
+  color: var(--color-text-brand);
+}
+
+/* Phone menu: a drop-down of several pages, one small heading per page. */
+.sh-drawer-column + .sh-drawer-column {
+  margin-top: var(--space-24);
+}
+.sh-drawer-column-head {
+  display: block;
+  color: var(--color-text-brand);
+  text-decoration: none;
+}
+
+/* Booking button (Button / Accent) */
+.sh-book {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-12);
+  min-height: 48px;
+  padding: var(--space-12) var(--space-24);
+  background: var(--color-action-accent);
+  color: var(--color-action-on-accent) !important;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: filter 150ms ease-out;
+}
+.sh-book-short {
+  display: none;
+}
+/* Small laptops: the classic header's menu, search and button share one row with the logo,
+   so tighten the spacing and shorten the button to "Book". */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .sh-classic .sh-main {
+    padding-inline: var(--space-24);
+  }
+  .sh-classic .sh-cell-end {
+    gap: var(--space-16);
+  }
+  .sh-classic .sh-nav-list {
+    gap: var(--space-12);
+  }
+  .sh-classic .sh-book-full,
+  .sh-classic .sh-book svg {
+    display: none;
+  }
+  .sh-classic .sh-book-short {
+    display: inline;
+  }
+}
+.sh-book:hover {
+  filter: brightness(0.95);
+}
+.sh-book.is-compact {
+  min-height: 39px;
+  padding: var(--space-8) var(--space-16);
+}
+.sh-book.is-block {
+  width: 100%;
+  justify-content: space-between;
+}
+.sh-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin: -10px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+/* Mobile header and drawer: below 1024px, or wherever the full header doesn't fit across the
+   screen (data-compact, set by headerFit.ts). */
+.sh-mobile {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-16);
+  height: 64px;
+  padding: 0 var(--space-20, 20px);
+}
+/* On narrow phones a long club name gives way (wraps, or the logo scales down), never the
+   buttons: nothing may push the page wider than the screen. */
+.sh-mobile .sh-logo-link {
+  min-width: 0;
+}
+.sh-mobile .sh-logo-img {
+  max-width: min(160px, 100%);
+}
+.sh-mobile .sh-wordmark {
+  min-width: 0;
+  white-space: normal;
+  text-align: center;
+}
+.sh-mobile .sh-wordmark-name {
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 1023px) {
+  .sh-desktop {
+    display: none;
+  }
+  .sh-mobile {
+    display: flex;
+  }
+}
+/* The full header stays laid out, invisibly and out of reach, so it can be measured again. */
+.sh[data-compact='true'] .sh-desktop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+}
+.sh[data-compact='true'] .sh-mobile {
+  display: flex;
+}
+.sh-mobile-actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+}
+.sh-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface-canvas);
+  color: var(--color-text-primary);
+}
+@media (min-width: 768px) {
+  .sh-drawer {
+    left: auto;
+    width: 400px;
+    box-shadow: -16px 0 48px color-mix(in srgb, var(--brand-dark) 20%, transparent);
+  }
+}
+.sh-drawer-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.sh-drawer-back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  border: 0;
+  background: none;
+  padding: var(--space-8) 0;
+  cursor: pointer;
+}
+.sh-drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-8) 20px var(--space-24);
+}
+.sh-drawer-sections,
+.sh-drawer-group {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.sh-drawer-section {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-16) 0;
+  border: 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+  background: none;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+.sh-drawer-sublink {
+  display: block;
+  padding: var(--space-12) 0;
+  text-decoration: none;
+}
+.sh-drawer-foot {
+  display: grid;
+  gap: var(--space-12);
+  padding: 20px;
+  background: var(--color-surface-subtle);
+}
+.sh-drawer-phone {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  text-decoration: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sh,
+  .sh-utility,
+  .sh-book {
+    transition: none;
+  }
+  /* Fade only. */
+  .sh-dd,
+  .sh-dd.is-open {
+    animation: none;
+    transition: opacity 180ms ease-out;
+  }
+  .sh-dd-section {
+    animation: none;
+  }
+}

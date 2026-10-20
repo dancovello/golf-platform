@@ -1,0 +1,668 @@
+/* Header search panel (Figma "Search/Dropdown", frames 2.1–2.5; phones 2.10–2.11). Roles only. */
+
+/* Read out but not shown (also in search.css, which only the results page loads). */
+.srch-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Phones: "Search the site" at the top of the menu drawer (looks like Search/Field, Compact). */
+.sh-drawer-search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  width: 100%;
+  min-height: 44px;
+  margin-bottom: var(--space-24);
+  padding: 0 var(--space-12);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+}
+
+/* The header's search button. */
+.sh-search {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  color: inherit;
+}
+/* In the phone header from tablet width up; narrower phones search from the menu, so long
+   club names keep their room (decisions.md, site search parts 2–4). */
+@media (max-width: 767px) {
+  .sh-search.is-tablet-only {
+    display: none;
+  }
+}
+.sh-cell-end,
+.sh-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+}
+.sh-cell-end {
+  gap: var(--space-24);
+}
+
+.sp-layer {
+  position: fixed;
+  inset: 0;
+  /* Under the header (50), so the header stays sharp above the dimmed page (Figma 2.1). */
+  z-index: 45;
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+}
+.sp-layer *,
+.sp-layer *::before,
+.sp-layer *::after {
+  box-sizing: border-box;
+}
+.sp-layer :focus-visible {
+  outline: 2px solid var(--color-action-accent);
+  outline-offset: 2px;
+}
+.sp-scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--color-overlay-scrim);
+  animation: sp-fade 200ms ease-in-out;
+}
+.sp-panel {
+  position: absolute;
+  top: var(--sp-top, 151px);
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  width: min(960px, calc(100vw - 2 * var(--space-40)));
+  max-height: calc(100dvh - var(--sp-top, 151px) - var(--space-24));
+  overflow: hidden;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+  box-shadow: 0 24px 64px rgb(17 24 20 / 16%);
+  transform: translateX(-50%);
+  animation: sp-drop 240ms ease-in-out;
+}
+@keyframes sp-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes sp-drop {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -8px);
+  }
+}
+
+/* ---------- Field ---------- */
+.sp-top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  padding: var(--space-32) var(--space-40) 0;
+}
+.sp-field {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--space-16);
+  min-height: 64px;
+  padding: var(--space-12) 0 var(--space-16);
+  border-bottom: 2px solid var(--color-text-primary);
+}
+.sp-field-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  color: var(--color-text-primary);
+}
+.sp-spinner {
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid var(--color-border-subtle);
+  border-top-color: var(--color-text-primary);
+  border-radius: 50%;
+  animation: sp-spin 700ms linear infinite;
+}
+@keyframes sp-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.sp-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-primary);
+  font-family: var(--font-display);
+  font-size: 28px;
+  line-height: 1.18;
+}
+.sp-input::placeholder {
+  color: var(--color-text-secondary);
+}
+.sp-input:focus {
+  outline: none;
+}
+.sp-input::-webkit-search-cancel-button {
+  display: none;
+}
+.sp-clear {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+.sp-key {
+  display: inline-block;
+  padding: 1px 6px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  color: var(--color-text-secondary);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.33;
+  letter-spacing: 0.04em;
+}
+.sp-cancel {
+  display: none;
+}
+
+/* ---------- Body ---------- */
+.sp-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-24) var(--space-40) var(--space-32);
+  overscroll-behavior: contain;
+}
+.sp-body > * + * {
+  margin-top: var(--space-24);
+}
+.sp-columns {
+  display: flex;
+  gap: var(--space-40);
+}
+.sp-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-24);
+  min-width: 0;
+}
+.sp-aside {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: var(--space-24);
+  width: 300px;
+  padding-left: var(--space-32);
+  border-left: 1px solid var(--color-border-subtle);
+}
+.sp-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.sp-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 24px;
+}
+.sp-group-header .sp-count {
+  margin-left: var(--space-4);
+  /* Lighter than secondary text and regular weight, so the count reads as a number, not part
+     of the heading. Scoped under the heading so it wins over .t-label-s. */
+  display: inline-flex;
+  gap: var(--space-4);
+  color: var(--color-text-faint);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+.sp-see-all {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  text-decoration: none;
+}
+.sp-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.sp-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  min-height: 54px;
+  padding: var(--space-8) var(--space-12);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.sp-option.is-active {
+  background: var(--color-surface-subtle);
+}
+.sp-option.is-active .sp-tile {
+  background: var(--color-surface-raised);
+}
+.sp-tile,
+.sp-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+}
+.sp-tile {
+  background: var(--color-surface-subtle);
+}
+.sp-icon {
+  width: 16px;
+  margin: 0 var(--space-8);
+  color: var(--color-text-secondary);
+}
+.sp-thumb {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+}
+.sp-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.sp-title,
+.sp-meta {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.sp-title {
+  font-size: 14px;
+  line-height: 1.43;
+}
+.sp-title .srch-hit {
+  font-weight: 500;
+}
+.sp-meta,
+.sp-kind {
+  color: var(--color-text-secondary);
+}
+.sp-kind {
+  flex: none;
+}
+/* The narrow column has no room for it, and its group heading already says it (Figma 2.2). */
+.sp-aside .sp-kind {
+  display: none;
+}
+.sp-remove {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  opacity: 0;
+}
+.sp-option:hover .sp-remove,
+.sp-option.is-active .sp-remove {
+  opacity: 1;
+}
+@media (hover: none) {
+  .sp-remove {
+    opacity: 1;
+  }
+}
+
+/* ---------- Nothing found, messages, loading ---------- */
+.sp-none {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+.sp-none-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 28px;
+  line-height: 1.18;
+}
+.sp-suggest,
+.sp-hint {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+.sp-suggest-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-text-primary);
+  font: inherit;
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: var(--color-action-accent);
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+.sp-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+.sp-skeleton-row {
+  display: flex;
+  gap: var(--space-12);
+  align-items: center;
+}
+.sp-skeleton-row span {
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-subtle);
+}
+.sp-skeleton-row span:first-child {
+  width: 32px;
+}
+.sp-skeleton-row span:last-child {
+  width: 50%;
+  height: 14px;
+}
+
+/* ---------- Footer ---------- */
+.sp-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-24);
+  padding: var(--space-16) var(--space-40);
+  background: var(--color-surface-subtle);
+}
+.sp-hints {
+  display: flex;
+  gap: var(--space-16);
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+.sp-hints > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.sp-see-everything {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+.sp-still-stuck {
+  color: var(--color-text-secondary);
+}
+.sp-still-stuck a {
+  color: inherit;
+}
+.sp-see-all-mobile {
+  display: none;
+}
+
+/* ---------- Phones: a full-screen sheet with Cancel (Figma 2.10–2.11) ---------- */
+@media (max-width: 767px) {
+  .sp-layer {
+    z-index: 80;
+  }
+  .sp-scrim {
+    display: none;
+  }
+  .sp-panel {
+    inset: 0;
+    top: 0;
+    left: 0;
+    width: 100%;
+    max-height: none;
+    border: 0;
+    border-radius: 0;
+    background: var(--color-surface-canvas);
+    box-shadow: none;
+    transform: none;
+    animation: sp-fade 200ms ease-in-out;
+  }
+  .sp-top {
+    padding: var(--space-12) var(--space-16);
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+  /* Figma "Search/Field", Compact. */
+  .sp-field {
+    gap: var(--space-8);
+    min-height: 44px;
+    padding: 0 var(--space-8) 0 var(--space-12);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-raised);
+  }
+  .sp-field-icon {
+    width: 16px;
+    height: 16px;
+  }
+  .sp-field-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+  .sp-input {
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.43;
+  }
+  .sp-clear-label {
+    display: none;
+  }
+  .sp-esc,
+  .sp-footer,
+  .sp-kind {
+    display: none;
+  }
+  .sp-cancel {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--color-text-primary);
+    cursor: pointer;
+  }
+  .sp-body {
+    padding: var(--space-24) var(--space-16) var(--space-32);
+  }
+  .sp-columns {
+    flex-direction: column;
+    gap: var(--space-24);
+  }
+  .sp-aside {
+    width: auto;
+    padding-left: 0;
+    border-left: 0;
+  }
+  .sp-see-all-mobile {
+    display: flex;
+    width: 100%;
+    margin-top: var(--space-32);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sp-scrim,
+  .sp-panel {
+    animation: sp-fade 200ms ease-in-out;
+  }
+  .sp-panel {
+    transform: translateX(-50%);
+  }
+  .sp-spinner {
+    animation-duration: 1.5s;
+  }
+}
+@media (prefers-reduced-motion: reduce) and (max-width: 767px) {
+  .sp-panel {
+    transform: none;
+  }
+}
+
+/* ---------- Search/Answer Card (panel and results page) ---------- */
+.sa-card {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 28px var(--space-32);
+  border-left: 3px solid var(--color-action-accent);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  box-shadow: 0 2px 4px rgb(17 24 20 / 6%);
+  color: var(--color-text-primary);
+}
+.sa-card.is-compact {
+  padding: var(--space-24);
+  box-shadow: none;
+  background: var(--color-surface-canvas);
+}
+.sa-top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+}
+.sa-avatar {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  overflow: hidden;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-subtle);
+  color: var(--color-text-brand);
+}
+.sa-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.sa-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+.sa-eyebrow,
+.sa-title,
+.sa-source {
+  margin: 0;
+}
+/* Brand text, not the accent: the accent is too faint on light backgrounds (axe, 2026-10-17). */
+.sa-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  color: var(--color-text-brand);
+}
+.sa-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.sa-dot.is-open {
+  background: var(--color-status-open);
+}
+.sa-dot.is-restricted {
+  background: var(--color-status-restricted);
+}
+.sa-dot.is-closed {
+  background: var(--color-status-closed);
+}
+.sa-title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.18;
+}
+.sa-source {
+  color: var(--color-text-secondary);
+}
+.sa-note {
+  margin: 0;
+  color: var(--color-text-primary);
+}
+.sa-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-16) var(--space-40);
+  margin: 0;
+}
+.sa-fact {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 2px;
+}
+.sa-fact dd {
+  margin: 0;
+  font-size: 30px;
+}
+.sa-fact dt {
+  color: var(--color-text-secondary);
+}
+.sa-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-8) 20px;
+}
+@media (max-width: 767px) {
+  .sa-card {
+    padding: var(--space-24) 23px;
+  }
+  .sa-title {
+    font-size: 24px;
+  }
+  .sa-fact dd {
+    font-size: 26px;
+  }
+  .sa-actions .btn-solid {
+    width: 100%;
+  }
+}

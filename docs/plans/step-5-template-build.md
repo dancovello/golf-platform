@@ -1,0 +1,53 @@
+# Step 5: the template, block by block
+
+Agreed with Dan on 12 Oct 2026: build continuously, one PR per section, merged to staging when
+CI is green. Dan reviews everything at the end (list below).
+
+**Status (2026-10-20): all sections built and on staging.** Later additions (site search, auto-contrast, palettes, menu and dashboard changes) are recorded in `docs/architecture/decisions.md`. Dan's end-of-build review of the list below is still to do.
+
+Every block is **one block with a Design style choice (A / B / C)** from the Figma file
+(`GXzYibwnWKKyTeUkwRn8Of`). Out of v1: member login, booking widget/pages, billing.
+
+## Order
+1. ✅ 5.1 Foundations: branding, font sets, logo, header + menu, footer, photo library (R2)
+2. ✅ 5.3a Hero block (three styles) and photo sizes
+3. ✅ 5.3b Picture check (block-regression CI job)
+4. ✅ Core blocks: CTA Card Grid · Two-Column Image + Text · Rich Text · Rate / Pricing Table ·
+   Gallery · Document List · Map / Location
+5. ✅ Golf and story blocks: Pull-Quote · Timeline · Partner / Logo Strip · FAQ · Team / Staff ·
+   Membership · Hole-by-Hole + Scorecard · Course Status
+6. ✅ Site-wide: Announcement Bar · Cookie Consent
+7. ✅ Templates (doc 14): News · Events · Contact
+
+## For Dan to review at the end
+- All header, footer and Hero styles on staging, in both colour themes
+- Font sets: Heritage, Editorial, Contemporary (swap any later)
+- Hero C uses the club's booking button instead of the tee-time search bar
+- Editorial font set: Fraunces headings look heavier than Cormorant at the same size
+- Price table C on phones: booking panel sits below the prices (spec wanted a fixed bottom bar)
+- Gallery C is an on-page viewer (Figma's C is the full-screen viewer that A and B open)
+- Map: drawn, colour-themed map by default; the interactive map is OpenStreetMap (free, loads on click). A real styled map image needs a provider (Mapbox or Google, paid): decide later
+- Map pin label is small on phones (the drawing scales down): polish later
+- Timeline A: the optional "fade in on scroll" effect is left out (steadier; can add)
+- FAQ answers are plain text inside the block (no links yet; spec suggested a shared FAQ collection with rich text)
+- Team: people live in a new "Team & staff" list (name, role, department, photo, bio, email, phone, one qualification tag). Departments are a fixed list (Golf, Course, Club & membership, Clubhouse, Committee); say if clubs need their own
+- Team: staff emails never appear whole in the page source (the "@" is added in the browser), to limit spam scraping
+- Membership: categories are typed into the block (like the price table), not a separate shared list. Doc 02 suggested a "Membership Tiers" collection; worth it only if the same categories appear on several pages
+- Membership C: the enquiry card links to the contact page for now. Figma's built-in form (qualifying question, email, "Request a call back") isn't built; email is now available (Resend), so it can be added if wanted
+- Hole by hole: courses (holes, tees, rating/slope) are a new "Courses" list. The first tee listed is the club's main tee (Figma mentions a "Default tee" setting; this does the same job). Hole cards open a details pop-up; there are no separate hole pages
+- Scorecard A on phones scrolls sideways with the row names fixed (as its Figma note says), rather than the separate phone layout drawn with a tee picker; style C does that job. Scorecard C on tablets scrolls sideways instead of splitting into two strips
+- Scorecard: "Download scorecard" uses a PDF uploaded to Documents (no PDF is generated automatically)
+- Course status: set in a new "Course status" record (one per club, created with the club); after 24 hours without a change the site says "not updated today" and asks visitors to call. Weather in the band (Figma B) is left out until a weather provider is chosen (e.g. the free Open-Meteo, no key) — **open decision**. The embeddable <course-status> widget for newsletters is not built
+- Announcement bar: set in Club Settings → Announcement (style, colour, up to 3 notices with start/end dates). Dismissing hides it for the visit. Header style B over a hero now starts below the bar
+- Header fix found along the way: on pages only just long enough to scroll, the header's top row could flicker; it now only comes back after a real scroll up
+- Cookie banner: decided (2026-10-15) and built in PR #68. Only clubs with a Google Analytics ID get one; see docs/architecture/decisions.md
+- News: the archive and article are fixed templates at /news and /news/<address>; the archive heading ("Club news") and intro are fixed text for now
+- Events: the archive at /events shows every upcoming event via "Show more"; Figma's quarter pager ("October – December" with arrows) is left out. Events have no pages of their own: Book / Enquire goes straight to the link set on the event (a booking site or one of the club's pages)
+- Page not found (404): each club's own, with its header, footer and up to three links (its booking button, then its menu) plus Home. The "Search the site" box was added with site search (2026-10-19). The headline "Lost in the heather" is from Figma and stays (Dan, 2026-10-16)
+- Contact: a fixed template at /contact. Messages are saved under a new "Enquiries" list in each club's admin (decided 2026-10-16) and emailed to the club through Resend once its key is set (see decisions.md). Club Settings → Contact page sets the introduction, reply time in working days, office hours, who replies to each topic (and a button after sending), membership types and the side note
+- Contact: the six topics are a fixed list; every topic is always on the form. Visitor golf and Events ask for a date and number of people; Membership asks for a membership type. Link straight to a topic with /contact?about=membership
+- Contact: the newsletter tick box only appears for clubs with a newsletter service set (Privacy & legal), since nothing can send a newsletter yet
+- Contact: spam protection is a hidden box only bots fill in, a check that the form wasn't sent within 3 seconds of loading, and at most 20 messages per club per hour (so a flood can use up the hour, after which visitors are asked to phone or email). No IP addresses are kept. **Needs a security review** before real clubs go live, as the site's first public form
+- Contact: the "reply by" date skips weekends but not bank holidays. Old messages aren't deleted automatically yet (the privacy policy says 12 months); a clean-up job is a follow-up
+- Contact: two colour changes from Figma for readability (4.5:1 contrast): the "Contact" and "Reception" labels use the brand text colour instead of the light gold, and error messages use a darker red than the error border
+- Open decisions: none left from step 5. Email is Resend (2026-10-16); site search was built on 2026-10-19 from the Figma "Search (v2)" designs

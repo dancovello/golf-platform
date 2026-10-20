@@ -1,0 +1,28 @@
+.pv {
+  background: var(--color-surface-canvas);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  /* Edge-to-edge carousels measure the window including any scrollbar; never let that
+     add a sideways scroll to the page. (clip, not hidden: sticky elements keep working.) */
+  overflow-x: clip;
+}
+.pv-section {
+  max-width: var(--size-container);
+  margin: 0 auto;
+  padding: var(--space-96) var(--space-40);
+}
+.pv-muted {
+  color: var(--color-text-secondary);
+}
+/* Same side margins and top spacing as the blocks (blocks.css), so a title lines up. */
+@media (max-width: 1023px) {
+  .pv-section {
+    padding: var(--space-64) var(--space-32);
+  }
+}
+@media (max-width: 767px) {
+  .pv-section {
+    padding: 56px 20px;
+  }
+}

@@ -1,0 +1,190 @@
+/* Site footer. Figma: Booking platform page, "Footer / A–C". Colours are roles only. */
+.sf {
+  font-family: var(--font-body);
+  background: var(--color-surface-canvas);
+  color: var(--color-text-primary);
+  padding: var(--space-64) var(--space-40) var(--space-32);
+  border-top: 1px solid var(--color-border-subtle);
+}
+.sf *,
+.sf *::before,
+.sf *::after {
+  box-sizing: border-box;
+}
+.sf.is-dark {
+  background: var(--color-surface-brand);
+  color: var(--color-text-on-inverse);
+  padding-top: var(--space-80);
+  border-top: 0;
+}
+.sf a {
+  color: inherit;
+}
+.sf :focus-visible {
+  outline: 2px solid var(--color-action-accent);
+  outline-offset: 2px;
+}
+.sf-container {
+  max-width: var(--size-container);
+  margin: 0 auto;
+  display: grid;
+  gap: var(--space-48);
+}
+.sf-columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-48);
+}
+.sf-editorial .sf-columns {
+  gap: var(--space-64);
+}
+.sf-col {
+  display: grid;
+  align-content: start;
+  gap: var(--space-12);
+  min-width: 135px;
+}
+.sf-brand {
+  gap: var(--space-24);
+  max-width: 262px;
+}
+.sf-eyebrow {
+  color: var(--color-text-brand);
+}
+.sf.is-dark .sf-eyebrow {
+  color: var(--color-text-accent);
+}
+.sf-about {
+  color: var(--color-text-secondary);
+}
+.sf.is-dark .sf-about {
+  color: var(--color-text-on-inverse-muted);
+}
+.sf-logo {
+  text-decoration: none;
+  justify-self: start;
+  max-width: 100%;
+}
+/* A long club name wraps inside the brand column instead of running into the next one. */
+.sf-logo .sh-wordmark {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+.sf-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--space-12);
+}
+.sf-link {
+  text-decoration: none;
+}
+.sf-link:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--color-action-accent);
+  text-underline-offset: 4px;
+}
+.sf-hours {
+  min-width: 240px;
+  gap: var(--space-8);
+}
+.sf-hours-list {
+  margin: 0;
+  display: grid;
+  gap: var(--space-8);
+}
+.sf-hours-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-24);
+}
+.sf-hours-row dd {
+  margin: 0;
+}
+.sf-hours-link {
+  color: var(--color-text-brand);
+  text-decoration: none;
+}
+.sf.is-dark .sf-hours-link {
+  color: var(--color-text-accent);
+}
+.sf-contact-list {
+  font-style: normal;
+  display: grid;
+  gap: var(--space-12);
+}
+.sf-contact {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: var(--space-8);
+  text-decoration: none;
+  white-space: pre-line;
+}
+.sf-contact svg {
+  flex: none;
+  margin-top: 2px;
+}
+.sf-wordmark {
+  margin: 0;
+}
+.sf-cta {
+  margin-left: auto;
+  gap: var(--space-16);
+  justify-items: stretch;
+}
+.sf-secondary {
+  display: inline-flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-12);
+  padding: var(--space-8) 0;
+  border-bottom: 1px solid currentColor;
+  text-decoration: none;
+}
+.sf-legal {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-16);
+  padding-top: var(--space-24);
+  border-top: 1px solid var(--color-border-subtle);
+}
+.sf.is-dark .sf-legal {
+  border-top-color: var(--color-border-on-inverse-subtle);
+}
+.sf-legal p {
+  margin: 0;
+}
+.sf-legal-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-24);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+/* Shared booking button styles live in header.css (.sh-book); the footer reuses them. */
+.sf .sh-book {
+  min-height: 56px;
+}
+@media (max-width: 767px) {
+  .sf,
+  .sf.is-dark {
+    padding: var(--space-48) var(--space-24) var(--space-24);
+  }
+  .sf-columns {
+    flex-direction: column;
+    gap: var(--space-40);
+  }
+  .sf-cta {
+    margin-left: 0;
+  }
+  .sf-legal {
+    flex-direction: column;
+  }
+}
+.sf.is-dark .sh-wordmark-strapline {
+  color: var(--color-text-accent);
+}

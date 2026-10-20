@@ -1,5 +1,7 @@
 # Step 3 plan: backups, safe database changes and production
 
+**Status (2026-10-20):** production exists (first release 2026-10-11), and the release pipeline, pre-release backups and nightly encrypted off-site backups are running. **Still to do: the first restore drill (3.6)**, recorded in `docs/operations/restore-drills.md`, and the Neon Launch upgrade before any club data goes in.
+
 **Status:** approved by Dan on 2026-10-11 (answers at the end). The devops contact reviews the release pipeline (3.3) and owns the restore drill (3.6).
 **Goal:** before any real club data exists, the platform can **survive losing its database**, and **no database change can reach production untested**. Doc 04 §6 and §10 step 3: "proven with a real restore drill".
 

@@ -1,5 +1,7 @@
 allowBuilds:
   esbuild: true
+  # Image resizing (src/collections/Media.ts) downloads its prebuilt binary on install.
+  sharp: true
   unrs-resolver: true
 
 overrides:

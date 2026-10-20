@@ -1,0 +1,286 @@
+/*
+ * The club template's design foundations, from the Figma file (GXzYibwnWKKyTeUkwRn8Of).
+ *
+ * Colour: docs/design/08-brand-colour-contract.md. Each club supplies --brand-* and the two
+ * --color-action-on-* values (src/theme/colour.ts); every role below is derived from them.
+ * Blocks use the --color-* roles only, never --brand-* or a raw colour.
+ *
+ * Type: the Figma text styles. Each club's font set supplies --font-display and --font-body.
+ * Below 1024px the mobile sizes apply (docs/design/13-mobile-components-spec.md).
+ */
+
+/* On the element that carries the club's --brand-* values (not :root): a custom property's
+   var() references are resolved where it is declared.
+
+   Text colours come from --ink-* (src/theme/colour.ts), each already contrast-checked against
+   the background it sits on. "on-inverse" text means text on photos here; inside an .on-brand
+   surface it is re-pointed at the brand colour's text, and .on-image points it back at photos
+   (for a photo inside a brand band). */
+.club-theme {
+  /* Surfaces */
+  --color-surface-canvas: var(--brand-light);
+  --color-surface-raised: #ffffff;
+  --color-surface-subtle: color-mix(in srgb, var(--brand-secondary) 12%, var(--brand-light));
+  --color-surface-brand: var(--brand-primary);
+  --color-surface-glass: color-mix(in srgb, var(--brand-light) 10%, transparent);
+
+  /* Overlays: towards the darker of Light and Dark (--image-shade). --photo-shade is the least
+     shading a photo needs for its text to read (set per photo; see photoShade). */
+  --color-overlay-scrim: color-mix(in srgb, var(--image-shade) 55%, transparent);
+  --color-overlay-clear: color-mix(in srgb, var(--image-shade) 0%, transparent);
+  --color-overlay-lightbox: color-mix(in srgb, var(--image-shade) 95%, transparent);
+  --photo-shade: 0%;
+
+  /* Actions (on-accent and on-solid are set per club) */
+  --color-action-accent: var(--brand-accent);
+  --color-action-solid: var(--brand-primary);
+
+  /* Text on the page, cards and the light tint */
+  --color-text-primary: var(--ink-page);
+  --color-text-secondary: var(--ink-page-muted);
+  --color-text-faint: var(--ink-page-faint);
+  --color-text-brand: var(--ink-page-eyebrow);
+
+  /* Text on photos (re-pointed by .on-brand) */
+  --color-text-on-inverse: var(--ink-image);
+  --color-text-on-inverse-muted: color-mix(in srgb, var(--ink-image) 80%, transparent);
+  --color-text-accent: var(--ink-image-eyebrow);
+
+  /* Borders */
+  --color-border-subtle: color-mix(in srgb, var(--brand-dark) 12%, var(--brand-light));
+  --color-border-strong: var(--ink-page);
+  --color-border-on-inverse: color-mix(in srgb, var(--ink-image) 40%, transparent);
+  --color-border-on-inverse-subtle: color-mix(in srgb, var(--ink-image) 16%, transparent);
+
+  /* System colours: the same for every club, always shown with words */
+  --color-status-open: #5fbf84;
+  --color-status-restricted: #e3a845;
+  --color-status-closed: #d95c4f;
+  /* Darker closed red for small error text: #d95c4f is below 4.5:1 on white. */
+  --color-status-closed-text: #b23a2e;
+  --color-tee-white: #ffffff;
+  --color-tee-yellow: #f2c230;
+  --color-tee-red: #c8382e;
+  --color-tee-blue: #2e5aac;
+}
+
+/* A brand-colour surface: its text is checked against Primary. Sets its own text colour too, so
+   nothing inherits one meant for a photo behind it. */
+.club-theme .on-brand {
+  color: var(--color-text-on-inverse);
+  --color-text-on-inverse: var(--ink-brand);
+  --color-text-on-inverse-muted: var(--ink-brand-muted);
+  --color-text-accent: var(--ink-brand-eyebrow);
+  --color-border-on-inverse: color-mix(in srgb, var(--ink-brand) 40%, transparent);
+  --color-border-on-inverse-subtle: color-mix(in srgb, var(--ink-brand) 16%, transparent);
+}
+/* A photo (inside a brand surface or not): its text is checked against the shaded photo. The
+   element also carries the photo's --photo-shade (SiteMedia.shading), so the photo's shading
+   never drops below it. */
+.club-theme .on-image {
+  --color-overlay-scrim: color-mix(
+    in srgb,
+    var(--image-shade) max(55%, var(--photo-shade)),
+    transparent
+  );
+  --color-overlay-clear: color-mix(in srgb, var(--image-shade) var(--photo-shade), transparent);
+  --color-text-on-inverse: var(--ink-image);
+  --color-text-on-inverse-muted: color-mix(in srgb, var(--ink-image) 80%, transparent);
+  --color-text-accent: var(--ink-image-eyebrow);
+  --color-border-on-inverse: color-mix(in srgb, var(--ink-image) 40%, transparent);
+  --color-border-on-inverse-subtle: color-mix(in srgb, var(--ink-image) 16%, transparent);
+}
+
+:root {
+  /* Layout (Figma "Layout" collection) */
+  --space-4: 4px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-40: 40px;
+  --space-48: 48px;
+  --space-64: 64px;
+  --space-80: 80px;
+  --space-96: 96px;
+  --space-128: 128px;
+  --space-160: 160px;
+  --radius-none: 0;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --radius-full: 999px;
+  --size-container: 1200px;
+  --size-control: 48px;
+  --size-control-lg: 88px;
+  --size-nav-clearance: 120px;
+  --size-hero-height: 880px;
+
+  /* Type sizes (desktop) */
+  --type-display-xl: 96px;
+  --type-display-l: 76px;
+  --type-display-caps: 68px;
+  --type-heading-l: 52px;
+  --type-heading-m: 28px;
+  --type-heading-caps: 30px;
+  --type-quote-l: 44px;
+  --type-quote-m: 32px;
+  --type-data-serif: 30px;
+  --type-body-l: 18px;
+}
+
+@media (max-width: 1023px) {
+  :root {
+    --size-nav-clearance: 80px;
+    --type-display-xl: 50px;
+    --type-display-l: 44px;
+    --type-display-caps: 36px;
+    --type-heading-l: 36px;
+    --type-heading-m: 24px;
+    --type-heading-caps: 22px;
+    --type-quote-l: 30px;
+    --type-quote-m: 26px;
+    --type-data-serif: 26px;
+    --type-body-l: 17px;
+  }
+}
+
+/* Text styles (Figma names) */
+.t-display-xl,
+.t-display-l,
+.t-display-caps,
+.t-heading-l,
+.t-heading-m,
+.t-heading-caps,
+.t-quote-l,
+.t-quote-m,
+.t-data-serif,
+.t-caption {
+  font-family: var(--font-display);
+  margin: 0;
+}
+.t-display-xl {
+  font-size: var(--type-display-xl);
+  font-weight: 300;
+  line-height: 1.04;
+  letter-spacing: -0.015em;
+}
+.t-display-l {
+  font-size: var(--type-display-l);
+  font-weight: 300;
+  line-height: 1.04;
+  letter-spacing: -0.01em;
+}
+.t-display-caps {
+  font-size: var(--type-display-caps);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.t-heading-l {
+  font-size: var(--type-heading-l);
+  font-weight: 300;
+  line-height: 1.08;
+  letter-spacing: -0.005em;
+}
+.t-heading-m {
+  font-size: var(--type-heading-m);
+  font-weight: 400;
+  line-height: 1.18;
+}
+.t-heading-caps {
+  font-size: var(--type-heading-caps);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.t-quote-l,
+.t-quote-m,
+.t-caption {
+  font-style: italic;
+  font-weight: 300;
+}
+.t-quote-l {
+  font-size: var(--type-quote-l);
+  line-height: 1.2;
+  letter-spacing: -0.005em;
+}
+.t-quote-m {
+  font-size: var(--type-quote-m);
+  line-height: 1.25;
+  letter-spacing: -0.005em;
+}
+.t-caption {
+  font-size: 18px;
+  line-height: 1.3;
+}
+.t-data-serif {
+  font-size: var(--type-data-serif);
+  font-weight: 400;
+  line-height: 1.14;
+}
+
+.t-eyebrow,
+.t-body-l,
+.t-body-m,
+.t-body-s,
+.t-label-button,
+.t-label-s,
+.t-data-label,
+.t-data-sans,
+.t-nav {
+  font-family: var(--font-body);
+  margin: 0;
+}
+.t-eyebrow {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.33;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.t-body-l {
+  font-size: var(--type-body-l);
+  line-height: 1.56;
+}
+.t-body-m {
+  font-size: 16px;
+  line-height: 1.5;
+}
+.t-body-s {
+  font-size: 14px;
+  line-height: 1.43;
+}
+.t-label-button {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.43;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.t-label-s {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.33;
+  letter-spacing: 0.04em;
+}
+.t-data-label {
+  font-size: 11px;
+  line-height: 1.33;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.t-data-sans {
+  font-size: 16px;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+.t-nav {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+}

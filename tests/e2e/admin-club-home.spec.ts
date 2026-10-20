@@ -1,0 +1,26 @@
+import { expect, openReady, test } from './fixtures'
+
+// The club home screen above the dashboard (plan part E). The editorPage fixture also fails
+// the test if anything of club B reaches club A's editor.
+
+test("club A's editor sees their own club's home screen", async ({ editorPage: page, world }) => {
+  await openReady(page, '/admin')
+  await expect(page.getByRole('heading', { level: 1, name: world.clubA.name })).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Everyday jobs' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Update the course status' })).toBeVisible()
+  await expect(page.getByRole('region', { name: /^Messages/ })).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Clubs' })).toHaveCount(0)
+  expect(await page.content()).not.toContain(world.clubB.name)
+})
+
+test("the super-admin sees every club's setup progress", async ({
+  superAdminPage: page,
+  world,
+}) => {
+  await openReady(page, '/admin')
+  const clubs = page.getByRole('region', { name: 'Clubs' })
+  await expect(clubs).toBeVisible()
+  await expect(clubs.getByRole('link', { name: world.clubA.name })).toBeVisible()
+  await expect(clubs.getByRole('link', { name: world.clubB.name })).toBeVisible()
+  await expect(clubs).toContainText('of 6 done')
+})

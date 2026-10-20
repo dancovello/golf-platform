@@ -1,0 +1,268 @@
+/* Gallery and photo viewer. Figma page "Gallery Grid + Lightbox"; docs/design/11 and 13. */
+
+/* A · Masonry: header with album filters on the right; 3 columns of natural-shape photos */
+.gl-masonry-block .blk-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  column-gap: var(--space-24);
+}
+.gl-masonry-block .blk-header {
+  flex: 1 1 320px;
+}
+.gl-masonry-block .gl-masonry,
+.gl-masonry-block .blk-container > :not(.blk-header):not(.gl-filters) {
+  flex: 1 1 100%;
+}
+.gl-filters {
+  display: flex;
+  gap: var(--space-24);
+  margin-bottom: var(--space-48);
+}
+.gl-filter {
+  padding: var(--space-8) 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+}
+.gl-filter.is-active {
+  border-bottom-color: var(--color-action-accent);
+  color: var(--color-text-primary);
+}
+.gl-masonry,
+.gl-grid {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.gl-masonry {
+  columns: 3;
+  column-gap: var(--space-24);
+}
+.gl-masonry li {
+  break-inside: avoid;
+  margin-bottom: var(--space-24);
+}
+.gl-item {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  overflow: hidden;
+  cursor: zoom-in;
+}
+.gl-item img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: transform 300ms ease-out;
+}
+.gl-expand {
+  position: absolute;
+  top: var(--space-12);
+  right: var(--space-12);
+  display: inline-flex;
+  padding: var(--space-8);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-glass);
+  backdrop-filter: blur(16px);
+  color: var(--color-text-on-inverse);
+  opacity: 0;
+  transition: opacity 200ms ease-out;
+}
+.gl-item:hover img,
+.gl-item:focus-visible img {
+  transform: scale(1.03);
+}
+.gl-item:hover .gl-expand,
+.gl-item:focus-visible .gl-expand {
+  opacity: 1;
+}
+
+/* B · Grid: 1:1, 4 columns, gap 16, "Load more" */
+.gl-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-16);
+}
+.gl-grid .gl-item img {
+  aspect-ratio: 1 / 1;
+  height: 100%;
+  object-fit: cover;
+}
+.gl-more {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-16);
+  margin-top: var(--space-40);
+}
+.gl-more p {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+/* The viewer: full-screen dialog (A, B) or on the page (C) */
+.vw {
+  display: grid;
+  gap: var(--space-24);
+  color: var(--color-text-on-inverse);
+}
+.vw.is-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  grid-template-rows: auto 1fr auto;
+  padding: var(--space-24) var(--space-40);
+  background: var(--color-overlay-lightbox);
+}
+.vw button {
+  color: inherit;
+}
+.vw :focus-visible {
+  outline: 2px solid var(--color-action-accent);
+  outline-offset: 2px;
+}
+.vw-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.vw-count {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.vw-close,
+.vw-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--color-border-on-inverse);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-glass);
+  cursor: pointer;
+}
+.vw-close {
+  border: 0;
+  background: none;
+}
+.vw-stage {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  align-items: center;
+  gap: var(--space-24);
+  min-height: 0;
+}
+.vw-figure {
+  grid-column: 2;
+  display: grid;
+  justify-items: center;
+  gap: var(--space-16);
+  margin: 0;
+  min-height: 0;
+}
+.vw-img {
+  display: block;
+  width: 100%;
+  max-width: 1000px;
+  height: auto;
+  max-height: 640px;
+  aspect-ratio: 25 / 16;
+  object-fit: contain;
+}
+.vw.is-dialog .vw-img {
+  max-height: calc(100vh - 260px);
+}
+.vw-caption {
+  color: var(--color-text-on-inverse-muted);
+  text-align: center;
+}
+.vw-thumbs {
+  display: flex;
+  justify-content: safe center;
+  gap: var(--space-8);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.vw-thumb {
+  flex: none;
+  width: 80px;
+  height: 56px;
+  padding: 0;
+  border: 0;
+  background: none;
+  opacity: 0.6;
+  cursor: pointer;
+}
+.vw-thumb[aria-current='true'] {
+  opacity: 1;
+  outline: 2px solid var(--color-action-accent);
+  outline-offset: 2px;
+}
+.vw-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (max-width: 1023px) {
+  .gl-masonry {
+    columns: 2;
+  }
+  .gl-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 767px) {
+  .gl-masonry {
+    columns: 2;
+    column-gap: var(--space-12);
+  }
+  .gl-masonry li {
+    margin-bottom: var(--space-12);
+  }
+  .gl-filters {
+    flex: 1 1 100%;
+    overflow-x: auto;
+    margin-bottom: var(--space-24);
+    scrollbar-width: none;
+  }
+  .gl-filter {
+    flex: none;
+  }
+  .gl-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-8);
+  }
+  /* Phones: swipe and the counter instead of arrows and thumbnails */
+  .vw.is-dialog {
+    padding: var(--space-16) 0;
+  }
+  .vw-stage {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .vw-figure {
+    grid-column: 1;
+  }
+  .vw-arrow,
+  .vw-thumbs {
+    display: none;
+  }
+  .vw-top {
+    padding: 0 20px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gl-item img,
+  .gl-expand {
+    transition: none;
+  }
+}

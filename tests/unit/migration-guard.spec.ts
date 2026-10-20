@@ -25,10 +25,18 @@ describe('destructive database changes are spotted', () => {
     ['TRUNCATE "pages";', 'TRUNCATE'],
     ["DELETE FROM pages WHERE slug = 'x';", 'DELETE FROM'],
     ['UPDATE "pages" SET "title" = upper("title");', 'UPDATE … SET'],
+    ['UPDATE "tenants" t SET "slug" = s.slug FROM s;', 'UPDATE … SET'],
+    ['UPDATE ONLY "public"."tenants" AS t SET "slug" = 1;', 'UPDATE … SET'],
     ['ALTER TABLE "pages" ALTER COLUMN "slug" SET DATA TYPE integer;', 'change column type'],
     ['ALTER TABLE "pages" RENAME COLUMN "slug" TO "path";', 'RENAME'],
   ])('%s', (sql, rule) => {
     expect(findDestructive(migration(sql)).map((f) => f.pattern)).toContain(rule)
+  })
+
+  it('does not mistake a foreign key rule for an update', () => {
+    const fk =
+      'ALTER TABLE "a" ADD CONSTRAINT "f" FOREIGN KEY ("b") REFERENCES "b"("id") ON DELETE set null ON UPDATE SET NULL;'
+    expect(findDestructive(migration(fk))).toEqual([])
   })
 
   it('only looks at the "apply" half, not the "undo" half', () => {
@@ -72,14 +80,22 @@ export async function up() { await db.execute(sql\`DROP TABLE "pages";\`) }`
     expect(findDestructive(migration(sql))).toEqual([])
   })
 
-  it('every migration merged so far only adds things', () => {
+  // Migrations Dan approved with the approved-destructive-migration label, and what they do.
+  const APPROVED: Record<string, string[]> = {
+    // PR #38: fills in each existing club's new short name from its name.
+    '20261011_201540_branding_and_club_short_name.ts': ['UPDATE … SET'],
+  }
+
+  it('every merged migration only adds things, apart from the ones Dan approved', () => {
     for (const file of readdirSync('src/migrations').filter((f) => /^\d{8}_.*\.ts$/.test(f))) {
       expect({
         file,
-        findings: findDestructive(readFileSync(`src/migrations/${file}`, 'utf8')),
+        findings: findDestructive(readFileSync(`src/migrations/${file}`, 'utf8')).map(
+          (f) => f.pattern,
+        ),
       }).toEqual({
         file,
-        findings: [],
+        findings: APPROVED[file] ?? [],
       })
     }
   })

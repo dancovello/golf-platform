@@ -1,0 +1,345 @@
+/* Rate / Pricing Table. Figma page "Rate / Pricing Table"; docs/design/10 and 13. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Tabs (underlined) and Segmented Control (pills) */
+.tabs {
+  display: flex;
+  gap: var(--space-24);
+  margin-bottom: var(--space-32);
+}
+.tabs .tab {
+  border: 0;
+  background: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+.tabs-tabs {
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.tabs-tabs .tab {
+  margin-bottom: -1px;
+  padding: var(--space-12) 0;
+  border-bottom: 2px solid transparent;
+}
+.tabs-tabs .tab.is-active {
+  border-bottom-color: var(--color-action-accent);
+  color: var(--color-text-primary);
+}
+.tabs-segments {
+  display: inline-flex;
+  gap: 0;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+}
+.tabs-segments .tab {
+  padding: var(--space-8) var(--space-20, 20px);
+  border-radius: var(--radius-full);
+  text-transform: none;
+  letter-spacing: 0.04em;
+  color: var(--color-text-primary);
+}
+.tabs-segments .tab.is-active {
+  background: var(--color-action-solid);
+  color: var(--color-action-on-solid);
+}
+.rate .blk-header {
+  margin-bottom: var(--space-32);
+}
+.rate-intro {
+  margin-top: var(--space-16);
+  max-width: 560px;
+}
+
+/* A · Classic: content max-width 960 */
+.rate-narrow {
+  max-width: 960px;
+}
+
+/* Tables (Rate Row): real table, tabular prices right-aligned, sticky label column on phones */
+.rate-scroll {
+  overflow-x: auto;
+}
+.rate-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.rate-table th,
+.rate-table td {
+  padding: var(--space-16) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+  text-align: left;
+  vertical-align: top;
+}
+.rate-table thead th {
+  padding: var(--space-12) 0;
+  border-bottom-color: var(--color-border-strong);
+  color: var(--color-text-secondary);
+  font-weight: 400;
+}
+.rate-table tbody th {
+  font-weight: 400;
+}
+.rate-table .rate-price {
+  width: 140px;
+  padding-left: var(--space-16);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.rate-matrix .rate-table .rate-price {
+  width: 112px;
+}
+.rate-sub {
+  display: block;
+  margin-top: var(--space-4);
+  color: var(--color-text-secondary);
+}
+.rate-stack {
+  display: none;
+}
+.rate-stack-row {
+  padding: var(--space-24) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.rate-stack .rate-stack-name {
+  margin: 0;
+}
+.rate-stack dl {
+  margin: var(--space-12) 0 0;
+}
+.rate-stack dl > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: var(--space-8) 0;
+}
+.rate-stack dt {
+  color: var(--color-text-secondary);
+}
+.rate-stack dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.rate-lists {
+  display: grid;
+  gap: var(--space-48);
+}
+
+.rate-footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-24);
+  margin-top: var(--space-32);
+}
+.rate-footer p {
+  margin: 0;
+}
+.rate-footnote {
+  max-width: 480px;
+  margin-bottom: var(--space-12) !important;
+  color: var(--color-text-secondary);
+}
+.rate-updated {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  color: var(--color-text-secondary);
+}
+.rate-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-status-open);
+}
+
+/* B · Seasons: header with segments on the right; 3 equal cards, current outlined + "Now" */
+.rate-seasons-layout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  column-gap: var(--space-24);
+}
+.rate-seasons-layout > .blk-header {
+  flex: 1 1 320px;
+  margin-bottom: var(--space-48);
+}
+.rate-seasons-layout > .tabs {
+  flex: none;
+  margin-bottom: var(--space-48);
+}
+.rate-seasons-layout > [role='tabpanel'],
+.rate-seasons-layout > .rate-footer,
+.rate-seasons-layout > .rate-season-cards {
+  flex: 1 1 100%;
+}
+.rate-season-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-24);
+}
+.rate-season {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-32);
+  background: var(--color-surface-raised);
+  border: 2px solid transparent;
+  border-radius: var(--radius-sm);
+}
+.rate-season.is-current {
+  border-color: var(--color-action-accent);
+}
+.rate-season-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-16);
+  margin-bottom: var(--space-24);
+}
+.rate-season-head h3 {
+  margin: 0;
+}
+.rate-now {
+  padding: var(--space-4) var(--space-12);
+  border-radius: var(--radius-full);
+  background: var(--color-action-accent);
+  color: var(--color-action-on-accent);
+  text-transform: uppercase;
+}
+.rate-season-list {
+  margin: 0;
+}
+.rate-season-row {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--space-12) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.rate-season-row dd {
+  margin: 0;
+}
+.rate-season .rate-note {
+  margin: var(--space-16) 0 0;
+  color: var(--color-text-secondary);
+}
+.rate-seasons-layout .rate-footer {
+  align-items: center;
+}
+
+/* C · Matrix: table + sticky booking panel on the brand colour */
+.rate-matrix-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: var(--space-64);
+  align-items: start;
+}
+.rate-aside {
+  position: sticky;
+  /* Clear of the sticky site header. */
+  top: calc(var(--size-nav-clearance) + var(--space-24));
+  padding: var(--space-40);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-brand);
+  color: var(--color-text-on-inverse);
+}
+.rate-aside .rate-aside-heading {
+  margin: 0 0 var(--space-24);
+}
+.rate-aside .rate-included {
+  display: grid;
+  gap: var(--space-12);
+  margin: 0 0 var(--space-32);
+  padding: 0;
+  list-style: none;
+  color: var(--color-text-on-inverse-muted);
+}
+.rate-included li {
+  position: relative;
+  padding-left: var(--space-24);
+}
+.rate-included li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.7em;
+  width: 12px;
+  border-top: 1px solid var(--color-text-accent);
+}
+.rate-aside-cta .btn {
+  width: 100%;
+  justify-content: space-between;
+}
+/* Its own line, centred under the button, with room to breathe. */
+.rate-phone {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-8);
+  margin-top: var(--space-24);
+  color: inherit;
+  text-decoration: none;
+}
+
+@media (max-width: 1023px) {
+  .rate-season-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .rate-matrix-grid {
+    grid-template-columns: 1fr;
+  }
+  .rate-aside {
+    position: static;
+  }
+}
+@media (max-width: 767px) {
+  .rate-seasons-layout > .tabs {
+    margin-bottom: var(--space-32);
+  }
+  .rate-seasons-layout > .blk-header {
+    margin-bottom: var(--space-24);
+  }
+  .rate-season-cards {
+    grid-template-columns: 1fr;
+  }
+  /* Phones: the current season first */
+  .rate-season {
+    order: var(--mobile-order);
+  }
+  .rate-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .rate-footer .btn {
+    width: 100%;
+  }
+  /* Rates stack: name, small print, then one line per price (the table is for screen
+     readers and larger screens) */
+  .rate-scroll {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .rate-stack {
+    display: block;
+    border-top: 1px solid var(--color-border-strong);
+  }
+  /* The booking panel shows just its button, below the prices */
+  .rate-aside {
+    padding: var(--space-24) 20px;
+  }
+  .rate-aside > :not(.rate-aside-cta) {
+    display: none;
+  }
+}

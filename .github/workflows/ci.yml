@@ -71,6 +71,12 @@ jobs:
       PAYLOAD_SECRET: ci-only-not-a-real-secret
       # Test-only two-factor encryption key (all zeros). Not a real secret.
       TOTP_ENCRYPTION_KEY: '0000000000000000000000000000000000000000000000000000000000000000'
+      # Local photo storage stand-in started below (docker/seaweedfs-s3.json). Not real secrets.
+      MEDIA_S3_ENDPOINT: http://127.0.0.1:8333
+      MEDIA_S3_BUCKET: golf-media-test
+      MEDIA_S3_ACCESS_KEY_ID: localdev
+      MEDIA_S3_SECRET_ACCESS_KEY: localdev-secret
+      MEDIA_PUBLIC_URL: http://127.0.0.1:8333/golf-media-test
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
@@ -79,6 +85,15 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # Stands in for Cloudflare R2, so tests never touch real storage. Pinned by digest.
+      - name: Start the photo storage stand-in
+        run: |
+          docker run -d --name media -p 127.0.0.1:8333:8333 \
+            -v "$PWD/docker/seaweedfs-s3.json:/etc/seaweedfs/s3.json:ro" \
+            chrislusf/seaweedfs@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d \
+            server -s3 -s3.config=/etc/seaweedfs/s3.json -dir=/data
+          for _ in $(seq 1 60); do curl -s -o /dev/null http://127.0.0.1:8333/ && exit 0; sleep 1; done
+          docker logs media; exit 1
       # Applies every committed migration to an empty database, then runs the tests.
       - run: pnpm test
 
@@ -90,6 +105,11 @@ jobs:
       DATABASE_URL: postgres://ci:ci@127.0.0.1:1/ci_build
       PAYLOAD_SECRET: ci-build-only-not-a-real-secret
       TOTP_ENCRYPTION_KEY: '0000000000000000000000000000000000000000000000000000000000000000'
+      MEDIA_S3_ENDPOINT: http://127.0.0.1:1
+      MEDIA_S3_BUCKET: ci-build
+      MEDIA_S3_ACCESS_KEY_ID: unused
+      MEDIA_S3_SECRET_ACCESS_KEY: unused
+      MEDIA_PUBLIC_URL: http://127.0.0.1:1/ci-build
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
@@ -169,6 +189,12 @@ jobs:
       PAYLOAD_SECRET: ci-only-not-a-real-secret
       # Test-only two-factor encryption key (all zeros). Not a real secret.
       TOTP_ENCRYPTION_KEY: '0000000000000000000000000000000000000000000000000000000000000000'
+      # Local photo storage stand-in started below (docker/seaweedfs-s3.json). Not real secrets.
+      MEDIA_S3_ENDPOINT: http://127.0.0.1:8333
+      MEDIA_S3_BUCKET: golf-media-test
+      MEDIA_S3_ACCESS_KEY_ID: localdev
+      MEDIA_S3_SECRET_ACCESS_KEY: localdev-secret
+      MEDIA_PUBLIC_URL: http://127.0.0.1:8333/golf-media-test
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
@@ -177,6 +203,15 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # Stands in for Cloudflare R2, so tests never touch real storage. Pinned by digest.
+      - name: Start the photo storage stand-in
+        run: |
+          docker run -d --name media -p 127.0.0.1:8333:8333 \
+            -v "$PWD/docker/seaweedfs-s3.json:/etc/seaweedfs/s3.json:ro" \
+            chrislusf/seaweedfs@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d \
+            server -s3 -s3.config=/etc/seaweedfs/s3.json -dir=/data
+          for _ in $(seq 1 60); do curl -s -o /dev/null http://127.0.0.1:8333/ && exit 0; sleep 1; done
+          docker logs media; exit 1
       - run: pnpm test:isolation
       # The website runs as the limited golf_app account (read/write data only). The migration
       # created it without a login; give it one for this throwaway CI database only.
@@ -185,7 +220,7 @@ jobs:
       # Admin screens, in a real browser, against a production build.
       - run: pnpm build
       - run: pnpm exec playwright install --with-deps chromium
-      - run: pnpm exec playwright test
+      - run: pnpm exec playwright test --project=chromium
         env:
           APP_DATABASE_URL: postgres://golf_app:ci-only-golf-app@localhost:5432/golf_test
       - name: Keep the browser test report if anything failed
@@ -217,16 +252,152 @@ jobs:
           BASE_REF: ${{ github.event.pull_request.base.ref || 'main' }}
         run: node scripts/check-migrations.ts "origin/${BASE_REF}"
 
+  # The release's dry run, before merging: main's database (built from main's own changes) is
+  # copied the way a release copies the real one, and this pull request's changes are applied
+  # to the copy. Catches a change that works on an empty database but would stop a release.
   migration-dry-run:
-    name: migration-dry-run (not built yet - step 3)
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 2
+    timeout-minutes: 15
+    services:
+      # Two separate database servers, like the real one and the release's throwaway copy:
+      # accounts made on the first (golf_app) don't exist on the second.
+      main-db:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: main_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      dry-run-db:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: dry_run
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      # Throwaway databases that exist only inside this CI run. Not real secrets.
+      MAIN_DB_URL: postgres://postgres:postgres@localhost:5432/main_db
+      DRY_RUN_URL: postgres://postgres:postgres@localhost:5433/dry_run
+      BASE_REF: ${{ github.event.pull_request.base.ref }}
+      PAYLOAD_SECRET: ci-only-not-a-real-secret
+      TOTP_ENCRYPTION_KEY: '0000000000000000000000000000000000000000000000000000000000000000'
+      # Migrations load the app's settings but never touch photo storage. Not real values.
+      MEDIA_S3_ENDPOINT: http://127.0.0.1:1
+      MEDIA_S3_BUCKET: unused
+      MEDIA_S3_ACCESS_KEY_ID: unused
+      MEDIA_S3_SECRET_ACCESS_KEY: unused
+      MEDIA_PUBLIC_URL: http://127.0.0.1:1/unused
     steps:
-      - run: echo "Migration dry-runs against a Neon branch arrive in build step 3. Nothing is checked here yet."
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - name: Install a Postgres client matching the databases
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-common > /dev/null
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y > /dev/null
+          sudo apt-get install -y -qq postgresql-client-18 > /dev/null
+          echo "PG_BIN=/usr/lib/postgresql/18/bin" >> "$GITHUB_ENV"
+      - name: Build main's database from main's own changes
+        env:
+          DATABASE_URL: ${{ env.MAIN_DB_URL }}
+        run: |
+          set -euo pipefail
+          git worktree add ../base "origin/${BASE_REF}"
+          cd ../base
+          pnpm install --frozen-lockfile
+          pnpm migrate
+      - name: Copy it the way a release does
+        run: scripts/copy-database-structure.sh "$MAIN_DB_URL" "$DRY_RUN_URL"
+      - run: pnpm install --frozen-lockfile
+      - name: Apply this pull request's database changes to the copy
+        env:
+          DATABASE_URL: ${{ env.DRY_RUN_URL }}
+        run: |
+          set -euo pipefail
+          pnpm migrate 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
 
+  # Doc 04 §7: the picture check. Every block page and the header/footer, in both Figma colour
+  # themes, desktop and mobile, compared with the approved pictures in tests/visual/__screenshots__.
+  # New approved pictures come from the "Update block pictures" workflow, never from a Mac.
   block-regression:
-    name: block-regression (not built yet - step 5)
     runs-on: ubuntu-latest
-    timeout-minutes: 2
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: golf_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      # Throwaway database that exists only inside this CI run. Not a real secret.
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/golf_test
+      PAYLOAD_SECRET: ci-only-not-a-real-secret
+      # Test-only two-factor encryption key (all zeros). Not a real secret.
+      TOTP_ENCRYPTION_KEY: '0000000000000000000000000000000000000000000000000000000000000000'
+      # Local photo storage stand-in started below (docker/seaweedfs-s3.json). Not real secrets.
+      MEDIA_S3_ENDPOINT: http://127.0.0.1:8333
+      MEDIA_S3_BUCKET: golf-media-test
+      MEDIA_S3_ACCESS_KEY_ID: localdev
+      MEDIA_S3_SECRET_ACCESS_KEY: localdev-secret
+      MEDIA_PUBLIC_URL: http://127.0.0.1:8333/golf-media-test
     steps:
-      - run: echo "Block-rendering regression checks arrive in build step 5. Nothing is checked here yet."
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Stands in for Cloudflare R2, so tests never touch real storage. Pinned by digest.
+      - name: Start the photo storage stand-in
+        run: |
+          docker run -d --name media -p 127.0.0.1:8333:8333 \
+            -v "$PWD/docker/seaweedfs-s3.json:/etc/seaweedfs/s3.json:ro" \
+            chrislusf/seaweedfs@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d \
+            server -s3 -s3.config=/etc/seaweedfs/s3.json -dir=/data
+          for _ in $(seq 1 60); do curl -s -o /dev/null http://127.0.0.1:8333/ && exit 0; sleep 1; done
+          docker logs media; exit 1
+      - run: pnpm migrate
+      - name: Let golf_app log in (CI database only)
+        run: psql "$DATABASE_URL" -c "ALTER ROLE golf_app WITH LOGIN PASSWORD 'ci-only-golf-app'"
+      - run: pnpm build
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm exec playwright test --project=visual
+        env:
+          APP_DATABASE_URL: postgres://golf_app:ci-only-golf-app@localhost:5432/golf_test
+      - name: Keep the before/after pictures if anything changed
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: block-regression-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14

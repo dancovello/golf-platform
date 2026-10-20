@@ -67,23 +67,43 @@ export interface Config {
   };
   blocks: {};
   collections: {
-    users: User;
-    tenants: Tenant;
     pages: Page;
+    news: News;
+    events: Event;
+    'course-status': CourseStatus;
+    staff: Staff;
+    courses: Course;
+    documents: Document;
+    media: Media;
+    enquiries: Enquiry;
     'club-settings': ClubSetting;
+    users: User;
+    'agreement-acceptances': AgreementAcceptance;
+    tenants: Tenant;
     'totp-attempts': TotpAttempt;
     'payload-kv': PayloadKv;
+    'payload-jobs': PayloadJob;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
   collectionsJoins: {};
   collectionsSelect: {
-    users: UsersSelect<false> | UsersSelect<true>;
-    tenants: TenantsSelect<false> | TenantsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
+    news: NewsSelect<false> | NewsSelect<true>;
+    events: EventsSelect<false> | EventsSelect<true>;
+    'course-status': CourseStatusSelect<false> | CourseStatusSelect<true>;
+    staff: StaffSelect<false> | StaffSelect<true>;
+    courses: CoursesSelect<false> | CoursesSelect<true>;
+    documents: DocumentsSelect<false> | DocumentsSelect<true>;
+    media: MediaSelect<false> | MediaSelect<true>;
+    enquiries: EnquiriesSelect<false> | EnquiriesSelect<true>;
     'club-settings': ClubSettingsSelect<false> | ClubSettingsSelect<true>;
+    users: UsersSelect<false> | UsersSelect<true>;
+    'agreement-acceptances': AgreementAcceptancesSelect<false> | AgreementAcceptancesSelect<true>;
+    tenants: TenantsSelect<false> | TenantsSelect<true>;
     'totp-attempts': TotpAttemptsSelect<false> | TotpAttemptsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
+    'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
   };
@@ -99,7 +119,13 @@ export interface Config {
   };
   user: User;
   jobs: {
-    tasks: unknown;
+    tasks: {
+      cleanUp: TaskCleanUp;
+      inline: {
+        input: unknown;
+        output: unknown;
+      };
+    };
     workflows: unknown;
   };
 }
@@ -120,6 +146,1561 @@ export interface UserAuthOperations {
     email: string;
     password: string;
   };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages".
+ */
+export interface Page {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  title: string;
+  /**
+   * The page address, e.g. "membership" for /membership. Use "home" for the home page. Left empty, it is made from the title when you publish.
+   */
+  slug: string;
+  /**
+   * Put this page under another one, e.g. "Green fees" under "Visitors". A menu item set to show its page’s child pages lists this page in its drop-down. The page address stays the same.
+   */
+  parent?: (string | null) | Page;
+  /**
+   * 1 comes first. Pages without a number follow, in A–Z order.
+   */
+  menuPosition?: number | null;
+  hideFromMenu?: boolean | null;
+  layout?:
+    | (
+        | HeroBlock
+        | CtaCardGridBlock
+        | TwoColumnBlock
+        | RichTextBlock
+        | RateTableBlock
+        | GalleryBlock
+        | DocumentListBlock
+        | MapBlock
+        | PullQuoteBlock
+        | TimelineBlock
+        | LogoStripBlock
+        | FaqBlock
+        | TeamBlock
+        | MembershipBlock
+        | HoleGridBlock
+        | ScorecardBlock
+        | CourseStatusBlock
+        | NewsFeedBlock
+        | EventsFeedBlock
+      )[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenants".
+ */
+export interface Tenant {
+  id: string;
+  name: string;
+  /**
+   * Lower-case letters, numbers and dashes, e.g. "royal-example". Filled in from the club name if left empty. Used in staging preview addresses.
+   */
+  slug?: string | null;
+  /**
+   * The first address is the main one, e.g. "www.yourclub.co.uk". Add others, such as "yourclub.co.uk", and they forward to the main one. Each address must also be added in Vercel (docs/operations/connect-club-domain.md).
+   */
+  domains?:
+    | {
+        hostname: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeroBlock".
+ */
+export interface HeroBlock {
+  style: 'heritage' | 'resort' | 'bookingLed';
+  mediaType?: ('image' | 'video') | null;
+  /**
+   * Landscape, at least 2400 pixels wide. With a video, this is shown while it loads and to visitors who prefer less motion.
+   */
+  image: string | Media;
+  /**
+   * MP4, 6–12 seconds, no sound needed (it plays muted).
+   */
+  video?: (string | null) | Media;
+  eyebrow?: string | null;
+  /**
+   * 5–8 words reads best. Two lines at most.
+   */
+  headline: string;
+  caption?: string | null;
+  /**
+   * Leave the text empty for no button.
+   */
+  primaryButton?: {
+    label?: string | null;
+    type?: ('page' | 'builtIn' | 'url') | null;
+    page?: (string | null) | Page;
+    builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+    /**
+     * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+     */
+    url?: string | null;
+  };
+  secondaryLink?: {
+    label?: string | null;
+    type?: ('page' | 'builtIn' | 'url') | null;
+    page?: (string | null) | Page;
+    builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+    /**
+     * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+     */
+    url?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'hero';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  /**
+   * What the photo shows, read aloud to people using screen readers, e.g. "The 7th green at sunset". Optional, but please add one for any photo that matters to the page.
+   */
+  alt?: string | null;
+  tone?: {
+    bright?: string | null;
+    average?: string | null;
+  };
+  prefix?: string | null;
+  _objectKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    w640?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    w1024?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    w1600?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    w2400?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    w3200?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CtaCardGridBlock".
+ */
+export interface CtaCardGridBlock {
+  style: 'editorial' | 'immersive' | 'index';
+  eyebrow?: string | null;
+  heading: string;
+  intro?: string | null;
+  viewAll?: {
+    label?: string | null;
+    type?: ('page' | 'builtIn' | 'url') | null;
+    page?: (string | null) | Page;
+    builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+    /**
+     * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+     */
+    url?: string | null;
+  };
+  /**
+   * 3 to 6 cards. Titles of 2–4 words read best.
+   */
+  cards?:
+    | {
+        title: string;
+        description?: string | null;
+        eyebrow?: string | null;
+        image: string | Media;
+        link?: {
+          type?: ('page' | 'builtIn' | 'url') | null;
+          page?: (string | null) | Page;
+          builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+          /**
+           * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+           */
+          url?: string | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'ctaCardGrid';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TwoColumnBlock".
+ */
+export interface TwoColumnBlock {
+  style: 'split' | 'collage' | 'keyFacts';
+  /**
+   * Alternate sides when two of these follow each other.
+   */
+  imageSide?: ('left' | 'right') | null;
+  tone?: ('canvas' | 'brand') | null;
+  image: string | Media;
+  insetImage?: (string | null) | Media;
+  eyebrow?: string | null;
+  heading: string;
+  /**
+   * 60–90 words reads best (40–70 with key facts). A blank line starts a new paragraph.
+   */
+  body: string;
+  /**
+   * e.g. Opened · 1926
+   */
+  facts?:
+    | {
+        label: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  link?: {
+    label?: string | null;
+    type?: ('page' | 'builtIn' | 'url') | null;
+    page?: (string | null) | Page;
+    builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+    /**
+     * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+     */
+    url?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'twoColumn';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "RichTextBlock".
+ */
+export interface RichTextBlock {
+  style: 'article' | 'contents' | 'editorial';
+  eyebrow?: string | null;
+  /**
+   * Headings, paragraphs, lists, quotes, links and photos. Style B lists every main heading (H2) in "On this page" once there are three or more. Style C shows the first paragraph larger.
+   */
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  noteTitle?: string | null;
+  noteText?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'richText';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "RateTableBlock".
+ */
+export interface RateTableBlock {
+  style: 'classic' | 'seasons' | 'matrix';
+  eyebrow?: string | null;
+  heading: string;
+  intro?: string | null;
+  /**
+   * e.g. "Mon–Thu" and "Fri–Sun & BH" (A), or Weekday AM / PM, Weekend AM / PM (C).
+   */
+  columns?:
+    | {
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Style A: one tab per season (e.g. "2026 season"). Styles B and C: one per audience (e.g. "Visitor", "Member’s guest", "Society"). One tab shows no tabs.
+   */
+  tabs?:
+    | {
+        label: string;
+        /**
+         * Style B: one per season. Styles A and C: usually one.
+         */
+        sections?:
+          | {
+              name?: string | null;
+              /**
+               * e.g. "1 June – 30 September"
+               */
+              period?: string | null;
+              startMonth?: ('1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12') | null;
+              endMonth?: ('1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12') | null;
+              rows?:
+                | {
+                    label: string;
+                    subLabel?: string | null;
+                    price1?: string | null;
+                    price2?: string | null;
+                    price3?: string | null;
+                    price4?: string | null;
+                    id?: string | null;
+                  }[]
+                | null;
+              note?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  footnote?: string | null;
+  /**
+   * Leave empty to use the club’s "Book a tee time" button.
+   */
+  button?: {
+    label?: string | null;
+    type?: ('page' | 'builtIn' | 'url') | null;
+    page?: (string | null) | Page;
+    builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+    /**
+     * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+     */
+    url?: string | null;
+  };
+  asideEyebrow?: string | null;
+  asideHeading?: string | null;
+  included?:
+    | {
+        item: string;
+        id?: string | null;
+      }[]
+    | null;
+  showPhone?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'rateTable';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GalleryBlock".
+ */
+export interface GalleryBlock {
+  style: 'masonry' | 'grid' | 'viewer';
+  eyebrow?: string | null;
+  heading: string;
+  images?:
+    | {
+        image: string | Media;
+        caption?: string | null;
+        /**
+         * e.g. "The course". Photos with the same album are filtered together.
+         */
+        album?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'gallery';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DocumentListBlock".
+ */
+export interface DocumentListBlock {
+  style: 'grouped' | 'cards' | 'table';
+  eyebrow?: string | null;
+  heading: string;
+  /**
+   * In the order you want them. Style A groups them by category.
+   */
+  documents: (string | Document)[];
+  viewAll?: {
+    label?: string | null;
+    type?: ('page' | 'builtIn' | 'url') | null;
+    page?: (string | null) | Page;
+    builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+    /**
+     * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+     */
+    url?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'documentList';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documents".
+ */
+export interface Document {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  title: string;
+  category: 'course' | 'policies' | 'forms' | 'minutes' | 'visitors' | 'other';
+  /**
+   * Required for policies. Shown on the site; flagged after 12 months.
+   */
+  lastReviewed?: string | null;
+  prefix?: string | null;
+  _objectKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MapBlock".
+ */
+export interface MapBlock {
+  style: 'split' | 'fullBleed' | 'gettingHere';
+  eyebrow?: string | null;
+  heading: string;
+  routes?:
+    | {
+        mode: 'car' | 'train' | 'air' | 'bus' | 'walk';
+        /**
+         * e.g. "5 min from M25"
+         */
+        distance?: string | null;
+        /**
+         * About 45 words.
+         */
+        directions: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'map';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PullQuoteBlock".
+ */
+export interface PullQuoteBlock {
+  style: 'centred' | 'overImage' | 'split';
+  /**
+   * Without quotation marks; they are added for you.
+   */
+  quote: string;
+  name: string;
+  /**
+   * e.g. "Member since 1985"
+   */
+  role?: string | null;
+  publication?: string | null;
+  year?: string | null;
+  image?: (string | null) | Media;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'pullQuote';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TimelineBlock".
+ */
+export interface TimelineBlock {
+  style: 'alternating' | 'horizontal' | 'ledger';
+  eyebrow?: string | null;
+  heading: string;
+  intro?: string | null;
+  entries?:
+    | {
+        year: string;
+        title: string;
+        /**
+         * About 30 words.
+         */
+        text: string;
+        image?: (string | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'timeline';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LogoStripBlock".
+ */
+export interface LogoStripBlock {
+  style: 'row' | 'grid' | 'marquee';
+  /**
+   * e.g. "Accredited & supported by"
+   */
+  eyebrow?: string | null;
+  heading?: string | null;
+  intro?: string | null;
+  /**
+   * Style A shows up to 6. PNG or WebP with a transparent background works best.
+   */
+  partners?:
+    | {
+        name: string;
+        url?: string | null;
+        logo?: (string | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'logoStrip';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FaqBlock".
+ */
+export interface FaqBlock {
+  style: 'centred' | 'withContact' | 'searchTopics';
+  eyebrow?: string | null;
+  heading: string;
+  /**
+   * Style A reads best with up to 10.
+   */
+  items?:
+    | {
+        question: string;
+        answer: string;
+        /**
+         * e.g. "Visitors". 2–4 topics work best.
+         */
+        topic?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  firstOpen?: boolean | null;
+  /**
+   * e.g. "Talk to the pro shop". Phone, email and hours come from Club Settings.
+   */
+  cardHeading?: string | null;
+  /**
+   * e.g. "Contact the pro shop" (A, C) or "Send a message" (B).
+   */
+  contactLink?: {
+    label?: string | null;
+    type?: ('page' | 'builtIn' | 'url') | null;
+    page?: (string | null) | Page;
+    builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+    /**
+     * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+     */
+    url?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'faq';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TeamBlock".
+ */
+export interface TeamBlock {
+  style: 'grid' | 'directory' | 'featured';
+  eyebrow?: string | null;
+  heading: string;
+  /**
+   * e.g. the Head Professional. Their bio and email are shown.
+   */
+  featured?: (string | null) | Staff;
+  /**
+   * In the order you want them. Style B groups them by department; style C lists up to 4 beside the featured person.
+   */
+  people?: (string | Staff)[] | null;
+  /**
+   * e.g. "General enquiries" (B) or "Book a lesson" (C).
+   */
+  action?: {
+    label?: string | null;
+    type?: ('page' | 'builtIn' | 'url') | null;
+    page?: (string | null) | Page;
+    builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+    /**
+     * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+     */
+    url?: string | null;
+  };
+  /**
+   * e.g. "All professionals".
+   */
+  viewAll?: {
+    label?: string | null;
+    type?: ('page' | 'builtIn' | 'url') | null;
+    page?: (string | null) | Page;
+    builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+    /**
+     * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+     */
+    url?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'team';
+}
+/**
+ * People shown by Team blocks. A missing photo shows their initials instead.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "staff".
+ */
+export interface Staff {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  name: string;
+  /**
+   * e.g. "Head Professional"
+   */
+  role: string;
+  department: 'golf' | 'course' | 'club' | 'clubhouse' | 'committee';
+  /**
+   * A short tag, e.g. "PGA Advanced" or "BIGGA".
+   */
+  qualification?: string | null;
+  /**
+   * Portrait, ideally 4:5 with the same background for everyone.
+   */
+  photo?: (string | null) | Media;
+  /**
+   * A few sentences. Leave a blank line between paragraphs.
+   */
+  bio?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MembershipBlock".
+ */
+export interface MembershipBlock {
+  style: 'cards' | 'compare' | 'enquire';
+  eyebrow?: string | null;
+  heading: string;
+  intro?: string | null;
+  /**
+   * In the order you want them. Style A reads best with three.
+   */
+  tiers?:
+    | {
+        name: string;
+        /**
+         * e.g. "£1,780". Leave empty to show "On application".
+         */
+        price?: string | null;
+        /**
+         * e.g. "per year".
+         */
+        period?: string | null;
+        /**
+         * Who it is for, in a sentence or two.
+         */
+        description?: string | null;
+        /**
+         * 3 to 6 short lines.
+         */
+        benefits?:
+          | {
+              text: string;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * One per table row, in the same order. Type "yes" for a tick; leave empty for not included.
+         */
+        values?:
+          | {
+              value?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * e.g. "Places available".
+         */
+        availability?: string | null;
+        recommended?: boolean | null;
+        link?: {
+          type?: ('page' | 'builtIn' | 'url') | null;
+          page?: (string | null) | Page;
+          builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+          /**
+           * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+           */
+          url?: string | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Defaults: "Apply for membership" (A), "Apply" (B), "Enquire" (C).
+   */
+  buttonLabel?: string | null;
+  /**
+   * e.g. "Playing days", "Locker".
+   */
+  features?:
+    | {
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * e.g. "Book a tour".
+   */
+  action?: {
+    label?: string | null;
+    type?: ('page' | 'builtIn' | 'url') | null;
+    page?: (string | null) | Page;
+    builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+    /**
+     * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+     */
+    url?: string | null;
+  };
+  card?: {
+    heading?: string | null;
+    text?: string | null;
+    link?: {
+      label?: string | null;
+      type?: ('page' | 'builtIn' | 'url') | null;
+      page?: (string | null) | Page;
+      builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+      /**
+       * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+       */
+      url?: string | null;
+    };
+    /**
+     * e.g. "The Membership Secretary replies within two days."
+     */
+    note?: string | null;
+  };
+  /**
+   * e.g. joining fees, which year the prices are for, VAT.
+   */
+  note?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'membership';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HoleGridBlock".
+ */
+export interface HoleGridBlock {
+  style: 'cards' | 'carousel' | 'guide';
+  eyebrow?: string | null;
+  heading: string;
+  /**
+   * Holes, tees and photos come from Courses.
+   */
+  course: string | Course;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'holeGrid';
+}
+/**
+ * Each course’s holes and tees, for the Hole-by-hole and Scorecard blocks.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "courses".
+ */
+export interface Course {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  /**
+   * e.g. "The Championship course"
+   */
+  name: string;
+  /**
+   * The first tee is the one shown when only one yardage fits.
+   */
+  tees?:
+    | {
+        colour: 'white' | 'yellow' | 'red' | 'blue';
+        rating?: number | null;
+        slope?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * In order, from hole 1. Fill in the yards for the tees you have.
+   */
+  holes?:
+    | {
+        name?: string | null;
+        par: number;
+        strokeIndex?: number | null;
+        yardsWhite?: number | null;
+        yardsYellow?: number | null;
+        yardsRed?: number | null;
+        yardsBlue?: number | null;
+        image?: (string | null) | Media;
+        /**
+         * One or two sentences.
+         */
+        tip?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ScorecardBlock".
+ */
+export interface ScorecardBlock {
+  style: 'classic' | 'vertical' | 'teeSelector';
+  eyebrow?: string | null;
+  heading: string;
+  /**
+   * Holes, tees, ratings and slopes come from Courses.
+   */
+  course: string | Course;
+  /**
+   * Shown as a "Download scorecard" button.
+   */
+  download?: (string | null) | Document;
+  /**
+   * Only if this page also has a Hole by hole block in style C.
+   */
+  linkToGuide?: boolean | null;
+  /**
+   * e.g. "Yardages measured from the back of each tee."
+   */
+  note?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'scorecard';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CourseStatusBlock".
+ */
+export interface CourseStatusBlock {
+  style: 'board' | 'band' | 'widget';
+  eyebrow?: string | null;
+  /**
+   * e.g. "Course status" (A).
+   */
+  heading?: string | null;
+  intro?: string | null;
+  /**
+   * The page with the full board. The band and "Full report" link to it.
+   */
+  statusPage?: {
+    type?: ('page' | 'builtIn' | 'url') | null;
+    page?: (string | null) | Page;
+    builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+    /**
+     * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+     */
+    url?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'courseStatus';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "NewsFeedBlock".
+ */
+export interface NewsFeedBlock {
+  style: 'carousel' | 'leadList' | 'headlines';
+  eyebrow?: string | null;
+  heading: string;
+  /**
+   * Leave empty for all news.
+   */
+  category?: ('course' | 'competitions' | 'clubhouse' | 'membership' | 'academy' | 'club') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'newsFeed';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EventsFeedBlock".
+ */
+export interface EventsFeedBlock {
+  style: 'carousel' | 'agenda' | 'featured';
+  eyebrow?: string | null;
+  heading: string;
+  intro?: string | null;
+  /**
+   * Leave empty for all events.
+   */
+  category?: ('social' | 'dining' | 'competition' | 'academy' | 'members') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'eventsFeed';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "news".
+ */
+export interface News {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  title: string;
+  status: 'draft' | 'published';
+  /**
+   * Shown on the article. A future date keeps it hidden until then.
+   */
+  publishedAt: string;
+  category: 'course' | 'competitions' | 'clubhouse' | 'membership' | 'academy' | 'club';
+  /**
+   * One or two sentences, shown on cards and under the title.
+   */
+  excerpt?: string | null;
+  image?: (string | null) | Media;
+  imageCaption?: string | null;
+  /**
+   * e.g. "Owen Pryce, Course Manager"
+   */
+  author?: string | null;
+  body?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Filled in from the title. e.g. "hollow-tining-week" for /news/hollow-tining-week.
+   */
+  slug?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events".
+ */
+export interface Event {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  title: string;
+  status: 'draft' | 'published';
+  /**
+   * UK time. The event leaves the website once it has started.
+   */
+  startsAt: string;
+  category: 'social' | 'dining' | 'competition' | 'academy' | 'members';
+  /**
+   * e.g. "Clubhouse" or "Championship course"
+   */
+  venue?: string | null;
+  /**
+   * e.g. "shotgun". Shown after the time.
+   */
+  timeNote?: string | null;
+  /**
+   * One or two sentences, shown when the event is featured.
+   */
+  summary?: string | null;
+  image?: (string | null) | Media;
+  /**
+   * e.g. "£45" or "£20 entry"
+   */
+  price?: string | null;
+  /**
+   * e.g. "£38"
+   */
+  memberPrice?: string | null;
+  booking: 'book' | 'enquire' | 'soldOut';
+  capacity?: number | null;
+  /**
+   * Shown as "14 of 60 places left" when the event is featured.
+   */
+  placesLeft?: number | null;
+  link?: {
+    type?: ('page' | 'builtIn' | 'url') | null;
+    page?: (string | null) | Page;
+    builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+    /**
+     * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+     */
+    url?: string | null;
+  };
+  featured?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Update whenever the course changes. If it isn’t updated for 24 hours the website says so and asks visitors to call.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "course-status".
+ */
+export interface CourseStatus {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  state: 'open' | 'restricted' | 'closed';
+  /**
+   * e.g. "All 36 holes in play. Temporary green on the 7th."
+   */
+  reason?: string | null;
+  /**
+   * e.g. Buggies: Restricted, "Paths only". Up to six.
+   */
+  facilities?:
+    | {
+        label: string;
+        state: 'open' | 'restricted' | 'closed';
+        /**
+         * Defaults to the status, e.g. "Open".
+         */
+        value?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * e.g. "the Course Manager". Shown beside the time.
+   */
+  changedBy?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Messages sent from the Contact page on your website. Each new one is also emailed to your club (Club Settings → Contact page says where).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "enquiries".
+ */
+export interface Enquiry {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  status: 'new' | 'handled';
+  /**
+   * The visitor was given this reference.
+   */
+  reference: string;
+  purpose: 'general' | 'visitor' | 'membership' | 'events' | 'lessons' | 'feedback';
+  name: string;
+  email: string;
+  phone?: string | null;
+  membershipType?: string | null;
+  preferredDate?: string | null;
+  groupSize?: number | null;
+  message: string;
+  newsletter?: boolean | null;
+  /**
+   * Blank if the email alert wasn’t sent: check this list for anything missed.
+   */
+  alertSentAt?: string | null;
+  notes?: string | null;
+  /**
+   * Deleted automatically 12 months after this date (privacy policy).
+   */
+  handledAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "club-settings".
+ */
+export interface ClubSetting {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  clubName: string;
+  /**
+   * Five colours set the whole site. Every block works out its own shades from these, and text always switches to a colour that reads on whatever is behind it.
+   */
+  branding: {
+    /**
+     * Brand bands, headers and solid buttons. Choose one of the suggested shades, or type your own six-digit colour code, e.g. #1B2A22.
+     */
+    primary: string;
+    /**
+     * A softer supporting colour, mixed into subtle backgrounds and eyebrow text. Choose one of the suggested shades, or type your own six-digit colour code, e.g. #717E6A.
+     */
+    secondary: string;
+    /**
+     * The main call-to-action colour. Used sparingly. Choose one of the suggested shades, or type your own six-digit colour code, e.g. #B39462.
+     */
+    accent: string;
+    /**
+     * The page background. Usually a near-white. Choose one of the suggested shades, or type your own six-digit colour code, e.g. #FAF7F1.
+     */
+    light: string;
+    /**
+     * Body text and headings. Usually a near-black. Choose one of the suggested shades, or type your own six-digit colour code, e.g. #111814.
+     */
+    dark: string;
+    fontSet: 'heritage' | 'editorial' | 'contemporary';
+    /**
+     * Shown on the page background. A dark logo, PNG or WebP with a transparent background.
+     */
+    logoOnLight?: (string | null) | Media;
+    /**
+     * Shown over photos and on the brand colour. A light logo. Falls back to the club name in the heading font.
+     */
+    logoOnDark?: (string | null) | Media;
+    /**
+     * Used when there is no logo, e.g. "Golf Club · 1926".
+     */
+    strapline?: string | null;
+  };
+  header: {
+    style: 'classic' | 'transparent' | 'appBar';
+    /**
+     * The "Book a tee time" button on every page. Usually your booking provider’s web address. Leave the text empty to hide the button.
+     */
+    booking?: {
+      label?: string | null;
+      type?: ('page' | 'builtIn' | 'url') | null;
+      page?: (string | null) | Page;
+      builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+      /**
+       * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+       */
+      url?: string | null;
+    };
+    /**
+     * Shown in the header (style A), the mobile menu and the footer.
+     */
+    phone?: string | null;
+    /**
+     * How menu drop-downs look on computers. "Panel + picture" suits clubs with good photography; a section page without a hero photo shows your brand colour instead.
+     */
+    dropdown: 'panel' | 'panelTile';
+    /**
+     * Up to 10 items, left to right; drag to reorder. If they don’t all fit across a computer screen, visitors get the menu button instead, as on phones.
+     */
+    menu?:
+      | {
+          /**
+           * Blank: the name of the (first) page it goes to.
+           */
+          label?: string | null;
+          kind?: ('link' | 'children' | 'manual') | null;
+          link?: {
+            type?: ('page' | 'builtIn' | 'url') | null;
+            page?: (string | null) | Page;
+            builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+            /**
+             * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+             */
+            url?: string | null;
+          };
+          /**
+           * One page: its child pages fill the drop-down. Two or three: one column each, headed by the page, with its child pages underneath. A page’s child pages are the ones with it as their "Parent page".
+           */
+          sections?:
+            | {
+                page: string | Page;
+                id?: string | null;
+              }[]
+            | null;
+          /**
+           * e.g. your booking site, or News, Events or Contact.
+           */
+          extraLinks?:
+            | {
+                link?: {
+                  /**
+                   * Blank: the page’s name.
+                   */
+                  label?: string | null;
+                  type?: ('page' | 'builtIn' | 'url') | null;
+                  page?: (string | null) | Page;
+                  builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+                  /**
+                   * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+                   */
+                  url?: string | null;
+                };
+                id?: string | null;
+              }[]
+            | null;
+          links?:
+            | {
+                link?: {
+                  /**
+                   * Blank: the page’s name.
+                   */
+                  label?: string | null;
+                  type?: ('page' | 'builtIn' | 'url') | null;
+                  page?: (string | null) | Page;
+                  builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+                  /**
+                   * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+                   */
+                  url?: string | null;
+                };
+                id?: string | null;
+              }[]
+            | null;
+          page?: (string | null) | Page;
+          includeParent?: boolean | null;
+          groups?:
+            | {
+                heading?: string | null;
+                links?:
+                  | {
+                      link?: {
+                        label?: string | null;
+                        type?: ('page' | 'builtIn' | 'url') | null;
+                        page?: (string | null) | Page;
+                        builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+                        /**
+                         * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+                         */
+                        url?: string | null;
+                      };
+                      id?: string | null;
+                    }[]
+                  | null;
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  footer: {
+    style: 'brandColumns' | 'lightColumns' | 'editorial';
+    /**
+     * One or two lines under the logo, e.g. "Heathland golf since 1926, twenty minutes from Heathrow."
+     */
+    about?: string | null;
+    /**
+     * Up to 3 columns, each with its own heading, in every footer style. A column can list a page’s child pages (kept up to date, like the menu) or links you choose.
+     */
+    linkColumns?:
+      | {
+          heading: string;
+          source?: ('manual' | 'children') | null;
+          /**
+           * e.g. "Visitors" lists every page under Visitors, so the column matches that menu drop-down.
+           */
+          page?: (string | null) | Page;
+          links?:
+            | {
+                link?: {
+                  /**
+                   * Blank: the page’s name.
+                   */
+                  label?: string | null;
+                  type?: ('page' | 'builtIn' | 'url') | null;
+                  page?: (string | null) | Page;
+                  builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+                  /**
+                   * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+                   */
+                  url?: string | null;
+                };
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * e.g. Terms, Accessibility. The privacy policy link is added for you, and “Cookie settings” too if you use Google Analytics.
+     */
+    legalLinks?:
+      | {
+          link?: {
+            /**
+             * Blank: the page’s name.
+             */
+            label?: string | null;
+            type?: ('page' | 'builtIn' | 'url') | null;
+            page?: (string | null) | Page;
+            builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+            /**
+             * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+             */
+            url?: string | null;
+          };
+          id?: string | null;
+        }[]
+      | null;
+    hours?:
+      | {
+          /**
+           * e.g. Clubhouse
+           */
+          place: string;
+          /**
+           * e.g. 7am – 9pm
+           */
+          times: string;
+          id?: string | null;
+        }[]
+      | null;
+    hoursLink?: {
+      /**
+       * Blank: the page’s name.
+       */
+      label?: string | null;
+      type?: ('page' | 'builtIn' | 'url') | null;
+      page?: (string | null) | Page;
+      builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+      /**
+       * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+       */
+      url?: string | null;
+    };
+    /**
+     * Shown in the footer and the privacy policy. Required.
+     */
+    email?: string | null;
+    /**
+     * e.g. a Google Maps link. Optional.
+     */
+    directions?: string | null;
+    /**
+     * Shown in the footer and the privacy policy. Required.
+     */
+    address?: string | null;
+    social?:
+      | {
+          network: 'instagram' | 'facebook' | 'x' | 'youtube' | 'linkedin' | 'tiktok';
+          url: string;
+          id?: string | null;
+        }[]
+      | null;
+    secondaryButton?: {
+      /**
+       * Blank: the page’s name.
+       */
+      label?: string | null;
+      type?: ('page' | 'builtIn' | 'url') | null;
+      page?: (string | null) | Page;
+      builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+      /**
+       * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+       */
+      url?: string | null;
+    };
+  };
+  /**
+   * A short notice above the header on every page, between its start and end dates.
+   */
+  announcement: {
+    style: 'classic' | 'rotator' | 'utility';
+    tone: 'brand' | 'accent' | 'subtle';
+    showStatus?: boolean | null;
+    /**
+     * Only notices between their start and end dates are shown. Styles A and C show the first one.
+     */
+    items?:
+      | {
+          /**
+           * Up to 100 characters fits on one line.
+           */
+          message: string;
+          tag?: ('notice' | 'event' | 'course' | 'offer') | null;
+          startsAt?: string | null;
+          /**
+           * Hidden automatically after this day.
+           */
+          expiresAt: string;
+          link?: {
+            /**
+             * Blank: the page’s name.
+             */
+            label?: string | null;
+            type?: ('page' | 'builtIn' | 'url') | null;
+            page?: (string | null) | Page;
+            builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+            /**
+             * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+             */
+            url?: string | null;
+          };
+          id?: string | null;
+        }[]
+      | null;
+  };
+  contact: {
+    intro?: string | null;
+    /**
+     * After sending, visitors are told the date they’ll hear back by (weekends skipped).
+     */
+    replyDays: number;
+    /**
+     * e.g. Mon–Fri 8:00–17:00 · Sat 8:00–12:00
+     */
+    officeHours?: string | null;
+    /**
+     * Every topic is always on the form, and new messages are emailed to your footer email address. Add a topic here to send its messages somewhere else, name who replies, or show a button after sending.
+     */
+    purposes?:
+      | {
+          purpose: 'general' | 'visitor' | 'membership' | 'events' | 'lessons' | 'feedback';
+          /**
+           * e.g. "Sarah Cole, our membership secretary". Blank: "Someone from the club".
+           */
+          replier?: string | null;
+          /**
+           * Blank: the footer email address.
+           */
+          inbox?: string | null;
+          nextLink?: {
+            label?: string | null;
+            type?: ('page' | 'builtIn' | 'url') | null;
+            page?: (string | null) | Page;
+            builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+            /**
+             * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+             */
+            url?: string | null;
+          };
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * The choices for "Membership type" on membership enquiries. Leave empty to let people type it.
+     */
+    membershipTypes?:
+      | {
+          label: string;
+          id?: string | null;
+        }[]
+      | null;
+    asideTitle?: string | null;
+    /**
+     * A short note under the contact details, with your booking button, e.g. "The pro shop is quickest for anything today: 01932 704 520, 7am–7pm." Blank hides it.
+     */
+    asideText?: string | null;
+  };
+  privacy?: {
+    /**
+     * The club’s registered name if it differs from the name above, e.g. "Example Golf Club Limited". Leave blank to use the club name.
+     */
+    legalName?: string | null;
+    /**
+     * Where people send requests about their personal information. Leave blank to use the footer email.
+     */
+    email?: string | null;
+    /**
+     * If you send a newsletter, the service you use, e.g. "Mailchimp". Filling this in adds a newsletter section to the policy.
+     */
+    newsletterProvider?: string | null;
+    /**
+     * Starts with G-, e.g. G-AB12CD34EF. Filling this in adds a cookie banner, and Google Analytics only runs for visitors who accept it.
+     */
+    gaMeasurementId?: string | null;
+    /**
+     * Anything extra the club needs to tell people, e.g. CCTV in the car park. Shown as its own section near the end of the policy. Leave blank to leave the section out.
+     */
+    additionalInfo?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+  };
+  /**
+   * Used by the Map block. The address, phone, email and opening hours come from the Footer tab and the header phone.
+   */
+  location?: {
+    /**
+     * e.g. 51.3920 (right-click the clubhouse in Google Maps to copy it).
+     */
+    latitude?: number | null;
+    /**
+     * e.g. -0.6120
+     */
+    longitude?: number | null;
+    /**
+     * e.g. "Clubhouse & car park"
+     */
+    mapLabel?: string | null;
+    /**
+     * e.g. filled.count.soap
+     */
+    what3words?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -152,38 +1733,23 @@ export interface User {
   collection: 'users';
 }
 /**
+ * The agreement between your club and the website provider about looking after personal information. Someone with authority to act for the club accepts it once; you’ll be asked again if it changes.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tenants".
+ * via the `definition` "agreement-acceptances".
  */
-export interface Tenant {
-  id: string;
-  name: string;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "pages".
- */
-export interface Page {
+export interface AgreementAcceptance {
   id: string;
   tenant?: (string | null) | Tenant;
-  title: string;
+  fullName: string;
   /**
-   * The page address, e.g. "membership" for /membership.
+   * e.g. Club Secretary, General Manager
    */
-  slug: string;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "club-settings".
- */
-export interface ClubSetting {
-  id: string;
-  tenant?: (string | null) | Tenant;
-  clubName: string;
+  jobTitle: string;
+  authorised: boolean;
+  version?: string | null;
+  acceptedBy?: (string | null) | User;
+  acceptedAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -212,6 +1778,98 @@ export interface PayloadKv {
     | number
     | boolean
     | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs".
+ */
+export interface PayloadJob {
+  id: string;
+  /**
+   * Input data provided to the job
+   */
+  input?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  taskStatus?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  completedAt?: string | null;
+  totalTried?: number | null;
+  /**
+   * If hasError is true this job will not be retried
+   */
+  hasError?: boolean | null;
+  /**
+   * If hasError is true, this is the error that caused it
+   */
+  error?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Task execution log
+   */
+  log?:
+    | {
+        executedAt: string;
+        completedAt: string;
+        taskSlug: 'inline' | 'cleanUp';
+        taskID: string;
+        input?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        output?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        state: 'failed' | 'succeeded';
+        error?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  taskSlug?: ('inline' | 'cleanUp') | null;
+  queue?: string | null;
+  waitUntil?: string | null;
+  processing?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -249,6 +1907,1055 @@ export interface PayloadMigration {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages_select".
+ */
+export interface PagesSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  slug?: T;
+  parent?: T;
+  menuPosition?: T;
+  hideFromMenu?: T;
+  layout?:
+    | T
+    | {
+        hero?: T | HeroBlockSelect<T>;
+        ctaCardGrid?: T | CtaCardGridBlockSelect<T>;
+        twoColumn?: T | TwoColumnBlockSelect<T>;
+        richText?: T | RichTextBlockSelect<T>;
+        rateTable?: T | RateTableBlockSelect<T>;
+        gallery?: T | GalleryBlockSelect<T>;
+        documentList?: T | DocumentListBlockSelect<T>;
+        map?: T | MapBlockSelect<T>;
+        pullQuote?: T | PullQuoteBlockSelect<T>;
+        timeline?: T | TimelineBlockSelect<T>;
+        logoStrip?: T | LogoStripBlockSelect<T>;
+        faq?: T | FaqBlockSelect<T>;
+        team?: T | TeamBlockSelect<T>;
+        membership?: T | MembershipBlockSelect<T>;
+        holeGrid?: T | HoleGridBlockSelect<T>;
+        scorecard?: T | ScorecardBlockSelect<T>;
+        courseStatus?: T | CourseStatusBlockSelect<T>;
+        newsFeed?: T | NewsFeedBlockSelect<T>;
+        eventsFeed?: T | EventsFeedBlockSelect<T>;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeroBlock_select".
+ */
+export interface HeroBlockSelect<T extends boolean = true> {
+  style?: T;
+  mediaType?: T;
+  image?: T;
+  video?: T;
+  eyebrow?: T;
+  headline?: T;
+  caption?: T;
+  primaryButton?:
+    | T
+    | {
+        label?: T;
+        type?: T;
+        page?: T;
+        builtIn?: T;
+        url?: T;
+      };
+  secondaryLink?:
+    | T
+    | {
+        label?: T;
+        type?: T;
+        page?: T;
+        builtIn?: T;
+        url?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CtaCardGridBlock_select".
+ */
+export interface CtaCardGridBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  intro?: T;
+  viewAll?:
+    | T
+    | {
+        label?: T;
+        type?: T;
+        page?: T;
+        builtIn?: T;
+        url?: T;
+      };
+  cards?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        eyebrow?: T;
+        image?: T;
+        link?:
+          | T
+          | {
+              type?: T;
+              page?: T;
+              builtIn?: T;
+              url?: T;
+            };
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TwoColumnBlock_select".
+ */
+export interface TwoColumnBlockSelect<T extends boolean = true> {
+  style?: T;
+  imageSide?: T;
+  tone?: T;
+  image?: T;
+  insetImage?: T;
+  eyebrow?: T;
+  heading?: T;
+  body?: T;
+  facts?:
+    | T
+    | {
+        label?: T;
+        value?: T;
+        id?: T;
+      };
+  link?:
+    | T
+    | {
+        label?: T;
+        type?: T;
+        page?: T;
+        builtIn?: T;
+        url?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "RichTextBlock_select".
+ */
+export interface RichTextBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  content?: T;
+  noteTitle?: T;
+  noteText?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "RateTableBlock_select".
+ */
+export interface RateTableBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  intro?: T;
+  columns?:
+    | T
+    | {
+        label?: T;
+        id?: T;
+      };
+  tabs?:
+    | T
+    | {
+        label?: T;
+        sections?:
+          | T
+          | {
+              name?: T;
+              period?: T;
+              startMonth?: T;
+              endMonth?: T;
+              rows?:
+                | T
+                | {
+                    label?: T;
+                    subLabel?: T;
+                    price1?: T;
+                    price2?: T;
+                    price3?: T;
+                    price4?: T;
+                    id?: T;
+                  };
+              note?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  footnote?: T;
+  button?:
+    | T
+    | {
+        label?: T;
+        type?: T;
+        page?: T;
+        builtIn?: T;
+        url?: T;
+      };
+  asideEyebrow?: T;
+  asideHeading?: T;
+  included?:
+    | T
+    | {
+        item?: T;
+        id?: T;
+      };
+  showPhone?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GalleryBlock_select".
+ */
+export interface GalleryBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  images?:
+    | T
+    | {
+        image?: T;
+        caption?: T;
+        album?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DocumentListBlock_select".
+ */
+export interface DocumentListBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  documents?: T;
+  viewAll?:
+    | T
+    | {
+        label?: T;
+        type?: T;
+        page?: T;
+        builtIn?: T;
+        url?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MapBlock_select".
+ */
+export interface MapBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  routes?:
+    | T
+    | {
+        mode?: T;
+        distance?: T;
+        directions?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PullQuoteBlock_select".
+ */
+export interface PullQuoteBlockSelect<T extends boolean = true> {
+  style?: T;
+  quote?: T;
+  name?: T;
+  role?: T;
+  publication?: T;
+  year?: T;
+  image?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TimelineBlock_select".
+ */
+export interface TimelineBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  intro?: T;
+  entries?:
+    | T
+    | {
+        year?: T;
+        title?: T;
+        text?: T;
+        image?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LogoStripBlock_select".
+ */
+export interface LogoStripBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  intro?: T;
+  partners?:
+    | T
+    | {
+        name?: T;
+        url?: T;
+        logo?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FaqBlock_select".
+ */
+export interface FaqBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  items?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        topic?: T;
+        id?: T;
+      };
+  firstOpen?: T;
+  cardHeading?: T;
+  contactLink?:
+    | T
+    | {
+        label?: T;
+        type?: T;
+        page?: T;
+        builtIn?: T;
+        url?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TeamBlock_select".
+ */
+export interface TeamBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  featured?: T;
+  people?: T;
+  action?:
+    | T
+    | {
+        label?: T;
+        type?: T;
+        page?: T;
+        builtIn?: T;
+        url?: T;
+      };
+  viewAll?:
+    | T
+    | {
+        label?: T;
+        type?: T;
+        page?: T;
+        builtIn?: T;
+        url?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MembershipBlock_select".
+ */
+export interface MembershipBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  intro?: T;
+  tiers?:
+    | T
+    | {
+        name?: T;
+        price?: T;
+        period?: T;
+        description?: T;
+        benefits?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+        values?:
+          | T
+          | {
+              value?: T;
+              id?: T;
+            };
+        availability?: T;
+        recommended?: T;
+        link?:
+          | T
+          | {
+              type?: T;
+              page?: T;
+              builtIn?: T;
+              url?: T;
+            };
+        id?: T;
+      };
+  buttonLabel?: T;
+  features?:
+    | T
+    | {
+        label?: T;
+        id?: T;
+      };
+  action?:
+    | T
+    | {
+        label?: T;
+        type?: T;
+        page?: T;
+        builtIn?: T;
+        url?: T;
+      };
+  card?:
+    | T
+    | {
+        heading?: T;
+        text?: T;
+        link?:
+          | T
+          | {
+              label?: T;
+              type?: T;
+              page?: T;
+              builtIn?: T;
+              url?: T;
+            };
+        note?: T;
+      };
+  note?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HoleGridBlock_select".
+ */
+export interface HoleGridBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  course?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ScorecardBlock_select".
+ */
+export interface ScorecardBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  course?: T;
+  download?: T;
+  linkToGuide?: T;
+  note?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CourseStatusBlock_select".
+ */
+export interface CourseStatusBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  intro?: T;
+  statusPage?:
+    | T
+    | {
+        type?: T;
+        page?: T;
+        builtIn?: T;
+        url?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "NewsFeedBlock_select".
+ */
+export interface NewsFeedBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  category?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EventsFeedBlock_select".
+ */
+export interface EventsFeedBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  intro?: T;
+  category?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "news_select".
+ */
+export interface NewsSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  status?: T;
+  publishedAt?: T;
+  category?: T;
+  excerpt?: T;
+  image?: T;
+  imageCaption?: T;
+  author?: T;
+  body?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events_select".
+ */
+export interface EventsSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  status?: T;
+  startsAt?: T;
+  category?: T;
+  venue?: T;
+  timeNote?: T;
+  summary?: T;
+  image?: T;
+  price?: T;
+  memberPrice?: T;
+  booking?: T;
+  capacity?: T;
+  placesLeft?: T;
+  link?:
+    | T
+    | {
+        type?: T;
+        page?: T;
+        builtIn?: T;
+        url?: T;
+      };
+  featured?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "course-status_select".
+ */
+export interface CourseStatusSelect<T extends boolean = true> {
+  tenant?: T;
+  state?: T;
+  reason?: T;
+  facilities?:
+    | T
+    | {
+        label?: T;
+        state?: T;
+        value?: T;
+        id?: T;
+      };
+  changedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "staff_select".
+ */
+export interface StaffSelect<T extends boolean = true> {
+  tenant?: T;
+  name?: T;
+  role?: T;
+  department?: T;
+  qualification?: T;
+  photo?: T;
+  bio?: T;
+  email?: T;
+  phone?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "courses_select".
+ */
+export interface CoursesSelect<T extends boolean = true> {
+  tenant?: T;
+  name?: T;
+  tees?:
+    | T
+    | {
+        colour?: T;
+        rating?: T;
+        slope?: T;
+        id?: T;
+      };
+  holes?:
+    | T
+    | {
+        name?: T;
+        par?: T;
+        strokeIndex?: T;
+        yardsWhite?: T;
+        yardsYellow?: T;
+        yardsRed?: T;
+        yardsBlue?: T;
+        image?: T;
+        tip?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documents_select".
+ */
+export interface DocumentsSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  category?: T;
+  lastReviewed?: T;
+  prefix?: T;
+  _objectKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media_select".
+ */
+export interface MediaSelect<T extends boolean = true> {
+  tenant?: T;
+  alt?: T;
+  tone?:
+    | T
+    | {
+        bright?: T;
+        average?: T;
+      };
+  prefix?: T;
+  _objectKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+  sizes?:
+    | T
+    | {
+        w640?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        w1024?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        w1600?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        w2400?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        w3200?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "enquiries_select".
+ */
+export interface EnquiriesSelect<T extends boolean = true> {
+  tenant?: T;
+  status?: T;
+  reference?: T;
+  purpose?: T;
+  name?: T;
+  email?: T;
+  phone?: T;
+  membershipType?: T;
+  preferredDate?: T;
+  groupSize?: T;
+  message?: T;
+  newsletter?: T;
+  alertSentAt?: T;
+  notes?: T;
+  handledAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "club-settings_select".
+ */
+export interface ClubSettingsSelect<T extends boolean = true> {
+  tenant?: T;
+  clubName?: T;
+  branding?:
+    | T
+    | {
+        primary?: T;
+        secondary?: T;
+        accent?: T;
+        light?: T;
+        dark?: T;
+        fontSet?: T;
+        logoOnLight?: T;
+        logoOnDark?: T;
+        strapline?: T;
+      };
+  header?:
+    | T
+    | {
+        style?: T;
+        booking?:
+          | T
+          | {
+              label?: T;
+              type?: T;
+              page?: T;
+              builtIn?: T;
+              url?: T;
+            };
+        phone?: T;
+        dropdown?: T;
+        menu?:
+          | T
+          | {
+              label?: T;
+              kind?: T;
+              link?:
+                | T
+                | {
+                    type?: T;
+                    page?: T;
+                    builtIn?: T;
+                    url?: T;
+                  };
+              sections?:
+                | T
+                | {
+                    page?: T;
+                    id?: T;
+                  };
+              extraLinks?:
+                | T
+                | {
+                    link?:
+                      | T
+                      | {
+                          label?: T;
+                          type?: T;
+                          page?: T;
+                          builtIn?: T;
+                          url?: T;
+                        };
+                    id?: T;
+                  };
+              links?:
+                | T
+                | {
+                    link?:
+                      | T
+                      | {
+                          label?: T;
+                          type?: T;
+                          page?: T;
+                          builtIn?: T;
+                          url?: T;
+                        };
+                    id?: T;
+                  };
+              page?: T;
+              includeParent?: T;
+              groups?:
+                | T
+                | {
+                    heading?: T;
+                    links?:
+                      | T
+                      | {
+                          link?:
+                            | T
+                            | {
+                                label?: T;
+                                type?: T;
+                                page?: T;
+                                builtIn?: T;
+                                url?: T;
+                              };
+                          id?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+            };
+      };
+  footer?:
+    | T
+    | {
+        style?: T;
+        about?: T;
+        linkColumns?:
+          | T
+          | {
+              heading?: T;
+              source?: T;
+              page?: T;
+              links?:
+                | T
+                | {
+                    link?:
+                      | T
+                      | {
+                          label?: T;
+                          type?: T;
+                          page?: T;
+                          builtIn?: T;
+                          url?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+            };
+        legalLinks?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    label?: T;
+                    type?: T;
+                    page?: T;
+                    builtIn?: T;
+                    url?: T;
+                  };
+              id?: T;
+            };
+        hours?:
+          | T
+          | {
+              place?: T;
+              times?: T;
+              id?: T;
+            };
+        hoursLink?:
+          | T
+          | {
+              label?: T;
+              type?: T;
+              page?: T;
+              builtIn?: T;
+              url?: T;
+            };
+        email?: T;
+        directions?: T;
+        address?: T;
+        social?:
+          | T
+          | {
+              network?: T;
+              url?: T;
+              id?: T;
+            };
+        secondaryButton?:
+          | T
+          | {
+              label?: T;
+              type?: T;
+              page?: T;
+              builtIn?: T;
+              url?: T;
+            };
+      };
+  announcement?:
+    | T
+    | {
+        style?: T;
+        tone?: T;
+        showStatus?: T;
+        items?:
+          | T
+          | {
+              message?: T;
+              tag?: T;
+              startsAt?: T;
+              expiresAt?: T;
+              link?:
+                | T
+                | {
+                    label?: T;
+                    type?: T;
+                    page?: T;
+                    builtIn?: T;
+                    url?: T;
+                  };
+              id?: T;
+            };
+      };
+  contact?:
+    | T
+    | {
+        intro?: T;
+        replyDays?: T;
+        officeHours?: T;
+        purposes?:
+          | T
+          | {
+              purpose?: T;
+              replier?: T;
+              inbox?: T;
+              nextLink?:
+                | T
+                | {
+                    label?: T;
+                    type?: T;
+                    page?: T;
+                    builtIn?: T;
+                    url?: T;
+                  };
+              id?: T;
+            };
+        membershipTypes?:
+          | T
+          | {
+              label?: T;
+              id?: T;
+            };
+        asideTitle?: T;
+        asideText?: T;
+      };
+  privacy?:
+    | T
+    | {
+        legalName?: T;
+        email?: T;
+        newsletterProvider?: T;
+        gaMeasurementId?: T;
+        additionalInfo?: T;
+      };
+  location?:
+    | T
+    | {
+        latitude?: T;
+        longitude?: T;
+        mapLabel?: T;
+        what3words?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
@@ -276,31 +2983,32 @@ export interface UsersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "agreement-acceptances_select".
+ */
+export interface AgreementAcceptancesSelect<T extends boolean = true> {
+  tenant?: T;
+  fullName?: T;
+  jobTitle?: T;
+  authorised?: T;
+  version?: T;
+  acceptedBy?: T;
+  acceptedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tenants_select".
  */
 export interface TenantsSelect<T extends boolean = true> {
   name?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "pages_select".
- */
-export interface PagesSelect<T extends boolean = true> {
-  tenant?: T;
-  title?: T;
   slug?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "club-settings_select".
- */
-export interface ClubSettingsSelect<T extends boolean = true> {
-  tenant?: T;
-  clubName?: T;
+  domains?:
+    | T
+    | {
+        hostname?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -320,6 +3028,37 @@ export interface TotpAttemptsSelect<T extends boolean = true> {
 export interface PayloadKvSelect<T extends boolean = true> {
   key?: T;
   data?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs_select".
+ */
+export interface PayloadJobsSelect<T extends boolean = true> {
+  input?: T;
+  taskStatus?: T;
+  completedAt?: T;
+  totalTried?: T;
+  hasError?: T;
+  error?: T;
+  log?:
+    | T
+    | {
+        executedAt?: T;
+        completedAt?: T;
+        taskSlug?: T;
+        taskID?: T;
+        input?: T;
+        output?: T;
+        state?: T;
+        error?: T;
+        id?: T;
+      };
+  taskSlug?: T;
+  queue?: T;
+  waitUntil?: T;
+  processing?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -351,6 +3090,17 @@ export interface CollectionsWidget {
     [k: string]: unknown;
   };
   width: 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskCleanUp".
+ */
+export interface TaskCleanUp {
+  input?: unknown;
+  output: {
+    enquiries?: number | null;
+    files?: number | null;
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
