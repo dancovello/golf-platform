@@ -44,7 +44,15 @@ Copy the exact values from Vercel's Domains page. The CNAME value is unique to o
 
 If Vercel asks for a **TXT** record called `_vercel` (it does when the domain was used on another Vercel account before), send that too.
 
-## 4. Check it
+## 4. In Cloudflare: let the contact form's spam check work on the new address
+
+The spam check (Turnstile) only works on addresses listed on its widget. Without this step the club's contact form shows an error and can't be sent.
+
+Cloudflare → **Turnstile** → the `Golf platform contact form` widget → **Settings** → **Hostnames** → **Add** the club's domain without `https://` or `www`, e.g. `theirclub.co.uk` → **Save**. Adding a domain also covers its subdomains, so `www.theirclub.co.uk` works too.
+
+**Limit:** on Cloudflare's free plan, one widget can list at most **10 addresses**, and wildcards like `*` aren't allowed. The platform's own staging and production addresses use two of them, so the widget is full after **8 clubs**. Before the 8th club, ask Claude for per-club spam-check keys (a small code change, recorded in `docs/product/03-open-questions-and-next-steps.md`).
+
+## 5. Check it
 
 Within an hour or so (sometimes up to 48 hours):
 
@@ -53,10 +61,11 @@ Within an hour or so (sometimes up to 48 hours):
 - `https://theirclub.co.uk/membership` forwards to `https://www.theirclub.co.uk/membership`.
 - `https://www.theirclub.co.uk/admin` says "Page not found". The admin only lives on the platform's own address.
 - On production, `https://www.theirclub.co.uk/robots.txt` lists the sitemap, so search engines can find the site.
+- `https://www.theirclub.co.uk/contact` shows the spam check, and a test message arrives in the club's Enquiries.
 
-## 5. Afterwards
+## 6. Afterwards
 
-- Add the home page to the uptime monitor (Better Stack) once step 6 is set up.
+- Uptime: Sentry's free plan checks one address, used for the platform's own `/health` (`docs/operations/monitoring.md`). Checking each club's home page needs a paid uptime plan, due before several clubs are live.
 - If the club had an old site, ask whether its old page addresses need forwarding. That's done in Vercel → Domains → Redirects, or ask Claude.
 
 ## Taking a club's address off
