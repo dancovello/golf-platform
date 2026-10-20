@@ -54,7 +54,7 @@ export const PrivacyPolicy = ({
   ].filter((x): x is string => !!x)
 
   const sharedWith = [
-    `${platformName}, our website provider, and the hosting, storage and email services they use`,
+    `${platformName}, our website provider, and the hosting, storage, email and error-monitoring services they use`,
     f.payments ? 'Stripe, to process payments' : null,
     f.newsletter ? `${facts.newsletterProvider}, to send our newsletter` : null,
     f.ga ? 'Google, for analytics, only if you consent' : null,
