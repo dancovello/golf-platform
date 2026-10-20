@@ -1175,6 +1175,10 @@ export interface ClubSetting {
      */
     phone?: string | null;
     /**
+     * How menu drop-downs look on computers. "Panel + picture" suits clubs with good photography; a section page without a hero photo shows your brand colour instead.
+     */
+    dropdown: 'panel' | 'panelTile';
+    /**
      * Up to 6 items, left to right; drag to reorder. Each is a link, or opens a drop-down: either the child pages of one of your pages (kept up to date for you) or links you choose.
      */
     menu?:
@@ -2361,6 +2365,7 @@ export interface ClubSettingsSelect<T extends boolean = true> {
               url?: T;
             };
         phone?: T;
+        dropdown?: T;
         menu?:
           | T
           | {

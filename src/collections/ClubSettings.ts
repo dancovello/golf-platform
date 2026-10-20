@@ -195,7 +195,7 @@ export const ClubSettings: CollectionConfig = {
                   defaultValue: 'classic',
                   options: [
                     {
-                      label: 'A · Classic: menu left, logo centred, booking button right',
+                      label: 'A · Classic: logo left, menu and booking button right',
                       value: 'classic',
                     },
                     {
@@ -224,6 +224,24 @@ export const ClubSettings: CollectionConfig = {
                     !value || (typeof value === 'string' && /^\+?[0-9 ()-]{6,30}$/.test(value))
                       ? true
                       : 'Digits, spaces and brackets only.',
+                },
+                {
+                  name: 'dropdown',
+                  label: 'Drop-down style',
+                  type: 'select',
+                  required: true,
+                  defaultValue: 'panel',
+                  options: [
+                    { label: 'Panel: section name and its pages', value: 'panel' },
+                    {
+                      label: 'Panel + picture: adds the section page’s hero photo',
+                      value: 'panelTile',
+                    },
+                  ],
+                  admin: {
+                    description:
+                      'How menu drop-downs look on computers. "Panel + picture" suits clubs with good photography; a section page without a hero photo shows your brand colour instead.',
+                  },
                 },
                 {
                   name: 'menu',
@@ -265,6 +283,11 @@ export const ClubSettings: CollectionConfig = {
                       ],
                     },
                     {
+                      name: 'sizeWarning',
+                      type: 'ui',
+                      admin: { components: { Field: '/admin/MenuSizeWarning#MenuSizeWarning' } },
+                    },
+                    {
                       ...linkField({
                         name: 'link',
                         label: 'Goes to',
@@ -298,7 +321,9 @@ export const ClubSettings: CollectionConfig = {
                       label: 'Show that page itself at the top of the drop-down',
                       type: 'checkbox',
                       defaultValue: true,
-                      admin: { condition: (_data, row) => row?.kind === 'children' },
+                      // No longer used: the drop-down's "Overview" link goes to that page
+                      // (spec 17, Dan 2026-10-19). Kept so saved menus don't change.
+                      admin: { hidden: true },
                     },
                     {
                       name: 'extraLinks',

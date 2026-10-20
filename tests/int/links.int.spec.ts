@@ -31,7 +31,10 @@ describe('links to the built-in pages (News, Events, Contact, Privacy policy)', 
           groups: [
             {
               heading: 'More',
-              links: [{ link: { label: 'Events', type: 'builtIn', builtIn: 'events' } }],
+              links: [
+                { link: { label: 'Events', type: 'builtIn', builtIn: 'events' } },
+                { link: { label: 'Privacy', type: 'builtIn', builtIn: 'privacy' } },
+              ],
             },
           ],
         },
@@ -43,7 +46,7 @@ describe('links to the built-in pages (News, Events, Contact, Privacy policy)', 
       link: { kind: 'page', slug: 'contact' },
     })
     expect(club?.header.menu[0].link).toEqual({ kind: 'page', slug: 'news' })
-    expect(club?.header.menu[1].groups[0].links[0].link).toEqual({ kind: 'page', slug: 'events' })
+    expect(club?.header.menu[1].children[0].link).toEqual({ kind: 'page', slug: 'events' })
   })
 
   it('ignore a page left over from before the link was switched', async () => {

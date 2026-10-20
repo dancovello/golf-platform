@@ -27,6 +27,12 @@ test.describe('desktop header', () => {
     await expect(golf).toHaveAttribute('aria-expanded', 'false')
     await expect(golf).toBeFocused()
 
+    // The down arrow opens the drop-down and moves into it.
+    await page.keyboard.press('ArrowDown')
+    await expect(nav.getByRole('link', { name: 'Green fees' })).toBeFocused()
+    await page.keyboard.press('Escape')
+    await expect(golf).toBeFocused()
+
     // Hover first (opens after a moment), then click: it must stay open, not toggle shut.
     await page.mouse.move(700, 600)
     await golf.hover()

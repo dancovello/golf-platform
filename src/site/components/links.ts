@@ -15,9 +15,7 @@ export const siteHref = (base: string, link: SiteLink | null): string => {
 export const currentMenuIndex = (menu: MenuItem[], base: string, currentPath: string): number => {
   const direct = menu.findIndex((item) => item.link && siteHref(base, item.link) === currentPath)
   if (direct !== -1) return direct
-  return menu.findIndex((item) =>
-    item.groups.some((g) => g.links.some((l) => siteHref(base, l.link) === currentPath)),
-  )
+  return menu.findIndex((item) => item.children.some((l) => siteHref(base, l.link) === currentPath))
 }
 
 export const isExternal = (link: SiteLink | null) =>

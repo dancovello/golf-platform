@@ -22,6 +22,7 @@ import { ParagraphFeatureClient as ParagraphFeatureClient_e70f5e05f09f93e00b997e
 import { AssignTenantFieldTrigger as AssignTenantFieldTrigger_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
 import { AgreementNotice as AgreementNotice_0c59deaf7e3e73247a9db3722360189d } from '../../../admin/AgreementNotice'
 import { ColourField as ColourField_37f8d3b572526ee0d735b18cf41a0288 } from '../../../admin/ColourField'
+import { MenuSizeWarning as MenuSizeWarning_77bc994a03b0f32056991d06495dde3f } from '../../../admin/MenuSizeWarning'
 import { MenuRowLabel as MenuRowLabel_a7b5e316e5e0b30158da1854ec94f269 } from '../../../admin/MenuRowLabel'
 import { ColumnRowLabel as ColumnRowLabel_a7b5e316e5e0b30158da1854ec94f269 } from '../../../admin/MenuRowLabel'
 import { DescriptionCell as DescriptionCell_77efe8da5abd468dfbd244797c4797b0 } from '../../../admin/DescriptionCell'
@@ -62,6 +63,7 @@ export const importMap = {
   "@payloadcms/plugin-multi-tenant/client#AssignTenantFieldTrigger": AssignTenantFieldTrigger_1d0591e3cf4f332c83a86da13a0de59a,
   "/admin/AgreementNotice#AgreementNotice": AgreementNotice_0c59deaf7e3e73247a9db3722360189d,
   "/admin/ColourField#ColourField": ColourField_37f8d3b572526ee0d735b18cf41a0288,
+  "/admin/MenuSizeWarning#MenuSizeWarning": MenuSizeWarning_77bc994a03b0f32056991d06495dde3f,
   "/admin/MenuRowLabel#MenuRowLabel": MenuRowLabel_a7b5e316e5e0b30158da1854ec94f269,
   "/admin/MenuRowLabel#ColumnRowLabel": ColumnRowLabel_a7b5e316e5e0b30158da1854ec94f269,
   "/admin/DescriptionCell#DescriptionCell": DescriptionCell_77efe8da5abd468dfbd244797c4797b0,

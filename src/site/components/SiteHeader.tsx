@@ -30,9 +30,9 @@ export const SiteHeader = ({
   /** Style B only: sit transparently over a full-bleed hero until the page scrolls. */
   overHero?: boolean
 }) => {
-  const { style, menu, phone } = club.header
+  const { style, menu, phone, dropdown } = club.header
   const home = base || '/'
-  const nav = <DesktopNav menu={menu} base={base} currentPath={currentPath} />
+  const nav = <DesktopNav menu={menu} base={base} currentPath={currentPath} dropdown={dropdown} />
   const transparent = style === 'transparent' && overHero
 
   const mobile = (
