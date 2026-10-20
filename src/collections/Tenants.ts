@@ -47,7 +47,7 @@ export const Tenants: CollectionConfig = {
             clubName: doc.name,
             tenant: doc.id,
             branding: { ...DEFAULT_BRAND, fontSet: DEFAULT_FONT_SET },
-            header: { style: 'classic' },
+            header: { style: 'classic', dropdown: 'panel' },
             footer: { style: 'brandColumns' },
             announcement: { style: 'classic', tone: 'brand' },
             contact: { replyDays: 1 },

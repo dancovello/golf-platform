@@ -10,7 +10,8 @@ import { linkTarget, siteHref } from './links'
 /**
  * Mobile menu button and drawer (Figma 1.3 Menu Drawer / 1.4 Sub-menu). A modal dialog:
  * focus stays inside, the page behind doesn't scroll, and Esc or Close returns focus to the
- * menu button. Sections with link groups open a sub-menu with a back link.
+ * menu button. Sections with a drop-down open a sub-menu with a back link, starting with the
+ * section's own page ("Overview") when it has one.
  */
 export const MobileMenu = ({
   menu,
@@ -137,18 +138,14 @@ export const MobileMenu = ({
           </div>
           <div className="sh-drawer-body">
             {current ? (
-              current.groups.map((group, g) => (
-                <div key={g} className="sh-drawer-group">
-                  {group.heading ? (
-                    <p className="t-eyebrow sh-drawer-heading">{group.heading}</p>
-                  ) : null}
-                  <ul>
-                    {group.links.map((l, k) => (
-                      <li key={k}>{link(l.label, l.link, 't-body-l sh-drawer-sublink')}</li>
-                    ))}
-                  </ul>
-                </div>
-              ))
+              <ul className="sh-drawer-group">
+                {current.overview ? (
+                  <li>{link('Overview', current.overview, 't-body-l sh-drawer-sublink')}</li>
+                ) : null}
+                {current.children.map((l, k) => (
+                  <li key={k}>{link(l.label, l.link, 't-body-l sh-drawer-sublink')}</li>
+                ))}
+              </ul>
             ) : (
               <>
                 {searchHref ? (
@@ -169,7 +166,7 @@ export const MobileMenu = ({
                 <ul className="sh-drawer-sections">
                   {menu.map((item, i) => (
                     <li key={i}>
-                      {item.groups.length > 0 ? (
+                      {item.children.length > 0 ? (
                         <button
                           type="button"
                           className="t-heading-m sh-drawer-section"

@@ -1,5 +1,5 @@
 /* Site header, mobile header and menu drawer. Figma: Booking platform page, "Header / A–C",
-   "Header / Mobile", "Menu Drawer", "Mega Menu", "Nav Item". Colours are roles only. */
+   "Header / Mobile", "Menu Drawer", "Nav Dropdown", "Nav Item". Colours are roles only. */
 
 .sh {
   position: sticky;
@@ -197,56 +197,207 @@
   transform: rotate(180deg);
 }
 
-/* Drop-down link groups (Mega Menu) */
-.sh-mega {
+/* Drop-down panel (Figma "Nav Dropdown / 1 · Panel" and "2 · Panel + section tile", spec 17).
+   One panel for every section: DesktopNav places it (--dd-*) and it glides between sections. */
+.sh-dd {
   position: absolute;
+  z-index: 1;
   left: 0;
-  right: 0;
-  top: 100%;
+  top: 0;
+  width: var(--dd-width, auto);
+  height: var(--dd-height, auto);
+  transform: translate(var(--dd-left, 0), var(--dd-top, 100%));
+  overflow: hidden;
   background: var(--color-surface-raised);
   color: var(--color-text-primary);
-  border-top: 1px solid var(--color-border-subtle);
-  box-shadow: 0 16px 32px color-mix(in srgb, var(--brand-dark) 10%, transparent);
-  padding: var(--space-40);
-  animation: sh-drop 200ms ease-out;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow:
+    0 2px 6px color-mix(in srgb, var(--brand-dark) 6%, transparent),
+    0 20px 48px color-mix(in srgb, var(--brand-dark) 12%, transparent);
+  opacity: 0;
+  transition:
+    opacity 180ms ease-in,
+    transform 280ms ease-out,
+    width 280ms ease-out,
+    height 280ms ease-out;
 }
-.sh-mega[hidden] {
+.sh-dd[hidden] {
   display: none;
 }
-.sh-mega-inner {
-  max-width: var(--size-container);
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-40);
+.sh-dd.is-open {
+  opacity: 1;
+  animation: sh-dd-open 240ms ease-out;
+  transition:
+    opacity 240ms ease-out,
+    transform 280ms ease-out,
+    width 280ms ease-out,
+    height 280ms ease-out;
 }
-.sh-mega-heading {
-  color: var(--color-text-brand);
-  margin-bottom: var(--space-16);
+.sh-dd.is-instant {
+  animation: none;
+  transition: none;
 }
-.sh-mega ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: var(--space-12);
+@keyframes sh-dd-open {
+  from {
+    opacity: 0;
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 -64px 0);
+  }
 }
-.sh-mega-link {
+/* Fixed widths per column count, so the panel can measure and morph to them. Borders count. */
+.sh-dd-section {
+  box-sizing: border-box;
+  width: 338px;
+  animation: sh-dd-content 200ms ease-out;
+}
+.sh-dd-section.cols-2 {
+  width: 618px;
+}
+.sh-dd-section.cols-3 {
+  width: 898px;
+}
+.sh-dd-section.has-tile {
+  display: flex;
+  width: 558px;
+  min-height: 168px;
+}
+.sh-dd-section.has-tile.cols-2 {
+  width: 818px;
+}
+.sh-dd-section.has-tile.cols-3 {
+  width: 1078px;
+}
+.sh-dd-section[hidden] {
+  display: none;
+}
+@keyframes sh-dd-content {
+  from {
+    opacity: 0;
+  }
+}
+.sh-dd-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-16);
+  padding: 20px var(--space-24) var(--space-16);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.sh-dd-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sh-dd-overview {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
   text-decoration: none;
 }
-.sh-mega-link:hover {
+.sh-dd-overview:hover {
   text-decoration: underline;
   text-decoration-color: var(--color-action-accent);
   text-underline-offset: 4px;
 }
-.sh-mega-link[aria-current='page'] {
-  color: var(--color-text-brand);
+/* Picture tile: the section page's hero photo, or the brand colour without one. */
+.sh-dd-tile {
+  position: relative;
+  isolation: isolate;
+  flex: 0 0 236px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 6px;
+  padding: 20px 22px;
+  background: var(--color-surface-brand);
+  color: var(--color-text-on-inverse);
 }
-@keyframes sh-drop {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
+.sh-dd-tile img {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.sh-dd-tile.has-image::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--brand-dark) 0%, transparent),
+    color-mix(in srgb, var(--brand-dark) 15%, transparent) 45%,
+    color-mix(in srgb, var(--brand-dark) 85%, transparent)
+  );
+}
+.sh-dd-tile .sh-dd-title {
+  flex: none;
+  white-space: normal;
+}
+.sh-dd-tile .sh-dd-overview {
+  color: var(--color-text-on-inverse-muted);
+}
+/* Child pages flow top to bottom into columns of up to 6. */
+.sh-dd-links {
+  margin: 0;
+  padding: 10px;
+  list-style: none;
+  column-gap: var(--space-4);
+}
+.has-tile .sh-dd-links {
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-12);
+}
+.cols-2 .sh-dd-links {
+  column-count: 2;
+}
+.cols-3 .sh-dd-links {
+  column-count: 3;
+}
+.sh-dd-links li {
+  break-inside: avoid;
+}
+.sh-dd-link {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-12);
+  padding: var(--space-12) 14px;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+}
+/* Long labels wrap to two lines, then end in "…". */
+.sh-dd-link span {
+  flex: 1;
+  min-width: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+.sh-dd-link svg {
+  flex: none;
+  margin-top: 3px;
+  opacity: 0;
+}
+.sh-dd-link:hover,
+.sh-dd-link:focus-visible {
+  background: var(--color-surface-subtle);
+}
+.sh-dd-link:hover svg,
+.sh-dd-link:focus-visible svg {
+  opacity: 1;
+}
+.sh-dd-link[aria-current='page'] {
+  color: var(--color-text-brand);
 }
 
 /* Booking button (Button / Accent) */
@@ -392,7 +543,7 @@
   padding: var(--space-8) 20px var(--space-24);
 }
 .sh-drawer-sections,
-.sh-drawer-group ul {
+.sh-drawer-group {
   margin: 0;
   padding: 0;
   list-style: none;
@@ -409,10 +560,6 @@
   text-align: left;
   text-decoration: none;
   cursor: pointer;
-}
-.sh-drawer-heading {
-  color: var(--color-text-brand);
-  margin: var(--space-24) 0 var(--space-8);
 }
 .sh-drawer-sublink {
   display: block;
@@ -437,7 +584,13 @@
   .sh-book {
     transition: none;
   }
-  .sh-mega {
+  /* Fade only. */
+  .sh-dd,
+  .sh-dd.is-open {
+    animation: none;
+    transition: opacity 180ms ease-out;
+  }
+  .sh-dd-section {
     animation: none;
   }
 }

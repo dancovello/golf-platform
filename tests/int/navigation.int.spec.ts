@@ -2,6 +2,7 @@ import { beforeAll, describe, expect, it } from 'vitest'
 
 import { loadClubBySlug } from '@/site/loadClub'
 
+import { photoFile } from '../shared/media'
 import { seedWorld, type World } from './helpers/seed'
 
 let w: World
@@ -70,7 +71,7 @@ describe('pages inside other pages', () => {
 })
 
 describe('a menu item that shows a page’s child pages', () => {
-  it('lists the page, then its child pages by position then A–Z, then the extra links', async () => {
+  it('lists the child pages by position then A–Z, then the extra links; the page is "Overview"', async () => {
     await saveSettings({
       header: {
         style: 'classic',
@@ -87,11 +88,10 @@ describe('a menu item that shows a page’s child pages', () => {
       },
     })
     const item = (await club())!.header.menu[0]
-    expect(item.link).toBeNull()
-    expect(item.groups).toHaveLength(1)
-    expect(item.groups[0].heading).toBe('')
-    expect(item.groups[0].links.map((l) => l.label)).toEqual([
-      'Golf',
+    expect(item.overview).toEqual({ kind: 'page', slug: 'golf' })
+    expect(item.link).toEqual({ kind: 'page', slug: 'golf' })
+    expect(item.image).toBeNull()
+    expect(item.children.map((l) => l.label)).toEqual([
       'Course status',
       'The courses',
       'Alpha page',
@@ -102,24 +102,59 @@ describe('a menu item that shows a page’s child pages', () => {
 
   it('picks up a new child page without touching the menu', async () => {
     await page('new-one', 'Brand new page', { parent: golf.id, menuPosition: 3 })
-    const links = (await club())!.header.menu[0].groups[0].links.map((l) => l.label)
-    expect(links.indexOf('Brand new page')).toBe(3)
+    const links = (await club())!.header.menu[0].children.map((l) => l.label)
+    expect(links.indexOf('Brand new page')).toBe(2)
   })
 
-  it('can leave the page itself out, and is a plain link when the page has no child pages', async () => {
+  it('is a plain link to the page when it has fewer than two child pages', async () => {
     const lonely = await page('lonely', 'Lonely')
+    const single = await page('single', 'Single')
+    await page('only-child', 'Only child', { parent: single.id })
     await saveSettings({
       header: {
         style: 'classic',
         menu: [
-          { label: 'Golf', kind: 'children', page: golf.id, includeParent: false },
           { label: 'Lonely', kind: 'children', page: lonely.id },
+          { label: 'Single', kind: 'children', page: single.id },
         ],
       },
     })
     const [first, second] = (await club())!.header.menu
-    expect(first.groups[0].links[0].label).toBe('Course status')
-    expect(second).toEqual({ label: 'Lonely', link: { kind: 'page', slug: 'lonely' }, groups: [] })
+    const plain = { overview: null, image: null, children: [] }
+    expect(first).toEqual({ label: 'Lonely', link: { kind: 'page', slug: 'lonely' }, ...plain })
+    expect(second).toEqual({ label: 'Single', link: { kind: 'page', slug: 'single' }, ...plain })
+  })
+
+  it('carries the page’s hero photo only with the "Panel + picture" style', async () => {
+    const photo = await w.payload.create({
+      collection: 'media',
+      data: { alt: 'The 1st tee', tenant: w.clubA.id },
+      file: await photoFile('tee.jpg', 1200, 800),
+    })
+    const pictured = await page('pictured', 'Pictured', {
+      layout: [
+        {
+          blockType: 'hero',
+          style: 'heritage',
+          mediaType: 'image',
+          image: photo.id,
+          headline: 'Golf',
+        },
+      ],
+    })
+    await page('pictured-a', 'Pictured A', { parent: pictured.id })
+    await page('pictured-b', 'Pictured B', { parent: pictured.id })
+    const menu = [
+      { label: 'Pictured', kind: 'children', page: pictured.id },
+      { label: 'Golf', kind: 'children', page: golf.id },
+    ]
+    await saveSettings({ header: { style: 'classic', dropdown: 'panel', menu } })
+    expect((await club())!.header.menu[0].image).toBeNull()
+    await saveSettings({ header: { style: 'classic', dropdown: 'panelTile', menu } })
+    const [withPhoto, withoutPhoto] = (await club())!.header.menu
+    expect(withPhoto.image?.url).toBe(photo.url)
+    // No hero on the Golf page: the brand colour tile.
+    expect(withoutPhoto.image).toBeNull()
   })
 
   it('refuses another club’s page', async () => {
@@ -132,7 +167,7 @@ describe('a menu item that shows a page’s child pages', () => {
 })
 
 describe('menu items saved before this change', () => {
-  it('still work: groups make a drop-down, otherwise a link; group headings are optional', async () => {
+  it('still work: groups make one drop-down list without headings, otherwise a link', async () => {
     await saveSettings({
       header: {
         style: 'classic',
@@ -148,12 +183,21 @@ describe('menu items saved before this change', () => {
               { links: [{ link: { label: 'News', type: 'builtIn', builtIn: 'news' } }] },
             ],
           },
+          {
+            label: 'One link',
+            kind: 'manual',
+            groups: [{ links: [{ link: { label: 'News', type: 'builtIn', builtIn: 'news' } }] }],
+          },
         ],
       },
     })
-    const [plain, groups] = (await club())!.header.menu
+    const [plain, groups, single] = (await club())!.header.menu
     expect(plain.link).toEqual({ kind: 'page', slug: 'membership' })
-    expect(groups.groups.map((g) => g.heading)).toEqual(['Play', ''])
+    expect(groups.children.map((l) => l.label)).toEqual(['Fees', 'News'])
+    // Links you choose have no section page, so no "Overview".
+    expect(groups.overview).toBeNull()
+    expect(single.children).toEqual([])
+    expect(single.link).toEqual({ kind: 'page', slug: 'news' })
   })
 })
 

@@ -10,6 +10,7 @@ import {
   type StatusState,
 } from '@/collections/courseStatusStates'
 import { builtInLink, isSafeURL, linksToPage } from '@/fields/link'
+import { loadClubMedia, type SiteMedia } from '@/site/blocks/media'
 import { loadBlockContext } from '@/site/blocks/resolve'
 import { type Brand, BRAND_INPUTS, DEFAULT_BRAND, isHex } from '@/theme/colour'
 import { DEFAULT_FONT_SET, type FontSetID, isFontSetID } from '@/theme/fontSets'
@@ -21,11 +22,20 @@ import { idOf } from '@/blocks/types'
 
 /** A link on the public site: one of the club's pages (by slug) or a checked web address. */
 export type SiteLink = { kind: 'page'; slug: string } | { kind: 'url'; href: string }
+/**
+ * One top-level menu item. With two or more `children` it opens a drop-down (spec 17); with
+ * fewer it's a plain link to `link`.
+ */
 export type MenuItem = {
   label: string
   link: SiteLink | null
-  groups: { heading: string; links: { label: string; link: SiteLink }[] }[]
+  /** The drop-down's "Overview" link: the section's own page. None for "links I choose". */
+  overview: SiteLink | null
+  /** The section page's hero photo, for the "Panel + picture" drop-down style only. */
+  image: SiteMedia | null
+  children: LabelledLink[]
 }
+export type DropdownStyle = 'panel' | 'panelTile'
 export type SiteImage = { url: string; alt: string; width: number | null; height: number | null }
 export type HeaderStyle = 'classic' | 'transparent' | 'appBar'
 export type FooterStyle = 'brandColumns' | 'lightColumns' | 'editorial'
@@ -55,6 +65,7 @@ export type ClubSite = {
     style: HeaderStyle
     booking: { label: string; link: SiteLink } | null
     phone: string | null
+    dropdown: DropdownStyle
     menu: MenuItem[]
   }
   location: {
@@ -167,8 +178,10 @@ export const loadClubBySlug = cache(async (slug: string): Promise<ClubSite | nul
     ...(f.legalLinks ?? []).map((l) => l.link ?? {}),
     ...(s.announcement?.items ?? []).map((i) => i.link ?? {}),
   ]
+  const dropdown: DropdownStyle = h.dropdown === 'panelTile' ? 'panelTile' : 'panel'
+  const sectionPages = (h.menu ?? []).map((m) => (m.kind === 'children' ? idOf(m.page) : null))
   // These don't depend on each other, so they're looked up at the same time.
-  const [pageSlugs, images, family] = await Promise.all([
+  const [pageSlugs, images, family, heroPhotos] = await Promise.all([
     clubPageSlugs(
       payload,
       tenantID,
@@ -177,9 +190,12 @@ export const loadClubBySlug = cache(async (slug: string): Promise<ClubSite | nul
     clubImages(payload, tenantID, [idOf(b.logoOnLight), idOf(b.logoOnDark)]),
     // Menu items and footer columns that list a page's child pages.
     clubPageFamilies(payload, tenantID, [
-      ...(h.menu ?? []).map((m) => (m.kind === 'children' ? idOf(m.page) : null)),
+      ...sectionPages,
       ...(f.linkColumns ?? []).map((c) => (c.source === 'children' ? idOf(c.page) : null)),
     ]),
+    dropdown === 'panelTile'
+      ? clubHeroPhotos(payload, tenantID, sectionPages)
+      : new Map<string, SiteMedia>(),
   ])
 
   const toLink = (raw: RawLink | null | undefined): SiteLink | null => {
@@ -220,36 +236,46 @@ export const loadClubBySlug = cache(async (slug: string): Promise<ClubSite | nul
       style: HEADER_STYLES.includes(h.style as HeaderStyle) ? (h.style as HeaderStyle) : 'classic',
       booking: bookingLink && bookingLabel ? { label: bookingLabel, link: bookingLink } : null,
       phone: h.phone?.trim() || null,
+      dropdown,
       menu: (h.menu ?? [])
         .map((m): MenuItem => {
           const label = m.label?.trim() ?? ''
+          const plain = (link: SiteLink | null): MenuItem => ({
+            label,
+            link,
+            overview: null,
+            image: null,
+            children: [],
+          })
           // Items saved before "What it does" existed: groups mean a drop-down.
           const kind = m.kind ?? ((m.groups ?? []).length > 0 ? 'manual' : 'link')
+          if (kind === 'link') return plain(toLink(m.link))
           if (kind === 'children') {
+            // The section page itself is reached through "Overview", so it isn't listed.
             const parentID = idOf(m.page) ?? ''
             const parent = family.parents.get(parentID)
-            const links = [
-              ...(parent && m.includeParent !== false ? [parent] : []),
+            const children = [
               ...(family.children.get(parentID) ?? []),
               ...(m.extraLinks ?? []).flatMap((l) => labelled(l.link) ?? []),
             ]
-            // A page with no child pages yet is just a link to it.
-            if (links.length <= 1) return { label, link: parent?.link ?? null, groups: [] }
-            return { label, link: null, groups: [{ heading: '', links }] }
+            // A page with fewer than two child pages is just a link to it.
+            if (children.length < 2) return plain(parent?.link ?? null)
+            return {
+              label,
+              link: parent?.link ?? null,
+              overview: parent?.link ?? null,
+              image: heroPhotos.get(parentID) ?? null,
+              children,
+            }
           }
-          if (kind === 'link') return { label, link: toLink(m.link), groups: [] }
-          return {
-            label,
-            link: null,
-            groups: (m.groups ?? [])
-              .map((g) => ({
-                heading: g.heading?.trim() ?? '',
-                links: (g.links ?? []).flatMap((l) => labelled(l.link) ?? []),
-              }))
-              .filter((g) => g.links.length > 0),
-          }
+          // "Links I choose": the drop-down shows every group's links as one list.
+          const children = (m.groups ?? []).flatMap((g) =>
+            (g.links ?? []).flatMap((l) => labelled(l.link) ?? []),
+          )
+          if (children.length < 2) return plain(children[0]?.link ?? null)
+          return { label, link: null, overview: null, image: null, children }
         })
-        .filter((m) => m.label && (m.link || m.groups.length > 0)),
+        .filter((m) => m.label && (m.link || m.children.length > 0)),
     },
     location: {
       latitude: typeof s.location?.latitude === 'number' ? s.location.latitude : null,
@@ -372,6 +398,36 @@ const clubPageFamilies = async (payload: Payload, tenantID: string, ids: (string
 }
 
 /** Public addresses of the given images, only if they belong to this club. */
+/**
+ * The photo from each page's first hero block (only this club's published pages), by page ID:
+ * the picture tile in "Panel + picture" drop-downs.
+ */
+const clubHeroPhotos = async (payload: Payload, tenantID: string, ids: (string | null)[]) => {
+  const wanted = [...new Set(ids.filter((id): id is string => Boolean(id)))]
+  if (wanted.length === 0) return new Map<string, SiteMedia>()
+  const { docs } = await payload.find({
+    collection: 'pages',
+    where: { and: [{ id: { in: wanted } }, { tenant: { equals: tenantID } }, PUBLISHED] },
+    select: { layout: true },
+    limit: wanted.length,
+    depth: 0,
+    overrideAccess: true,
+  })
+  const photoOf = new Map<string, string>()
+  for (const page of docs) {
+    const hero = (page.layout ?? []).find((b) => b.blockType === 'hero')
+    const photo = hero && 'image' in hero ? idOf(hero.image) : null
+    if (photo) photoOf.set(String(page.id), photo)
+  }
+  const media = await loadClubMedia(payload, tenantID, [...photoOf.values()])
+  return new Map(
+    [...photoOf].flatMap(([page, photo]) => {
+      const m = media.get(photo)
+      return m?.mimeType.startsWith('image/') ? [[page, m] as const] : []
+    }),
+  )
+}
+
 const clubImages = async (payload: Payload, tenantID: string, ids: (string | null)[]) => {
   const wanted = [...new Set(ids.filter((id): id is string => Boolean(id)))]
   if (wanted.length === 0) return new Map<string, SiteImage>()

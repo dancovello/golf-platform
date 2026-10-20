@@ -38,6 +38,7 @@ describe('header and menu settings', () => {
               heading: 'Play',
               links: [
                 { link: { label: 'Green fees', type: 'url', url: 'https://example.com/fees' } },
+                { link: { label: 'Lessons', type: 'url', url: 'https://example.com/lessons' } },
               ],
             },
           ],
@@ -52,11 +53,16 @@ describe('header and menu settings', () => {
         label: 'Book a tee time',
         link: { kind: 'url', href: 'https://booking.example.com' },
       },
+      dropdown: 'panel',
       menu: [
-        { label: 'Membership', link: { kind: 'page', slug: 'membership' }, groups: [] },
+        { label: 'Membership', link: { kind: 'page', slug: 'membership' }, children: [] },
         {
           label: 'Golf',
-          groups: [{ heading: 'Play', links: [{ label: 'Green fees', link: { kind: 'url' } }] }],
+          overview: null,
+          children: [
+            { label: 'Green fees', link: { kind: 'url' } },
+            { label: 'Lessons', link: { kind: 'url' } },
+          ],
         },
       ],
     })
