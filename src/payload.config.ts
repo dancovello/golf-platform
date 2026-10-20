@@ -44,6 +44,8 @@ export default buildConfig({
   admin: {
     user: 'users',
     components: {
+      // The club home screen: setup checklist, new messages, everyday jobs, course status.
+      beforeDashboard: ['/admin/ClubHome#ClubHome'],
       views: {
         inviteEditor: {
           Component: '/admin/InviteEditorView#InviteEditorView',

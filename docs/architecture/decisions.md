@@ -279,3 +279,14 @@ Recorded afterwards from PRs #106, #108, #109 and #112–#116.
 - **EU data storage (Frankfurt)**, chosen when the Sentry organisation is created (available on the free plan). Added to Schedule 3 of the data processing agreement (version `2026-10-20-draft`, so clubs accept again) and to the privacy policy.
 - **Uptime: Sentry's one free uptime monitor on production `/health`**, instead of Better Stack, whose free tier is "for personal projects". A paid uptime plan that can check each club's home page is needed before several clubs are live.
 - Setup steps for Dan: `docs/operations/monitoring.md`.
+
+## 2026-10-20: Club home screen (plan part E, first item)
+
+- **A home screen above the dashboard's sections** (`src/admin/ClubHome.tsx`). A club's editor sees:
+  - **Get your website ready, x of 6 done:** add your logo, choose your colours, footer email and postal address, set up your menu, publish your home page, accept the data processing agreement. Each step links to the right screen, and the card disappears once all six are done. Checked from the club's real data (`src/admin/clubSetup.ts`), never from wording.
+  - **Messages:** the five newest unhandled Contact page messages, and a link to all of them.
+  - **Everyday jobs:** update the course status, add a news story, add an event, edit the home page.
+  - **Course status:** as shown on the website, with "Not updated today" after 24 hours.
+- **The super-admin** sees the same for the club picked in the club selector, plus every club's setup progress.
+- Every query names the club; the editor's page is checked for club B data in the browser tests.
+- **Still to do from the review:** a Club Settings preview (refresh on save), a page-tree view, and previews for News and Events.
