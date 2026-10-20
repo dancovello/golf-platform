@@ -35,8 +35,8 @@
 }
 .dl-overdue {
   /* The status colour is too light for text on its own (about 2:1); mixed with the club's
-     Dark it reads at about 5:1 and still looks like a warning. */
-  color: color-mix(in srgb, var(--color-status-restricted) 55%, var(--brand-dark));
+     page text colour it reads at about 5:1 and still looks like a warning. */
+  color: color-mix(in srgb, var(--color-status-restricted) 55%, var(--color-text-primary));
 }
 .dl-download {
   display: inline-flex;

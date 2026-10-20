@@ -1,3 +1,5 @@
+import type { CSSProperties } from 'react'
+
 import type { ClubSite } from '../loadClub'
 import { BookButton } from './BookButton'
 import { DesktopNav } from './DesktopNav'
@@ -23,22 +25,35 @@ export const SiteHeader = ({
   base,
   currentPath,
   overHero = false,
+  heroShading,
 }: {
   club: ClubSite
   base: string
   currentPath: string
   /** Style B only: sit transparently over a full-bleed hero until the page scrolls. */
   overHero?: boolean
+  /** The hero photo's shading (SiteMedia.shading), so text over it is checked against it. */
+  heroShading?: CSSProperties
 }) => {
   const { style, menu, phone, dropdown } = club.header
   const home = base || '/'
   const nav = <DesktopNav menu={menu} base={base} currentPath={currentPath} dropdown={dropdown} />
   const transparent = style === 'transparent' && overHero
+  // Over the hero, the logo for photos; once the header turns solid on scroll, the page's.
+  const logo = (compact: boolean) =>
+    transparent ? (
+      <>
+        <Logo club={club} compact={compact} surface="image" className="sh-logo-over" />
+        <Logo club={club} compact={compact} className="sh-logo-solid" />
+      </>
+    ) : (
+      <Logo club={club} compact={compact} />
+    )
 
   const mobile = (
     <div className="sh-mobile">
       <a className="sh-logo-link" href={home} aria-label={`${club.name}, home`}>
-        <Logo club={club} compact onDark={transparent} />
+        {logo(true)}
       </a>
       <div className="sh-mobile-actions">
         {/* Tablets only: phones search from the menu, as in Figma "Header / Mobile". */}
@@ -60,7 +75,8 @@ export const SiteHeader = ({
   return (
     <>
       <HeaderScroll
-        className={`sh sh-${style}${transparent ? ' is-over-hero' : ''}`}
+        className={`sh sh-${style}${transparent ? ' is-over-hero on-image' : ''}`}
+        style={transparent ? heroShading : undefined}
         threshold={style === 'classic' ? 200 : 0}
       >
         <div className="sh-desktop">
@@ -96,7 +112,7 @@ export const SiteHeader = ({
             <div className="sh-main">
               <div className="sh-container sh-row">
                 <a className="sh-logo-link" href={home} aria-label={`${club.name}, home`}>
-                  <Logo club={club} onDark={transparent} />
+                  {logo(false)}
                 </a>
                 {nav}
                 <div className="sh-actions">

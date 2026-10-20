@@ -103,7 +103,7 @@ export const AnnouncementBar = ({ data, base }: { data: SiteAnnouncement; base: 
 
   return (
     <div
-      className={`ab ab-${data.style} is-${data.tone}`}
+      className={`ab ab-${data.style} is-${data.tone}${data.tone === 'brand' ? ' on-brand' : ''}`}
       role="region"
       aria-label="Site announcement"
       onMouseEnter={() => setPaused(true)}

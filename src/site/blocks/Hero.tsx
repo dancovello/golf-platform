@@ -11,6 +11,10 @@ import type { BlockContext } from './resolve'
 export const heroIsFullBleed = (block: { blockType?: string; style?: string | null }) =>
   block.blockType === 'hero' && block.style !== 'resort'
 
+/** A full-bleed hero's photo shading, for the transparent header over it. */
+export const heroShading = (block: { blockType?: string; image?: unknown }, ctx: BlockContext) =>
+  block.blockType === 'hero' ? ctx.media(block.image)?.shading : undefined
+
 const Media = ({
   image,
   video,
@@ -66,7 +70,7 @@ export const Hero = ({
   if (style === 'resort') {
     return (
       <section className="hero hero-resort">
-        <div className="hero-resort-band">
+        <div className="hero-resort-band on-brand">
           <div className="hero-container hero-resort-copy">
             {eyebrow}
             <h1 className="t-display-l hero-headline">{block.headline}</h1>
@@ -92,7 +96,7 @@ export const Hero = ({
 
   const booking = club.header.booking
   return (
-    <section className={`hero hero-full hero-${style}`}>
+    <section className={`hero hero-full hero-${style} on-image`} style={image.shading}>
       <HeroFit />
       <Media image={image} video={video} sizes="100vw" />
       <div className="hero-scrim" aria-hidden="true" />

@@ -67,7 +67,13 @@ export const CtaCardGrid = ({
     const href = siteHref(base, card.link.link)
     if (style === 'immersive') {
       return (
-        <a key={i} className="cg-card cg-immersive" href={href} {...external(card.link)}>
+        <a
+          key={i}
+          className="cg-card cg-immersive on-image"
+          style={card.image.shading}
+          href={href}
+          {...external(card.link)}
+        >
           <div className="cg-media">{img(card, sizes)}</div>
           <div className="cg-scrim" aria-hidden="true" />
           <div className="cg-copy">

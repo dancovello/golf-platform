@@ -1,5 +1,5 @@
 /**
- * Seeds the two picture-check clubs (tests/visual/pages.ts) on top of the test world. Run by
+ * Seeds the picture-check clubs (tests/visual/pages.ts) on top of the test world. Run by
  * tests/visual/setup-visual.ts through `payload run`, after the main setup has reset the
  * database. Everything here is deterministic, so screenshots only change when the site does.
  */
@@ -69,10 +69,42 @@ const palettes = {
       ],
     },
   },
+  // Not photographed: a pale brand colour and accent with too-faint grey text, for the contrast
+  // check (tests/visual/contrast.spec.ts). Every text colour has to adapt.
+  'visual-light': {
+    branding: {
+      primary: '#E8D9A8',
+      secondary: '#9C6B30',
+      accent: '#F2E6C9',
+      light: '#FFFDF8',
+      dark: '#8A8A8A',
+      fontSet: 'heritage',
+      strapline: 'Golf Club · 1904',
+    },
+    header: 'transparent',
+    footer: 'brandColumns',
+    announcement: {
+      style: 'classic',
+      tone: 'brand',
+      items: [
+        {
+          tag: 'course',
+          message: 'Temporary greens on the 4th and 11th this week.',
+          expiresAt: '2026-12-31T12:00:00.000Z',
+        },
+      ],
+    },
+  },
 } as const
 
+const names: Record<keyof typeof palettes, string> = {
+  'visual-default': 'Heathcote',
+  'visual-coastal': 'Saltmarsh Links',
+  'visual-light': 'Sandy Lane',
+}
+
 for (const [slug, p] of Object.entries(palettes)) {
-  const name = slug === 'visual-default' ? 'Heathcote' : 'Saltmarsh Links'
+  const name = names[slug as keyof typeof palettes]
   const club = await payload.create({ collection: 'tenants', data: { name, slug } })
   const { docs } = await payload.find({
     collection: 'club-settings',

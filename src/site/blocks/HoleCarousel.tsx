@@ -81,7 +81,8 @@ export const HoleCarousel = ({
           <article
             key={hole.number}
             role="listitem"
-            className="hole-overlay"
+            className={`hole-overlay ${hole.image ? 'on-image' : 'on-brand'}`}
+            style={hole.image?.shading}
             aria-label={`Hole ${hole.number}${hole.name ? `, ${hole.name}` : ''}, par ${hole.par}`}
           >
             {hole.image ? (

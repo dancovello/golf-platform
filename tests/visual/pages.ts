@@ -8,6 +8,12 @@ export const VISUAL_CLUBS = [
   { slug: 'visual-coastal', name: 'Saltmarsh Links', theme: 'Demo · Coastal links' },
 ] as const
 
+/** The contrast check (contrast.spec.ts) covers these too: a pale brand colour, not photographed. */
+export const CONTRAST_CLUBS = [
+  ...VISUAL_CLUBS,
+  { slug: 'visual-light', name: 'Sandy Lane', theme: 'Pale brand colour' },
+] as const
+
 export const VISUAL_VIEWPORTS = [
   { name: 'desktop', width: 1366, height: 900 },
   { name: 'mobile', width: 375, height: 812 },

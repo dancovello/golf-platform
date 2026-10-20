@@ -1,6 +1,6 @@
 'use client'
 
-import { type ReactNode, useEffect, useRef } from 'react'
+import { type CSSProperties, type ReactNode, useEffect, useRef } from 'react'
 
 /** Scroll up this far (more than the 36px utility row) before the row comes back. */
 const REVEAL_AFTER = 48
@@ -13,10 +13,12 @@ const REVEAL_AFTER = 48
 export const HeaderScroll = ({
   children,
   className,
+  style,
   threshold = 200,
 }: {
   children: ReactNode
   className: string
+  style?: CSSProperties
   threshold?: number
 }) => {
   const ref = useRef<HTMLElement>(null)
@@ -53,7 +55,7 @@ export const HeaderScroll = ({
     return () => window.removeEventListener('scroll', onScroll)
   }, [threshold])
   return (
-    <header ref={ref} className={className}>
+    <header ref={ref} className={className} style={style}>
       {children}
     </header>
   )

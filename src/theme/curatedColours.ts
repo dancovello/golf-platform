@@ -7,7 +7,8 @@ import type { Brand, BrandInput } from './colour'
  *
  * Each field has its own list because each does a different job (doc 08): Primary shades are
  * deep so light text reads on them, Accent shades are mid-tone, and so on. Any mix of shades
- * from these lists passes the save check; tests/unit/curated-colours.spec.ts proves it.
+ * from these lists keeps every designed text colour (none needs swapping for readability);
+ * tests/unit/curated-colours.spec.ts proves it.
  */
 export type ColourFamily = { family: string; shades: string[] }
 

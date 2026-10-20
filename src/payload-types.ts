@@ -290,6 +290,10 @@ export interface Media {
    * What the photo shows, read aloud to people using screen readers, e.g. "The 7th green at sunset". Optional, but please add one for any photo that matters to the page.
    */
   alt?: string | null;
+  tone?: {
+    bright?: string | null;
+    average?: string | null;
+  };
   prefix?: string | null;
   _objectKey?: string | null;
   updatedAt: string;
@@ -1118,7 +1122,7 @@ export interface ClubSetting {
   tenant?: (string | null) | Tenant;
   clubName: string;
   /**
-   * Five colours set the whole site. Every block works out its own shades from these, and colours that would make text hard to read are refused.
+   * Five colours set the whole site. Every block works out its own shades from these, and text always switches to a colour that reads on whatever is behind it.
    */
   branding: {
     /**
@@ -2579,6 +2583,12 @@ export interface ClubSettingsSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   tenant?: T;
   alt?: T;
+  tone?:
+    | T
+    | {
+        bright?: T;
+        average?: T;
+      };
   prefix?: T;
   _objectKey?: T;
   updatedAt?: T;

@@ -260,7 +260,7 @@
 }
 .events-pill.is-active {
   background: var(--color-surface-brand);
-  color: var(--color-text-on-inverse);
+  color: var(--color-action-on-solid);
 }
 .events-group {
   display: flex;

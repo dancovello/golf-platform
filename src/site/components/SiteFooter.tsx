@@ -88,7 +88,7 @@ export const SiteFooter = ({ club, base }: { club: ClubSite; base: string }) => 
   const brand = (
     <div className="sf-col sf-brand">
       <a className="sf-logo" href={base || '/'} aria-label={`${club.name}, home`}>
-        <Logo club={club} onDark={dark} />
+        <Logo club={club} surface={dark ? 'brand' : 'page'} />
       </a>
       {f.about ? <p className="t-body-s sf-about">{f.about}</p> : null}
       {f.style === 'brandColumns' ? contact(false) : null}
@@ -96,7 +96,7 @@ export const SiteFooter = ({ club, base }: { club: ClubSite; base: string }) => 
   )
 
   return (
-    <footer className={`sf sf-${f.style}${dark ? ' is-dark' : ''}`}>
+    <footer className={`sf sf-${f.style}${dark ? ' is-dark on-brand' : ''}`}>
       <div className="sf-container">
         {f.style === 'editorial' ? (
           <>

@@ -230,7 +230,7 @@ export const Membership = ({
     const l = linkOf(t)
     const price = t.price?.trim()
     return (
-      <article key={i} className={`mb-tier${t.recommended ? ' is-recommended' : ''}`}>
+      <article key={i} className={`mb-tier${t.recommended ? ' is-recommended on-brand' : ''}`}>
         <div className="mb-tier-top">
           <h3 className="t-heading-m">{t.name}</h3>
           {t.recommended ? <span className="t-data-label mb-popular">Most popular</span> : null}

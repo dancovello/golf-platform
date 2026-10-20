@@ -80,6 +80,18 @@
   max-height: 36px;
   max-width: 160px;
 }
+/* When neither uploaded logo reads on the background (src/site/components/Logo.tsx). */
+.sh-logo-img.is-recoloured-white {
+  filter: brightness(0) invert(1);
+}
+.sh-logo-img.is-recoloured-black {
+  filter: brightness(0);
+}
+/* Style B shows the photo logo over the hero and the page logo once the header is solid. */
+.sh:not([data-scrolled='true']) .sh-logo-solid,
+.sh[data-scrolled='true'] .sh-logo-over {
+  display: none;
+}
 .sh-wordmark {
   display: inline-flex;
   flex-direction: column;
