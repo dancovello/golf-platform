@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound, redirect } from 'next/navigation'
 
-import { heroIsFullBleed } from '@/site/blocks/Hero'
+import { heroIsFullBleed, heroShading } from '@/site/blocks/Hero'
 import { RenderBlocks } from '@/site/blocks/RenderBlocks'
 import { LiveRefresh } from '@/site/components/LiveRefresh'
 import { canSeeDrafts } from '@/site/livePreviewAccess'
@@ -131,6 +131,7 @@ export default async function ClubPagePreview({
       club={club}
       currentPath={`${base}/${page.slug}`}
       overHero={page.layout[0] ? heroIsFullBleed(page.layout[0]) : false}
+      heroShading={page.layout[0] ? heroShading(page.layout[0], page.ctx) : undefined}
     >
       {live ? <LiveRefresh /> : null}
       {/* No visible title on pages without a hero (Dan, 2026-10-19), but screen readers and

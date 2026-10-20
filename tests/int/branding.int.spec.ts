@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import { loadClubBySlug } from '@/site/loadClub'
-import { DEFAULT_BRAND } from '@/theme/colour'
+import { brandCSSVariables, contrast, DEFAULT_BRAND } from '@/theme/colour'
 
 import { seedWorld, type World } from './helpers/seed'
 
@@ -55,14 +55,11 @@ describe('club branding', () => {
     }
   })
 
-  it('refuses colours that would make text hard to read, and says which', async () => {
-    const error = await updateBranding({ dark: '#B0B0B0' }).catch((e: unknown) => e)
-    const errors = (error as { data?: { errors?: { path: string; message: string }[] } }).data
-      ?.errors
-    expect(errors).toContainEqual({
-      path: 'branding.dark',
-      message: expect.stringMatching(/^Dark text on the Light background would be hard to read/),
-    })
+  it('accepts any colours: text that would be hard to read is switched to one that reads', async () => {
+    await updateBranding({ dark: '#B0B0B0' })
+    const vars = brandCSSVariables({ ...DEFAULT_BRAND, dark: '#B0B0B0' })
+    expect(contrast(vars['--ink-page'], DEFAULT_BRAND.light)).toBeGreaterThanOrEqual(4.5)
+    await updateBranding({ dark: DEFAULT_BRAND.dark })
   })
 
   it('an editor cannot change another club’s branding', async () => {

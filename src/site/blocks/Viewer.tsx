@@ -91,7 +91,7 @@ export const Viewer = ({
   return (
     <div
       ref={root}
-      className={`vw${onClose ? ' is-dialog' : ''}`}
+      className={`vw${onClose ? ' is-dialog on-image' : ''}`}
       role={onClose ? 'dialog' : 'region'}
       aria-modal={onClose ? true : undefined}
       aria-label={label}

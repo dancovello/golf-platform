@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { clubContentCreate, loggedIn } from '../access/roles'
+import { measureUpload } from '../media/measure'
 import { randomServerUploadName } from '../media/uploadGuards'
 import { uploadFolder } from '../media/folders'
 import { clubBannerField } from '../tenancy'
@@ -29,7 +30,11 @@ export const Media: CollectionConfig = {
   // Listed by file name: the description is optional, so it may be blank.
   admin: { useAsTitle: 'filename', defaultColumns: ['filename', 'alt', 'updatedAt'] },
   access: { create: clubContentCreate, read: loggedIn, update: loggedIn, delete: loggedIn },
-  hooks: { beforeOperation: [folder.assignFolder, randomServerUploadName], ...searchHooks },
+  hooks: {
+    beforeOperation: [folder.assignFolder, randomServerUploadName],
+    beforeChange: [measureUpload],
+    ...searchHooks,
+  },
   upload: {
     mimeTypes: MEDIA_TYPES,
     // Files live in R2, never on the app's disk.
@@ -82,5 +87,16 @@ export const Media: CollectionConfig = {
       },
     },
     folder.prefixField,
+    {
+      // Set from the file on upload (src/media/measure.ts): how bright the photo is, and
+      // whether a logo is light or dark. The website uses it to keep text and logos legible.
+      name: 'tone',
+      type: 'group',
+      admin: { hidden: true },
+      fields: [
+        { name: 'bright', type: 'text' },
+        { name: 'average', type: 'text' },
+      ],
+    },
   ],
 }

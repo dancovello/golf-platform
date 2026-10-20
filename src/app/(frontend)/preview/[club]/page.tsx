@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 
-import { heroIsFullBleed } from '@/site/blocks/Hero'
+import { heroIsFullBleed, heroShading } from '@/site/blocks/Hero'
 import { RenderBlocks } from '@/site/blocks/RenderBlocks'
 import { LiveRefresh } from '@/site/components/LiveRefresh'
 import { canSeeDrafts } from '@/site/livePreviewAccess'
@@ -36,6 +36,7 @@ export default async function ClubPreview({
           club={club}
           currentPath={base}
           overHero={home.layout[0] ? heroIsFullBleed(home.layout[0]) : false}
+          heroShading={home.layout[0] ? heroShading(home.layout[0], home.ctx) : undefined}
         >
           <RenderBlocks
             layout={home.layout}

@@ -26,12 +26,15 @@ export const ClubShell = ({
   club,
   currentPath,
   overHero = false,
+  heroShading,
   children,
 }: {
   club: ClubSite
   currentPath: string
   /** The page starts with a full-bleed hero (header style B sits over it). */
   overHero?: boolean
+  /** That hero's photo shading (heroShading in src/site/blocks/Hero.tsx). */
+  heroShading?: CSSProperties
   children: ReactNode
 }) => {
   const theme = {
@@ -50,7 +53,13 @@ export const ClubShell = ({
         Skip to content
       </a>
       {club.announcement ? <AnnouncementBar data={club.announcement} base={base} /> : null}
-      <SiteHeader club={club} base={base} currentPath={currentPath} overHero={overHero} />
+      <SiteHeader
+        club={club}
+        base={base}
+        currentPath={currentPath}
+        overHero={overHero}
+        heroShading={heroShading}
+      />
       <main id="main" tabIndex={-1}>
         {children}
       </main>

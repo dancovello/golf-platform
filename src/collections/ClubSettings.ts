@@ -1,5 +1,5 @@
 import type { CollectionBeforeValidateHook, CollectionConfig, Field, Validate } from 'payload'
-import { APIError, ValidationError } from 'payload'
+import { APIError } from 'payload'
 import { email as emailFormat, textarea as textareaRules } from 'payload/shared'
 
 import { isSuperAdmin, loggedIn, superAdminOnly } from '../access/roles'
@@ -8,7 +8,7 @@ import { privacyRichText } from '../blocks/richText/lexical'
 import { isSafeURL, linkField } from '../fields/link'
 import { isGAMeasurementID } from '../site/privacy/policy'
 import { checkSameClub } from '../site/sameClub'
-import { BRAND_INPUTS, type Brand, contrastProblems, DEFAULT_BRAND, isHex } from '../theme/colour'
+import { BRAND_INPUTS, type Brand, DEFAULT_BRAND, isHex } from '../theme/colour'
 import { DEFAULT_FONT_SET, FONT_SETS } from '../theme/fontSets'
 import { ENQUIRY_PURPOSES } from './enquiryPurposes'
 import { idOf } from '../blocks/types'
@@ -43,26 +43,6 @@ const logoField = (name: string, label: string, description: string): Field => (
   filterOptions: { mimeType: { in: ['image/png', 'image/webp', 'image/avif', 'image/jpeg'] } },
   admin: { description },
 })
-
-/** Doc 08 rule 4: refuse colours that would make text hard to read, and say which. */
-const checkBrandContrast: CollectionBeforeValidateHook = ({ collection, data, originalDoc }) => {
-  const branding = { ...originalDoc?.branding, ...data?.branding } as Partial<Brand>
-  const brand = Object.fromEntries(
-    BRAND_INPUTS.map((key) => [key, branding[key] ?? DEFAULT_BRAND[key]]),
-  ) as Brand
-  if (!BRAND_INPUTS.every((key) => isHex(brand[key]))) return data // field validation explains
-  const problems = contrastProblems(brand)
-  if (problems.length > 0) {
-    throw new ValidationError({
-      collection: collection.slug,
-      errors: problems.map((p) => ({
-        path: `branding.${p.field}`,
-        message: `${p.pair} would be hard to read (contrast ${p.ratio}:1, needs at least 4.5:1).`,
-      })),
-    })
-  }
-  return data
-}
 
 /**
  * Required whenever the settings are saved, but not when they're first made blank alongside a
@@ -110,7 +90,7 @@ export const ClubSettings: CollectionConfig = {
   admin: { useAsTitle: 'clubName' },
   // Created and removed with the club by the super-admin; editors only update their own.
   access: { create: superAdminOnly, read: loggedIn, update: loggedIn, delete: superAdminOnly },
-  hooks: { beforeValidate: [requireAgreement, checkBrandContrast, checkSameClub] },
+  hooks: { beforeValidate: [requireAgreement, checkSameClub] },
   fields: [
     {
       name: 'agreementNotice',
@@ -135,7 +115,7 @@ export const ClubSettings: CollectionConfig = {
               label: 'Branding',
               admin: {
                 description:
-                  'Five colours set the whole site. Every block works out its own shades from these, and colours that would make text hard to read are refused.',
+                  'Five colours set the whole site. Every block works out its own shades from these, and text always switches to a colour that reads on whatever is behind it.',
               },
               fields: [
                 {

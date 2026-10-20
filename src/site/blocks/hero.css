@@ -59,10 +59,10 @@
   inset: 0;
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--brand-dark) 55%, transparent) 0%,
-    color-mix(in srgb, var(--brand-dark) 15%, transparent) 22%,
-    color-mix(in srgb, var(--brand-dark) 45%, transparent) 45%,
-    color-mix(in srgb, var(--brand-dark) 90%, transparent) 100%
+    color-mix(in srgb, var(--image-shade) max(55%, var(--photo-shade)), transparent) 0%,
+    color-mix(in srgb, var(--image-shade) max(15%, var(--photo-shade)), transparent) 22%,
+    color-mix(in srgb, var(--image-shade) max(45%, var(--photo-shade)), transparent) 45%,
+    color-mix(in srgb, var(--image-shade) max(90%, var(--photo-shade)), transparent) 100%
   );
 }
 .hero-copy {
@@ -180,10 +180,10 @@
   .hero-scrim {
     background: linear-gradient(
       180deg,
-      color-mix(in srgb, var(--brand-dark) 60%, transparent) 0%,
-      color-mix(in srgb, var(--brand-dark) 25%, transparent) 22%,
-      color-mix(in srgb, var(--brand-dark) 55%, transparent) 45%,
-      color-mix(in srgb, var(--brand-dark) 92%, transparent) 100%
+      color-mix(in srgb, var(--image-shade) max(60%, var(--photo-shade)), transparent) 0%,
+      color-mix(in srgb, var(--image-shade) max(25%, var(--photo-shade)), transparent) 22%,
+      color-mix(in srgb, var(--image-shade) max(55%, var(--photo-shade)), transparent) 45%,
+      color-mix(in srgb, var(--image-shade) max(92%, var(--photo-shade)), transparent) 100%
     );
   }
   .hero-resort-band {

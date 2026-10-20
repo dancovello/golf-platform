@@ -156,7 +156,7 @@
     180deg,
     var(--color-overlay-clear) 10%,
     var(--color-overlay-scrim) 50%,
-    color-mix(in srgb, var(--brand-dark) 92%, transparent) 100%
+    color-mix(in srgb, var(--image-shade) max(92%, var(--photo-shade)), transparent) 100%
   );
 }
 .news-card.is-feature .news-card-body {
@@ -228,7 +228,7 @@
 }
 .news-pill.is-active {
   background: var(--color-surface-brand);
-  color: var(--color-text-on-inverse);
+  color: var(--color-action-on-solid);
 }
 /* Figma Text Input: 48px, 1px strong border, square corners. */
 .news-search {

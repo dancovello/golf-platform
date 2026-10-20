@@ -43,7 +43,7 @@ export const PullQuote = ({ block, ctx }: { block: PullQuoteBlock; ctx: BlockCon
 
   if (style === 'overImage' && hasImage) {
     return (
-      <section className="pq pq-over">
+      <section className="pq pq-over on-image" style={image.shading}>
         <Photo image={image} sizes="100vw" className="pq-bg" alt="" />
         <div className="pq-scrim" aria-hidden="true" />
         <div className="pq-over-inner">{figure}</div>

@@ -122,7 +122,7 @@
 }
 .cf-pill input:checked + span {
   background: var(--color-surface-brand);
-  color: var(--color-text-on-inverse);
+  color: var(--color-action-on-solid);
 }
 .cf-pill input:focus-visible + span {
   outline: 2px solid var(--color-action-accent);

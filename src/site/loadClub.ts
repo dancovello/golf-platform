@@ -10,6 +10,7 @@ import {
   type StatusState,
 } from '@/collections/courseStatusStates'
 import { builtInLink, isSafeURL, linksToPage } from '@/fields/link'
+import { measureMissing } from '@/media/measure'
 import { loadClubMedia, type SiteMedia } from '@/site/blocks/media'
 import { loadBlockContext } from '@/site/blocks/resolve'
 import { type Brand, BRAND_INPUTS, DEFAULT_BRAND, isHex } from '@/theme/colour'
@@ -36,7 +37,14 @@ export type MenuItem = {
   children: LabelledLink[]
 }
 export type DropdownStyle = 'panel' | 'panelTile'
-export type SiteImage = { url: string; alt: string; width: number | null; height: number | null }
+export type SiteImage = {
+  url: string
+  alt: string
+  width: number | null
+  height: number | null
+  /** The average colour of its visible pixels, measured on upload (null for older uploads). */
+  colour: string | null
+}
 export type HeaderStyle = 'classic' | 'transparent' | 'appBar'
 export type FooterStyle = 'brandColumns' | 'lightColumns' | 'editorial'
 export type LabelledLink = { label: string; link: SiteLink }
@@ -439,12 +447,19 @@ const clubImages = async (payload: Payload, tenantID: string, ids: (string | nul
     depth: 0,
     overrideAccess: true,
   })
+  measureMissing(payload, docs)
   return new Map(
     docs
       .filter((d) => typeof d.url === 'string' && String(d.mimeType ?? '').startsWith('image/'))
       .map((d) => [
         String(d.id),
-        { url: String(d.url), alt: d.alt ?? '', width: d.width ?? null, height: d.height ?? null },
+        {
+          url: String(d.url),
+          alt: d.alt ?? '',
+          width: d.width ?? null,
+          height: d.height ?? null,
+          colour: isHex(d.tone?.average) ? d.tone.average : null,
+        },
       ]),
   )
 }

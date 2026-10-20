@@ -53,7 +53,10 @@ export const NewsCard = ({
 }) => {
   const Heading = headingLevel === 2 ? 'h2' : 'h3'
   return (
-    <article className={`news-card is-${layout}${card.image ? '' : ' no-image'}`}>
+    <article
+      className={`news-card is-${layout}${card.image ? '' : ' no-image'}${layout === 'feature' ? (card.image ? ' on-image' : ' on-brand') : ''}`}
+      style={layout === 'feature' ? card.image?.shading : undefined}
+    >
       {card.image || layout === 'stacked' ? (
         <div className="news-card-image">
           {card.image ? <Photo image={card.image} sizes={sizes} alt="" /> : null}
