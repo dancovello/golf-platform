@@ -1,5 +1,6 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
+import { linkEmailContent, resetLinkEmailLimit } from '@/accounts/inviteEmail'
 import { createPasswordLink, inviteEditor, PASSWORD_LINK_HOURS } from '@/accounts/passwordLinks'
 import { adminURL, resetEmailHTML } from '@/accounts/resetEmail'
 
@@ -154,6 +155,86 @@ describe('"Forgot password?" by email, where email is set up', () => {
         disableEmail: true,
       }),
     ).rejects.toThrow(/Ask your platform administrator/)
+  })
+})
+
+describe('invitations and new links by email (plan part C)', () => {
+  const on = () => {
+    vi.stubEnv('RESEND_API_KEY', 'test-only-not-a-real-key')
+    vi.stubEnv('ADMIN_URL', 'https://admin.example.com/')
+  }
+  afterEach(() => {
+    vi.unstubAllEnvs()
+    vi.restoreAllMocks()
+    resetLinkEmailLimit()
+  })
+
+  it('emails the invitation, naming the club, with a link on ADMIN_URL', async () => {
+    on()
+    const sendEmail = vi.spyOn(w.payload, 'sendEmail').mockResolvedValue({})
+    const invite = await inviteEditor(w.payload, {
+      email: 'emailed@example.com',
+      tenant: w.clubA.id,
+      serverURL: 'https://forged.example.net',
+    })
+    expect(invite.emailed).toBe(true)
+    expect(invite.link).toMatch(/^https:\/\/admin\.example\.com\/admin\/reset\/[a-f0-9]+$/)
+    expect(sendEmail).toHaveBeenCalledTimes(1)
+    const sent = sendEmail.mock.calls[0][0] as Record<string, string>
+    expect(sent.to).toBe('emailed@example.com')
+    expect(sent.subject).toBe(`You're invited to edit the ${w.clubA.name} website`)
+    expect(sent.text).toContain(invite.link)
+    expect(sent.text).toContain(`${PASSWORD_LINK_HOURS} hours`)
+    expect(sent.text).not.toContain('forged.example.net')
+    expect(sent.text).not.toContain(w.clubB.name)
+  })
+
+  it('sends nothing where email or ADMIN_URL is missing, and the link is still shown', async () => {
+    const sendEmail = vi.spyOn(w.payload, 'sendEmail').mockResolvedValue({})
+    const noEmail = await createPasswordLink(w.payload, {
+      userID: w.editorA2.id,
+      serverURL: SERVER,
+    })
+    expect(noEmail).toMatchObject({ emailed: false, emailNote: null })
+    vi.stubEnv('RESEND_API_KEY', 'test-only-not-a-real-key')
+    const noAdminURL = await createPasswordLink(w.payload, {
+      userID: w.editorA2.id,
+      serverURL: SERVER,
+    })
+    expect(noAdminURL.emailed).toBe(false)
+    expect(noAdminURL.link.startsWith(SERVER)).toBe(true)
+    expect(sendEmail).not.toHaveBeenCalled()
+  })
+
+  it('a second link within 15 minutes is shown but not emailed again', async () => {
+    on()
+    const sendEmail = vi.spyOn(w.payload, 'sendEmail').mockResolvedValue({})
+    const first = await createPasswordLink(w.payload, { userID: w.editorA2.id, serverURL: SERVER })
+    const second = await createPasswordLink(w.payload, { userID: w.editorA2.id, serverURL: SERVER })
+    expect(first.emailed).toBe(true)
+    expect(second.emailed).toBe(false)
+    expect(second.emailNote).toContain('last 15 minutes')
+    expect(sendEmail).toHaveBeenCalledTimes(1)
+  })
+
+  it("a failed email doesn't lose the link", async () => {
+    on()
+    vi.spyOn(w.payload, 'sendEmail').mockRejectedValue(new Error('Resend is down'))
+    const result = await createPasswordLink(w.payload, { userID: w.editorA2.id, serverURL: SERVER })
+    expect(result.emailed).toBe(false)
+    expect(result.emailNote).toContain("couldn't be sent")
+    expect(result.link).toContain('/admin/reset/')
+  })
+
+  it('keeps the club name from breaking the subject line', () => {
+    const { subject } = linkEmailContent({
+      to: 'x@example.com',
+      clubName: 'Evil\r\nBcc: everyone@example.com',
+      link: 'https://admin.example.com/admin/reset/abc',
+      expiresInHours: 72,
+      kind: 'new-link',
+    })
+    expect(subject).not.toMatch(/[\r\n]/)
   })
 })
 

@@ -3,18 +3,36 @@
 import { Button } from '@payloadcms/ui'
 import { useState } from 'react'
 
-export type PasswordLink = { link: string; email: string; expiresInHours: number }
+export type PasswordLink = {
+  link: string
+  email: string
+  expiresInHours: number
+  /** Emailed to them (src/accounts/inviteEmail.ts), and if not, why not (null: email isn't set
+   * up here). */
+  emailed?: boolean
+  emailNote?: string | null
+}
 
 /** Shows a "set your password" link with a copy button and plain-English instructions. */
 export const CopyableLink = ({ result }: { result: PasswordLink }) => {
   const [copied, setCopied] = useState(false)
   return (
     <div role="status" style={{ marginTop: '1.5rem' }}>
-      <p>
-        Send this link to <strong>{result.email}</strong>. It works once, for{' '}
-        {result.expiresInHours} hours. They&rsquo;ll choose a password, then set up two-factor
-        login.
-      </p>
+      {result.emailed ? (
+        <p>
+          We&rsquo;ve emailed this link to <strong>{result.email}</strong>. It works once, for{' '}
+          {result.expiresInHours} hours. They&rsquo;ll choose a password, then set up two-factor
+          login. If the email doesn&rsquo;t arrive (ask them to check their spam folder), copy the
+          link below and send it yourself.
+        </p>
+      ) : (
+        <p>
+          {result.emailNote ? `${result.emailNote} ` : ''}
+          Send this link to <strong>{result.email}</strong>. It works once, for{' '}
+          {result.expiresInHours} hours. They&rsquo;ll choose a password, then set up two-factor
+          login.
+        </p>
+      )}
       <label htmlFor="password-link">Set-your-password link</label>
       <input
         id="password-link"

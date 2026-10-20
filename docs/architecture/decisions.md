@@ -228,3 +228,11 @@ Dan, 2026-10-20: the site must stay legible whatever colours a club picks, and t
 - **Photos are measured on upload** (brightest areas and average colour, with `sharp`, which Payload already uses). Text over a photo gets at least the shading that brings it to 4.5:1 over the photo's brightest areas, so very bright photos look darker than before. Photos uploaded earlier are measured from their public file the first time a page shows them (stored straight to the record, no upload hooks). The release job is untouched and still can't reach media. New `media.tone_bright` and `media.tone_average` columns (migration `20261020_092237_media_tone`, add-only).
 - **Logos are chosen by measured colour**, at 3:1 on the real background: the slot meant for it, then the other slot, then the logo shown in white or black. The transparent header swaps logos when it turns solid on scroll.
 - **Check:** axe contrast over every block and template page for three test clubs, one with a pale brand colour (`tests/visual/contrast.spec.ts`, CI job block-regression), plus 2,000 random palettes in the unit tests.
+
+## 2026-10-20: Editor invitations by email (plan part C)
+
+- **"Invite editor" and "New set-your-password link" email the link** to the editor wherever email is set up (`RESEND_API_KEY`) and the admin's address is known (`ADMIN_URL`). The email names the club, says the link works once for 72 hours, and explains the two steps: choose a password, then set up two-factor login with an authenticator app.
+- **The link is still shown to copy**, as a fallback if the email goes to spam. The screen says whether it was emailed, and if not, why not.
+- **Links use `ADMIN_URL` whenever it's set**, never the address the request came in on. Without `ADMIN_URL` nothing is emailed, and the on-screen link uses the super-admin's own address as before.
+- **At most one of these emails per account every 15 minutes**, counted per server instance (only a signed-in super-admin can send them). It shares Resend's free 100 a day with Contact alerts and password resets.
+- Staging and previews send every email to `EMAIL_OVERRIDE_TO`, never to the person invited.
