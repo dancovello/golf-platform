@@ -21,6 +21,7 @@ import { HeadingFeatureClient as HeadingFeatureClient_e70f5e05f09f93e00b997edb1e
 import { ParagraphFeatureClient as ParagraphFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { AssignTenantFieldTrigger as AssignTenantFieldTrigger_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
 import { AgreementNotice as AgreementNotice_0c59deaf7e3e73247a9db3722360189d } from '../../../admin/AgreementNotice'
+import { PalettePicker as PalettePicker_37f8d3b572526ee0d735b18cf41a0288 } from '../../../admin/ColourField'
 import { ColourField as ColourField_37f8d3b572526ee0d735b18cf41a0288 } from '../../../admin/ColourField'
 import { MenuRowLabel as MenuRowLabel_a7b5e316e5e0b30158da1854ec94f269 } from '../../../admin/MenuRowLabel'
 import { ColumnRowLabel as ColumnRowLabel_a7b5e316e5e0b30158da1854ec94f269 } from '../../../admin/MenuRowLabel'
@@ -61,6 +62,7 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#ParagraphFeatureClient": ParagraphFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/plugin-multi-tenant/client#AssignTenantFieldTrigger": AssignTenantFieldTrigger_1d0591e3cf4f332c83a86da13a0de59a,
   "/admin/AgreementNotice#AgreementNotice": AgreementNotice_0c59deaf7e3e73247a9db3722360189d,
+  "/admin/ColourField#PalettePicker": PalettePicker_37f8d3b572526ee0d735b18cf41a0288,
   "/admin/ColourField#ColourField": ColourField_37f8d3b572526ee0d735b18cf41a0288,
   "/admin/MenuRowLabel#MenuRowLabel": MenuRowLabel_a7b5e316e5e0b30158da1854ec94f269,
   "/admin/MenuRowLabel#ColumnRowLabel": ColumnRowLabel_a7b5e316e5e0b30158da1854ec94f269,

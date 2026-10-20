@@ -1122,23 +1122,23 @@ export interface ClubSetting {
    */
   branding: {
     /**
-     * Brand bands, headers and solid buttons. Pick it from the swatch, or type a six-digit colour code, e.g. #1B2A22.
+     * Brand bands, headers and solid buttons. Choose one of the suggested shades, or type your own six-digit colour code, e.g. #1B2A22.
      */
     primary: string;
     /**
-     * A softer supporting colour, mixed into subtle backgrounds and eyebrow text. Pick it from the swatch, or type a six-digit colour code, e.g. #717E6A.
+     * A softer supporting colour, mixed into subtle backgrounds and eyebrow text. Choose one of the suggested shades, or type your own six-digit colour code, e.g. #717E6A.
      */
     secondary: string;
     /**
-     * The main call-to-action colour. Used sparingly. Pick it from the swatch, or type a six-digit colour code, e.g. #B39462.
+     * The main call-to-action colour. Used sparingly. Choose one of the suggested shades, or type your own six-digit colour code, e.g. #B39462.
      */
     accent: string;
     /**
-     * The page background. Usually a near-white. Pick it from the swatch, or type a six-digit colour code, e.g. #FAF7F1.
+     * The page background. Usually a near-white. Choose one of the suggested shades, or type your own six-digit colour code, e.g. #FAF7F1.
      */
     light: string;
     /**
-     * Body text and headings. Usually a near-black. Pick it from the swatch, or type a six-digit colour code, e.g. #111814.
+     * Body text and headings. Usually a near-black. Choose one of the suggested shades, or type your own six-digit colour code, e.g. #111814.
      */
     dark: string;
     fontSet: 'heritage' | 'editorial' | 'contemporary';
