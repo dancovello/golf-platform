@@ -198,6 +198,15 @@ export interface Tenant {
    * Lower-case letters, numbers and dashes, e.g. "royal-example". Filled in from the club name if left empty. Used in staging preview addresses.
    */
   slug?: string | null;
+  /**
+   * The first address is the main one, e.g. "www.yourclub.co.uk". Add others, such as "yourclub.co.uk", and they forward to the main one. Each address must also be added in Vercel (docs/operations/connect-club-domain.md).
+   */
+  domains?:
+    | {
+        hostname: string;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -2889,6 +2898,12 @@ export interface AgreementAcceptancesSelect<T extends boolean = true> {
 export interface TenantsSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
+  domains?:
+    | T
+    | {
+        hostname?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
