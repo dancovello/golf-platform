@@ -1319,11 +1319,14 @@ export interface ClubSetting {
      */
     dropdown: 'panel' | 'panelTile';
     /**
-     * Up to 10 items, left to right; drag to reorder. If they don’t all fit across a computer screen, visitors get the menu button instead, as on phones. Each is a link, or opens a drop-down: either the child pages of one of your pages (kept up to date for you) or links you choose.
+     * Up to 10 items, left to right; drag to reorder. If they don’t all fit across a computer screen, visitors get the menu button instead, as on phones.
      */
     menu?:
       | {
-          label: string;
+          /**
+           * Blank: the name of the (first) page it goes to.
+           */
+          label?: string | null;
           kind?: ('link' | 'children' | 'manual') | null;
           link?: {
             type?: ('page' | 'builtIn' | 'url') | null;
@@ -1335,17 +1338,24 @@ export interface ClubSetting {
             url?: string | null;
           };
           /**
-           * Its child pages (set on each page, under "Parent page") make up the drop-down, in their "Position" order.
+           * One page: its child pages fill the drop-down. Two or three: one column each, headed by the page, with its child pages underneath. A page’s child pages are the ones with it as their "Parent page".
            */
-          page?: (string | null) | Page;
-          includeParent?: boolean | null;
+          sections?:
+            | {
+                page: string | Page;
+                id?: string | null;
+              }[]
+            | null;
           /**
            * e.g. your booking site, or News, Events or Contact.
            */
           extraLinks?:
             | {
-                link: {
-                  label: string;
+                link?: {
+                  /**
+                   * Blank: the page’s name.
+                   */
+                  label?: string | null;
                   type?: ('page' | 'builtIn' | 'url') | null;
                   page?: (string | null) | Page;
                   builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
@@ -1357,16 +1367,33 @@ export interface ClubSetting {
                 id?: string | null;
               }[]
             | null;
-          /**
-           * Up to 3 groups side by side, each with its own heading.
-           */
+          links?:
+            | {
+                link?: {
+                  /**
+                   * Blank: the page’s name.
+                   */
+                  label?: string | null;
+                  type?: ('page' | 'builtIn' | 'url') | null;
+                  page?: (string | null) | Page;
+                  builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+                  /**
+                   * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+                   */
+                  url?: string | null;
+                };
+                id?: string | null;
+              }[]
+            | null;
+          page?: (string | null) | Page;
+          includeParent?: boolean | null;
           groups?:
             | {
                 heading?: string | null;
                 links?:
                   | {
-                      link: {
-                        label: string;
+                      link?: {
+                        label?: string | null;
                         type?: ('page' | 'builtIn' | 'url') | null;
                         page?: (string | null) | Page;
                         builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
@@ -1404,8 +1431,11 @@ export interface ClubSetting {
           page?: (string | null) | Page;
           links?:
             | {
-                link: {
-                  label: string;
+                link?: {
+                  /**
+                   * Blank: the page’s name.
+                   */
+                  label?: string | null;
                   type?: ('page' | 'builtIn' | 'url') | null;
                   page?: (string | null) | Page;
                   builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
@@ -1425,8 +1455,11 @@ export interface ClubSetting {
      */
     legalLinks?:
       | {
-          link: {
-            label: string;
+          link?: {
+            /**
+             * Blank: the page’s name.
+             */
+            label?: string | null;
             type?: ('page' | 'builtIn' | 'url') | null;
             page?: (string | null) | Page;
             builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
@@ -1452,6 +1485,9 @@ export interface ClubSetting {
         }[]
       | null;
     hoursLink?: {
+      /**
+       * Blank: the page’s name.
+       */
       label?: string | null;
       type?: ('page' | 'builtIn' | 'url') | null;
       page?: (string | null) | Page;
@@ -1481,6 +1517,9 @@ export interface ClubSetting {
         }[]
       | null;
     secondaryButton?: {
+      /**
+       * Blank: the page’s name.
+       */
       label?: string | null;
       type?: ('page' | 'builtIn' | 'url') | null;
       page?: (string | null) | Page;
@@ -1514,6 +1553,9 @@ export interface ClubSetting {
            */
           expiresAt: string;
           link?: {
+            /**
+             * Blank: the page’s name.
+             */
             label?: string | null;
             type?: ('page' | 'builtIn' | 'url') | null;
             page?: (string | null) | Page;
@@ -2585,8 +2627,12 @@ export interface ClubSettingsSelect<T extends boolean = true> {
                     builtIn?: T;
                     url?: T;
                   };
-              page?: T;
-              includeParent?: T;
+              sections?:
+                | T
+                | {
+                    page?: T;
+                    id?: T;
+                  };
               extraLinks?:
                 | T
                 | {
@@ -2601,6 +2647,22 @@ export interface ClubSettingsSelect<T extends boolean = true> {
                         };
                     id?: T;
                   };
+              links?:
+                | T
+                | {
+                    link?:
+                      | T
+                      | {
+                          label?: T;
+                          type?: T;
+                          page?: T;
+                          builtIn?: T;
+                          url?: T;
+                        };
+                    id?: T;
+                  };
+              page?: T;
+              includeParent?: T;
               groups?:
                 | T
                 | {

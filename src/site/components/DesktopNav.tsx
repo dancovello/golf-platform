@@ -10,7 +10,7 @@ import {
   useState,
 } from 'react'
 
-import type { DropdownStyle, MenuItem } from '../loadClub'
+import type { DropdownStyle, LabelledLink, MenuItem } from '../loadClub'
 import { ArrowRight, ChevronDown } from './Icons'
 import { currentMenuIndex, linkTarget, siteHref } from './links'
 
@@ -261,6 +261,48 @@ const Section = ({
   tile: boolean
   hidden: boolean
 }) => {
+  const link = (l: LabelledLink, className: string) => {
+    const href = siteHref(base, l.link)
+    return (
+      <a
+        className={className}
+        href={href}
+        aria-current={href === currentPath ? 'page' : undefined}
+        {...linkTarget(l.link)}
+      >
+        <span>{l.label}</span>
+        <ArrowRight size={14} />
+      </a>
+    )
+  }
+  // Two or three pages, one column each: the page as the column's heading, then its child pages.
+  if (item.columns) {
+    return (
+      <div
+        id={id}
+        data-section={index}
+        className={`sh-dd-section cols-${item.columns.length}`}
+        hidden={hidden}
+      >
+        <div className="sh-dd-head">
+          <p className="t-heading-m sh-dd-title">{item.label}</p>
+        </div>
+        <div className="sh-dd-cols">
+          {item.columns.map((c, k) => (
+            <div key={k} className="sh-dd-col">
+              {link(c.heading, 't-label-s sh-dd-col-head')}
+              <ul className="sh-dd-col-links">
+                {c.links.map((l, j) => (
+                  <li key={j}>{link(l, 't-nav sh-dd-link')}</li>
+                ))}
+                {c.more ? <li>{link(c.more, 't-label-s sh-dd-link sh-dd-more')}</li> : null}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
   const columns = dropdownColumns(item.children.length)
   const overview = item.overview ? (
     <a className="t-label-s sh-dd-overview" href={siteHref(base, item.overview)}>
@@ -298,22 +340,9 @@ const Section = ({
         </div>
       )}
       <ul className="sh-dd-links">
-        {item.children.map((l, k) => {
-          const href = siteHref(base, l.link)
-          return (
-            <li key={k}>
-              <a
-                className="t-nav sh-dd-link"
-                href={href}
-                aria-current={href === currentPath ? 'page' : undefined}
-                {...linkTarget(l.link)}
-              >
-                <span>{l.label}</span>
-                <ArrowRight size={14} />
-              </a>
-            </li>
-          )
-        })}
+        {item.children.map((l, k) => (
+          <li key={k}>{link(l, 't-nav sh-dd-link')}</li>
+        ))}
       </ul>
     </div>
   )

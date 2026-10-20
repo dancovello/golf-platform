@@ -28,13 +28,25 @@ export const builtInLink = (value: unknown): { kind: 'page'; slug: string } | nu
  * built-in page). The default type is "page". */
 export const linksToPage = (type: unknown) => type !== 'url' && type !== 'builtIn'
 
-type LinkOptions = { name: string; label: string; withLabel?: boolean; required?: boolean }
+type LinkOptions = {
+  name: string
+  label: string
+  withLabel?: boolean
+  required?: boolean
+  /** The text may be left blank for one of the club's pages or a built-in page: the site
+   * then uses that page's name (src/site/loadClub.ts). A web address still needs its text. */
+  textFromPage?: boolean
+}
+
+/** The text a link to a built-in page shows when its own text is left blank. */
+export const builtInLabel = (value: unknown) => BUILT_IN_PAGES.find((p) => p.value === value)?.label
 
 export const linkField = ({
   name,
   label,
   withLabel = true,
   required = true,
+  textFromPage = false,
 }: LinkOptions): GroupField => ({
   name,
   label,
@@ -44,7 +56,24 @@ export const linkField = ({
       type: 'row',
       fields: [
         ...(withLabel
-          ? ([{ name: 'label', label: 'Text', type: 'text', required, maxLength: 40 }] as Field[])
+          ? ([
+              textFromPage
+                ? {
+                    name: 'label',
+                    label: 'Text',
+                    type: 'text',
+                    maxLength: 40,
+                    admin: { description: 'Blank: the page’s name.' },
+                    validate: (
+                      value: unknown,
+                      { siblingData }: { siblingData: { type?: string; url?: string } },
+                    ) =>
+                      value || siblingData?.type !== 'url' || (!required && !siblingData?.url)
+                        ? true
+                        : 'Enter the text for this web address.',
+                  }
+                : { name: 'label', label: 'Text', type: 'text', required, maxLength: 40 },
+            ] as Field[])
           : []),
         {
           name: 'type',
