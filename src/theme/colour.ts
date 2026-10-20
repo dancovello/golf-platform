@@ -113,8 +113,12 @@ export type Tone = {
 }
 
 export type Theme = {
-  /** The page, white cards and the light tint (Light, white and Light mixed with Secondary). */
-  page: Tone
+  /**
+   * The page, white cards and the light tint (Light, white and Light mixed with Secondary).
+   * `faint` is lighter than `muted`, for small counts beside a heading. It is checked on Light
+   * and white only, so it is not for the light tint.
+   */
+  page: Tone & { faint: string }
   /** Brand bands, solid buttons and the dark footer (Primary). */
   brand: Tone
   /** Text on Accent buttons. */
@@ -147,6 +151,10 @@ export const deriveTheme = (brand: Brand): Theme => {
     page: {
       text: pageText,
       muted: readable([designed['text/secondary'], pageText], pageBackgrounds),
+      faint: readable(
+        [mix(brand.dark, 60, brand.light), designed['text/secondary'], pageText],
+        [brand.light, RAISED],
+      ),
       eyebrow: readable([designed['text/brand'], pageText], pageBackgrounds),
     },
     brand: {
@@ -210,6 +218,7 @@ export const brandCSSVariables = (brand: Brand): Record<string, string> => {
     '--brand-dark': brand.dark,
     '--ink-page': theme.page.text,
     '--ink-page-muted': theme.page.muted,
+    '--ink-page-faint': theme.page.faint,
     '--ink-page-eyebrow': theme.page.eyebrow,
     '--ink-brand': theme.brand.text,
     '--ink-brand-muted': theme.brand.muted,

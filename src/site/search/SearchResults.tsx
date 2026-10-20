@@ -276,7 +276,11 @@ const Group = ({
   <section className="srch-group" aria-labelledby={`srch-group-${kind}`}>
     <header className="srch-group-header">
       <h2 className="t-eyebrow srch-group-title" id={`srch-group-${kind}`}>
-        {KINDS[kind].plural} <span className="t-label-s srch-group-count">{count}</span>
+        {KINDS[kind].plural}{' '}
+        <span className="t-label-s srch-group-count">
+          <span aria-hidden="true">·</span>
+          {count}
+        </span>
       </h2>
       {count > results.length ? (
         <a

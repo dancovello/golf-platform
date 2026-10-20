@@ -231,8 +231,14 @@
   justify-content: space-between;
   min-height: 24px;
 }
-.sp-count {
-  color: var(--color-text-secondary);
+.sp-group-header .sp-count {
+  margin-left: var(--space-4);
+  /* Lighter than secondary text and regular weight, so the count reads as a number, not part
+     of the heading. Scoped under the heading so it wins over .t-label-s. */
+  display: inline-flex;
+  gap: var(--space-4);
+  color: var(--color-text-faint);
+  font-weight: 400;
   letter-spacing: 0.04em;
 }
 .sp-see-all {

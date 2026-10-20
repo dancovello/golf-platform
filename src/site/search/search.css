@@ -209,11 +209,16 @@
 .srch-group-title {
   display: flex;
   align-items: center;
-  gap: var(--space-8);
+  gap: var(--space-4);
   margin: 0;
 }
-.srch-group-count {
-  color: var(--color-text-secondary);
+.srch-group-title .srch-group-count {
+  /* Lighter than secondary text and regular weight, so the count reads as a number, not part
+     of the heading. Scoped under the heading so it wins over .t-label-s. */
+  display: inline-flex;
+  gap: var(--space-4);
+  color: var(--color-text-faint);
+  font-weight: 400;
   letter-spacing: 0.04em;
   text-transform: none;
 }

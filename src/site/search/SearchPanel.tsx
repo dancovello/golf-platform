@@ -377,7 +377,12 @@ export const SearchPanel = ({
     <div className="sp-group-header" role="presentation">
       <span className="t-eyebrow" id={id}>
         {label}
-        {count !== undefined ? <span className="t-label-s sp-count"> {count}</span> : null}
+        {count !== undefined ? (
+          <span className="t-label-s sp-count">
+            <span aria-hidden="true">·</span>
+            {count}
+          </span>
+        ) : null}
       </span>
       {seeAllHref ? (
         <a className="t-label-s sp-see-all" href={seeAllHref} tabIndex={-1}>
