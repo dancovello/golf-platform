@@ -2,6 +2,7 @@ import type { CollectionBeforeValidateHook, CollectionConfig } from 'payload'
 
 import { editorTenantID, isSuperAdmin, superAdminOnly } from '../access/roles'
 import { SLUG, slugify } from '../fields/slug'
+import { hostProblem, normaliseHost } from '../site/hosts'
 import { DEFAULT_BRAND } from '../theme/colour'
 import { DEFAULT_FONT_SET } from '../theme/fontSets'
 
@@ -9,6 +10,16 @@ import { DEFAULT_FONT_SET } from '../theme/fontSets'
 const defaultSlug: CollectionBeforeValidateHook = ({ data, operation }) => {
   if (operation === 'create' && data && !data.slug && typeof data.name === 'string') {
     data.slug = slugify(data.name)
+  }
+  return data
+}
+
+/** Web addresses are saved bare and in lower case, whatever was typed ("https://Club.co.uk/"). */
+const tidyDomains: CollectionBeforeValidateHook = ({ data }) => {
+  if (data && Array.isArray(data.domains)) {
+    for (const row of data.domains as { hostname?: unknown }[]) {
+      if (typeof row?.hostname === 'string') row.hostname = normaliseHost(row.hostname)
+    }
   }
   return data
 }
@@ -37,7 +48,7 @@ export const Tenants: CollectionConfig = {
     delete: superAdminOnly,
   },
   hooks: {
-    beforeValidate: [defaultSlug],
+    beforeValidate: [defaultSlug, tidyDomains],
     // Every club gets its Club Settings and Course status records straight away (one each).
     afterChange: [
       async ({ doc, operation, req }) => {
@@ -85,6 +96,43 @@ export const Tenants: CollectionConfig = {
         (typeof value === 'string' && SLUG.test(value))
           ? true
           : 'Use lower-case letters, numbers and single dashes, e.g. "royal-example".',
+    },
+    {
+      // Build step 4: the club's own web addresses. A visitor's request is matched to a club
+      // only by these (src/site/clubFromHost.ts). Each address belongs to one club at most: the
+      // database refuses a second club with the same address (unique index).
+      name: 'domains',
+      label: 'Web addresses',
+      type: 'array',
+      labels: { singular: 'Web address', plural: 'Web addresses' },
+      maxRows: 10,
+      access: {
+        create: ({ req: { user } }) => isSuperAdmin(user),
+        update: ({ req: { user } }) => isSuperAdmin(user),
+      },
+      admin: {
+        description:
+          'The first address is the main one, e.g. "www.yourclub.co.uk". Add others, such as "yourclub.co.uk", and they forward to the main one. Each address must also be added in Vercel (docs/operations/connect-club-domain.md).',
+        initCollapsed: false,
+      },
+      fields: [
+        {
+          name: 'hostname',
+          label: 'Address',
+          type: 'text',
+          required: true,
+          unique: true,
+          index: true,
+          validate: (value: unknown) =>
+            typeof value === 'string' ? (hostProblem(value) ?? true) : 'Enter a web address.',
+        },
+      ],
+      validate: (rows: unknown) => {
+        const names = Array.isArray(rows)
+          ? rows.map((r) => (r as { hostname?: unknown })?.hostname).filter(Boolean)
+          : []
+        return new Set(names).size === names.length ? true : 'Each address can only be listed once.'
+      },
     },
   ],
 }

@@ -1,62 +1,22 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
-import { heroIsFullBleed, heroShading } from '@/site/blocks/Hero'
-import { RenderBlocks } from '@/site/blocks/RenderBlocks'
-import { LiveRefresh } from '@/site/components/LiveRefresh'
-import { canSeeDrafts } from '@/site/livePreviewAccess'
-import { loadClubBySlug, loadClubPage } from '@/site/loadClub'
-import { siteBase, sitePreviewEnabled } from '@/site/preview'
-
-import { ClubShell } from './ClubShell'
+import { siteFromPreview } from '@/site/resolveSite'
+import { HomeView, homeMetadata, type Query } from '@/site/routes/views'
 
 export const dynamic = 'force-dynamic'
 
-/** The club's home on staging: its "home" page, or until it has one, a plain holding page
- * with the club's name (the header and footer still show its menu and contact details). */
-export default async function ClubPreview({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ club: string }>
-  searchParams: Promise<Record<string, string | string[] | undefined>>
-}) {
-  if (!sitePreviewEnabled()) notFound()
-  const club = await loadClubBySlug((await params).club)
-  if (!club) notFound()
-  const base = siteBase(club.slug)
+type Props = { params: Promise<{ club: string }>; searchParams: Promise<Query> }
 
-  const live = (await searchParams).live === '1'
-  const draft = await canSeeDrafts(club.tenantID, live ? '1' : null)
-  const home = await loadClubPage(club.tenantID, 'home', { draft })
-  if (home) {
-    return (
-      <>
-        {live ? <LiveRefresh /> : null}
-        <ClubShell
-          club={club}
-          currentPath={base}
-          overHero={home.layout[0] ? heroIsFullBleed(home.layout[0]) : false}
-          heroShading={home.layout[0] ? heroShading(home.layout[0], home.ctx) : undefined}
-        >
-          <RenderBlocks
-            layout={home.layout}
-            ctx={home.ctx}
-            club={club}
-            base={base}
-            pageUpdatedAt={home.updatedAt}
-          />
-        </ClubShell>
-      </>
-    )
-  }
+export const generateMetadata = async ({ params, searchParams }: Props): Promise<Metadata> => {
+  const site = await siteFromPreview((await params).club, (await searchParams).live)
+  return site ? homeMetadata(site) : {}
+}
 
-  return (
-    <ClubShell club={club} currentPath={base}>
-      {live ? <LiveRefresh /> : null}
-      <section className="pv-section">
-        <h1 className="t-display-l">{club.name}</h1>
-        <p className="t-body-l pv-muted">Our new website is on its way.</p>
-      </section>
-    </ClubShell>
-  )
+/** A club's home on the staging preview (and in the admin's live preview). */
+export default async function ClubPreviewHome({ params, searchParams }: Props) {
+  const query = await searchParams
+  const site = await siteFromPreview((await params).club, query.live)
+  if (!site) notFound()
+  return <HomeView site={site} query={query} />
 }

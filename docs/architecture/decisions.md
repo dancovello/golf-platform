@@ -229,6 +229,49 @@ Dan, 2026-10-20: the site must stay legible whatever colours a club picks, and t
 - **Logos are chosen by measured colour**, at 3:1 on the real background: the slot meant for it, then the other slot, then the logo shown in white or black. The transparent header swaps logos when it turns solid on scroll.
 - **Check:** axe contrast over every block and template page for three test clubs, one with a pale brand colour (`tests/visual/contrast.spec.ts`, CI job block-regression), plus 2,000 random palettes in the unit tests.
 
+## 2026-10-20: Branding palettes, header, menus and dashboard
+
+Recorded afterwards from PRs #106, #108, #109 and #112–#116.
+
+- **Ready-made palettes and suggested shades** (#108). Branding opens with eight one-click palettes (Parkland, Coastal links, Royal navy, Claret and gold, Heathland, Rose garden, Moorland, Slate and copper) and suggested shades under each colour box. Typing a club's own colour code still works. The computer's colour picker from 17 October was removed. The colours live in `src/theme/curatedColours.ts`.
+- **Classic header: logo on the left** (#106), with the menu, search and a smaller (48px) booking button on the right. On 1024–1279px screens the button reads "Book". Pages without a hero no longer show a visible page title, but a hidden heading stays for screen readers and search engines. Only one menu item is shown as active: one that links straight to the page wins, otherwise the first section that lists it.
+- **Drop-down panels** (#109, Figma spec 17). The panel opens under its menu item with the section name, "Overview →", and the pages in up to 3 columns of 6. Club Settings → Header and menu → "Drop-down style" is **Panel** (default) or **Panel + picture** (the section page's hero photo, or the brand colour). A section with fewer than 2 child pages is a plain link. Editors are warned at more than 18 links. The panel opens and closes in place, and only glides when moving straight from one open section to the next (#115).
+- **Smart header** (#112). On computers the header measures whether the logo, menu, search and button fit on one row. If they don't, it shows the phone-style header with the menu button instead. This runs before the page is drawn, so nothing flashes. Menu labels never wrap. The menu limit went from 6 to 10 items. If a content security policy is added later, this inline script must be allowed.
+- **Transparent header (style B) at every width** (#116). It stays over the photo down to phones and turns solid on scroll. With an announcement bar it starts below the bar.
+- **Dashboard quick wins** (#113, from Dan's dashboard review). The sidebar is grouped: Website, Club information, Messages, Settings, and Platform (super-admin only). Footer settings are split into labelled sections. Fields that don't apply to the chosen design style are hidden.
+- **Menu items, redesigned** (#114). "What it does" is now one of three choices: one page or link, a drop-down of 1–3 pages (each page is a column heading with up to 8 of its child pages, then "All … pages"), or a drop-down of typed links. "Link groups" became one "Links" list, because the website never showed group headings. A "What visitors will see" box previews the drop-down. Link text can be left blank and the page's name is used. The migration only adds data; the old fields stay hidden as a fallback.
+- **Known gap:** the footer column "Links" custom check replaces Payload's own maximum-rows check.
+
+## 2026-10-20: Step 4, clubs on their own web addresses
+
+- **Club sites point straight at Vercel, not through Cloudflare** (Dan, 2026-10-20). Vercel advises against a reverse proxy in front of it (slower, harder caching, certificate problems), and Vercel Pro includes a firewall. Cloudflare stays for the platform's DNS, photos (R2), backups and Turnstile. This replaces "CDN / WAF" in doc 04's stack table for club sites.
+- **Each club has a list of web addresses** (Clubs → Web addresses, super-admin only). The first is the main one; the others forward to it with a permanent redirect. The database refuses the same address on two clubs (unique index on `tenants_domains.hostname`). Addresses are saved bare and in lower case. The platform's own addresses (`localhost`, `*.vercel.app`, the admin address) are refused.
+- **How a request finds its club:** `src/proxy.ts` looks at the address. A club's address is rewritten to `/sites/<address>/…` with an `x-club-host` header set by the proxy; any such header a visitor sends is removed. The page then finds the club only from its list of addresses (`src/site/resolveSite.ts`). An address no club has gets a plain "Page not found" that names no club. `/sites/…` can't be opened directly.
+- **On a club's address, only its website exists.** `/admin`, `/api`, `/preview`, `/health` and `/sites` return "Page not found". The admin and API stay on the platform's own address.
+- **Pages start at "/"** on a club's address (`/membership`, not `/preview/<club>/membership`). Staging keeps `/preview/<club>` behind the Vercel login, unchanged.
+- **The admin's live preview** keeps using the platform's address (`/preview/<club>/<page>?live=1`), so it works on production too, but only for that club's signed-in editors and the super-admin. Everyone else gets "Page not found" there on production.
+- **The Contact form takes the club from the address it was sent to**, never from the form. (On staging it still uses the club named in the page.)
+- **Search engines:** every club page now has a proper title ("Membership | Club name"). On a club's own address it also has a canonical link and sharing details (the hero photo or logo). `robots.txt` and `sitemap.xml` are per club. "index, follow" applies only to club addresses on production; staging and the platform's own address ask search engines to stay away.
+- **Connecting a domain is manual for now:** `docs/operations/connect-club-domain.md`. Automatic setup through Vercel's API, and a fallback address per club on the platform's domain, come later (the second needs the platform name).
+- **Tests:** `tests/e2e/site-domains.spec.ts` (each test club on its own `*.localhost` address: separation, forwarding, unknown addresses, forged headers, search, sitemap, Contact form), `tests/int/domains.int.spec.ts` and `tests/unit/hosts.spec.ts`.
+
+## 2026-10-20: Editor invitations by email (plan part C)
+
+- **"Invite editor" and "New set-your-password link" email the link** to the editor wherever email is set up (`RESEND_API_KEY`) and the admin's address is known (`ADMIN_URL`). The email names the club, says the link works once for 72 hours, and explains the two steps: choose a password, then set up two-factor login with an authenticator app.
+- **The link is still shown to copy**, as a fallback if the email goes to spam. The screen says whether it was emailed, and if not, why not.
+- **Links use `ADMIN_URL` whenever it's set**, never the address the request came in on. Without `ADMIN_URL` nothing is emailed, and the on-screen link uses the super-admin's own address as before.
+- **At most one of these emails per account every 15 minutes**, counted per server instance (only a signed-in super-admin can send them). It shares Resend's free 100 a day with Contact alerts and password resets.
+- Staging and previews send every email to `EMAIL_OVERRIDE_TO`, never to the person invited.
+
+## 2026-10-20: Nightly clean-up keeps the privacy policy's promises (plan part D)
+
+- **Enquiries are deleted 12 months after they're marked handled, or 12 months after they arrived if nobody ever marked them** (Dan, option a). The privacy policy now says exactly that, plus that encrypted backup copies go within 35 days, matching the data processing agreement.
+- **"Marked handled on"** is a new date on each enquiry, set by the server when an editor marks it handled and cleared if it's reopened; nobody can type it. Enquiries handled before it existed use their last change instead (so no existing data had to be rewritten).
+- **Unused uploads are removed:** files in the platform's own random-folder format that no photo or document points at, once they're a day old. Anything else in the bucket is left alone. At most 200 files a night; more than that is logged as an error for a person to check. **Production only**, because staging's storage is shared with pull-request previews, whose files belong to other databases.
+- **How it runs:** a Payload job queue task (`cleanUp`), started at 03:30 UTC daily by Vercel's scheduler (`vercel.json` → `/cron/clean-up`). That address only answers with Vercel's `CRON_SECRET`; without it, it doesn't exist. Finished jobs are deleted. Vercel only runs schedules on production.
+- **Running jobs by hand** (Payload's `/api/payload-jobs/run`) is limited to a super-admin with their code entered. Payload's default would allow any signed-in account.
+- **Dan to do:** add `CRON_SECRET` (any long random value) to Vercel's production environment. Until then the clean-up doesn't run.
+
 ## 2026-10-20: Error alerts and uptime (plan part B, build step 6)
 
 - **Sentry, server-side only** (`@sentry/nextjs` 11.4.0, the newest release more than two weeks old). Errors in the website or admin are reported; nothing runs in visitors' browsers, so club sites load no extra script and need no consent. Browser-only errors aren't caught; that can be added later if needed.

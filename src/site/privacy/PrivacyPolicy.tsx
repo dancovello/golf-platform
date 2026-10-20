@@ -310,7 +310,10 @@ export const PrivacyPolicy = ({
               </tbody>
             </table>
           </div>
-          <p>After that we delete it or make it anonymous.</p>
+          <p>
+            After that we delete it or make it anonymous. Encrypted backup copies are deleted as the
+            backups expire, within 35 days.
+          </p>
         </>
       ),
     },
