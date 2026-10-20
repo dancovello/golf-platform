@@ -23,6 +23,7 @@ export const Courses: CollectionConfig = {
   labels: { singular: 'Course', plural: 'Courses' },
   lockDocuments: false,
   admin: {
+    group: 'Club information',
     useAsTitle: 'name',
     defaultColumns: ['name', 'updatedAt'],
     description: 'Each course’s holes and tees, for the Hole-by-hole and Scorecard blocks.',

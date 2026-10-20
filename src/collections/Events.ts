@@ -15,6 +15,7 @@ export const Events: CollectionConfig = {
   labels: { singular: 'Event', plural: 'Events' },
   lockDocuments: false,
   admin: {
+    group: 'Website',
     useAsTitle: 'title',
     defaultColumns: ['title', 'startsAt', 'category', 'status'],
   },

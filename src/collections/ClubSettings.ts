@@ -87,7 +87,7 @@ export const ClubSettings: CollectionConfig = {
   slug: 'club-settings',
   labels: { singular: 'Club Settings', plural: 'Club Settings' },
   lockDocuments: false,
-  admin: { useAsTitle: 'clubName' },
+  admin: { group: 'Settings', useAsTitle: 'clubName' },
   // Created and removed with the club by the super-admin; editors only update their own.
   access: { create: superAdminOnly, read: loggedIn, update: loggedIn, delete: superAdminOnly },
   hooks: { beforeValidate: [requireAgreement, checkSameClub] },
@@ -262,10 +262,6 @@ export const ClubSettings: CollectionConfig = {
                             { label: 'Drop-down: a page’s child pages', value: 'children' },
                             { label: 'Drop-down: links I choose', value: 'manual' },
                           ],
-                          admin: {
-                            description:
-                              'Blank on items saved before this choice existed: they keep working as before.',
-                          },
                         },
                       ],
                     },
@@ -390,215 +386,242 @@ export const ClubSettings: CollectionConfig = {
                   ],
                 },
                 {
-                  name: 'about',
-                  label: 'Short description',
-                  type: 'textarea',
-                  maxLength: 160,
-                  admin: {
-                    description:
-                      'One or two lines under the logo (styles A and B), e.g. "Heathland golf since 1926, twenty minutes from Heathrow."',
-                  },
-                },
-                {
-                  name: 'linkColumns',
-                  label: 'Link columns',
-                  type: 'array',
-                  maxRows: 3,
-                  labels: { singular: 'Column', plural: 'Columns' },
-                  admin: {
-                    description:
-                      'Up to 3 columns, each with its own heading, in every footer style. A column can list a page’s child pages (kept up to date, like the menu) or links you choose.',
-                    initCollapsed: true,
-                    components: { RowLabel: '/admin/MenuRowLabel#ColumnRowLabel' },
-                  },
+                  type: 'collapsible',
+                  label: 'Description and links',
                   fields: [
                     {
-                      type: 'row',
+                      name: 'about',
+                      label: 'Short description',
+                      type: 'textarea',
+                      maxLength: 160,
+                      admin: {
+                        description:
+                          'One or two lines under the logo, e.g. "Heathland golf since 1926, twenty minutes from Heathrow."',
+                        condition: (_data, footer) => footer?.style !== 'editorial',
+                      },
+                    },
+                    {
+                      name: 'linkColumns',
+                      label: 'Link columns',
+                      type: 'array',
+                      maxRows: 3,
+                      labels: { singular: 'Column', plural: 'Columns' },
+                      admin: {
+                        description:
+                          'Up to 3 columns, each with its own heading, in every footer style. A column can list a page’s child pages (kept up to date, like the menu) or links you choose.',
+                        initCollapsed: true,
+                        components: { RowLabel: '/admin/MenuRowLabel#ColumnRowLabel' },
+                      },
                       fields: [
                         {
-                          name: 'heading',
-                          label: 'Heading',
-                          type: 'text',
-                          required: true,
-                          maxLength: 30,
+                          type: 'row',
+                          fields: [
+                            {
+                              name: 'heading',
+                              label: 'Heading',
+                              type: 'text',
+                              required: true,
+                              maxLength: 30,
+                            },
+                            {
+                              name: 'source',
+                              label: 'Links',
+                              type: 'select',
+                              defaultValue: 'manual',
+                              options: [
+                                { label: 'Links I choose', value: 'manual' },
+                                { label: 'A page’s child pages', value: 'children' },
+                              ],
+                            },
+                          ],
                         },
                         {
-                          name: 'source',
+                          name: 'page',
+                          label: 'Page whose child pages to list',
+                          type: 'relationship',
+                          relationTo: 'pages',
+                          filterOptions: ({ data }) =>
+                            data?.tenant ? { tenant: { equals: idOf(data.tenant) } } : true,
+                          admin: {
+                            condition: (_data, row) => row?.source === 'children',
+                            description:
+                              'e.g. "Visitors" lists every page under Visitors, so the column matches that menu drop-down.',
+                          },
+                          validate: (
+                            value: unknown,
+                            { siblingData }: { siblingData: { source?: string } },
+                          ) =>
+                            siblingData?.source !== 'children' || value ? true : 'Choose a page.',
+                        },
+                        {
+                          name: 'links',
                           label: 'Links',
-                          type: 'select',
-                          defaultValue: 'manual',
-                          options: [
-                            { label: 'Links I choose', value: 'manual' },
-                            { label: 'A page’s child pages', value: 'children' },
-                          ],
+                          type: 'array',
+                          maxRows: 8,
+                          admin: { condition: (_data, row) => row?.source !== 'children' },
+                          validate: (
+                            value: unknown,
+                            { siblingData }: { siblingData: { source?: string } },
+                          ) =>
+                            siblingData?.source === 'children' ||
+                            (Array.isArray(value) && value.length > 0)
+                              ? true
+                              : 'Add at least one link.',
+                          fields: [linkField({ name: 'link', label: 'Link' })],
                         },
                       ],
                     },
                     {
-                      name: 'page',
-                      label: 'Page whose child pages to list',
-                      type: 'relationship',
-                      relationTo: 'pages',
-                      filterOptions: ({ data }) =>
-                        data?.tenant ? { tenant: { equals: idOf(data.tenant) } } : true,
-                      admin: {
-                        condition: (_data, row) => row?.source === 'children',
-                        description:
-                          'e.g. "Visitors" lists every page under Visitors, so the column matches that menu drop-down.',
-                      },
-                      validate: (
-                        value: unknown,
-                        { siblingData }: { siblingData: { source?: string } },
-                      ) => (siblingData?.source !== 'children' || value ? true : 'Choose a page.'),
-                    },
-                    {
-                      name: 'links',
-                      label: 'Links',
+                      name: 'legalLinks',
+                      label: 'Bottom row links',
                       type: 'array',
-                      maxRows: 8,
-                      admin: { condition: (_data, row) => row?.source !== 'children' },
-                      validate: (
-                        value: unknown,
-                        { siblingData }: { siblingData: { source?: string } },
-                      ) =>
-                        siblingData?.source === 'children' ||
-                        (Array.isArray(value) && value.length > 0)
-                          ? true
-                          : 'Add at least one link.',
+                      maxRows: 6,
+                      admin: {
+                        description:
+                          'e.g. Terms, Accessibility. The privacy policy link is added for you, and “Cookie settings” too if you use Google Analytics.',
+                        initCollapsed: true,
+                      },
                       fields: [linkField({ name: 'link', label: 'Link' })],
                     },
                   ],
                 },
                 {
-                  name: 'hours',
+                  type: 'collapsible',
                   label: 'Opening hours',
-                  type: 'array',
-                  maxRows: 6,
-                  labels: { singular: 'Row', plural: 'Rows' },
-                  admin: { initCollapsed: true },
                   fields: [
                     {
-                      type: 'row',
+                      name: 'hours',
+                      label: 'Times',
+                      type: 'array',
+                      maxRows: 6,
+                      labels: { singular: 'Row', plural: 'Rows' },
+                      admin: { initCollapsed: true },
                       fields: [
                         {
-                          name: 'place',
-                          label: 'What',
-                          type: 'text',
-                          required: true,
-                          maxLength: 30,
-                          admin: { description: 'e.g. Clubhouse' },
-                        },
-                        {
-                          name: 'times',
-                          label: 'Hours',
-                          type: 'text',
-                          required: true,
-                          maxLength: 30,
-                          admin: { description: 'e.g. 7am – 9pm' },
+                          type: 'row',
+                          fields: [
+                            {
+                              name: 'place',
+                              label: 'What',
+                              type: 'text',
+                              required: true,
+                              maxLength: 30,
+                              admin: { description: 'e.g. Clubhouse' },
+                            },
+                            {
+                              name: 'times',
+                              label: 'Hours',
+                              type: 'text',
+                              required: true,
+                              maxLength: 30,
+                              admin: { description: 'e.g. 7am – 9pm' },
+                            },
+                          ],
                         },
                       ],
                     },
-                  ],
-                },
-                linkField({
-                  name: 'hoursLink',
-                  label: 'Link under the hours (optional)',
-                  required: false,
-                }),
-                {
-                  type: 'row',
-                  fields: [
-                    {
-                      name: 'email',
-                      label: 'Email address',
-                      type: 'email',
-                      admin: {
-                        description: 'Shown in the footer and the privacy policy. Required.',
-                      },
-                      validate: neededOnSave(
-                        'Add the club’s email address. The privacy policy needs it.',
-                        emailFormat as Validate,
-                      ),
-                    },
-                    {
-                      name: 'directions',
-                      label: 'Directions link',
-                      type: 'text',
-                      admin: { description: 'e.g. a Google Maps link. Optional.' },
-                      validate: (value: unknown) =>
-                        !value || isSafeURL(value)
-                          ? true
-                          : 'Use a full web address starting with https://.',
-                    },
+                    linkField({
+                      name: 'hoursLink',
+                      label: 'Link under the hours (optional)',
+                      required: false,
+                    }),
                   ],
                 },
                 {
-                  name: 'address',
-                  label: 'Address',
-                  type: 'textarea',
-                  maxLength: 200,
-                  admin: {
-                    description: 'Shown in the footer and the privacy policy. Required.',
-                  },
-                  validate: neededOnSave(
-                    'Add the club’s postal address. The privacy policy needs it.',
-                    textareaRules as Validate,
-                  ),
-                },
-                {
-                  name: 'social',
-                  label: 'Social media',
-                  type: 'array',
-                  maxRows: 6,
-                  admin: { description: 'Shown in style C.', initCollapsed: true },
+                  type: 'collapsible',
+                  label: 'Contact details',
                   fields: [
                     {
                       type: 'row',
                       fields: [
                         {
-                          name: 'network',
-                          label: 'Network',
-                          type: 'select',
-                          required: true,
-                          options: [
-                            'Instagram',
-                            'Facebook',
-                            'X',
-                            'YouTube',
-                            'LinkedIn',
-                            'TikTok',
-                          ].map((n) => ({ label: n, value: n.toLowerCase() })),
+                          name: 'email',
+                          label: 'Email address',
+                          type: 'email',
+                          admin: {
+                            description: 'Shown in the footer and the privacy policy. Required.',
+                          },
+                          validate: neededOnSave(
+                            'Add the club’s email address. The privacy policy needs it.',
+                            emailFormat as Validate,
+                          ),
                         },
                         {
-                          name: 'url',
-                          label: 'Web address',
+                          name: 'directions',
+                          label: 'Directions link',
                           type: 'text',
-                          required: true,
+                          admin: { description: 'e.g. a Google Maps link. Optional.' },
                           validate: (value: unknown) =>
-                            typeof value === 'string' && /^https:\/\/\S+$/.test(value.trim())
+                            !value || isSafeURL(value)
                               ? true
                               : 'Use a full web address starting with https://.',
                         },
                       ],
                     },
+                    {
+                      name: 'address',
+                      label: 'Address',
+                      type: 'textarea',
+                      maxLength: 200,
+                      admin: {
+                        description: 'Shown in the footer and the privacy policy. Required.',
+                      },
+                      validate: neededOnSave(
+                        'Add the club’s postal address. The privacy policy needs it.',
+                        textareaRules as Validate,
+                      ),
+                    },
                   ],
                 },
-                linkField({
-                  name: 'secondaryButton',
-                  label: 'Second button (style C, optional)',
-                  required: false,
-                }),
                 {
-                  name: 'legalLinks',
-                  label: 'Bottom row links',
-                  type: 'array',
-                  maxRows: 6,
-                  admin: {
-                    description:
-                      'e.g. Terms, Accessibility. The privacy policy link is added for you, and “Cookie settings” too if you use Google Analytics.',
-                    initCollapsed: true,
-                  },
-                  fields: [linkField({ name: 'link', label: 'Link' })],
+                  type: 'collapsible',
+                  label: 'Social media and second button',
+                  admin: { condition: (_data, footer) => footer?.style === 'editorial' },
+                  fields: [
+                    {
+                      name: 'social',
+                      label: 'Social media',
+                      type: 'array',
+                      maxRows: 6,
+                      admin: { initCollapsed: true },
+                      fields: [
+                        {
+                          type: 'row',
+                          fields: [
+                            {
+                              name: 'network',
+                              label: 'Network',
+                              type: 'select',
+                              required: true,
+                              options: [
+                                'Instagram',
+                                'Facebook',
+                                'X',
+                                'YouTube',
+                                'LinkedIn',
+                                'TikTok',
+                              ].map((n) => ({ label: n, value: n.toLowerCase() })),
+                            },
+                            {
+                              name: 'url',
+                              label: 'Web address',
+                              type: 'text',
+                              required: true,
+                              validate: (value: unknown) =>
+                                typeof value === 'string' && /^https:\/\/\S+$/.test(value.trim())
+                                  ? true
+                                  : 'Use a full web address starting with https://.',
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                    linkField({
+                      name: 'secondaryButton',
+                      label: 'Second button (optional)',
+                      required: false,
+                    }),
+                  ],
                 },
               ],
             },
@@ -648,9 +671,10 @@ export const ClubSettings: CollectionConfig = {
                     },
                     {
                       name: 'showStatus',
-                      label: 'Show course status (style C)',
+                      label: 'Show course status',
                       type: 'checkbox',
                       defaultValue: true,
+                      admin: { condition: (_data, bar) => bar?.style === 'utility' },
                     },
                   ],
                 },
@@ -678,9 +702,10 @@ export const ClubSettings: CollectionConfig = {
                       fields: [
                         {
                           name: 'tag',
-                          label: 'Tag (style B)',
+                          label: 'Tag',
                           type: 'select',
                           defaultValue: 'notice',
+                          admin: { condition: (data) => data?.announcement?.style === 'rotator' },
                           options: [
                             { label: 'Notice', value: 'notice' },
                             { label: 'Event', value: 'event' },
