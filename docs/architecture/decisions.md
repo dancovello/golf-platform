@@ -254,3 +254,11 @@ Recorded afterwards from PRs #106, #108, #109 and #112–#116.
 - **Search engines:** every club page now has a proper title ("Membership | Club name"). On a club's own address it also has a canonical link and sharing details (the hero photo or logo). `robots.txt` and `sitemap.xml` are per club. "index, follow" applies only to club addresses on production; staging and the platform's own address ask search engines to stay away.
 - **Connecting a domain is manual for now:** `docs/operations/connect-club-domain.md`. Automatic setup through Vercel's API, and a fallback address per club on the platform's domain, come later (the second needs the platform name).
 - **Tests:** `tests/e2e/site-domains.spec.ts` (each test club on its own `*.localhost` address: separation, forwarding, unknown addresses, forged headers, search, sitemap, Contact form), `tests/int/domains.int.spec.ts` and `tests/unit/hosts.spec.ts`.
+
+## 2026-10-20: Editor invitations by email (plan part C)
+
+- **"Invite editor" and "New set-your-password link" email the link** to the editor wherever email is set up (`RESEND_API_KEY`) and the admin's address is known (`ADMIN_URL`). The email names the club, says the link works once for 72 hours, and explains the two steps: choose a password, then set up two-factor login with an authenticator app.
+- **The link is still shown to copy**, as a fallback if the email goes to spam. The screen says whether it was emailed, and if not, why not.
+- **Links use `ADMIN_URL` whenever it's set**, never the address the request came in on. Without `ADMIN_URL` nothing is emailed, and the on-screen link uses the super-admin's own address as before.
+- **At most one of these emails per account every 15 minutes**, counted per server instance (only a signed-in super-admin can send them). It shares Resend's free 100 a day with Contact alerts and password resets.
+- Staging and previews send every email to `EMAIL_OVERRIDE_TO`, never to the person invited.
