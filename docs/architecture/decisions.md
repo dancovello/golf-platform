@@ -242,6 +242,44 @@ Recorded afterwards from PRs #106, #108, #109 and #112–#116.
 - **Menu items, redesigned** (#114). "What it does" is now one of three choices: one page or link, a drop-down of 1–3 pages (each page is a column heading with up to 8 of its child pages, then "All … pages"), or a drop-down of typed links. "Link groups" became one "Links" list, because the website never showed group headings. A "What visitors will see" box previews the drop-down. Link text can be left blank and the page's name is used. The migration only adds data; the old fields stay hidden as a fallback.
 - **Known gap:** the footer column "Links" custom check replaces Payload's own maximum-rows check.
 
+## 2026-10-20: Step 4, clubs on their own web addresses
+
+- **Club sites point straight at Vercel, not through Cloudflare** (Dan, 2026-10-20). Vercel advises against a reverse proxy in front of it (slower, harder caching, certificate problems), and Vercel Pro includes a firewall. Cloudflare stays for the platform's DNS, photos (R2), backups and Turnstile. This replaces "CDN / WAF" in doc 04's stack table for club sites.
+- **Each club has a list of web addresses** (Clubs → Web addresses, super-admin only). The first is the main one; the others forward to it with a permanent redirect. The database refuses the same address on two clubs (unique index on `tenants_domains.hostname`). Addresses are saved bare and in lower case. The platform's own addresses (`localhost`, `*.vercel.app`, the admin address) are refused.
+- **How a request finds its club:** `src/proxy.ts` looks at the address. A club's address is rewritten to `/sites/<address>/…` with an `x-club-host` header set by the proxy; any such header a visitor sends is removed. The page then finds the club only from its list of addresses (`src/site/resolveSite.ts`). An address no club has gets a plain "Page not found" that names no club. `/sites/…` can't be opened directly.
+- **On a club's address, only its website exists.** `/admin`, `/api`, `/preview`, `/health` and `/sites` return "Page not found". The admin and API stay on the platform's own address.
+- **Pages start at "/"** on a club's address (`/membership`, not `/preview/<club>/membership`). Staging keeps `/preview/<club>` behind the Vercel login, unchanged.
+- **The admin's live preview** keeps using the platform's address (`/preview/<club>/<page>?live=1`), so it works on production too, but only for that club's signed-in editors and the super-admin. Everyone else gets "Page not found" there on production.
+- **The Contact form takes the club from the address it was sent to**, never from the form. (On staging it still uses the club named in the page.)
+- **Search engines:** every club page now has a proper title ("Membership | Club name"). On a club's own address it also has a canonical link and sharing details (the hero photo or logo). `robots.txt` and `sitemap.xml` are per club. "index, follow" applies only to club addresses on production; staging and the platform's own address ask search engines to stay away.
+- **Connecting a domain is manual for now:** `docs/operations/connect-club-domain.md`. Automatic setup through Vercel's API, and a fallback address per club on the platform's domain, come later (the second needs the platform name).
+- **Tests:** `tests/e2e/site-domains.spec.ts` (each test club on its own `*.localhost` address: separation, forwarding, unknown addresses, forged headers, search, sitemap, Contact form), `tests/int/domains.int.spec.ts` and `tests/unit/hosts.spec.ts`.
+
+## 2026-10-20: Editor invitations by email (plan part C)
+
+- **"Invite editor" and "New set-your-password link" email the link** to the editor wherever email is set up (`RESEND_API_KEY`) and the admin's address is known (`ADMIN_URL`). The email names the club, says the link works once for 72 hours, and explains the two steps: choose a password, then set up two-factor login with an authenticator app.
+- **The link is still shown to copy**, as a fallback if the email goes to spam. The screen says whether it was emailed, and if not, why not.
+- **Links use `ADMIN_URL` whenever it's set**, never the address the request came in on. Without `ADMIN_URL` nothing is emailed, and the on-screen link uses the super-admin's own address as before.
+- **At most one of these emails per account every 15 minutes**, counted per server instance (only a signed-in super-admin can send them). It shares Resend's free 100 a day with Contact alerts and password resets.
+- Staging and previews send every email to `EMAIL_OVERRIDE_TO`, never to the person invited.
+
+## 2026-10-20: Nightly clean-up keeps the privacy policy's promises (plan part D)
+
+- **Enquiries are deleted 12 months after they're marked handled, or 12 months after they arrived if nobody ever marked them** (Dan, option a). The privacy policy now says exactly that, plus that encrypted backup copies go within 35 days, matching the data processing agreement.
+- **"Marked handled on"** is a new date on each enquiry, set by the server when an editor marks it handled and cleared if it's reopened; nobody can type it. Enquiries handled before it existed use their last change instead (so no existing data had to be rewritten).
+- **Unused uploads are removed:** files in the platform's own random-folder format that no photo or document points at, once they're a day old. Anything else in the bucket is left alone. At most 200 files a night; more than that is logged as an error for a person to check. **Production only**, because staging's storage is shared with pull-request previews, whose files belong to other databases.
+- **How it runs:** a Payload job queue task (`cleanUp`), started at 03:30 UTC daily by Vercel's scheduler (`vercel.json` → `/cron/clean-up`). That address only answers with Vercel's `CRON_SECRET`; without it, it doesn't exist. Finished jobs are deleted. Vercel only runs schedules on production.
+- **Running jobs by hand** (Payload's `/api/payload-jobs/run`) is limited to a super-admin with their code entered. Payload's default would allow any signed-in account.
+- **Dan to do:** add `CRON_SECRET` (any long random value) to Vercel's production environment. Until then the clean-up doesn't run.
+
+## 2026-10-20: Error alerts and uptime (plan part B, build step 6)
+
+- **Sentry, server-side only** (`@sentry/nextjs` 11.4.0, the newest release more than two weeks old). Errors in the website or admin are reported; nothing runs in visitors' browsers, so club sites load no extra script and need no consent. Browser-only errors aren't caught; that can be added later if needed.
+- **Off unless `SENTRY_DSN` is set.** Reports carry no cookies, headers, form contents, query strings, accounts or IP addresses; email addresses are blanked; no tracing or breadcrumbs.
+- **EU data storage (Frankfurt)**, chosen when the Sentry organisation is created (available on the free plan). Added to Schedule 3 of the data processing agreement (version `2026-10-20-draft`, so clubs accept again) and to the privacy policy.
+- **Uptime: Sentry's one free uptime monitor on production `/health`**, instead of Better Stack, whose free tier is "for personal projects". A paid uptime plan that can check each club's home page is needed before several clubs are live.
+- Setup steps for Dan: `docs/operations/monitoring.md`.
+
 ## 2026-10-20: Club home screen (plan part E, first item)
 
 - **A home screen above the dashboard's sections** (`src/admin/ClubHome.tsx`). A club's editor sees:

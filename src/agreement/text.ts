@@ -6,7 +6,7 @@
  * again before its next settings save.
  */
 
-export const AGREEMENT_VERSION = '2026-10-16b-draft'
+export const AGREEMENT_VERSION = '2026-10-20-draft'
 
 /** False until a solicitor has approved the wording; the admin then shows a "draft" notice. */
 export const AGREEMENT_APPROVED = false
@@ -323,6 +323,12 @@ export const agreementText = (club: AgreementParty): AgreementSection[] => {
               'Sends the website’s emails, such as new contact form messages to the Club',
               'Sent from Ireland (AWS eu-west-1); account data and email logs stored in the USA',
               '[Solicitor/Dan to confirm from Resend’s data processing agreement]',
+            ],
+            [
+              'Functional Software, Inc. (Sentry)',
+              'Error monitoring: reports of technical errors in the website, with personal details removed before they are sent',
+              'EU (Germany); support access may be from the USA',
+              '[Solicitor/Dan to confirm from Sentry’s data processing agreement]',
             ],
             [
               'GitHub, Inc. (Microsoft)',

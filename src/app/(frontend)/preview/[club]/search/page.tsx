@@ -1,42 +1,21 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
-import { loadClubBySlug } from '@/site/loadClub'
-import { siteBase, sitePreviewEnabled } from '@/site/preview'
-import { loadSearch, readFilters } from '@/site/search/load'
-import { SearchResults } from '@/site/search/SearchResults'
-
-import { ClubShell } from '../ClubShell'
+import { siteFromPreview } from '@/site/resolveSite'
+import { SearchView, searchMetadata, type Query } from '@/site/routes/views'
 
 export const dynamic = 'force-dynamic'
 
-type Props = {
-  params: Promise<{ club: string }>
-  searchParams: Promise<Record<string, string | string[] | undefined>>
-}
+type Props = { params: Promise<{ club: string }>; searchParams: Promise<Query> }
 
 export const generateMetadata = async ({ params, searchParams }: Props): Promise<Metadata> => {
-  if (!sitePreviewEnabled()) return {}
-  const club = await loadClubBySlug((await params).club)
-  if (!club) return {}
-  const { q } = readFilters(await searchParams)
-  // Results pages are never worth indexing (they change and can be made up endlessly).
-  return {
-    title: q ? `Search: ${q} | ${club.name}` : `Search | ${club.name}`,
-    robots: { index: false, follow: true },
-  }
+  const site = await siteFromPreview((await params).club, null)
+  return site ? searchMetadata(site, await searchParams) : {}
 }
 
-/** The club's search results, at /search?q=… (src/site/search). */
-export default async function ClubSearch({ params, searchParams }: Props) {
-  if (!sitePreviewEnabled()) notFound()
-  const club = await loadClubBySlug((await params).club)
-  if (!club) notFound()
-  const base = siteBase(club.slug)
-  const view = await loadSearch(club, base, readFilters(await searchParams))
-  return (
-    <ClubShell club={club} currentPath={`${base}/search`}>
-      <SearchResults club={club} base={base} view={view} />
-    </ClubShell>
-  )
+/** The club's search results on the staging preview, at /search?q=… */
+export default async function ClubPreviewSearch({ params, searchParams }: Props) {
+  const site = await siteFromPreview((await params).club, null)
+  if (!site) notFound()
+  return <SearchView site={site} query={await searchParams} />
 }
