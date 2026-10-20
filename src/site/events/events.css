@@ -15,10 +15,28 @@
   position: absolute;
   inset: 0;
 }
-.event-card.has-link:hover .event-link {
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.15em;
+/* Card hover: the title stays plain (Dan, 2026-10-20). The button fills (below), the photo
+   zooms in very slightly and the row arrow nudges. */
+.event-image img {
+  transition: transform 400ms ease-out;
+}
+.event-card.has-link:hover .event-image img {
+  transform: scale(1.03);
+}
+.event-chevron svg {
+  transition: transform 200ms ease-out;
+}
+.event-card.has-link:hover .event-chevron svg {
+  transform: translateX(4px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .event-image img,
+  .event-chevron svg {
+    transition: none;
+  }
+  .event-card.has-link:hover .event-image img {
+    transform: none;
+  }
 }
 .event-card :focus-visible {
   outline: 2px solid var(--color-action-accent);

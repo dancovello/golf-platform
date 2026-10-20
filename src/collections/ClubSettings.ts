@@ -27,7 +27,7 @@ const colourField = (name: keyof Brand): Field => ({
   required: true,
   defaultValue: DEFAULT_BRAND[name],
   admin: {
-    description: `${colourHelp[name]} Pick it from the swatch, or type a six-digit colour code, e.g. ${DEFAULT_BRAND[name]}.`,
+    description: `${colourHelp[name]} Choose one of the suggested shades, or type your own six-digit colour code, e.g. ${DEFAULT_BRAND[name]}.`,
     components: { Field: '/admin/ColourField#ColourField' },
   },
   validate: (value: unknown) =>
@@ -138,6 +138,11 @@ export const ClubSettings: CollectionConfig = {
                   'Five colours set the whole site. Every block works out its own shades from these, and colours that would make text hard to read are refused.',
               },
               fields: [
+                {
+                  name: 'palettes',
+                  type: 'ui',
+                  admin: { components: { Field: '/admin/ColourField#PalettePicker' } },
+                },
                 {
                   type: 'row',
                   fields: BRAND_INPUTS.map(colourField),
