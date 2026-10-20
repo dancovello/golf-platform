@@ -193,13 +193,13 @@
 }
 
 /* Header B over a hero: with a bar above it, the header starts below the bar (still over the
-   hero) and is pinned to the top once the page scrolls. */
-@media (min-width: 1024px) {
-  .ab + .sh-transparent.is-over-hero {
-    position: absolute;
-  }
-  .ab + .sh-transparent.is-over-hero[data-scrolled='true'] {
-    position: fixed;
-    top: 0;
-  }
+   hero; `top: auto` keeps it where the bar ends) and is pinned to the top once the page
+   scrolls. */
+.ab + .sh-transparent.is-over-hero {
+  position: absolute;
+  top: auto;
+}
+.ab + .sh-transparent.is-over-hero[data-scrolled='true'] {
+  position: fixed;
+  top: 0;
 }
