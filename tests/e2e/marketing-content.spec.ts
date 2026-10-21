@@ -46,8 +46,10 @@ test("club A's editor doesn't see it in the admin", async ({ editorPage }) => {
   await editorPage.goto('/admin')
   await expect(editorPage.getByRole('navigation').first()).toBeVisible()
   await expect(editorPage.getByText('Company website')).toHaveCount(0)
-  await editorPage.goto('/admin/collections/marketing-pages')
-  expect(await editorPage.content()).not.toContain('E2E pricing')
+  // A direct request rather than a page visit: the page view keeps a stream open, which the
+  // leak watcher waits on until the test times out.
+  const direct = await editorPage.request.get('/admin/collections/marketing-pages')
+  expect(await direct.text()).not.toContain('E2E pricing')
 })
 
 test('the super-admin sees it in the admin', async ({ superAdminPage }) => {

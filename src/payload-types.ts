@@ -1779,6 +1779,13 @@ export interface MarketingPage {
         | MarketingMediaBlock
         | MarketingFeatureCardsBlock
         | MarketingCtaBandBlock
+        | MarketingHomeHeroBlock
+        | MarketingProofStatsBlock
+        | MarketingCompareBlock
+        | MarketingEditLiveBlock
+        | MarketingWeekBlock
+        | MarketingContentMovesBlock
+        | MarketingFounderBlock
       )[]
     | null;
   meta?: {
@@ -1990,6 +1997,152 @@ export interface MarketingCtaBandBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'mkCtaBand';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingHomeHeroBlock".
+ */
+export interface MarketingHomeHeroBlock {
+  /**
+   * The page’s one main heading. Line breaks are kept.
+   */
+  title: string;
+  subhead?: string | null;
+  primary?: {
+    label?: string | null;
+    href?: string | null;
+  };
+  secondary?: {
+    label?: string | null;
+    href?: string | null;
+  };
+  /**
+   * Separate items with “ · ”. Use {price} for the monthly price from Settings, e.g. “{price} a month”.
+   */
+  proofLine?: string | null;
+  note?: string | null;
+  noteStrong?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkHomeHero';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingProofStatsBlock".
+ */
+export interface MarketingProofStatsBlock {
+  /**
+   * Only numbers from the claims register, with their source and date (docs/marketing-site/claims-register.md).
+   */
+  stats: {
+    number: string;
+    claim: string;
+    source: string;
+    methodHref?: string | null;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkProofStats';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingCompareBlock".
+ */
+export interface MarketingCompareBlock {
+  good: {
+    label: string;
+    title: string;
+    points?:
+      | {
+          text: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  poor: {
+    label: string;
+    title: string;
+    points?:
+      | {
+          text: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  footnotes?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkCompare';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingEditLiveBlock".
+ */
+export interface MarketingEditLiveBlock {
+  headline: string;
+  toggleLabel: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkEditLive';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingWeekBlock".
+ */
+export interface MarketingWeekBlock {
+  moments: {
+    time: string;
+    /**
+     * Live blocks only (hand-off §6).
+     */
+    preview: 'courseStatus' | 'news' | 'greenFees' | 'holeGuide';
+    title: string;
+    body: string;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkWeek';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingContentMovesBlock".
+ */
+export interface MarketingContentMovesBlock {
+  found?:
+    | {
+        label: string;
+        count: string;
+        id?: string | null;
+      }[]
+    | null;
+  built?:
+    | {
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  chip?: string | null;
+  steps?:
+    | {
+        title: string;
+        body: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkContentMoves';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingFounderBlock".
+ */
+export interface MarketingFounderBlock {
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkFounder';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3265,6 +3418,13 @@ export interface MarketingPagesSelect<T extends boolean = true> {
         mkMedia?: T | MarketingMediaBlockSelect<T>;
         mkFeatureCards?: T | MarketingFeatureCardsBlockSelect<T>;
         mkCtaBand?: T | MarketingCtaBandBlockSelect<T>;
+        mkHomeHero?: T | MarketingHomeHeroBlockSelect<T>;
+        mkProofStats?: T | MarketingProofStatsBlockSelect<T>;
+        mkCompare?: T | MarketingCompareBlockSelect<T>;
+        mkEditLive?: T | MarketingEditLiveBlockSelect<T>;
+        mkWeek?: T | MarketingWeekBlockSelect<T>;
+        mkContentMoves?: T | MarketingContentMovesBlockSelect<T>;
+        mkFounder?: T | MarketingFounderBlockSelect<T>;
       };
   meta?:
     | T
@@ -3349,6 +3509,145 @@ export interface MarketingCtaBandBlockSelect<T extends boolean = true> {
         label?: T;
         href?: T;
       };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingHomeHeroBlock_select".
+ */
+export interface MarketingHomeHeroBlockSelect<T extends boolean = true> {
+  title?: T;
+  subhead?: T;
+  primary?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+      };
+  secondary?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+      };
+  proofLine?: T;
+  note?: T;
+  noteStrong?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingProofStatsBlock_select".
+ */
+export interface MarketingProofStatsBlockSelect<T extends boolean = true> {
+  stats?:
+    | T
+    | {
+        number?: T;
+        claim?: T;
+        source?: T;
+        methodHref?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingCompareBlock_select".
+ */
+export interface MarketingCompareBlockSelect<T extends boolean = true> {
+  good?:
+    | T
+    | {
+        label?: T;
+        title?: T;
+        points?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+      };
+  poor?:
+    | T
+    | {
+        label?: T;
+        title?: T;
+        points?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+      };
+  footnotes?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingEditLiveBlock_select".
+ */
+export interface MarketingEditLiveBlockSelect<T extends boolean = true> {
+  headline?: T;
+  toggleLabel?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingWeekBlock_select".
+ */
+export interface MarketingWeekBlockSelect<T extends boolean = true> {
+  moments?:
+    | T
+    | {
+        time?: T;
+        preview?: T;
+        title?: T;
+        body?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingContentMovesBlock_select".
+ */
+export interface MarketingContentMovesBlockSelect<T extends boolean = true> {
+  found?:
+    | T
+    | {
+        label?: T;
+        count?: T;
+        id?: T;
+      };
+  built?:
+    | T
+    | {
+        label?: T;
+        id?: T;
+      };
+  chip?: T;
+  steps?:
+    | T
+    | {
+        title?: T;
+        body?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingFounderBlock_select".
+ */
+export interface MarketingFounderBlockSelect<T extends boolean = true> {
   id?: T;
   blockName?: T;
 }

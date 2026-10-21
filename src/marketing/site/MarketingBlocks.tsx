@@ -4,6 +4,10 @@ import { BRAND } from '@/brand'
 import type { MarketingMedia, MarketingPage } from '@/payload-types'
 import { Photo } from '@/site/blocks/parts'
 
+import { FounderCard } from './FounderCard'
+import { Compare, ContentMoves, HomeHero, ProofStats } from './home/HomeBlocks'
+import { EditLive } from './home/EditLive'
+import { Week } from './home/Week'
 import { MarketingIcon } from './MarketingIcon'
 import { MarketingRichText } from './MarketingRichText'
 import { AvailabilityBadge, BrowserChrome, MarketingButton, marketingPhoto } from './parts'
@@ -24,6 +28,8 @@ const toSections = (blocks: Block[]): Block[][] => {
     const startsNew =
       block.blockType === 'mkSectionHeader' ||
       block.blockType === 'mkCtaBand' ||
+      block.blockType === 'mkHomeHero' ||
+      block.blockType === 'mkFounder' ||
       sections.at(-1)?.at(-1)?.blockType === 'mkCtaBand'
     if (startsNew || sections.length === 0) sections.push([block])
     else sections.at(-1)!.push(block)
@@ -169,20 +175,44 @@ const drawBlock = (block: Block, isFirstHeader: boolean): ReactNode => {
       return <FeatureCards block={block} />
     case 'mkCtaBand':
       return <CtaBand block={block} />
+    case 'mkHomeHero':
+      return <HomeHero block={block} />
+    case 'mkProofStats':
+      return <ProofStats block={block} />
+    case 'mkCompare':
+      return <Compare block={block} />
+    case 'mkEditLive':
+      return <EditLive block={block} />
+    case 'mkWeek':
+      return <Week block={block} />
+    case 'mkContentMoves':
+      return <ContentMoves block={block} />
+    case 'mkFounder':
+      return <FounderCard />
     default:
       return null
   }
 }
 
+/** A section is named after its first block that isn't a header: some Figma sections have
+ * their own spacing (e.g. the home hero, the founder card). */
+const kindOf = (section: Block[]) =>
+  section.find((b) => b.blockType !== 'mkSectionHeader')?.blockType ?? section[0].blockType
+
 /** Draws a marketing page's sections: 1200px container, hairline between sections. */
 export const MarketingBlocks = ({ blocks }: { blocks: Block[] }) => {
-  const firstHeader = blocks.find((b) => b.blockType === 'mkSectionHeader')
+  // The page's one H1: the home hero if there is one, otherwise the first Section Header.
+  const hasHomeHero = blocks.some((b) => b.blockType === 'mkHomeHero')
+  const firstHeader = hasHomeHero
+    ? undefined
+    : blocks.find((b) => b.blockType === 'mkSectionHeader')
   return (
     <>
       {toSections(blocks).map((section, i) => (
         <section
           key={section[0].id ?? i}
           className={`mk-section${section[0].blockType === 'mkCtaBand' ? ' mk-section--cta' : ''}`}
+          data-kind={kindOf(section)}
         >
           <div className="mk-container mk-stack">
             {section.map((block, j) => (
