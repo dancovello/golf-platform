@@ -53,3 +53,6 @@ Retired, never use: the top-100 audit stat (26 of 93), and "0 of 4 providers pub
 | We flag PDFs screen readers can't read; accessible versions on request | Switching (FAQ) | A service promise, done by hand | ❓ confirm you'll offer this | — | Dan | Before Switching ships |
 | We switch over on a quiet weekday morning and check the site straight after | Switching (FAQ) | Process (domain routing, `/health` check) | ✅ (process) | — | Dan | — |
 | We keep your page titles | Switching (FAQ) | Pages are rebuilt from the club's content with their titles | ✅ (process) | — | Dan | — |
+| We'll show you the platform with your own homepage on it | Book a demo | A service: we rebuild the club's homepage before the call | ❓ confirm you'll do this for every demo | — | Dan | Before Book a demo ships |
+| Send times by email and we'll send a video call invite | Book a demo | Manual until a calendar is connected (Q4) | ❓ confirm | — | Dan | When Q4 is answered |
+| I run every demo myself | Book a demo | Your statement | ✅ (yours) | — | Dan | If anyone else runs demos |

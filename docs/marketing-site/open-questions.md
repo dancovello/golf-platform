@@ -10,7 +10,7 @@ Each has a safe default so building isn't blocked. The default is what ships unt
 |---|---|---|---|
 | Q2 | **VAT registered?** Decides how every price is written | Phase 5 (Pricing) | "+ VAT" from one setting (`priceVatLabel`) |
 | Q3 | **Second course price.** The calculator has a one/two courses stepper | Phase 5 (Pricing) | Price from settings, flagged in the claims register |
-| Q4 | **Demo booking calendar.** Which calendar, and your real weekday availability | Phase 5 (Book a demo) | Cal.com behind our own screens, checked for cost first. Until wired: the email address |
+| Q4 | **Demo booking calendar.** Which calendar, and your real weekday availability | Phase 5 (Book a demo) | Cal.com behind our own screens, checked for cost first. Until wired: the email address (built: D10) |
 | Q5 | **Colour copy on Website builder.** See the finding below | Phase 6 (Website builder) | The line stays hidden |
 | Q6 | **Neon plan.** The Trust page's "restore to any point in the last 7 days" needs the Launch plan (about £5–£20 a month) | Phase 6 (Trust, held) | Value from settings; not published until confirmed |
 | Q7 | **Changelog at launch?** | Phase 6 | Built, unpublished, kept out of nav and footer |
@@ -49,6 +49,8 @@ Places where the build differs from Figma to meet WCAG 2.2 AA. Update Figma or t
 | D7 | Pricing, VAT wording | "plus VAT" in sentences, "+ VAT" beside the price | "+ VAT" everywhere | One VAT setting (Q2). If you prefer "plus VAT", change it once in Settings |
 | D8 | Switching: week 4 and "Will we lose our place on Google?" | "…and redirect your old page addresses"; "We redirect your old page addresses" | "We switch the domain over and check every page straight after"; "Your domain stays the same and we keep your page titles…" | The platform doesn't forward old page addresses yet (N7). Restore Figma's lines if you build page forwarding |
 | D9 | Switching example, desktop | The deprecated URL Reskin, 504px tall | The demo club's real homepage hero, full height (about 770px at 1200 wide) | Figma has no desktop frame for the replacement; the hand-off says use the mobile one's demo club. Say if it should be cropped shorter |
+| D10 | Book a demo panel | Demo Booking: Details → Pick a time → Booked | "Pick a time by email" with an email button. The full component is on the review page with sample times | No calendar yet (Q4). Swaps in once connected |
+| D11 | Demo Booking, "Your role" | Shown filled | Optional | Not everyone has a committee role; name, club and email are enough to book |
 
 ## Answered
 

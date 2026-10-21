@@ -20,6 +20,7 @@ export const MarketingButton = ({
   arrow = variant !== 'secondary',
   disabled = false,
   type = 'button',
+  onClick,
 }: {
   label: string
   href?: string
@@ -27,6 +28,8 @@ export const MarketingButton = ({
   arrow?: boolean
   disabled?: boolean
   type?: 'button' | 'submit'
+  /** Buttons only (in client components). */
+  onClick?: () => void
 }) => {
   const content = (
     <>
@@ -47,7 +50,7 @@ export const MarketingButton = ({
     )
   }
   return (
-    <button className={className} type={type} disabled={disabled}>
+    <button className={className} type={type} disabled={disabled} onClick={onClick}>
       {content}
     </button>
   )

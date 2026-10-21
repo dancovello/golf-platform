@@ -3145,3 +3145,290 @@ button.mk-button {
   line-height: 1.5;
   color: var(--mk-text-secondary);
 }
+
+/* ======== Book a demo (Figma "Book a demo — Desktop" 187:7336, "Book a demo — Mobile" 275:9525) ======== */
+
+/* The intro (187:7371): 112px top, 96px bottom on desktop; copy beside the booking panel. */
+@media (min-width: 1024px) {
+  main > .mk-section[data-kind='mkDemoIntro']:first-child {
+    padding: 112px 0 96px;
+  }
+}
+.mk-demo-intro {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+.mk-demo-intro-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+/* Phones: the email line sits 16px under the panel (275:9682). */
+.mk-demo-intro > .mk-demo-email {
+  margin-top: -32px;
+}
+@media (min-width: 1024px) {
+  .mk-demo-intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 560px;
+    grid-template-rows: auto 1fr;
+    column-gap: 80px;
+    row-gap: 32px;
+  }
+  .mk-demo-intro-copy {
+    grid-column: 1;
+    grid-row: 1;
+    gap: 32px;
+  }
+  .mk-demo-intro-panel {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+  .mk-demo-intro > .mk-demo-email {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: start;
+    margin-top: 0;
+  }
+}
+/* "What to expect" (187:7379): check icons, 12px apart. */
+.mk-expect {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 16px;
+  line-height: 1.55;
+  letter-spacing: -0.016px;
+  color: var(--mk-text-secondary);
+}
+.mk-expect li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.mk-expect svg,
+.mk-expect .mk-icon {
+  flex: none;
+  color: var(--mk-text-tertiary);
+}
+.mk-demo-email {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mk-text-tertiary);
+}
+.mk-demo-email a {
+  color: var(--mk-text-secondary);
+}
+
+/* Marketing/Demo Booking (187:6498): a raised panel, 40px padding, 24px between parts. */
+.mk-booking,
+.mk-booking-fallback {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 40px;
+  border: 1px solid var(--mk-border-hairline);
+  border-radius: var(--mk-radius-panel);
+  background: var(--mk-surface-raised);
+}
+@media (max-width: 389px) {
+  .mk-booking,
+  .mk-booking-fallback {
+    padding: 24px;
+  }
+}
+.mk-booking-steps {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mk-text-tertiary);
+}
+.mk-booking-steps li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.mk-booking-steps li + li::before {
+  content: '';
+  width: 24px;
+  height: 1px;
+  margin-right: 2px;
+  background: var(--mk-border-track);
+}
+.mk-booking-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--mk-border-track);
+}
+.mk-booking-steps [data-state='done'] .mk-booking-dot {
+  background: var(--mk-signal-live);
+}
+.mk-booking-steps [data-state='current'] {
+  color: var(--mk-text-primary);
+}
+.mk-booking-steps [data-state='current'] .mk-booking-dot {
+  background: var(--mk-accent-dawn);
+}
+.mk-booking-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+}
+.mk-booking-body > form,
+.mk-booking-wide,
+.mk-booking-wide > .mk-button {
+  width: 100%;
+}
+.mk-booking-row {
+  display: grid;
+  gap: 16px;
+  width: 100%;
+}
+@media (min-width: 768px) {
+  .mk-booking-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.mk-booking-title {
+  margin: 0;
+  font-family: var(--mk-font-display), Georgia, serif;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.168px;
+  color: var(--mk-text-primary);
+}
+.mk-booking-title:focus,
+.mk-booking-month-label:focus {
+  outline: none;
+}
+.mk-booking-text {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.55;
+  letter-spacing: -0.016px;
+  color: var(--mk-text-secondary);
+}
+.mk-booking-month {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+.mk-booking-month-label {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.034px;
+  color: var(--mk-text-primary);
+}
+.mk-booking-arrows {
+  display: flex;
+  gap: 8px;
+}
+.mk-booking-arrows button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin: -8px;
+  border: 0;
+  border-radius: var(--mk-radius-control);
+  background: none;
+  color: var(--mk-text-secondary);
+  cursor: pointer;
+}
+.mk-booking-arrows button:hover {
+  color: var(--mk-text-primary);
+}
+.mk-booking-grid {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 4px;
+  margin: -4px;
+  width: calc(100% + 8px);
+  table-layout: fixed;
+}
+.mk-booking-grid th {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--mk-text-tertiary);
+}
+.mk-booking-day {
+  width: 100%;
+  height: 40px;
+  border: 1px solid transparent;
+  border-radius: var(--mk-radius-control);
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mk-text-tertiary);
+}
+.mk-booking-day[data-state='open'] {
+  border-color: var(--mk-border-strong);
+  background: var(--mk-surface-tint);
+  color: var(--mk-text-primary);
+  cursor: pointer;
+}
+.mk-booking-day[data-state='open']:hover {
+  border-color: var(--mk-text-tertiary);
+}
+.mk-booking-day[data-state='chosen'] {
+  background: var(--mk-text-primary);
+  color: var(--mk-text-on-accent);
+  cursor: pointer;
+}
+.mk-booking-day[data-state='closed'] {
+  cursor: default;
+}
+.mk-booking-times {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.mk-booking-times legend {
+  margin-bottom: 24px;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mk-text-secondary);
+}
+.mk-booking-times .mk-slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+  gap: 8px;
+}
+.mk-booking-tick {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 24px;
+  background: var(--mk-signal-live-wash);
+  color: var(--mk-signal-live);
+}
+.mk-review-booking {
+  width: min(560px, 100%);
+}

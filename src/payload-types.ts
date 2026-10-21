@@ -1793,6 +1793,7 @@ export interface MarketingPage {
         | MarketingRequestHeroBlock
         | MarketingDemoExampleBlock
         | MarketingMigrationBlock
+        | MarketingDemoIntroBlock
       )[]
     | null;
   meta?: {
@@ -2150,6 +2151,10 @@ export interface MarketingContentMovesBlock {
  * via the `definition` "MarketingFounderBlock".
  */
 export interface MarketingFounderBlock {
+  /**
+   * Leave empty to use the line in Settings.
+   */
+  message?: string | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'mkFounder';
@@ -2263,6 +2268,34 @@ export interface MarketingMigrationBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'mkMigration';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingDemoIntroBlock".
+ */
+export interface MarketingDemoIntroBlock {
+  eyebrow?: string | null;
+  /**
+   * The page’s main heading. Under eight words. Line breaks are kept.
+   */
+  title: string;
+  subhead?: string | null;
+  /**
+   * Never say how long the call lasts (hand-off §6).
+   */
+  expect?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * The address itself comes from the company details.
+   */
+  emailLead?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkDemoIntro';
 }
 /**
  * Clubs asking for their free homepage (Switching page). Each one was promised it by the date shown.
@@ -3572,6 +3605,7 @@ export interface MarketingPagesSelect<T extends boolean = true> {
         mkRequestHero?: T | MarketingRequestHeroBlockSelect<T>;
         mkDemoExample?: T | MarketingDemoExampleBlockSelect<T>;
         mkMigration?: T | MarketingMigrationBlockSelect<T>;
+        mkDemoIntro?: T | MarketingDemoIntroBlockSelect<T>;
       };
   meta?:
     | T
@@ -3795,6 +3829,7 @@ export interface MarketingContentMovesBlockSelect<T extends boolean = true> {
  * via the `definition` "MarketingFounderBlock_select".
  */
 export interface MarketingFounderBlockSelect<T extends boolean = true> {
+  message?: T;
   id?: T;
   blockName?: T;
 }
@@ -3889,6 +3924,24 @@ export interface MarketingMigrationBlockSelect<T extends boolean = true> {
         body?: T;
         id?: T;
       };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingDemoIntroBlock_select".
+ */
+export interface MarketingDemoIntroBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  subhead?: T;
+  expect?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  emailLead?: T;
   id?: T;
   blockName?: T;
 }
