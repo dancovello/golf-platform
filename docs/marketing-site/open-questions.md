@@ -11,10 +11,10 @@ Each has a safe default so building isn't blocked. The default is what ships unt
 | Q2 | **VAT registered?** Decides how every price is written | Phase 5 (Pricing) | "+ VAT" from one setting (`priceVatLabel`) |
 | Q3 | **Second course price.** The calculator has a one/two courses stepper | Phase 5 (Pricing) | Price from settings, flagged in the claims register |
 | Q4 | **Demo booking calendar.** Which calendar, and your real weekday availability | Phase 5 (Book a demo) | Cal.com behind our own screens, checked for cost first. Until wired: the email address (built: D10) |
-| Q5 | **Colour copy on Website builder.** See the finding below | Phase 6 (Website builder) | The line stays hidden |
+| Q5 | **Colour copy on Website builder.** See the finding below | Phase 6 (Website builder) | Reworded to describe the swap (D12) |
 | Q6 | **Neon plan.** The Trust page's "restore to any point in the last 7 days" needs the Launch plan (about £5–£20 a month) | Phase 6 (Trust, held) | Value from settings; not published until confirmed |
 | Q7 | **Changelog at launch?** | Phase 6 | Built, unpublished, kept out of nav and footer |
-| Q8 | **Product film** on Website builder: is there a video? | Phase 6 | Section left out |
+| Q8 | **Product film** on Website builder: is there a video? | Phase 6 | Section left out (built page has none) |
 | Q9 | **Analytics.** Vercel Analytics only (no cookies)? | Phase 8 | Vercel Analytics only, so no consent banner. Cost on Pro checked first |
 | Q10 | **Founder Card:** photo, a first-person line under 60 words, phone or calendar link | Phase 4 | Placeholder initial; links from settings |
 | N1 | **Company name and domain** | Phase 10 (go live) | "Brandname" and `hello@brandname.golf`, in one file |
@@ -51,6 +51,9 @@ Places where the build differs from Figma to meet WCAG 2.2 AA. Update Figma or t
 | D9 | Switching example, desktop | The deprecated URL Reskin, 504px tall | The demo club's real homepage hero, full height (about 770px at 1200 wide) | Figma has no desktop frame for the replacement; the hand-off says use the mobile one's demo club. Say if it should be cropped shorter |
 | D10 | Book a demo panel | Demo Booking: Details → Pick a time → Booked | "Pick a time by email" with an email button. The full component is on the review page with sample times | No calendar yet (Q4). Swaps in once connected |
 | D11 | Demo Booking, "Your role" | Shown filled | Optional | Not everyone has a committee role; name, club and email are enough to book |
+| D12 | Website builder, Token Dial and its header | "#F2E28C → #7A6A12", "AA, nudged", "We've deepened it"; header "we tell you why before it goes live" | The picked colour stays; the readout shows which text colour sits on it and its contrast. Header: "Text on it switches to stay readable, and your colour stays as you picked it" | That's what club sites do (Q5 finding). Nothing tells editors "why" before publishing yet |
+| D13 | Website builder, "Readable for everyone" and "Undo any change" cards | "Alt text is required, and club colours are contrast-checked before they save"; "Roll a page back in one click" | "Text is checked against what it sits on, and photos missing a description are flagged"; "The last 50 versions of every page are kept. Bring an earlier one back from its history" | Descriptions are optional (N8) and colours aren't blocked on save (Q5). Restoring takes a couple of clicks |
+| D14 | Website builder, "Old links keep working" card | Old page addresses redirect | Replaced by "Backed up every night" (pages, news and settings, encrypted, kept 30 days) | Page forwarding doesn't exist yet (N7). Swap back if you build it |
 
 ## Answered
 

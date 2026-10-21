@@ -3432,3 +3432,348 @@ button.mk-button {
 .mk-review-booking {
   width: min(560px, 100%);
 }
+
+/* ======== Website builder (Figma "Website builder — Desktop" 183:3008) ======== */
+
+/* Intro (183:3044): 112px top, 64px bottom; heading, buttons and the flipper 40px apart. */
+@media (min-width: 1024px) {
+  main > .mk-section[data-kind='mkBuilderHero']:first-child {
+    padding: 112px 0 64px;
+  }
+}
+.mk-builder-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+}
+@media (max-width: 767px) {
+  .mk-builder-hero {
+    align-items: stretch;
+  }
+}
+.mk-builder-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+@media (max-width: 767px) {
+  .mk-builder-actions {
+    flex-direction: column;
+  }
+  .mk-builder-actions .mk-button {
+    height: 44px;
+  }
+}
+
+/* Marketing/Block Flipper (183:2796): the window over two cards behind it, controls below. */
+.mk-flipper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  width: 100%;
+}
+.mk-flipper-stack {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding-top: 32px;
+  touch-action: pan-y;
+}
+.mk-flipper-card {
+  position: absolute;
+  left: 50%;
+  height: var(--viewport, 540px);
+  border: 1px solid var(--mk-border-strong);
+  border-radius: var(--mk-radius-window);
+  background: var(--mk-surface-elevated);
+  transform: translateX(-50%);
+  transition:
+    width 240ms var(--mk-ease-enter),
+    height 240ms var(--mk-ease-enter);
+}
+.mk-flipper-card--1 {
+  top: 16px;
+  width: min(calc(var(--window, 960px) * 0.94), 94%);
+  opacity: 0.65;
+}
+.mk-flipper-card--2 {
+  top: 0;
+  width: min(calc(var(--window, 960px) * 0.88), 88%);
+  opacity: 0.35;
+}
+.mk-flipper-window {
+  position: relative;
+  max-width: 100%;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--mk-border-strong);
+  border-radius: var(--mk-radius-window);
+  background: var(--mk-surface-raised);
+  box-shadow: 0 32px 96px rgb(0 0 0 / 50%);
+  transition: width 240ms var(--mk-ease-enter);
+}
+.mk-flipper-viewport {
+  position: relative;
+  overflow: hidden;
+}
+.mk-flipper-viewport iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: 0;
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mk-flipper-card,
+  .mk-flipper-window {
+    transition: none;
+  }
+}
+.mk-flipper-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: min(960px, 100%);
+}
+.mk-flipper-variant {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.mk-flipper-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+}
+.mk-flipper-name {
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.015px;
+  color: var(--mk-text-primary);
+}
+.mk-flipper-count {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mk-text-tertiary);
+}
+
+/* A live demo with its details 64px below (desktop; 290:9529). */
+.mk-live-demo {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+@media (min-width: 1024px) {
+  .mk-live-demo {
+    gap: 64px;
+  }
+}
+.mk-details {
+  display: grid;
+  gap: 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 768px) {
+  .mk-details {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.mk-details li {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 20px;
+  border-top: 1px solid var(--mk-border-hairline);
+}
+.mk-detail-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.034px;
+  color: var(--mk-text-primary);
+}
+.mk-detail-body {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.55;
+  letter-spacing: -0.016px;
+  color: var(--mk-text-secondary);
+}
+
+/* Marketing/Token Dial (183:2934): controls panel (400) beside the demo window. */
+.mk-dial {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+@media (min-width: 1024px) {
+  .mk-dial {
+    flex-direction: row;
+    align-items: stretch;
+  }
+  .mk-dial-controls {
+    flex: 0 0 400px;
+  }
+  .mk-dial > .mk-demo {
+    flex: 1;
+    align-self: flex-start;
+  }
+}
+.mk-dial-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 32px;
+  border: 1px solid var(--mk-border-hairline);
+  border-radius: var(--mk-radius-panel);
+  background: var(--mk-surface-raised);
+}
+.mk-dial-label {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.015px;
+  color: var(--mk-text-primary);
+}
+.mk-dial-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.mk-dial-swatch {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1.5px solid var(--mk-text-primary);
+  border-radius: 50%;
+  background: var(--swatch);
+  cursor: pointer;
+}
+.mk-dial-swatch[aria-checked='true'] {
+  border-color: var(--mk-accent-dawn);
+  box-shadow:
+    0 0 0 2px var(--mk-surface-raised),
+    0 0 0 4px var(--mk-accent-dawn);
+}
+.mk-dial-swatch:focus-visible {
+  outline: 2px solid var(--mk-accent-dawn);
+  outline-offset: 6px;
+}
+.mk-dial-hex {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--mk-border-strong);
+  border-radius: var(--mk-radius-control);
+  background: var(--mk-surface-tint);
+  font-size: 16px;
+  line-height: 1.55;
+  letter-spacing: -0.016px;
+  color: var(--mk-text-primary);
+}
+.mk-dial-chip {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+}
+.mk-dial-contrast {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mk-text-secondary);
+}
+.mk-dial-value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mk-dial-value strong {
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--mk-text-primary);
+}
+.mk-dial-pass {
+  padding: 2px 8px;
+  border-radius: var(--mk-radius-pill);
+  background: var(--mk-signal-live-wash);
+  color: var(--mk-signal-live);
+}
+.mk-dial-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--mk-accent-dawn-edge);
+  border-radius: var(--mk-radius-control);
+  background: var(--mk-accent-dawn-wash);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mk-text-primary);
+}
+.mk-dial-note svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--mk-accent-dawn);
+}
+.mk-dial-skin {
+  display: contents;
+}
+
+/* Course status (290:9552): two cards centred on the club's page colour, 520 tall. */
+.mk-status-demo-view {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  min-height: 520px;
+  padding: 40px 24px;
+  background: var(--color-surface-canvas);
+}
+.mk-status-demo-view .mk-moment-preview {
+  flex: 0 1 378px;
+  gap: 16px;
+  padding: 24px 22px;
+  border: 0;
+  border-radius: 0;
+}
+.mk-status-demo-view .mk-preview-title {
+  font-size: 28px;
+}
+.mk-status-demo-view .mk-preview-status {
+  font-size: 16px;
+  padding: 8px 14px 8px 12px;
+}
+.mk-status-demo-view .mk-moment-preview dl {
+  font-size: 17px;
+}
+.mk-status-demo-view .mk-moment-preview dl > div {
+  padding: 12px 0;
+}
+@media (max-width: 767px) {
+  .mk-status-demo-view {
+    min-height: 0;
+    gap: 16px;
+    padding: 16px;
+  }
+}

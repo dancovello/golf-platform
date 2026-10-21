@@ -1,4 +1,4 @@
-import type { Validate } from 'payload'
+import type { Field, Validate } from 'payload'
 
 import { isSafeURL } from '../fields/link'
 
@@ -8,7 +8,8 @@ export const maxWords =
   (value: unknown) => {
     const text = typeof value === 'string' ? value.trim() : ''
     if (!text) return required ? 'This is required.' : true
-    const words = text.split(/\s+/).length
+    // Lone punctuation ("01 · Club colours") isn't a word.
+    const words = text.split(/\s+/).filter((w) => /[\p{L}\p{N}]/u.test(w)).length
     return words <= limit ? true : `Keep this to ${limit} words or fewer (it has ${words}).`
   }
 
@@ -32,3 +33,40 @@ export const noTypedPrices = (value: unknown) =>
   typeof value === 'string' && /£\s?\d/.test(value)
     ? 'Use {price} for the monthly price, so it always matches the settings.'
     : true
+
+/** A button: label and where it goes (Figma Marketing/Button, exposed on Block/CTA Band). */
+export const button = (
+  name: string,
+  label: string,
+  defaults: { label: string; href: string },
+  description?: string,
+): Field => ({
+  name,
+  label,
+  type: 'group',
+  admin: description ? { description } : {},
+  fields: [
+    {
+      type: 'row',
+      fields: [
+        {
+          name: 'label',
+          label: 'Button text',
+          type: 'text',
+          maxLength: 30,
+          defaultValue: defaults.label,
+          validate: maxWords(4),
+        },
+        {
+          name: 'href',
+          label: 'Goes to',
+          type: 'text',
+          maxLength: 300,
+          defaultValue: defaults.href,
+          validate: marketingHref,
+          admin: { description: 'A page on this site, like /pricing, or a full web address.' },
+        },
+      ],
+    },
+  ],
+})

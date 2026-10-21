@@ -51,6 +51,7 @@ import * as migration_20261021_170032_marketing_home_blocks from './20261021_170
 import * as migration_20261021_171424_marketing_pricing_blocks from './20261021_171424_marketing_pricing_blocks';
 import * as migration_20261021_173753_marketing_switching from './20261021_173753_marketing_switching';
 import * as migration_20261021_175055_marketing_book_demo from './20261021_175055_marketing_book_demo';
+import * as migration_20261021_214128_marketing_website_builder from './20261021_214128_marketing_website_builder';
 
 export const migrations = [
   {
@@ -316,6 +317,11 @@ export const migrations = [
   {
     up: migration_20261021_175055_marketing_book_demo.up,
     down: migration_20261021_175055_marketing_book_demo.down,
-    name: '20261021_175055_marketing_book_demo'
+    name: '20261021_175055_marketing_book_demo',
+  },
+  {
+    up: migration_20261021_214128_marketing_website_builder.up,
+    down: migration_20261021_214128_marketing_website_builder.down,
+    name: '20261021_214128_marketing_website_builder'
   },
 ];

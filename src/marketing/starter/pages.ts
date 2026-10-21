@@ -450,7 +450,169 @@ const bookADemo: StarterPage = {
   ],
 }
 
-export const STARTER_PAGES: StarterPage[] = [home, pricing, switching, bookADemo]
+// Website builder (Figma "Website builder — Desktop" 183:3008). The product film is left out
+// (Q8). Lines Figma has that the product can't back yet are reworded (design notes D12–D14):
+// colours aren't changed or blocked (Q5), photo descriptions are optional (N8) and old page
+// addresses don't forward yet (N7).
+const websiteBuilder: StarterPage = {
+  slug: 'website-builder',
+  title: 'Website builder',
+  description:
+    'Every block was designed to fit every other block. Add your colours and photos, move things around, and your club’s site still looks right.',
+  layout: [
+    {
+      blockType: 'mkBuilderHero',
+      eyebrow: 'Website builder',
+      title: 'Make it yours.\nIt’ll still look right.',
+      subhead:
+        'Every block was designed to fit every other block. Change the layout, add your colours and photos, move things around. The design holds, so your site never looks thrown together.',
+      primary: { label: 'Book a demo', href: '/book-a-demo' },
+      secondary: { label: 'Get your free homepage', href: '/switching' },
+    },
+    {
+      blockType: 'mkSectionHeader',
+      eyebrow: '01 · Club colours',
+      title: 'Your colours, kept readable.',
+      subhead:
+        'Pick your club colour and the whole site follows. Text on it switches to stay readable, and your colour stays as you picked it.',
+      align: 'left',
+    },
+    {
+      blockType: 'mkLiveDemo',
+      demo: 'tokenDial',
+      details: [
+        {
+          title: 'One colour, the whole site',
+          body: 'Buttons, links and accents follow the colour you pick. Nothing to restyle by hand.',
+        },
+        {
+          title: 'Readable by design',
+          body: 'If text would be hard to read on a colour, it switches to one that reads, so pages meet WCAG AA.',
+        },
+        {
+          title: 'Your photos, your logo',
+          body: 'They sit in layouts designed around them, so every page still holds together.',
+        },
+      ],
+    },
+    {
+      blockType: 'mkSectionHeader',
+      eyebrow: '02 · Course guide',
+      title: 'Your course, hole by hole.',
+      subhead:
+        'Yardages from every tee, stroke index and a line on how to play each hole. The pro keeps it up to date, not a developer.',
+      align: 'left',
+    },
+    {
+      blockType: 'mkLiveDemo',
+      demo: 'courseGuide',
+      details: [
+        {
+          title: 'Every tee, every yardage',
+          body: 'Tee colours, par and stroke index sit together, the way a scorecard does.',
+        },
+        {
+          title: 'Made for visitors',
+          body: 'A first-timer can read the course before they arrive, hole by hole.',
+        },
+        {
+          title: 'Kept current by the club',
+          body: 'Change a yardage or a hole note and publish. No developer, no wait.',
+        },
+      ],
+    },
+    {
+      blockType: 'mkSectionHeader',
+      eyebrow: '03 · Course status',
+      title: 'The course report, first thing.',
+      subhead:
+        'Post greens, tees and bunkers from the office. It sits on the homepage, where members look before they set off.',
+      align: 'left',
+    },
+    {
+      blockType: 'mkLiveDemo',
+      demo: 'courseStatus',
+      details: [
+        {
+          title: 'Where members look',
+          body: 'The report sits on the homepage, where members look before they set off.',
+        },
+        {
+          title: 'Time-stamped',
+          body: 'Members see when it was last updated, so nobody wonders if it’s current.',
+        },
+        {
+          title: 'Whoever’s on duty',
+          body: 'Anyone with access can post it. It doesn’t wait for one person.',
+        },
+      ],
+    },
+    {
+      blockType: 'mkSectionHeader',
+      eyebrow: 'Built in',
+      title: 'Sorted before you log in.',
+      subhead:
+        'The parts nobody notices until they go wrong. They come with every site, at no extra cost.',
+      align: 'left',
+    },
+    {
+      blockType: 'mkFeatureCards',
+      style: 'cards',
+      cards: [
+        {
+          icon: 'check',
+          title: 'Readable for everyone',
+          body: 'Text is checked against what it sits on, and photos missing a description are flagged.',
+        },
+        {
+          icon: 'expand',
+          title: 'Looks right on a phone',
+          body: 'Blocks rearrange for small screens. There’s no separate mobile site to keep up.',
+        },
+        {
+          icon: 'lock',
+          title: 'The right access for each person',
+          body: 'Invite your committee. Give each person only the access they need.',
+          availability: 'coming-next',
+        },
+        {
+          icon: 'clock',
+          title: 'Undo any change',
+          body: 'The last 50 versions of every page are kept. Bring an earlier one back from its history.',
+        },
+        {
+          icon: 'mail',
+          title: 'Keep your domain and email',
+          body: 'We point your domain at the new site. Your club email stays where it is.',
+        },
+        {
+          icon: 'sun',
+          title: 'Photos that load quickly',
+          body: 'Upload a photo and we resize it for you, so pages stay quick.',
+        },
+        {
+          icon: 'file',
+          title: 'Backed up every night',
+          body: 'Your pages, news and settings are copied every night, encrypted, and kept for 30 days.',
+        },
+        {
+          icon: 'players',
+          title: 'No charge per editor',
+          body: 'Everyone on the committee can have their own login.',
+        },
+      ],
+    },
+    {
+      blockType: 'mkCtaBand',
+      title: 'See your club on it.',
+      subhead: 'We’ll rebuild your homepage in your colours and send it straight to you, free.',
+      primary: { label: 'Book a demo', href: '/book-a-demo' },
+      secondary: { label: 'Get your free homepage', href: '/switching' },
+    },
+  ],
+}
+
+export const STARTER_PAGES: StarterPage[] = [home, pricing, switching, bookADemo, websiteBuilder]
 
 /** Adds each starter page as a draft unless its address is taken. Returns what happened. */
 export const addStarterPages = async (payload: Payload) => {

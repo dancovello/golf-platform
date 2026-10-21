@@ -1794,6 +1794,8 @@ export interface MarketingPage {
         | MarketingDemoExampleBlock
         | MarketingMigrationBlock
         | MarketingDemoIntroBlock
+        | MarketingBuilderHeroBlock
+        | MarketingLiveDemoBlock
       )[]
     | null;
   meta?: {
@@ -1963,7 +1965,9 @@ export interface MarketingFeatureCardsBlock {
       | 'file'
       | 'download'
       | 'info'
-      | 'sun';
+      | 'sun'
+      | 'expand'
+      | 'arrow-up-right';
     title: string;
     body: string;
     /**
@@ -2296,6 +2300,55 @@ export interface MarketingDemoIntroBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'mkDemoIntro';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingBuilderHeroBlock".
+ */
+export interface MarketingBuilderHeroBlock {
+  eyebrow?: string | null;
+  /**
+   * The page’s main heading. Under eight words. Line breaks are kept.
+   */
+  title: string;
+  subhead?: string | null;
+  primary?: {
+    label?: string | null;
+    /**
+     * A page on this site, like /pricing, or a full web address.
+     */
+    href?: string | null;
+  };
+  /**
+   * Leave the text empty to show only the main button.
+   */
+  secondary?: {
+    label?: string | null;
+    /**
+     * A page on this site, like /pricing, or a full web address.
+     */
+    href?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkBuilderHero';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingLiveDemoBlock".
+ */
+export interface MarketingLiveDemoBlock {
+  demo: 'tokenDial' | 'courseGuide' | 'courseStatus';
+  details?:
+    | {
+        title: string;
+        body: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkLiveDemo';
 }
 /**
  * Clubs asking for their free homepage (Switching page). Each one was promised it by the date shown.
@@ -3606,6 +3659,8 @@ export interface MarketingPagesSelect<T extends boolean = true> {
         mkDemoExample?: T | MarketingDemoExampleBlockSelect<T>;
         mkMigration?: T | MarketingMigrationBlockSelect<T>;
         mkDemoIntro?: T | MarketingDemoIntroBlockSelect<T>;
+        mkBuilderHero?: T | MarketingBuilderHeroBlockSelect<T>;
+        mkLiveDemo?: T | MarketingLiveDemoBlockSelect<T>;
       };
   meta?:
     | T
@@ -3942,6 +3997,45 @@ export interface MarketingDemoIntroBlockSelect<T extends boolean = true> {
         id?: T;
       };
   emailLead?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingBuilderHeroBlock_select".
+ */
+export interface MarketingBuilderHeroBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  subhead?: T;
+  primary?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+      };
+  secondary?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingLiveDemoBlock_select".
+ */
+export interface MarketingLiveDemoBlockSelect<T extends boolean = true> {
+  demo?: T;
+  details?:
+    | T
+    | {
+        title?: T;
+        body?: T;
+        id?: T;
+      };
   id?: T;
   blockName?: T;
 }
