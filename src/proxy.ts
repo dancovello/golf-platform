@@ -26,6 +26,8 @@ const MARKETING = '/marketing'
 const PLATFORM_PATHS =
   /^\/(admin|api|preview|health|accounts-by-administrator|cron|csp-report|robots\.txt|_vercel|__nextjs[\w-]*)(\/|$)/
 const INTERNAL_ONLY = /^\/(sites|marketing)(\/|$)/
+/** Marketing review pages (super-admin only): on the platform's own address, never the company's. */
+const REVIEW = /^\/dev(\/|$)/
 
 /** Search engines may index the marketing site only on the company's domain, on production. */
 const NOINDEX = 'noindex'
@@ -98,7 +100,9 @@ export function proxy(request: NextRequest) {
   if (host && isMarketingHost(host)) {
     const [main] = marketingHosts()
     if (host !== main) return onHost(request, main)
-    if (PLATFORM_ONLY.test(pathname) || INTERNAL_ONLY.test(pathname)) return notFound()
+    if (PLATFORM_ONLY.test(pathname) || INTERNAL_ONLY.test(pathname) || REVIEW.test(pathname)) {
+      return notFound()
+    }
     if (pathname === REPORT_PATH) return NextResponse.next({ request: { headers } })
     return marketing(request, headers, pathname, search, process.env.VERCEL_ENV === 'production')
   }
@@ -123,6 +127,9 @@ export function proxy(request: NextRequest) {
   // Anything that isn't the admin, API, previews or a platform service is the marketing site:
   // forwarded to the company's domain once it exists, otherwise shown here (staging and
   // previews), never indexed.
+  // The marketing review pages (/dev/…, super-admin only) stay here, where the admin's login is.
+  if (REVIEW.test(pathname)) return marketing(request, headers, pathname, search, false)
+
   if (!PLATFORM_PATHS.test(pathname)) {
     const [main] = marketingHosts()
     if (main) return onHost(request, main)

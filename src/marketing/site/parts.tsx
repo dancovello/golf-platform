@@ -8,32 +8,50 @@ import { MarketingIcon } from './MarketingIcon'
 const isInternal = (href: string) => href.startsWith('/')
 
 /**
- * Marketing/Button (Figma 174:1846). Primary: the one action per view, with an arrow that nudges
- * 3px on hover. Secondary: alternatives. Full width and 44px tall on phones (mobile CTA, 297:9754),
- * where the arrow is dropped.
+ * Marketing/Button (Figma 174:1846). Primary: the one action per view (Book a demo). Secondary:
+ * alternatives. Ghost: nav-level actions. Hover: arrow nudges 3px; pressed: 0.97; disabled: 40%.
+ * A link when it has an address, otherwise a button. On phones (mobile CTA, 297:9754) the CTA
+ * band makes them full width and 44px tall, and the arrow is dropped.
  */
 export const MarketingButton = ({
   label,
   href,
   variant,
+  arrow = variant !== 'secondary',
+  disabled = false,
+  type = 'button',
 }: {
   label: string
-  href: string
-  variant: 'primary' | 'secondary'
-}) => (
-  <a
-    className={`mk-button mk-button--${variant}`}
-    href={href}
-    {...(isInternal(href) ? {} : { rel: 'noopener' })}
-  >
-    <span>{label}</span>
-    {variant === 'primary' ? (
-      <span className="mk-button-icon">
-        <MarketingIcon name="arrow-right" size={16} />
-      </span>
-    ) : null}
-  </a>
-)
+  href?: string
+  variant: 'primary' | 'secondary' | 'ghost'
+  arrow?: boolean
+  disabled?: boolean
+  type?: 'button' | 'submit'
+}) => {
+  const content = (
+    <>
+      <span>{label}</span>
+      {arrow ? (
+        <span className="mk-button-icon">
+          <MarketingIcon name="arrow-right" size={16} />
+        </span>
+      ) : null}
+    </>
+  )
+  const className = `mk-button mk-button--${variant}`
+  if (href && !disabled) {
+    return (
+      <a className={className} href={href} {...(isInternal(href) ? {} : { rel: 'noopener' })}>
+        {content}
+      </a>
+    )
+  }
+  return (
+    <button className={className} type={type} disabled={disabled}>
+      {content}
+    </button>
+  )
+}
 
 /**
  * Marketing/Availability Badge (263:8726): text and icon, never colour alone. "Small" is the size
