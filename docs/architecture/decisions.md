@@ -355,3 +355,12 @@ Approved by Dan, 2026-10-21. Plan: `docs/plans/marketing-site-plan.md`. Brief: `
 - **Every settings screen must define its own access**, now checked by `tests/unit/access-guard.spec.ts` (the first global). Document locking stays off for it.
 - **Moved to phase 5:** the homepage and demo request collections, so their fields match the Figma forms when those are built.
 - **Live preview** for marketing pages comes in phase 2, with the styled blocks.
+
+## 2026-10-21: Marketing site look (plan phase 1.3)
+
+- **Tokens:** every colour, radius, space and motion value from the Figma variables, as `--mk-*` custom properties in `src/app/(marketing)/marketing.css`, all scoped to the marketing `<body class="mk">`. A test proves none of it reaches a club site.
+- **Fonts:** Newsreader (400) and Hanken Grotesk (400, 500, 600), latin subset from Fontsource 5.3.0 (SIL Open Font License), self-hosted like the club fonts and preloaded. No requests to Google.
+- **Type:** the Figma styles as classes (`mk-display-xl` … `mk-label-s`). Phones use the mobile display (44px) and heading (32px) sizes; desktop sizes from 1024px wide.
+- **Layout:** a 1200px container with 16px gutters on phones (32px from 768px). Sections are 64 / 96 / 128px apart by width, with less space above the call to action band. A hairline goes between sections, and text reads at 720px.
+- **Interaction basics:** a dawn focus ring with a 2px gap on keyboard focus only, hover styles only on devices with a mouse, and reduced motion drops movement. A "Skip to content" link is the first thing a keyboard reaches.
+- **Accessibility in CI:** marketing pages are scanned with axe (WCAG 2.2 AA rules) at phone and desktop widths, and must have no findings.

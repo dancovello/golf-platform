@@ -29,19 +29,25 @@ export default async function MarketingPage({ params }: Props) {
   const page = await publishedMarketingPage(path)
   if (page) {
     return (
-      <main>
+      <main id="main">
         <MarketingBlocks blocks={page.layout ?? []} />
       </main>
     )
   }
   if (path.length > 0) notFound()
   return (
-    <main>
-      <h1>Your club is better than your website.</h1>
-      <p>
-        Our website is on its way. To talk to us now, email{' '}
-        <a href={`mailto:${BRAND.email}`}>{BRAND.email}</a>.
-      </p>
+    <main id="main">
+      <section className="mk-section">
+        <div className="mk-container">
+          <header className="mk-section-header">
+            <h1 className="mk-display-xl">Your club is better than your website.</h1>
+            <p className="mk-body-l mk-secondary">
+              Our website is on its way. To talk to us now, email{' '}
+              <a href={`mailto:${BRAND.email}`}>{BRAND.email}</a>.
+            </p>
+          </header>
+        </div>
+      </section>
     </main>
   )
 }

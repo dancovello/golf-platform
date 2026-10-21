@@ -1,0 +1,415 @@
+/*
+ * The marketing site's look (hand-off §8; Figma variables on the Marketing site page).
+ * Everything is scoped to .mk (the marketing <body>), so none of it can reach a club site, and
+ * the club tokens (--color-*, --brand-*) inside a live demo can't reach out: demos set their
+ * own variables on their own frame. Components use these tokens only, never raw colours.
+ */
+
+.mk {
+  /* Surfaces */
+  --mk-surface-canvas: #091a13;
+  --mk-surface-raised: #0d2219;
+  --mk-surface-elevated: #11291f;
+  --mk-surface-hover: #173327;
+  --mk-surface-tint: #f3f1ea0a;
+  /* Text */
+  --mk-text-primary: #f3f1ea;
+  --mk-text-secondary: #a3ada6;
+  --mk-text-tertiary: #8a968f;
+  --mk-text-on-accent: #091a13;
+  /* Accent and signal */
+  --mk-accent-dawn: #ebc07a;
+  --mk-accent-dawn-wash: #ebc07a14;
+  --mk-accent-dawn-edge: #ebc07a66;
+  --mk-signal-live: #7bd4a0;
+  --mk-signal-live-wash: #7bd4a029;
+  /* Borders */
+  --mk-border-hairline: #f3f1ea14;
+  --mk-border-strong: #f3f1ea29;
+  --mk-border-track: #6b767066;
+  /* Radius */
+  --mk-radius-control: 8px;
+  --mk-radius-window: 12px;
+  --mk-radius-panel: 14px;
+  --mk-radius-pill: 999px;
+  /* Space */
+  --mk-space-4: 4px;
+  --mk-space-8: 8px;
+  --mk-space-12: 12px;
+  --mk-space-16: 16px;
+  --mk-space-24: 24px;
+  --mk-space-32: 32px;
+  --mk-space-40: 40px;
+  --mk-space-64: 64px;
+  --mk-space-80: 80px;
+  --mk-space-96: 96px;
+  --mk-space-128: 128px;
+  --mk-container: 1200px;
+  --mk-reading: 720px;
+  --mk-gutter: 16px;
+  --mk-nav-clearance: 80px;
+  /* Sections: 128px apart, 96px above a CTA band, 64px from header to content */
+  --mk-section-space: 64px;
+  --mk-section-space-cta: 64px;
+  --mk-header-gap: 40px;
+  /* Motion (interaction rules): never ease-in */
+  --mk-ease-enter: cubic-bezier(0.23, 1, 0.32, 1);
+  --mk-ease-move: cubic-bezier(0.77, 0, 0.175, 1);
+  --mk-duration-press: 120ms;
+  --mk-duration-hover: 150ms;
+  --mk-duration-popover: 180ms;
+  --mk-duration-drawer: 240ms;
+  --mk-rise: 24px;
+
+  /* Type: phones first, desktop sizes from 1024px */
+  --mk-display-xl-size: 44px;
+  --mk-display-xl-line: 48px;
+  --mk-display-xl-track: -1.8px;
+  --mk-display-l-size: 32px;
+  --mk-display-l-line: 36px;
+  --mk-display-l-track: -1.2px;
+
+  margin: 0;
+  min-height: 100vh;
+  background: var(--mk-surface-canvas);
+  color: var(--mk-text-primary);
+  font-family: var(--mk-font-text), system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  letter-spacing: -0.1px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  color-scheme: dark;
+}
+
+@media (min-width: 768px) {
+  .mk {
+    --mk-gutter: 32px;
+    --mk-section-space: 96px;
+    --mk-section-space-cta: 80px;
+    --mk-header-gap: 48px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .mk {
+    --mk-nav-clearance: 120px;
+    --mk-section-space: 128px;
+    --mk-section-space-cta: 96px;
+    --mk-header-gap: 64px;
+    --mk-display-xl-size: 80px;
+    --mk-display-xl-line: 1.02;
+    --mk-display-xl-track: -2.2px;
+    --mk-display-l-size: 60px;
+    --mk-display-l-line: 1.05;
+    --mk-display-l-track: -1.8px;
+  }
+}
+
+/* Reduced motion: keep fades, drop movement (interaction rules). */
+@media (prefers-reduced-motion: reduce) {
+  .mk {
+    --mk-rise: 0px;
+  }
+}
+
+.mk *,
+.mk *::before,
+.mk *::after {
+  box-sizing: border-box;
+}
+
+.mk ::selection {
+  background: var(--mk-accent-dawn);
+  color: var(--mk-text-on-accent);
+}
+
+/* ---- Type styles ---- */
+
+.mk-display-xl,
+.mk-display-l,
+.mk-heading-m {
+  margin: 0;
+  font-family: var(--mk-font-display), Georgia, serif;
+  font-weight: 400;
+  text-wrap: balance;
+}
+.mk-display-xl {
+  font-size: var(--mk-display-xl-size);
+  line-height: var(--mk-display-xl-line);
+  letter-spacing: var(--mk-display-xl-track);
+}
+.mk-display-l {
+  font-size: var(--mk-display-l-size);
+  line-height: var(--mk-display-l-line);
+  letter-spacing: var(--mk-display-l-track);
+}
+.mk-heading-m {
+  font-size: 28px;
+  line-height: 1.2;
+  letter-spacing: -0.6px;
+}
+.mk-heading-s {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.2px;
+}
+.mk-body-l {
+  font-size: 19px;
+  line-height: 1.55;
+  letter-spacing: -0.2px;
+}
+.mk-body-m {
+  font-size: 16px;
+  line-height: 1.55;
+  letter-spacing: -0.1px;
+}
+.mk-body-s {
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: 0;
+}
+.mk-label {
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.1px;
+}
+.mk-label-s {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  letter-spacing: 0.2px;
+}
+.mk-eyebrow {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--mk-accent-dawn);
+}
+.mk-secondary {
+  color: var(--mk-text-secondary);
+}
+
+/* Prices, countdowns and anything that changes in place keep their width. */
+.mk-figures {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Layout ---- */
+
+.mk-container {
+  width: 100%;
+  max-width: calc(var(--mk-container) + 2 * var(--mk-gutter));
+  margin-inline: auto;
+  padding-inline: var(--mk-gutter);
+}
+
+/* A page section: a hairline between sections, never doubled at the top of the page. */
+.mk-section {
+  padding-block: var(--mk-section-space);
+}
+.mk-section + .mk-section {
+  border-top: 1px solid var(--mk-border-hairline);
+}
+.mk-section--cta {
+  padding-top: var(--mk-section-space-cta);
+}
+.mk-section-header {
+  display: grid;
+  gap: var(--mk-space-16);
+  max-width: 800px;
+}
+
+/* Rich text reads at 720px. */
+.mk-prose {
+  max-width: var(--mk-reading);
+}
+.mk-prose > * {
+  margin: 0;
+}
+.mk-prose > * + * {
+  margin-top: 1em;
+}
+.mk-prose h2 {
+  margin-top: 2em;
+  font-family: var(--mk-font-display), Georgia, serif;
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 1.2;
+  letter-spacing: -0.6px;
+}
+.mk-prose h3 {
+  margin-top: 1.6em;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.2px;
+}
+.mk-prose ul,
+.mk-prose ol {
+  padding-left: 1.25em;
+}
+.mk-prose blockquote {
+  padding-left: var(--mk-space-24);
+  border-left: 2px solid var(--mk-accent-dawn-edge);
+  color: var(--mk-text-secondary);
+}
+
+/* ---- Links and focus (interaction rules) ---- */
+
+.mk a {
+  color: inherit;
+}
+.mk-prose a {
+  color: var(--mk-text-primary);
+  text-decoration: underline;
+  text-decoration-color: var(--mk-accent-dawn-edge);
+  text-underline-offset: 3px;
+  transition: text-decoration-color var(--mk-duration-hover) ease-out;
+}
+@media (hover: hover) and (pointer: fine) {
+  .mk-prose a:hover {
+    text-decoration-color: var(--mk-accent-dawn);
+  }
+}
+
+/* Every control: a 2px gap, then a 2px dawn ring. Keyboard focus only; never removed or
+ * animated. */
+.mk :focus-visible {
+  outline: 2px solid var(--mk-accent-dawn);
+  outline-offset: 2px;
+  transition: none;
+}
+.mk :focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Skip to content: hidden until focused. */
+.mk-skip {
+  position: absolute;
+  top: var(--mk-space-8);
+  left: var(--mk-space-8);
+  z-index: 100;
+  padding: var(--mk-space-8) var(--mk-space-16);
+  border-radius: var(--mk-radius-control);
+  background: var(--mk-accent-dawn);
+  color: var(--mk-text-on-accent);
+  font-weight: 500;
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+.mk-skip:focus {
+  transform: none;
+}
+
+/* Hidden visually, still read aloud. */
+.mk-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---- The CMS blocks (first pass; full designs in phase 2) ---- */
+
+.mk-section > .mk-container > * + * {
+  margin-top: var(--mk-space-40);
+}
+.mk-section > .mk-container > .mk-section-header + * {
+  margin-top: var(--mk-header-gap);
+}
+
+.mk-media {
+  margin: 0;
+}
+.mk-media img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+.mk-media[data-ratio='3:2'] img {
+  aspect-ratio: 3 / 2;
+}
+.mk-media[data-ratio='1:1'] img {
+  aspect-ratio: 1 / 1;
+}
+.mk-media[data-ratio='4:5'] img {
+  aspect-ratio: 4 / 5;
+}
+.mk-media[data-frame='window'] img {
+  border: 1px solid var(--mk-border-strong);
+  border-radius: var(--mk-radius-window);
+}
+.mk-media figcaption {
+  margin-top: var(--mk-space-12);
+}
+
+.mk-cards {
+  display: grid;
+  gap: var(--mk-space-16);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 768px) {
+  .mk-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  .mk-cards[data-count='3'],
+  .mk-cards[data-count='6'] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .mk-cards[data-count='4'],
+  .mk-cards[data-count='8'] {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+.mk-card {
+  display: grid;
+  align-content: start;
+  gap: var(--mk-space-8);
+  padding: var(--mk-space-24);
+  border: 1px solid var(--mk-border-hairline);
+  border-radius: var(--mk-radius-panel);
+  background: var(--mk-surface-raised);
+}
+.mk-card p {
+  margin: 0;
+}
+.mk-badge {
+  justify-self: start;
+  padding: 2px var(--mk-space-8);
+  border: 1px solid var(--mk-accent-dawn-edge);
+  border-radius: var(--mk-radius-pill);
+  color: var(--mk-accent-dawn);
+}
+
+.mk-cta {
+  display: grid;
+  justify-items: center;
+  gap: var(--mk-space-16);
+  text-align: center;
+}
+.mk-cta p {
+  margin: 0;
+}
+.mk-cta .mk-cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--mk-space-24);
+  margin-top: var(--mk-space-16);
+}
