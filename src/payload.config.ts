@@ -43,6 +43,9 @@ if (!/^[0-9a-f]{64}$/i.test(process.env.TOTP_ENCRYPTION_KEY ?? '')) {
 export default buildConfig({
   admin: {
     user: 'users',
+    // Payload's built-in account icon, not Gravatar: Gravatar would receive a code made from
+    // each editor's email address on every admin page (found by the security policy, 2026-10-21).
+    avatar: 'default',
     components: {
       // The club home screen: setup checklist, new messages, everyday jobs, course status.
       beforeDashboard: ['/admin/ClubHome#ClubHome'],

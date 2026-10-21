@@ -4,6 +4,7 @@ import type { ClubSite } from '../loadClub'
 import { BookButton } from './BookButton'
 import { DesktopNav } from './DesktopNav'
 import { fitHeaderScript } from './headerFit'
+import { InlineScript } from './InlineScript'
 import { HeaderScroll } from './HeaderScroll'
 import { SearchPanel } from '../search/SearchPanel'
 import { SearchTrigger } from '../search/SearchTrigger'
@@ -145,7 +146,8 @@ export const SiteHeader = ({
         </div>
         {mobile}
       </HeaderScroll>
-      <script dangerouslySetInnerHTML={{ __html: fitHeaderScript(HEADER_ID) }} />
+      {/* Runs before the header is drawn, so the full menu never flashes up when it won't fit. */}
+      <InlineScript code={fitHeaderScript(HEADER_ID)} />
       <SearchPanel
         base={base}
         clubSlug={club.slug}

@@ -309,3 +309,15 @@ Recorded afterwards from PRs #106, #108, #109 and #112–#116.
 - **News:** the article as visitors will see it, at its own address. **Events:** events have no page of their own, so the preview is the Events page with the event being edited shown first.
 - **Drafts show only to that club's signed-in editors and the super-admin** inside the preview (`?live=1`, the same rule as pages). Visitors adding `?live=1` still see only published articles and upcoming published events. The event to show comes from the address only if it's a proper record ID, and only from the club's own events.
 - The preview needs the article's address or the event's ID, so it appears once the item has been saved once.
+
+## 2026-10-21: Content security policy
+
+Approved by Dan, 2026-10-21 (doc 04 §8; "not yet" in the 16 October security headers entry).
+
+- **Every page view gets a fresh one-time code** (`src/proxy.ts`, `src/security/csp.ts`). Only scripts carrying it run, plus the scripts those load (`'strict-dynamic'`): Cloudflare Turnstile, and Google Analytics after cookie consent. Next.js stamps the code on its own scripts; the header-fit script reads it (`src/site/components/InlineScript.tsx`). A code or policy sent by a visitor is discarded.
+- **Allowed:** pictures and video from the site and the club photo domain; frames for OpenStreetMap, Turnstile and the admin's live preview; connections to the site, Turnstile and Google Analytics; fonts from the site only; forms only to the site; no plugins. The admin may also upload straight to storage. **Inline styles stay allowed**: club colours are set on elements, and a code can't cover style attributes.
+- **Club sites (own domains and `/preview`): enforced. The admin: report-only** until a clean week of reports, then enforced by setting `ADMIN_ENFORCED` in `src/security/csp.ts` (review due 2026-10-28).
+- **Reports** of anything blocked go to `/csp-report`: the server log, and Sentry once set up. Only the page path and the blocked item's origin are kept, at most 60 a minute per server instance.
+- **Vercel's toolbar** is allowed on staging and previews only, never on production (Dan).
+- **Gravatar turned off in the admin** (`admin.avatar: 'default'`). The policy found that Payload loaded each account's picture from Gravatar, sending a code made from the editor's email address to a third party on every admin page.
+- **Tests:** `tests/e2e/security-policy.spec.ts` (every club page type, search, map, analytics after consent, the main admin screens, codes unique per view, forged codes ignored) and `tests/unit/csp.spec.ts`. Turnstile isn't in the automated tests (no keys there); it was checked by hand with Cloudflare's test keys.
