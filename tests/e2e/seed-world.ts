@@ -549,6 +549,111 @@ await w.payload.create({
   } as never,
 })
 
+// Every marketing block and variant on one page, for the Figma comparison
+// (tests/e2e/marketing-look.spec.ts).
+const marketingPhoto = await w.payload.create({
+  collection: 'marketing-media',
+  data: { alt: 'Demo club: a heathland fairway at dawn' },
+  file: await photoFile('demo-fairway.jpg', 2400, 1350),
+})
+await w.payload.create({
+  collection: 'marketing-pages',
+  data: {
+    _status: 'published',
+    title: 'E2E blocks',
+    slug: 'e2e-blocks',
+    layout: [
+      {
+        blockType: 'mkSectionHeader',
+        eyebrow: 'Eyebrow',
+        title: 'A heading that says one thing well.',
+        subhead: 'One or two sentences that back the heading up. Keep it under thirty words.',
+      },
+      {
+        blockType: 'mkRichText',
+        content: rt.doc(
+          rt.h2('Our commitment'),
+          rt.p('A paragraph of body text, set in the reading width.'),
+          rt.p('A second paragraph with ', rt.urlLink('a link', 'https://example.com'), '.'),
+          rt.h3('What we test'),
+          rt.ul('Keyboard access to every control', 'Colour contrast of text and controls'),
+          rt.quote('A quote, set large with a dawn rule.'),
+        ),
+      },
+      {
+        blockType: 'mkSectionHeader',
+        eyebrow: 'Features',
+        title: 'Rows by default.',
+        align: 'center',
+      },
+      {
+        blockType: 'mkFeatureCards',
+        cards: [
+          {
+            icon: 'check',
+            title: 'Rows have no box',
+            body: 'A hairline above, icon beside the text.',
+          },
+          {
+            icon: 'calendar',
+            title: 'Two columns',
+            body: 'Rows sit in a two-column list.',
+            availability: 'coming-next',
+          },
+        ],
+      },
+      {
+        blockType: 'mkFeatureCards',
+        style: 'cards',
+        cards: [
+          {
+            icon: 'lock',
+            title: 'Cards link somewhere',
+            body: 'Only then is it a card.',
+            linkLabel: 'Read more',
+            linkHref: '/e2e-pricing',
+          },
+          {
+            icon: 'players',
+            title: 'Equal widths',
+            body: 'Rows of two or three.',
+            linkLabel: 'Read more',
+            linkHref: '/e2e-pricing',
+          },
+          {
+            icon: 'flag',
+            title: 'Badges show status',
+            body: 'Text and icon, never colour alone.',
+            availability: 'coming-next',
+            linkLabel: 'Read more',
+            linkHref: '/e2e-pricing',
+          },
+        ],
+      },
+      { blockType: 'mkSectionHeader', title: 'Photos.' },
+      {
+        blockType: 'mkMedia',
+        image: marketingPhoto.id,
+        ratio: '16:9',
+        frame: 'plain',
+        caption: 'Caption. Optional, one line.',
+      },
+      {
+        blockType: 'mkMedia',
+        image: marketingPhoto.id,
+        ratio: '3:2',
+        frame: 'window',
+        windowAddress: 'ashgrovepark.golf',
+      },
+      {
+        blockType: 'mkCtaBand',
+        title: 'See your club on it.',
+        subhead: 'We’ll rebuild your homepage in your colours and send it straight to you, free.',
+      },
+    ],
+  } as never,
+})
+
 writeFileSync(
   'tests/e2e/.state/world.json',
   JSON.stringify({

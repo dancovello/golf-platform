@@ -1,7 +1,7 @@
 import type { CollectionBeforeChangeHook, RequestContext } from 'payload'
-import { APIError } from 'payload'
 
 import { isSuperAdmin } from './roles'
+import { publicError } from '../errors'
 
 /**
  * Passed as `context` by trusted server-side scripts (scripts/create-super-admin.ts, test seeds).
@@ -10,7 +10,7 @@ import { isSuperAdmin } from './roles'
  */
 export const allowAccountCreation: RequestContext = { allowAccountCreation: true }
 
-const refuse = (message: string) => new APIError(message, 403)
+const refuse = (message: string) => publicError(message, 403)
 
 /**
  * - Super-admins: only via a trusted script.

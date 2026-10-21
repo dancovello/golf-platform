@@ -1802,13 +1802,14 @@ export interface MarketingPage {
 export interface MarketingSectionHeaderBlock {
   eyebrow?: string | null;
   /**
-   * Under 8 words: a claim about the club’s world.
+   * Under eight words. Line breaks are kept.
    */
   title: string;
   /**
-   * One sentence, under 30 words.
+   * One or two sentences that back the title up. Under thirty words.
    */
   subhead?: string | null;
+  align: 'left' | 'center';
   id?: string | null;
   blockName?: string | null;
   blockType: 'mkSectionHeader';
@@ -1848,6 +1849,10 @@ export interface MarketingMediaBlock {
   image: string | MarketingMedia;
   ratio: '16:9' | '3:2' | '1:1' | '4:5';
   frame: 'plain' | 'window';
+  /**
+   * The web address shown above the screenshot, e.g. a demo club’s.
+   */
+  windowAddress?: string | null;
   caption?: string | null;
   id?: string | null;
   blockName?: string | null;
@@ -1924,16 +1929,34 @@ export interface MarketingMedia {
  * via the `definition` "MarketingFeatureCardsBlock".
  */
 export interface MarketingFeatureCardsBlock {
+  style: 'rows' | 'cards';
   /**
-   * Shown in equal rows of two, three or four.
+   * Cards: 2 in a row, 3 or 6 in rows of three, 4 in rows of two, 8 in rows of four.
    */
   cards: {
+    icon:
+      | 'check'
+      | 'clock'
+      | 'calendar'
+      | 'players'
+      | 'flag'
+      | 'lock'
+      | 'mail'
+      | 'phone'
+      | 'pin'
+      | 'search'
+      | 'file'
+      | 'download'
+      | 'info'
+      | 'sun';
     title: string;
     body: string;
     /**
      * Anything not working in production today is “Coming next”.
      */
     availability: 'live' | 'coming-next';
+    linkLabel?: string | null;
+    linkHref?: string | null;
     id?: string | null;
   }[];
   id?: string | null;
@@ -1946,10 +1969,24 @@ export interface MarketingFeatureCardsBlock {
  */
 export interface MarketingCtaBandBlock {
   title: string;
-  /**
-   * The buttons are always “Book a demo” and “Get your free homepage” (decided 21 Oct).
-   */
   subhead?: string | null;
+  primary?: {
+    label?: string | null;
+    /**
+     * A page on this site, like /pricing, or a full web address.
+     */
+    href?: string | null;
+  };
+  /**
+   * Leave the text empty to show only the main button.
+   */
+  secondary?: {
+    label?: string | null;
+    /**
+     * A page on this site, like /pricing, or a full web address.
+     */
+    href?: string | null;
+  };
   id?: string | null;
   blockName?: string | null;
   blockType: 'mkCtaBand';
@@ -3247,6 +3284,7 @@ export interface MarketingSectionHeaderBlockSelect<T extends boolean = true> {
   eyebrow?: T;
   title?: T;
   subhead?: T;
+  align?: T;
   id?: T;
   blockName?: T;
 }
@@ -3267,6 +3305,7 @@ export interface MarketingMediaBlockSelect<T extends boolean = true> {
   image?: T;
   ratio?: T;
   frame?: T;
+  windowAddress?: T;
   caption?: T;
   id?: T;
   blockName?: T;
@@ -3276,12 +3315,16 @@ export interface MarketingMediaBlockSelect<T extends boolean = true> {
  * via the `definition` "MarketingFeatureCardsBlock_select".
  */
 export interface MarketingFeatureCardsBlockSelect<T extends boolean = true> {
+  style?: T;
   cards?:
     | T
     | {
+        icon?: T;
         title?: T;
         body?: T;
         availability?: T;
+        linkLabel?: T;
+        linkHref?: T;
         id?: T;
       };
   id?: T;
@@ -3294,6 +3337,18 @@ export interface MarketingFeatureCardsBlockSelect<T extends boolean = true> {
 export interface MarketingCtaBandBlockSelect<T extends boolean = true> {
   title?: T;
   subhead?: T;
+  primary?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+      };
+  secondary?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+      };
   id?: T;
   blockName?: T;
 }

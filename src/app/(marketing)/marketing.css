@@ -1,0 +1,746 @@
+/*
+ * The marketing site's look, from the Figma page "Marketing site" (170:28407): variables, the
+ * CMS blocks (210:7925), their rules (212:8319), the interaction rules (220:8582) and the mobile
+ * frames (273:8954, 274:9185, 297:9754). Scoped to .mk (the marketing <body>), so none of it can
+ * reach a club site, and club tokens inside a live demo stay inside their frame.
+ *
+ * Figma letter spacing is a percentage of the font size; the values below are what Figma
+ * renders (e.g. Display L 60px at −1.8% = −1.08px).
+ */
+
+.mk {
+  /* Surfaces */
+  --mk-surface-canvas: #091a13;
+  --mk-surface-raised: #0d2219;
+  --mk-surface-elevated: #11291f;
+  --mk-surface-hover: #173327;
+  --mk-surface-tint: #f3f1ea0a;
+  /* Text */
+  --mk-text-primary: #f3f1ea;
+  --mk-text-secondary: #a3ada6;
+  --mk-text-tertiary: #8a968f;
+  --mk-text-on-accent: #091a13;
+  /* Accents and signal */
+  --mk-accent-dawn: #ebc07a;
+  --mk-accent-dawn-wash: #ebc07a14;
+  --mk-accent-dawn-edge: #ebc07a66;
+  --mk-accent-haze: #f6e3c6;
+  --mk-accent-peach: #f2a983;
+  --mk-signal-live: #7bd4a0;
+  --mk-signal-live-wash: #7bd4a029;
+  /* Borders */
+  --mk-border-hairline: #f3f1ea14;
+  --mk-border-strong: #f3f1ea29;
+  --mk-border-track: #6b767066;
+  /* Radius */
+  --mk-radius-control: 8px;
+  --mk-radius-window: 12px;
+  --mk-radius-panel: 14px;
+  --mk-radius-pill: 999px;
+  /* Layout: phones first (mobile frames: 20px sides, 64px sections) */
+  --mk-container: 1200px;
+  --mk-gutter: 20px;
+  --mk-section-space: 64px;
+  --mk-section-space-cta: 64px;
+  --mk-header-gap: 32px;
+  /* Motion (interaction rules): never ease-in */
+  --mk-ease-enter: cubic-bezier(0.23, 1, 0.32, 1);
+  --mk-ease-move: cubic-bezier(0.77, 0, 0.175, 1);
+  --mk-press: 120ms ease-out;
+  --mk-hover: 150ms ease;
+
+  margin: 0;
+  min-height: 100vh;
+  background: var(--mk-surface-canvas);
+  color: var(--mk-text-primary);
+  font-family: var(--mk-font-text), system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  letter-spacing: -0.016px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color-scheme: dark;
+}
+
+/* Tablet isn't designed: desktop spacing scaled down (hand-off §11: derive it). */
+@media (min-width: 768px) {
+  .mk {
+    --mk-gutter: 32px;
+    --mk-section-space: 96px;
+    --mk-section-space-cta: 80px;
+    --mk-header-gap: 48px;
+  }
+}
+
+/* Desktop: 128px top and bottom, 96px above a CTA band, 64px from header to content. */
+@media (min-width: 1024px) {
+  .mk {
+    --mk-gutter: 40px;
+    --mk-section-space: 128px;
+    --mk-section-space-cta: 96px;
+    --mk-header-gap: 64px;
+  }
+}
+
+.mk *,
+.mk *::before,
+.mk *::after {
+  box-sizing: border-box;
+}
+
+.mk ::selection {
+  background: var(--mk-accent-dawn);
+  color: var(--mk-text-on-accent);
+}
+
+/* Zero specificity, so every component's own link colour wins. */
+:where(.mk) a {
+  color: inherit;
+}
+
+/* ---- Type (Figma text styles; phones use Mobile Display / Mobile Heading / Body M) ---- */
+
+.mk-display-xl,
+.mk-header--page .mk-header-title {
+  margin: 0;
+  font-family: var(--mk-font-display), Georgia, serif;
+  font-weight: 400;
+  font-size: 44px;
+  line-height: 48px;
+  letter-spacing: -0.792px;
+  white-space: pre-line;
+}
+.mk-display-l,
+.mk-header--section .mk-header-title,
+.mk-cta-title {
+  margin: 0;
+  font-family: var(--mk-font-display), Georgia, serif;
+  font-weight: 400;
+  font-size: 32px;
+  line-height: 36px;
+  letter-spacing: -0.384px;
+  white-space: pre-line;
+}
+@media (min-width: 1024px) {
+  .mk-display-xl,
+  .mk-header--page .mk-header-title {
+    font-size: 80px;
+    line-height: 1.02;
+    letter-spacing: -1.76px;
+  }
+  .mk-display-l,
+  .mk-header--section .mk-header-title,
+  .mk-cta-title {
+    font-size: 60px;
+    line-height: 1.05;
+    letter-spacing: -1.08px;
+  }
+}
+
+.mk-eyebrow {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0;
+  color: var(--mk-accent-dawn);
+}
+
+/* Body L on desktop, Body M on phones. */
+.mk-body-l,
+.mk-header-body,
+.mk-cta-body {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.55;
+  letter-spacing: -0.016px;
+  color: var(--mk-text-secondary);
+}
+@media (min-width: 1024px) {
+  .mk-body-l,
+  .mk-header-body,
+  .mk-cta-body {
+    font-size: 19px;
+    letter-spacing: -0.038px;
+  }
+}
+
+/* ---- Layout ---- */
+
+.mk-container {
+  width: 100%;
+  max-width: calc(var(--mk-container) + 2 * var(--mk-gutter));
+  margin-inline: auto;
+  padding-inline: var(--mk-gutter);
+}
+
+.mk-section {
+  padding-block: var(--mk-section-space);
+}
+.mk-section + .mk-section {
+  border-top: 1px solid var(--mk-border-hairline);
+}
+.mk-section--cta {
+  padding-top: var(--mk-section-space-cta);
+}
+/* Phones: a page's intro starts 40px under the nav (Pricing mobile intro, 274:9199). */
+@media (max-width: 767px) {
+  main > .mk-section:first-child {
+    padding-top: 40px;
+  }
+}
+
+/* Blocks in a section stack 40px apart; 64px from a header to its content (desktop). */
+.mk-stack > * + * {
+  margin-top: 40px;
+}
+.mk-stack > .mk-header + * {
+  margin-top: var(--mk-header-gap);
+}
+
+/* ---- Block/Section Header (210:7950) ---- */
+
+.mk-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+.mk-header--page {
+  max-width: 880px;
+}
+.mk-header--section {
+  max-width: 760px;
+}
+.mk-header-body {
+  max-width: 560px;
+}
+.mk-header--center {
+  align-items: center;
+  margin-inline: auto;
+  text-align: center;
+}
+/* Phones: a section header's body sits 8px under its title (274:9281). */
+@media (max-width: 1023px) {
+  .mk-header--section {
+    gap: 8px;
+  }
+}
+
+/* ---- Marketing/Button (174:1846) ---- */
+
+.mk-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  padding-inline: 16px;
+  border: 1px solid transparent;
+  border-radius: var(--mk-radius-control);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.015px;
+  white-space: nowrap;
+  text-decoration: none;
+  transition:
+    background-color var(--mk-hover),
+    border-color var(--mk-hover),
+    transform var(--mk-press);
+}
+.mk-button--primary {
+  background: var(--mk-text-primary);
+  color: var(--mk-text-on-accent);
+}
+.mk-button--secondary {
+  background: var(--mk-surface-tint);
+  border-color: var(--mk-border-strong);
+  color: var(--mk-text-primary);
+}
+/* The arrow sits in a 19×16 slot and nudges 3px forward on hover. Hidden on phones. */
+.mk-button-icon {
+  display: none;
+  width: 19px;
+  height: 16px;
+}
+.mk-button-icon svg {
+  display: block;
+  transition: transform var(--mk-hover);
+}
+@media (min-width: 1024px) {
+  .mk-button {
+    height: 36px;
+  }
+  .mk-button-icon {
+    display: block;
+  }
+}
+@media (hover: hover) and (pointer: fine) {
+  .mk-button--primary:hover {
+    background: var(--mk-accent-haze);
+  }
+  .mk-button--secondary:hover {
+    background: var(--mk-surface-hover);
+  }
+  .mk-button:hover .mk-button-icon svg {
+    transform: translateX(3px);
+  }
+}
+.mk-button:active {
+  transform: scale(0.97);
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 18%);
+}
+.mk-button--primary:active {
+  background: var(--mk-accent-haze);
+}
+.mk-button--secondary:active {
+  background: var(--mk-surface-hover);
+}
+
+/* ---- Block/CTA Band (210:7951; mobile 297:9754) ---- */
+
+.mk-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+.mk-cta-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+.mk-cta-actions .mk-button {
+  width: 100%;
+}
+@media (min-width: 1024px) {
+  .mk-cta {
+    align-items: center;
+    gap: 24px;
+    text-align: center;
+  }
+  .mk-cta-body {
+    max-width: 560px;
+  }
+  .mk-cta-actions {
+    flex-direction: row;
+    justify-content: center;
+    gap: 12px;
+    width: auto;
+  }
+  .mk-cta-actions .mk-button {
+    width: auto;
+  }
+}
+
+/* ---- Marketing/Availability Badge (263:8726) ---- */
+
+.mk-badge {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 6px;
+  padding: 4px 10px 4px 8px;
+  border: 1px solid;
+  border-radius: var(--mk-radius-pill);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+.mk-badge--small {
+  gap: 4px;
+  padding: 2px 8px 2px 6px;
+  font-size: 11px;
+}
+.mk-badge--coming-next {
+  background: var(--mk-accent-dawn-wash);
+  border-color: var(--mk-accent-dawn-edge);
+  color: var(--mk-accent-dawn);
+}
+.mk-badge--live {
+  background: var(--mk-signal-live-wash);
+  border-color: var(--mk-border-hairline);
+  color: var(--mk-signal-live);
+}
+
+/* An icon file from the Figma set, drawn in the current text colour. */
+.mk-icon-mask {
+  display: inline-block;
+  flex-shrink: 0;
+  background: currentColor;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+}
+
+/* ---- Marketing/Browser Chrome (176:1929) ---- */
+
+.mk-chrome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 40px;
+  padding-inline: 16px;
+  border-bottom: 1px solid var(--mk-border-hairline);
+  background: var(--mk-surface-raised);
+}
+.mk-chrome > img,
+.mk-chrome-balance {
+  flex-shrink: 0;
+  width: 42px;
+  height: 10px;
+}
+.mk-chrome-address {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 4px 12px;
+  border-radius: var(--mk-radius-control);
+  background: var(--mk-surface-tint);
+  color: var(--mk-text-secondary);
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.mk-chrome-address > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---- Block/Media (210:8045): width from the layout, 720 (480 for portrait) ---- */
+
+.mk-media {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 720px;
+  margin-block-end: 0;
+  margin-inline: 0;
+}
+.mk-media[data-ratio='4:5'] {
+  max-width: 480px;
+}
+.mk-media-frame {
+  overflow: hidden;
+  border: 1px solid var(--mk-border-hairline);
+  border-radius: var(--mk-radius-panel);
+  background: var(--mk-surface-raised);
+}
+.mk-media[data-frame='window'] .mk-media-frame {
+  border-color: var(--mk-border-strong);
+  border-radius: var(--mk-radius-window);
+}
+.mk-media-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+.mk-media[data-ratio='3:2'] .mk-media-image {
+  aspect-ratio: 3 / 2;
+}
+.mk-media[data-ratio='1:1'] .mk-media-image {
+  aspect-ratio: 1 / 1;
+}
+.mk-media[data-ratio='4:5'] .mk-media-image {
+  aspect-ratio: 4 / 5;
+}
+.mk-media-caption {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mk-text-tertiary);
+}
+
+/* ---- Block/Rich Text (210:8046): 40 above H2, 32 above H3, 20 between paragraphs ---- */
+
+.mk-prose {
+  max-width: 720px;
+  font-size: 16px;
+  line-height: 1.55;
+  letter-spacing: -0.016px;
+  color: var(--mk-text-secondary);
+}
+@media (min-width: 1024px) {
+  .mk-prose {
+    font-size: 19px;
+    letter-spacing: -0.038px;
+  }
+}
+.mk-prose > * {
+  margin: 0;
+}
+.mk-prose > * + * {
+  margin-top: 20px;
+}
+.mk-prose h2 {
+  font-family: var(--mk-font-display), Georgia, serif;
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 1.2;
+  letter-spacing: -0.168px;
+  color: var(--mk-text-primary);
+}
+.mk-prose h3 {
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.034px;
+  color: var(--mk-text-primary);
+}
+.mk-prose > * + h2 {
+  margin-top: 40px;
+}
+.mk-prose > * + h3 {
+  margin-top: 32px;
+}
+.mk-prose > h2 + * {
+  margin-top: 16px;
+}
+.mk-prose > h3 + * {
+  margin-top: 12px;
+}
+.mk-prose ul,
+.mk-prose ol {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0;
+}
+.mk-prose ul {
+  list-style: none;
+}
+.mk-prose ul > li {
+  display: flex;
+  gap: 12px;
+}
+/* The Figma bullet: a 6×30 dot, centred on the first line. */
+.mk-prose ul > li::before {
+  content: '';
+  flex-shrink: 0;
+  width: 6px;
+  height: 30px;
+  background: url('../../marketing/site/assets/bullet.svg') no-repeat center;
+}
+.mk-prose ol {
+  padding-left: 1.2em;
+}
+.mk-prose > * + blockquote {
+  margin-top: 40px;
+}
+.mk-prose blockquote {
+  padding-left: 24px;
+  border-left: 2px solid var(--mk-accent-dawn);
+  font-family: var(--mk-font-display), Georgia, serif;
+  font-size: 28px;
+  line-height: 1.2;
+  letter-spacing: -0.168px;
+  color: var(--mk-text-primary);
+}
+.mk-prose blockquote > * {
+  margin: 0;
+}
+/* Links: primary colour, underline drawn from the font (interaction rules: underlines draw in
+ * from the left on hover). */
+.mk-prose a {
+  color: var(--mk-text-primary);
+  text-decoration: underline;
+  text-decoration-thickness: from-font;
+  text-underline-position: from-font;
+}
+
+/* ---- Block/Feature Card (217:32022) ---- */
+
+.mk-features {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.mk-feature-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: var(--mk-radius-control);
+  color: var(--mk-accent-dawn);
+}
+.mk-feature-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+.mk-feature-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.034px;
+  color: var(--mk-text-primary);
+}
+.mk-feature-body {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mk-text-secondary);
+}
+.mk-feature-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.015px;
+  color: var(--mk-text-primary);
+  text-decoration: none;
+}
+.mk-feature-link svg {
+  color: var(--mk-accent-dawn);
+}
+
+/* Row: no box, hairline above, 24px icon beside the text, in a two-column list (560px rows
+ * in the 1200px container). */
+.mk-features--rows {
+  column-gap: 40px;
+}
+@media (min-width: 1024px) {
+  .mk-features--rows {
+    column-gap: 80px;
+  }
+}
+@media (min-width: 768px) {
+  .mk-features--rows {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.mk-features--rows .mk-feature-inner {
+  display: flex;
+  gap: 20px;
+  padding: 24px 0 32px;
+  border-top: 1px solid var(--mk-border-hairline);
+}
+.mk-features--rows .mk-feature-icon {
+  width: 24px;
+  height: 24px;
+  padding-top: 1px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .mk-features--rows .mk-feature-inner:hover .mk-feature-title {
+    text-decoration: underline;
+  }
+}
+
+/* Cards: 24px apart, equal widths. Two per row, three for 3 or 6, four for 8 (Trust pillars
+ * 187:6920, Website builder features 183:3228). */
+.mk-features--cards {
+  gap: 24px;
+}
+@media (min-width: 768px) {
+  .mk-features--cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  .mk-features--cards[data-count='3'],
+  .mk-features--cards[data-count='6'] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .mk-features--cards[data-count='8'] {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+.mk-features--cards .mk-feature-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  padding: 32px;
+  border: 1px solid var(--mk-border-hairline);
+  border-radius: var(--mk-radius-panel);
+  background: var(--mk-surface-raised);
+  text-decoration: none;
+  transition:
+    background-color var(--mk-hover),
+    border-color var(--mk-hover),
+    transform var(--mk-press);
+}
+.mk-features--cards .mk-feature-text {
+  gap: 12px;
+}
+.mk-features--cards .mk-feature-icon {
+  width: 40px;
+  height: 40px;
+  background: var(--mk-surface-hover);
+}
+@media (hover: hover) and (pointer: fine) {
+  .mk-features--cards a.mk-feature-inner:hover {
+    background: var(--mk-surface-elevated);
+    border-color: var(--mk-accent-dawn-edge);
+  }
+}
+.mk-features--cards a.mk-feature-inner:active {
+  transform: scale(0.97);
+}
+
+/* ---- Focus (interaction rules): a 2px gap, then a 2px dawn ring; keyboard only ---- */
+
+.mk :focus-visible {
+  outline: 2px solid var(--mk-accent-dawn);
+  outline-offset: 2px;
+}
+.mk :focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Reduced motion: keep fades, drop movement. */
+@media (prefers-reduced-motion: reduce) {
+  .mk-button,
+  .mk-button-icon svg,
+  .mk-features--cards .mk-feature-inner {
+    transition-property: background-color, border-color;
+  }
+  .mk-button:active,
+  .mk-features--cards a.mk-feature-inner:active,
+  .mk-button:hover .mk-button-icon svg {
+    transform: none;
+  }
+}
+
+/* ---- Skip link and helpers ---- */
+
+.mk-skip {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 100;
+  padding: 8px 16px;
+  border-radius: var(--mk-radius-control);
+  background: var(--mk-text-primary);
+  color: var(--mk-text-on-accent);
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+.mk-skip:focus {
+  transform: none;
+}
+
+.mk-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

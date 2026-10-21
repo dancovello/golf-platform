@@ -159,6 +159,50 @@ describe('the super-admin manages it', () => {
   })
 })
 
+describe('blocks follow the Figma components', () => {
+  it('the CTA band starts with the decided buttons, and links are checked', async () => {
+    const doc = await page('cta-defaults', 'published', {
+      layout: [{ blockType: 'mkCtaBand', title: 'See your club on it.' }],
+    })
+    const band = doc.layout?.[0] as { primary?: unknown; secondary?: unknown }
+    expect(band.primary).toEqual({ label: 'Book a demo', href: '/book-a-demo' })
+    expect(band.secondary).toEqual({ label: 'Get your free homepage', href: '/switching' })
+    await expect(
+      page('bad-link', 'published', {
+        layout: [
+          {
+            blockType: 'mkCtaBand',
+            title: 'Bad link',
+            primary: { label: 'Go', href: 'javascript:alert(1)' },
+          },
+        ],
+      }),
+    ).rejects.toThrow()
+  })
+
+  it('section headers default to left, features to rows', async () => {
+    const doc = await page('defaults', 'published', {
+      layout: [
+        { blockType: 'mkSectionHeader', title: 'A title' },
+        {
+          blockType: 'mkFeatureCards',
+          cards: [
+            { title: 'One', body: 'First.' },
+            { title: 'Two', body: 'Second.' },
+          ],
+        },
+      ],
+    })
+    const [header, features] = doc.layout as unknown as [
+      { align: string },
+      { style: string; cards: { icon: string }[] },
+    ]
+    expect(header.align).toBe('left')
+    expect(features.style).toBe('rows')
+    expect(features.cards.map((c) => c.icon)).toEqual(['check', 'check'])
+  })
+})
+
 describe('visitors only ever see published pages', () => {
   it('a published page is found at its address; the home page at "/"', async () => {
     await page('home', 'published')
