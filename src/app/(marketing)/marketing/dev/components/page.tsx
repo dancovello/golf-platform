@@ -18,6 +18,7 @@ import {
   TenantChips,
 } from '@/marketing/site/controls/interactive'
 import { AvailabilityBadge, BrowserChrome, MarketingButton } from '@/marketing/site/parts'
+import { DemoBookingPreview } from '@/marketing/site/booking/DemoBookingPreview'
 import { TenantMorph } from '@/marketing/demo/TenantMorph'
 import { FounderCard } from '@/marketing/site/FounderCard'
 import { ProofStat } from '@/marketing/site/ProofStat'
@@ -120,6 +121,15 @@ export default async function ComponentsReview() {
               { value: '1400', label: '14:00', taken: true },
             ]}
           />
+        </Row>
+        <Row name="Demo Booking (sample times, nothing is booked)" node="187:6498">
+          <div className="mk-review-booking">
+            <DemoBookingPreview
+              today={new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London' }).format(
+                new Date(),
+              )}
+            />
+          </div>
         </Row>
         <Row name="Field" node="185:3608">
           <Field id="review-club" label="Club name" placeholder="Ashgrove Park Golf Club" />

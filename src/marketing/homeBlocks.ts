@@ -306,6 +306,15 @@ const founder: Block = {
         components: { Field: '/marketing/admin/FounderNote#FounderNote' },
       },
     },
+    {
+      // Book a demo's card says something different (187:7336): "I run every demo myself…".
+      name: 'message',
+      label: 'Line for this page (optional)',
+      type: 'textarea',
+      maxLength: 200,
+      validate: maxWords(30),
+      admin: { description: 'Leave empty to use the line in Settings.', rows: 2 },
+    },
   ],
 }
 

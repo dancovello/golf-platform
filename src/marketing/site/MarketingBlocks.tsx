@@ -4,6 +4,7 @@ import { BRAND } from '@/brand'
 import type { MarketingMedia, MarketingPage } from '@/payload-types'
 import { Photo } from '@/site/blocks/parts'
 
+import { DemoIntro } from './booking/BookingBlocks'
 import { FounderCard } from './FounderCard'
 import { Compare, ContentMoves, HomeHero, ProofStats } from './home/HomeBlocks'
 import { EditLive } from './home/EditLive'
@@ -32,6 +33,7 @@ const toSections = (blocks: Block[]): Block[][] => {
       block.blockType === 'mkCtaBand' ||
       block.blockType === 'mkHomeHero' ||
       block.blockType === 'mkRequestHero' ||
+      block.blockType === 'mkDemoIntro' ||
       block.blockType === 'mkFounder' ||
       // Questions carry their own compact header and sit in their own section (185:3944).
       block.blockType === 'mkFaq' ||
@@ -172,7 +174,11 @@ const FeatureCards = ({ block }: { block: Features }) => {
   )
 }
 
-const drawBlock = (block: Block, isFirstHeader: boolean): ReactNode => {
+const drawBlock = (
+  block: Block,
+  isFirstHeader: boolean,
+  page: { onBookingPage: boolean },
+): ReactNode => {
   switch (block.blockType) {
     case 'mkSectionHeader':
       return <SectionHeader block={block} size={isFirstHeader ? 'page' : 'section'} />
@@ -201,7 +207,7 @@ const drawBlock = (block: Block, isFirstHeader: boolean): ReactNode => {
     case 'mkContentMoves':
       return <ContentMoves block={block} />
     case 'mkFounder':
-      return <FounderCard />
+      return <FounderCard message={block.message} onBookingPage={page.onBookingPage} />
     case 'mkPricing':
       return <Pricing block={block} />
     case 'mkFaq':
@@ -212,6 +218,8 @@ const drawBlock = (block: Block, isFirstHeader: boolean): ReactNode => {
       return <DemoExample block={block} />
     case 'mkMigration':
       return <Migration block={block} />
+    case 'mkDemoIntro':
+      return <DemoIntro block={block} />
     default:
       return null
   }
@@ -224,11 +232,12 @@ const kindOf = (section: Block[]) =>
 
 /** Draws a marketing page's sections: 1200px container, hairline between sections. */
 export const MarketingBlocks = ({ blocks }: { blocks: Block[] }) => {
-  // The page's one H1: the home hero or the Switching intro if there is one, otherwise the
-  // first Section Header.
-  const hasOwnH1 = blocks.some(
-    (b) => b.blockType === 'mkHomeHero' || b.blockType === 'mkRequestHero',
+  // The page's one H1: a page intro block (home hero, Switching or Book a demo) if there is
+  // one, otherwise the first Section Header.
+  const hasOwnH1 = blocks.some((b) =>
+    ['mkHomeHero', 'mkRequestHero', 'mkDemoIntro'].includes(b.blockType),
   )
+  const onBookingPage = blocks.some((b) => b.blockType === 'mkDemoIntro')
   const firstHeader = hasOwnH1 ? undefined : blocks.find((b) => b.blockType === 'mkSectionHeader')
   return (
     <>
@@ -240,7 +249,9 @@ export const MarketingBlocks = ({ blocks }: { blocks: Block[] }) => {
         >
           <div className="mk-container mk-stack">
             {section.map((block, j) => (
-              <Fragment key={block.id ?? j}>{drawBlock(block, block === firstHeader)}</Fragment>
+              <Fragment key={block.id ?? j}>
+                {drawBlock(block, block === firstHeader, { onBookingPage })}
+              </Fragment>
             ))}
           </div>
         </section>

@@ -421,7 +421,36 @@ const switching: StarterPage = {
   ],
 }
 
-export const STARTER_PAGES: StarterPage[] = [home, pricing, switching]
+// Book a demo (Figma "Book a demo — Desktop" 187:7336, "Book a demo — Mobile" 275:9525). No
+// CTA band: the page is the call to action. Never says how long the call lasts (hand-off §6).
+const bookADemo: StarterPage = {
+  slug: 'book-a-demo',
+  title: 'Book a demo',
+  description:
+    'Book a video call. We’ll show you the platform with your own homepage on it, and answer anything your committee wants to know.',
+  layout: [
+    {
+      blockType: 'mkDemoIntro',
+      eyebrow: 'Book a demo',
+      title: 'Let’s talk about\nyour club.',
+      subhead:
+        'We’ll show you the platform with your own homepage on it, and answer anything your committee wants to know.',
+      expect: [
+        { text: 'Your homepage, rebuilt in your colours' },
+        { text: 'How updates work, day to day' },
+        { text: 'What switching involves, and how long it takes' },
+        { text: 'Pricing and contract, in plain terms' },
+      ],
+      emailLead: 'Rather email?',
+    },
+    {
+      blockType: 'mkFounder',
+      message: 'I run every demo myself, so you get straight answers from the person who built it.',
+    },
+  ],
+}
+
+export const STARTER_PAGES: StarterPage[] = [home, pricing, switching, bookADemo]
 
 /** Adds each starter page as a draft unless its address is taken. Returns what happened. */
 export const addStarterPages = async (payload: Payload) => {

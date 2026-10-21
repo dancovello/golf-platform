@@ -482,3 +482,12 @@ Built from Figma "Switching — Desktop" (186:6494) and "Switching — Mobile" (
 - **Kept 12 months after the last contact** (decision F): the nightly clean-up deletes requests untouched for 12 months.
 - **The example under the form** is the demo club's real homepage hero, in place of Figma's deprecated URL Reskin (hand-off §6).
 - **Old page addresses (N7):** Figma's "redirect your old page addresses" lines are softened until N7 is answered.
+
+## 2026-10-21: Book a demo page (plan phase 5.3)
+
+Built from Figma "Book a demo — Desktop" (187:7336) and "Book a demo — Mobile" (275:9525).
+
+- **Until a calendar is connected (Q4), the page offers email.** The booking panel says "Pick a time by email" with a button that opens an email to the company address. This is the plan's agreed fallback.
+- **The Demo Booking component is built** (Details → Pick a time → Booked) and on the review page (`/dev/components`) with sample times. Nothing is booked there. It shows only weekdays with free times; arrow keys move through the days; the times are radios. Connecting a calendar means giving it real free times and a way to book. "Add to calendar" and "Reschedule" wait for the calendar, which provides both.
+- **Never says how long the call lasts** (hand-off §6); a test checks the page.
+- **No CTA band**: the page is the call to action. The founder card has the page's own line, and has no "Book a call" button that would only reload this page.
