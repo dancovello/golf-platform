@@ -356,11 +356,26 @@ Approved by Dan, 2026-10-21. Plan: `docs/plans/marketing-site-plan.md`. Brief: `
 - **Moved to phase 5:** the homepage and demo request collections, so their fields match the Figma forms when those are built.
 - **Live preview** for marketing pages comes in phase 2, with the styled blocks.
 
-## 2026-10-21: Marketing site look (plan phase 1.3)
+## 2026-10-21: Marketing site look (plan phase 1.3), built from Figma
 
-- **Tokens:** every colour, radius, space and motion value from the Figma variables, as `--mk-*` custom properties in `src/app/(marketing)/marketing.css`, all scoped to the marketing `<body class="mk">`. A test proves none of it reaches a club site.
-- **Fonts:** Newsreader (400) and Hanken Grotesk (400, 500, 600), latin subset from Fontsource 5.3.0 (SIL Open Font License), self-hosted like the club fonts and preloaded. No requests to Google.
-- **Type:** the Figma styles as classes (`mk-display-xl` … `mk-label-s`). Phones use the mobile display (44px) and heading (32px) sizes; desktop sizes from 1024px wide.
-- **Layout:** a 1200px container with 16px gutters on phones (32px from 768px). Sections are 64 / 96 / 128px apart by width, with less space above the call to action band. A hairline goes between sections, and text reads at 720px.
-- **Interaction basics:** a dawn focus ring with a 2px gap on keyboard focus only, hover styles only on devices with a mouse, and reduced motion drops movement. A "Skip to content" link is the first thing a keyboard reaches.
-- **Accessibility in CI:** marketing pages are scanned with axe (WCAG 2.2 AA rules) at phone and desktop widths, and must have no findings.
+Built from the Figma page "Marketing site" (170:28407): the variables, the CMS blocks section (210:7925), the block rules (212:8319), the interaction rules (220:8582) and the mobile frames (273:8954, 274:9185, 297:9754). Checked side by side with Figma at 1440 and 390 wide, and the key measurements are pinned in `tests/e2e/marketing-look.spec.ts`.
+
+- **Tokens:** every Figma marketing variable as `--mk-*`, including `accent-haze` (primary button hover) and `accent-peach` (Beta badge). Scoped to the marketing `<body class="mk">`; a test proves none reach a club site.
+- **Type:** the Figma text styles. Figma letter spacing is a percentage of the font size, so a 60px heading is −1.08px. Phones use Mobile Display (44/48) and Mobile Heading (32/36), with body text at 16px.
+- **Fonts:** Newsreader and Hanken Grotesk, self-hosted from Fontsource 5.3.0 (SIL Open Font License).
+- **Layout:** a 1200px container. Desktop sections are 128px apart, with 96px above a CTA band and 64px from header to content. Phones have 20px sides and 64px sections, and a page intro starts 40px down. **Tablet isn't designed**: 32px sides and 96px sections are derived.
+- **Blocks, with their fields from the Figma component descriptions** (second migration, `marketing_blocks_from_figma`, adds columns only):
+  - **Section Header:** eyebrow, title (line breaks kept), body and alignment (left or centre). Page size for the first one, Section size elsewhere.
+  - **CTA Band:** title and body, plus editable buttons that default to "Book a demo" (`/book-a-demo`) and "Get your free homepage" (`/switching`). Links must be a page on the site or a safe web address. Centred on desktop; left-aligned with full-width 44px buttons on phones.
+  - **Media:** Plain or Window frame. Window has the Browser Chrome bar with an editable address. Width comes from the layout (720px, or 480px for portrait), with an optional caption.
+  - **Rich Text:** 40px above H2, 32px above H3, 20px between paragraphs, the Figma bullet, and a dawn-ruled quote.
+  - **Features:** Rows (the default: hairline above, icon beside text, two columns) or Cards (boxed, 24px apart; 2 a row, 3 for 3 or 6, two rows of two for 4, four a row for 8). An icon from the shared set, optional link, and the "Coming next" Availability Badge (text and icon).
+- **Buttons:** Marketing/Button primary and secondary, with hover (haze or hover surface, arrow nudges 3px), press (0.97) and focus (dawn ring) states. The arrow is hidden on phones, as in the mobile frames.
+- **Icons:** the club sites' icons from the same Figma set are reused. Lock, calendar, players, flag and sun are the Figma SVG files, drawn in the current colour.
+- **404 (not designed):** a Section Header and a CTA Band in plain words, as the hand-off says.
+
+## 2026-10-21: Error messages always reach the person
+
+- **Found while building the marketing blocks:** Payload shows an error's message only when the error has a name, and takes the name from the class name. The production build can shorten that to nothing. Unrelated code changes did exactly that, so messages like "Passwords must be at least 12 characters." became "An unknown error occurred."
+- **Fix:** `publicError()` in `src/errors.ts` creates the same error with its name set. All 11 places that made one directly now use it.
+- **Test:** `tests/unit/public-errors.spec.ts` checks the message survives, and fails if any code creates an `APIError` directly again.

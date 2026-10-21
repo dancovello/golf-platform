@@ -62,3 +62,76 @@ test('no accessibility problems axe can find, on phone and desktop widths', asyn
     }
   }
 })
+
+// Measurements from the Figma marketing blocks (210:7925) and mobile frames (297:9754), on the
+// seeded page that uses every block (tests/e2e/seed-world.ts → /e2e-blocks).
+const measure = (page: Page) =>
+  page.evaluate(() => {
+    const box = (el: Element | null) => el?.getBoundingClientRect()
+    const style = (sel: string) => getComputedStyle(document.querySelector(sel)!)
+    const cta = style('.mk-cta-title')
+    const cards = style('.mk-features--cards')
+    return {
+      pageTitle: [
+        style('.mk-header--page .mk-header-title').fontSize,
+        style('.mk-header--page .mk-header-title').letterSpacing,
+      ],
+      ctaTitle: [cta.fontSize, cta.lineHeight, cta.letterSpacing],
+      buttons: [...document.querySelectorAll('.mk-cta .mk-button')].map((b) => ({
+        height: box(b)!.height,
+        width: Math.round(box(b)!.width),
+        color: getComputedStyle(b).color,
+        background: getComputedStyle(b).backgroundColor,
+      })),
+      cardColumns: cards.gridTemplateColumns,
+      cardGap: cards.columnGap,
+      rowsBorder: style('.mk-features--rows .mk-feature-inner').borderTopWidth,
+      ctaPadding: [style('.mk-section--cta').paddingTop, style('.mk-section--cta').paddingBottom],
+      sidePadding: box(document.querySelector('.mk-cta'))!.left,
+      sideScroll: document.documentElement.scrollWidth > window.innerWidth,
+    }
+  })
+
+test('desktop matches the Figma blocks', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto(site('/e2e-blocks'))
+  const m = await measure(page)
+  expect(m.pageTitle).toEqual(['80px', '-1.76px'])
+  expect(m.ctaTitle).toEqual(['60px', '63px', '-1.08px'])
+  expect(m.buttons).toEqual([
+    {
+      height: 36,
+      width: expect.any(Number),
+      color: 'rgb(9, 26, 19)',
+      background: 'rgb(243, 241, 234)',
+    },
+    {
+      height: 36,
+      width: expect.any(Number),
+      color: 'rgb(243, 241, 234)',
+      background: 'rgba(243, 241, 234, 0.04)',
+    },
+  ])
+  // Three cards: 384px each, 24px apart, filling the 1200px container.
+  expect(m.cardColumns).toBe('384px 384px 384px')
+  expect(m.cardGap).toBe('24px')
+  expect(m.rowsBorder).toBe('1px')
+  expect(m.ctaPadding).toEqual(['96px', '128px'])
+  expect(m.sideScroll).toBe(false)
+})
+
+test('phones match the Figma mobile frames', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto(site('/e2e-blocks'))
+  const m = await measure(page)
+  expect(m.pageTitle).toEqual(['44px', '-0.792px'])
+  expect(m.ctaTitle).toEqual(['32px', '36px', '-0.384px'])
+  // Full-width 44px buttons, 20px from the edges.
+  expect(m.buttons.map((b) => [b.height, b.width])).toEqual([
+    [44, 350],
+    [44, 350],
+  ])
+  expect(m.sidePadding).toBe(20)
+  expect(m.ctaPadding).toEqual(['64px', '64px'])
+  expect(m.sideScroll).toBe(false)
+})

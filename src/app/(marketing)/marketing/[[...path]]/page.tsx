@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 
 import { BRAND } from '@/brand'
 import { publishedMarketingPage } from '@/marketing/content'
-import { MarketingBlocks } from '@/marketing/site/MarketingBlocks'
+import { MarketingBlocks, SectionHeader } from '@/marketing/site/MarketingBlocks'
 
 // Every page view gets a fresh one-time script code (src/security/csp.ts), which only works on
 // pages rendered for each visit, as club sites are.
@@ -39,13 +39,15 @@ export default async function MarketingPage({ params }: Props) {
     <main id="main">
       <section className="mk-section">
         <div className="mk-container">
-          <header className="mk-section-header">
-            <h1 className="mk-display-xl">Your club is better than your website.</h1>
-            <p className="mk-body-l mk-secondary">
-              Our website is on its way. To talk to us now, email{' '}
-              <a href={`mailto:${BRAND.email}`}>{BRAND.email}</a>.
-            </p>
-          </header>
+          <SectionHeader
+            size="page"
+            block={{
+              eyebrow: null,
+              title: 'Your club is better than your website.',
+              subhead: `Our website is on its way. To talk to us now, email ${BRAND.email}.`,
+              align: 'left',
+            }}
+          />
         </div>
       </section>
     </main>

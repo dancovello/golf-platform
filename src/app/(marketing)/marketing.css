@@ -1,8 +1,11 @@
 /*
- * The marketing site's look (hand-off §8; Figma variables on the Marketing site page).
- * Everything is scoped to .mk (the marketing <body>), so none of it can reach a club site, and
- * the club tokens (--color-*, --brand-*) inside a live demo can't reach out: demos set their
- * own variables on their own frame. Components use these tokens only, never raw colours.
+ * The marketing site's look, from the Figma page "Marketing site" (170:28407): variables, the
+ * CMS blocks (210:7925), their rules (212:8319), the interaction rules (220:8582) and the mobile
+ * frames (273:8954, 274:9185, 297:9754). Scoped to .mk (the marketing <body>), so none of it can
+ * reach a club site, and club tokens inside a live demo stay inside their frame.
+ *
+ * Figma letter spacing is a percentage of the font size; the values below are what Figma
+ * renders (e.g. Display L 60px at −1.8% = −1.08px).
  */
 
 .mk {
@@ -17,10 +20,12 @@
   --mk-text-secondary: #a3ada6;
   --mk-text-tertiary: #8a968f;
   --mk-text-on-accent: #091a13;
-  /* Accent and signal */
+  /* Accents and signal */
   --mk-accent-dawn: #ebc07a;
   --mk-accent-dawn-wash: #ebc07a14;
   --mk-accent-dawn-edge: #ebc07a66;
+  --mk-accent-haze: #f6e3c6;
+  --mk-accent-peach: #f2a983;
   --mk-signal-live: #7bd4a0;
   --mk-signal-live-wash: #7bd4a029;
   /* Borders */
@@ -32,42 +37,17 @@
   --mk-radius-window: 12px;
   --mk-radius-panel: 14px;
   --mk-radius-pill: 999px;
-  /* Space */
-  --mk-space-4: 4px;
-  --mk-space-8: 8px;
-  --mk-space-12: 12px;
-  --mk-space-16: 16px;
-  --mk-space-24: 24px;
-  --mk-space-32: 32px;
-  --mk-space-40: 40px;
-  --mk-space-64: 64px;
-  --mk-space-80: 80px;
-  --mk-space-96: 96px;
-  --mk-space-128: 128px;
+  /* Layout: phones first (mobile frames: 20px sides, 64px sections) */
   --mk-container: 1200px;
-  --mk-reading: 720px;
-  --mk-gutter: 16px;
-  --mk-nav-clearance: 80px;
-  /* Sections: 128px apart, 96px above a CTA band, 64px from header to content */
+  --mk-gutter: 20px;
   --mk-section-space: 64px;
   --mk-section-space-cta: 64px;
-  --mk-header-gap: 40px;
+  --mk-header-gap: 32px;
   /* Motion (interaction rules): never ease-in */
   --mk-ease-enter: cubic-bezier(0.23, 1, 0.32, 1);
   --mk-ease-move: cubic-bezier(0.77, 0, 0.175, 1);
-  --mk-duration-press: 120ms;
-  --mk-duration-hover: 150ms;
-  --mk-duration-popover: 180ms;
-  --mk-duration-drawer: 240ms;
-  --mk-rise: 24px;
-
-  /* Type: phones first, desktop sizes from 1024px */
-  --mk-display-xl-size: 44px;
-  --mk-display-xl-line: 48px;
-  --mk-display-xl-track: -1.8px;
-  --mk-display-l-size: 32px;
-  --mk-display-l-line: 36px;
-  --mk-display-l-track: -1.2px;
+  --mk-press: 120ms ease-out;
+  --mk-hover: 150ms ease;
 
   margin: 0;
   min-height: 100vh;
@@ -76,13 +56,13 @@
   font-family: var(--mk-font-text), system-ui, sans-serif;
   font-size: 16px;
   line-height: 1.55;
-  letter-spacing: -0.1px;
+  letter-spacing: -0.016px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
   color-scheme: dark;
 }
 
+/* Tablet isn't designed: desktop spacing scaled down (hand-off §11: derive it). */
 @media (min-width: 768px) {
   .mk {
     --mk-gutter: 32px;
@@ -92,25 +72,13 @@
   }
 }
 
+/* Desktop: 128px top and bottom, 96px above a CTA band, 64px from header to content. */
 @media (min-width: 1024px) {
   .mk {
-    --mk-nav-clearance: 120px;
+    --mk-gutter: 40px;
     --mk-section-space: 128px;
     --mk-section-space-cta: 96px;
     --mk-header-gap: 64px;
-    --mk-display-xl-size: 80px;
-    --mk-display-xl-line: 1.02;
-    --mk-display-xl-track: -2.2px;
-    --mk-display-l-size: 60px;
-    --mk-display-l-line: 1.05;
-    --mk-display-l-track: -1.8px;
-  }
-}
-
-/* Reduced motion: keep fades, drop movement (interaction rules). */
-@media (prefers-reduced-motion: reduce) {
-  .mk {
-    --mk-rise: 0px;
   }
 }
 
@@ -125,79 +93,76 @@
   color: var(--mk-text-on-accent);
 }
 
-/* ---- Type styles ---- */
+/* Zero specificity, so every component's own link colour wins. */
+:where(.mk) a {
+  color: inherit;
+}
+
+/* ---- Type (Figma text styles; phones use Mobile Display / Mobile Heading / Body M) ---- */
 
 .mk-display-xl,
-.mk-display-l,
-.mk-heading-m {
+.mk-header--page .mk-header-title {
   margin: 0;
   font-family: var(--mk-font-display), Georgia, serif;
   font-weight: 400;
-  text-wrap: balance;
+  font-size: 44px;
+  line-height: 48px;
+  letter-spacing: -0.792px;
+  white-space: pre-line;
 }
-.mk-display-xl {
-  font-size: var(--mk-display-xl-size);
-  line-height: var(--mk-display-xl-line);
-  letter-spacing: var(--mk-display-xl-track);
-}
-.mk-display-l {
-  font-size: var(--mk-display-l-size);
-  line-height: var(--mk-display-l-line);
-  letter-spacing: var(--mk-display-l-track);
-}
-.mk-heading-m {
-  font-size: 28px;
-  line-height: 1.2;
-  letter-spacing: -0.6px;
-}
-.mk-heading-s {
+.mk-display-l,
+.mk-header--section .mk-header-title,
+.mk-cta-title {
   margin: 0;
-  font-size: 17px;
-  font-weight: 600;
-  line-height: 1.35;
-  letter-spacing: -0.2px;
+  font-family: var(--mk-font-display), Georgia, serif;
+  font-weight: 400;
+  font-size: 32px;
+  line-height: 36px;
+  letter-spacing: -0.384px;
+  white-space: pre-line;
 }
-.mk-body-l {
-  font-size: 19px;
-  line-height: 1.55;
-  letter-spacing: -0.2px;
+@media (min-width: 1024px) {
+  .mk-display-xl,
+  .mk-header--page .mk-header-title {
+    font-size: 80px;
+    line-height: 1.02;
+    letter-spacing: -1.76px;
+  }
+  .mk-display-l,
+  .mk-header--section .mk-header-title,
+  .mk-cta-title {
+    font-size: 60px;
+    line-height: 1.05;
+    letter-spacing: -1.08px;
+  }
 }
-.mk-body-m {
-  font-size: 16px;
-  line-height: 1.55;
-  letter-spacing: -0.1px;
-}
-.mk-body-s {
-  font-size: 14px;
-  line-height: 1.5;
-  letter-spacing: 0;
-}
-.mk-label {
-  font-size: 15px;
-  font-weight: 500;
-  line-height: 1.3;
-  letter-spacing: -0.1px;
-}
-.mk-label-s {
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 16px;
-  letter-spacing: 0.2px;
-}
+
 .mk-eyebrow {
   margin: 0;
   font-size: 14px;
   font-weight: 500;
   line-height: 1.3;
+  letter-spacing: 0;
   color: var(--mk-accent-dawn);
 }
-.mk-secondary {
+
+/* Body L on desktop, Body M on phones. */
+.mk-body-l,
+.mk-header-body,
+.mk-cta-body {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.55;
+  letter-spacing: -0.016px;
   color: var(--mk-text-secondary);
 }
-
-/* Prices, countdowns and anything that changes in place keep their width. */
-.mk-figures {
-  font-variant-numeric: tabular-nums;
+@media (min-width: 1024px) {
+  .mk-body-l,
+  .mk-header-body,
+  .mk-cta-body {
+    font-size: 19px;
+    letter-spacing: -0.038px;
+  }
 }
 
 /* ---- Layout ---- */
@@ -209,7 +174,6 @@
   padding-inline: var(--mk-gutter);
 }
 
-/* A page section: a hairline between sections, never doubled at the top of the page. */
 .mk-section {
   padding-block: var(--mk-section-space);
 }
@@ -219,86 +183,548 @@
 .mk-section--cta {
   padding-top: var(--mk-section-space-cta);
 }
-.mk-section-header {
-  display: grid;
-  gap: var(--mk-space-16);
-  max-width: 800px;
+/* Phones: a page's intro starts 40px under the nav (Pricing mobile intro, 274:9199). */
+@media (max-width: 767px) {
+  main > .mk-section:first-child {
+    padding-top: 40px;
+  }
 }
 
-/* Rich text reads at 720px. */
+/* Blocks in a section stack 40px apart; 64px from a header to its content (desktop). */
+.mk-stack > * + * {
+  margin-top: 40px;
+}
+.mk-stack > .mk-header + * {
+  margin-top: var(--mk-header-gap);
+}
+
+/* ---- Block/Section Header (210:7950) ---- */
+
+.mk-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+.mk-header--page {
+  max-width: 880px;
+}
+.mk-header--section {
+  max-width: 760px;
+}
+.mk-header-body {
+  max-width: 560px;
+}
+.mk-header--center {
+  align-items: center;
+  margin-inline: auto;
+  text-align: center;
+}
+/* Phones: a section header's body sits 8px under its title (274:9281). */
+@media (max-width: 1023px) {
+  .mk-header--section {
+    gap: 8px;
+  }
+}
+
+/* ---- Marketing/Button (174:1846) ---- */
+
+.mk-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  padding-inline: 16px;
+  border: 1px solid transparent;
+  border-radius: var(--mk-radius-control);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.015px;
+  white-space: nowrap;
+  text-decoration: none;
+  transition:
+    background-color var(--mk-hover),
+    border-color var(--mk-hover),
+    transform var(--mk-press);
+}
+.mk-button--primary {
+  background: var(--mk-text-primary);
+  color: var(--mk-text-on-accent);
+}
+.mk-button--secondary {
+  background: var(--mk-surface-tint);
+  border-color: var(--mk-border-strong);
+  color: var(--mk-text-primary);
+}
+/* The arrow sits in a 19×16 slot and nudges 3px forward on hover. Hidden on phones. */
+.mk-button-icon {
+  display: none;
+  width: 19px;
+  height: 16px;
+}
+.mk-button-icon svg {
+  display: block;
+  transition: transform var(--mk-hover);
+}
+@media (min-width: 1024px) {
+  .mk-button {
+    height: 36px;
+  }
+  .mk-button-icon {
+    display: block;
+  }
+}
+@media (hover: hover) and (pointer: fine) {
+  .mk-button--primary:hover {
+    background: var(--mk-accent-haze);
+  }
+  .mk-button--secondary:hover {
+    background: var(--mk-surface-hover);
+  }
+  .mk-button:hover .mk-button-icon svg {
+    transform: translateX(3px);
+  }
+}
+.mk-button:active {
+  transform: scale(0.97);
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 18%);
+}
+.mk-button--primary:active {
+  background: var(--mk-accent-haze);
+}
+.mk-button--secondary:active {
+  background: var(--mk-surface-hover);
+}
+
+/* ---- Block/CTA Band (210:7951; mobile 297:9754) ---- */
+
+.mk-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+.mk-cta-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+.mk-cta-actions .mk-button {
+  width: 100%;
+}
+@media (min-width: 1024px) {
+  .mk-cta {
+    align-items: center;
+    gap: 24px;
+    text-align: center;
+  }
+  .mk-cta-body {
+    max-width: 560px;
+  }
+  .mk-cta-actions {
+    flex-direction: row;
+    justify-content: center;
+    gap: 12px;
+    width: auto;
+  }
+  .mk-cta-actions .mk-button {
+    width: auto;
+  }
+}
+
+/* ---- Marketing/Availability Badge (263:8726) ---- */
+
+.mk-badge {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 6px;
+  padding: 4px 10px 4px 8px;
+  border: 1px solid;
+  border-radius: var(--mk-radius-pill);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+.mk-badge--small {
+  gap: 4px;
+  padding: 2px 8px 2px 6px;
+  font-size: 11px;
+}
+.mk-badge--coming-next {
+  background: var(--mk-accent-dawn-wash);
+  border-color: var(--mk-accent-dawn-edge);
+  color: var(--mk-accent-dawn);
+}
+.mk-badge--live {
+  background: var(--mk-signal-live-wash);
+  border-color: var(--mk-border-hairline);
+  color: var(--mk-signal-live);
+}
+
+/* An icon file from the Figma set, drawn in the current text colour. */
+.mk-icon-mask {
+  display: inline-block;
+  flex-shrink: 0;
+  background: currentColor;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+}
+
+/* ---- Marketing/Browser Chrome (176:1929) ---- */
+
+.mk-chrome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 40px;
+  padding-inline: 16px;
+  border-bottom: 1px solid var(--mk-border-hairline);
+  background: var(--mk-surface-raised);
+}
+.mk-chrome > img,
+.mk-chrome-balance {
+  flex-shrink: 0;
+  width: 42px;
+  height: 10px;
+}
+.mk-chrome-address {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 4px 12px;
+  border-radius: var(--mk-radius-control);
+  background: var(--mk-surface-tint);
+  color: var(--mk-text-secondary);
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.mk-chrome-address > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---- Block/Media (210:8045): width from the layout, 720 (480 for portrait) ---- */
+
+.mk-media {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 720px;
+  margin-block-end: 0;
+  margin-inline: 0;
+}
+.mk-media[data-ratio='4:5'] {
+  max-width: 480px;
+}
+.mk-media-frame {
+  overflow: hidden;
+  border: 1px solid var(--mk-border-hairline);
+  border-radius: var(--mk-radius-panel);
+  background: var(--mk-surface-raised);
+}
+.mk-media[data-frame='window'] .mk-media-frame {
+  border-color: var(--mk-border-strong);
+  border-radius: var(--mk-radius-window);
+}
+.mk-media-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+.mk-media[data-ratio='3:2'] .mk-media-image {
+  aspect-ratio: 3 / 2;
+}
+.mk-media[data-ratio='1:1'] .mk-media-image {
+  aspect-ratio: 1 / 1;
+}
+.mk-media[data-ratio='4:5'] .mk-media-image {
+  aspect-ratio: 4 / 5;
+}
+.mk-media-caption {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mk-text-tertiary);
+}
+
+/* ---- Block/Rich Text (210:8046): 40 above H2, 32 above H3, 20 between paragraphs ---- */
+
 .mk-prose {
-  max-width: var(--mk-reading);
+  max-width: 720px;
+  font-size: 16px;
+  line-height: 1.55;
+  letter-spacing: -0.016px;
+  color: var(--mk-text-secondary);
+}
+@media (min-width: 1024px) {
+  .mk-prose {
+    font-size: 19px;
+    letter-spacing: -0.038px;
+  }
 }
 .mk-prose > * {
   margin: 0;
 }
 .mk-prose > * + * {
-  margin-top: 1em;
+  margin-top: 20px;
 }
 .mk-prose h2 {
-  margin-top: 2em;
   font-family: var(--mk-font-display), Georgia, serif;
   font-weight: 400;
   font-size: 28px;
   line-height: 1.2;
-  letter-spacing: -0.6px;
+  letter-spacing: -0.168px;
+  color: var(--mk-text-primary);
 }
 .mk-prose h3 {
-  margin-top: 1.6em;
   font-size: 17px;
   font-weight: 600;
   line-height: 1.35;
-  letter-spacing: -0.2px;
+  letter-spacing: -0.034px;
+  color: var(--mk-text-primary);
+}
+.mk-prose > * + h2 {
+  margin-top: 40px;
+}
+.mk-prose > * + h3 {
+  margin-top: 32px;
+}
+.mk-prose > h2 + * {
+  margin-top: 16px;
+}
+.mk-prose > h3 + * {
+  margin-top: 12px;
 }
 .mk-prose ul,
 .mk-prose ol {
-  padding-left: 1.25em;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0;
+}
+.mk-prose ul {
+  list-style: none;
+}
+.mk-prose ul > li {
+  display: flex;
+  gap: 12px;
+}
+/* The Figma bullet: a 6×30 dot, centred on the first line. */
+.mk-prose ul > li::before {
+  content: '';
+  flex-shrink: 0;
+  width: 6px;
+  height: 30px;
+  background: url('../../marketing/site/assets/bullet.svg') no-repeat center;
+}
+.mk-prose ol {
+  padding-left: 1.2em;
+}
+.mk-prose > * + blockquote {
+  margin-top: 40px;
 }
 .mk-prose blockquote {
-  padding-left: var(--mk-space-24);
-  border-left: 2px solid var(--mk-accent-dawn-edge);
-  color: var(--mk-text-secondary);
+  padding-left: 24px;
+  border-left: 2px solid var(--mk-accent-dawn);
+  font-family: var(--mk-font-display), Georgia, serif;
+  font-size: 28px;
+  line-height: 1.2;
+  letter-spacing: -0.168px;
+  color: var(--mk-text-primary);
 }
-
-/* ---- Links and focus (interaction rules) ---- */
-
-.mk a {
-  color: inherit;
+.mk-prose blockquote > * {
+  margin: 0;
 }
+/* Links: primary colour, underline drawn from the font (interaction rules: underlines draw in
+ * from the left on hover). */
 .mk-prose a {
   color: var(--mk-text-primary);
   text-decoration: underline;
-  text-decoration-color: var(--mk-accent-dawn-edge);
-  text-underline-offset: 3px;
-  transition: text-decoration-color var(--mk-duration-hover) ease-out;
+  text-decoration-thickness: from-font;
+  text-underline-position: from-font;
+}
+
+/* ---- Block/Feature Card (217:32022) ---- */
+
+.mk-features {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.mk-feature-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: var(--mk-radius-control);
+  color: var(--mk-accent-dawn);
+}
+.mk-feature-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+.mk-feature-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.034px;
+  color: var(--mk-text-primary);
+}
+.mk-feature-body {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mk-text-secondary);
+}
+.mk-feature-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.015px;
+  color: var(--mk-text-primary);
+  text-decoration: none;
+}
+.mk-feature-link svg {
+  color: var(--mk-accent-dawn);
+}
+
+/* Row: no box, hairline above, 24px icon beside the text, in a two-column list (560px rows
+ * in the 1200px container). */
+.mk-features--rows {
+  column-gap: 40px;
+}
+@media (min-width: 1024px) {
+  .mk-features--rows {
+    column-gap: 80px;
+  }
+}
+@media (min-width: 768px) {
+  .mk-features--rows {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.mk-features--rows .mk-feature-inner {
+  display: flex;
+  gap: 20px;
+  padding: 24px 0 32px;
+  border-top: 1px solid var(--mk-border-hairline);
+}
+.mk-features--rows .mk-feature-icon {
+  width: 24px;
+  height: 24px;
+  padding-top: 1px;
 }
 @media (hover: hover) and (pointer: fine) {
-  .mk-prose a:hover {
-    text-decoration-color: var(--mk-accent-dawn);
+  .mk-features--rows .mk-feature-inner:hover .mk-feature-title {
+    text-decoration: underline;
   }
 }
 
-/* Every control: a 2px gap, then a 2px dawn ring. Keyboard focus only; never removed or
- * animated. */
+/* Cards: 24px apart, equal widths. Two per row, three for 3 or 6, four for 8 (Trust pillars
+ * 187:6920, Website builder features 183:3228). */
+.mk-features--cards {
+  gap: 24px;
+}
+@media (min-width: 768px) {
+  .mk-features--cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  .mk-features--cards[data-count='3'],
+  .mk-features--cards[data-count='6'] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .mk-features--cards[data-count='8'] {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+.mk-features--cards .mk-feature-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  padding: 32px;
+  border: 1px solid var(--mk-border-hairline);
+  border-radius: var(--mk-radius-panel);
+  background: var(--mk-surface-raised);
+  text-decoration: none;
+  transition:
+    background-color var(--mk-hover),
+    border-color var(--mk-hover),
+    transform var(--mk-press);
+}
+.mk-features--cards .mk-feature-text {
+  gap: 12px;
+}
+.mk-features--cards .mk-feature-icon {
+  width: 40px;
+  height: 40px;
+  background: var(--mk-surface-hover);
+}
+@media (hover: hover) and (pointer: fine) {
+  .mk-features--cards a.mk-feature-inner:hover {
+    background: var(--mk-surface-elevated);
+    border-color: var(--mk-accent-dawn-edge);
+  }
+}
+.mk-features--cards a.mk-feature-inner:active {
+  transform: scale(0.97);
+}
+
+/* ---- Focus (interaction rules): a 2px gap, then a 2px dawn ring; keyboard only ---- */
+
 .mk :focus-visible {
   outline: 2px solid var(--mk-accent-dawn);
   outline-offset: 2px;
-  transition: none;
 }
 .mk :focus:not(:focus-visible) {
   outline: none;
 }
 
-/* Skip to content: hidden until focused. */
+/* Reduced motion: keep fades, drop movement. */
+@media (prefers-reduced-motion: reduce) {
+  .mk-button,
+  .mk-button-icon svg,
+  .mk-features--cards .mk-feature-inner {
+    transition-property: background-color, border-color;
+  }
+  .mk-button:active,
+  .mk-features--cards a.mk-feature-inner:active,
+  .mk-button:hover .mk-button-icon svg {
+    transform: none;
+  }
+}
+
+/* ---- Skip link and helpers ---- */
+
 .mk-skip {
   position: absolute;
-  top: var(--mk-space-8);
-  left: var(--mk-space-8);
+  top: 8px;
+  left: 8px;
   z-index: 100;
-  padding: var(--mk-space-8) var(--mk-space-16);
+  padding: 8px 16px;
   border-radius: var(--mk-radius-control);
-  background: var(--mk-accent-dawn);
+  background: var(--mk-text-primary);
   color: var(--mk-text-on-accent);
+  font-size: 15px;
   font-weight: 500;
   text-decoration: none;
   transform: translateY(-200%);
@@ -307,7 +733,6 @@
   transform: none;
 }
 
-/* Hidden visually, still read aloud. */
 .mk-visually-hidden {
   position: absolute;
   width: 1px;
@@ -318,98 +743,4 @@
   clip: rect(0 0 0 0);
   white-space: nowrap;
   border: 0;
-}
-
-/* ---- The CMS blocks (first pass; full designs in phase 2) ---- */
-
-.mk-section > .mk-container > * + * {
-  margin-top: var(--mk-space-40);
-}
-.mk-section > .mk-container > .mk-section-header + * {
-  margin-top: var(--mk-header-gap);
-}
-
-.mk-media {
-  margin: 0;
-}
-.mk-media img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-}
-.mk-media[data-ratio='3:2'] img {
-  aspect-ratio: 3 / 2;
-}
-.mk-media[data-ratio='1:1'] img {
-  aspect-ratio: 1 / 1;
-}
-.mk-media[data-ratio='4:5'] img {
-  aspect-ratio: 4 / 5;
-}
-.mk-media[data-frame='window'] img {
-  border: 1px solid var(--mk-border-strong);
-  border-radius: var(--mk-radius-window);
-}
-.mk-media figcaption {
-  margin-top: var(--mk-space-12);
-}
-
-.mk-cards {
-  display: grid;
-  gap: var(--mk-space-16);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-@media (min-width: 768px) {
-  .mk-cards {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-@media (min-width: 1024px) {
-  .mk-cards[data-count='3'],
-  .mk-cards[data-count='6'] {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-  .mk-cards[data-count='4'],
-  .mk-cards[data-count='8'] {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-.mk-card {
-  display: grid;
-  align-content: start;
-  gap: var(--mk-space-8);
-  padding: var(--mk-space-24);
-  border: 1px solid var(--mk-border-hairline);
-  border-radius: var(--mk-radius-panel);
-  background: var(--mk-surface-raised);
-}
-.mk-card p {
-  margin: 0;
-}
-.mk-badge {
-  justify-self: start;
-  padding: 2px var(--mk-space-8);
-  border: 1px solid var(--mk-accent-dawn-edge);
-  border-radius: var(--mk-radius-pill);
-  color: var(--mk-accent-dawn);
-}
-
-.mk-cta {
-  display: grid;
-  justify-items: center;
-  gap: var(--mk-space-16);
-  text-align: center;
-}
-.mk-cta p {
-  margin: 0;
-}
-.mk-cta .mk-cta-actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--mk-space-24);
-  margin-top: var(--mk-space-16);
 }

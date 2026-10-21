@@ -1,12 +1,12 @@
 import { randomBytes } from 'node:crypto'
 
 import type { Payload, PayloadRequest } from 'payload'
-import { APIError } from 'payload'
 
 import { allowAccountCreation } from '../access/accountCreation'
 
 import { sendLinkEmail } from './inviteEmail'
 import { adminURL } from './resetEmail'
+import { publicError } from '../errors'
 
 /** How long a "set your password" link works for. */
 export const PASSWORD_LINK_HOURS = 72
@@ -37,7 +37,7 @@ export const createPasswordLink = async (
     .findByID({ collection: 'users', id: userID, depth: 0, overrideAccess: true })
     .catch(() => null)
   if (!user || user.role !== 'editor') {
-    throw new APIError('Links can only be made for club editors.', 400)
+    throw publicError('Links can only be made for club editors.', 400)
   }
   const token = await payload.forgotPassword({
     collection: 'users',
@@ -47,7 +47,7 @@ export const createPasswordLink = async (
     context: passwordLinkByAdmin,
     req,
   })
-  if (!token) throw new APIError('Could not create a link.', 500)
+  if (!token) throw publicError('Could not create a link.', 500)
   const link = linkFor(serverURL, token)
   const club = user.tenant
     ? await payload
