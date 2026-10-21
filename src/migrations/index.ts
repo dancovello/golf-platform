@@ -44,6 +44,7 @@ import * as migration_20261020_092237_media_tone from './20261020_092237_media_t
 import * as migration_20261020_112739_menu_sections from './20261020_112739_menu_sections';
 import * as migration_20261020_164723_club_domains from './20261020_164723_club_domains';
 import * as migration_20261020_212250_privacy_cleanup from './20261020_212250_privacy_cleanup';
+import * as migration_20261021_154303_marketing_content from './20261021_154303_marketing_content';
 
 export const migrations = [
   {
@@ -274,6 +275,11 @@ export const migrations = [
   {
     up: migration_20261020_212250_privacy_cleanup.up,
     down: migration_20261020_212250_privacy_cleanup.down,
-    name: '20261020_212250_privacy_cleanup'
+    name: '20261020_212250_privacy_cleanup',
+  },
+  {
+    up: migration_20261021_154303_marketing_content.up,
+    down: migration_20261021_154303_marketing_content.down,
+    name: '20261021_154303_marketing_content'
   },
 ];

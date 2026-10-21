@@ -17,7 +17,7 @@ Seeded 2026-10-21 from the hand-off's list. **Doc 18's rows are still to add** (
 | Old addresses forward to the new site | Switching, FAQ | Extra domains forward to the main one (`forwardToMainAddress`, `src/site/routes/views.tsx`). **Old page addresses don't yet** (N7) | ⏳ partly | Domain forwarding: isolation and domain tests | Dan | Before Switching ships |
 | Restore to any point in the last 7 days | Trust | Needs Neon Launch plan (Q6) | ⏳ | — | Dan | When the plan changes |
 | Stored in London | Trust | Needs Neon, Vercel functions (`lhr1`) and R2 all set to London/UK (N6) | ⏳ | — | Dan | Each infrastructure change |
-| Pages keep drafts until published | Website builder | Pages have drafts with autosave (`src/collections/Pages.ts`) | ✅ | To add in phase 1 | Claude | — |
+| Pages keep drafts until published | Website builder | Club pages have drafts with autosave (`src/collections/Pages.ts`) | ✅ | `tests/int/page-drafts.int.spec.ts` | Claude | — |
 | Price £149 a month + VAT, 12-month minimum, then 90 days' notice | Pricing, FAQ | Dan's decision, 21 Oct (hand-off §3); VAT wording waits on Q2 | ✅ (Q2 pending) | Shown only from `marketingSettings` | Dan | Each price change |
 
 ## Researched proof stats

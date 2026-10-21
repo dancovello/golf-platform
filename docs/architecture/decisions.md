@@ -344,3 +344,14 @@ Approved by Dan, 2026-10-21. Plan: `docs/plans/marketing-site-plan.md`. Brief: `
 - **Pages are rendered for each visit**, like club sites, because the one-time script code needs it (the hand-off said "static by default"). Content can still be cached behind the page.
 - **Content security policy:** the marketing site gets its own, enforced, without the club-only extras (map, Google Analytics, Turnstile). Each comes back only when a marketing page needs it.
 - **The company name, email and domain live in `src/brand.ts`.** The club privacy policy now names the provider from there ("Brandname" until the name is chosen; it said "Clubhouse"), so its "last updated" date moved to 21 October.
+
+## 2026-10-21: Marketing site content (plan phase 1.2)
+
+- **Three new things in Payload, under "Company website" in the sidebar, for the super-admin only:** Pages (`marketing-pages`), Photos (`marketing-media`) and Settings (`marketing-settings`). Club editors can't read, change or see them, in the admin or the API. They're platform-level in `src/tenancy.ts`, with no club.
+- **Pages** have drafts (saved as you type) and a flat address each (`home` is `/`). Only published versions reach visitors (`src/marketing/content.ts`).
+- **Sections** are the five marketing blocks: Section header, Text, Photo, Feature cards and Call to action band. Word limits from the Figma block rules are enforced: headlines 8 words, subheads 30. No size, font or colour choices. The band's buttons are always "Book a demo" and "Get your free homepage". Feature cards say "Coming next" for anything not live.
+- **Photos need a description** (unlike club photos). They're stored under `marketing-media/` in the same bucket. The nightly clean-up only looks in the club folders, so it never removes these.
+- **Settings** hold the stated values: price (£149), VAT wording ("+ VAT"), minimum term (12 months), notice (90 days), optional second-course price, optional restore window, and the Founder Card. An empty optional value means its claim isn't shown.
+- **Every settings screen must define its own access**, now checked by `tests/unit/access-guard.spec.ts` (the first global). Document locking stays off for it.
+- **Moved to phase 5:** the homepage and demo request collections, so their fields match the Figma forms when those are built.
+- **Live preview** for marketing pages comes in phase 2, with the styled blocks.
