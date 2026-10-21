@@ -32,11 +32,16 @@ export type Query = Record<string, string | string[] | undefined>
 
 const one = (v: string | string[] | undefined) => (typeof v === 'string' ? v : null)
 
+/** Record IDs are random UUIDs (decisions.md, 11 October); anything else is ignored. */
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 /** Pages and articles, loaded once per request for both the page and its title. */
 const page = cache((tenantID: string, slug: string, draft: boolean) =>
   loadClubPage(tenantID, slug, { draft }),
 )
-const newsPost = cache((tenantID: string, slug: string) => loadNewsPost(tenantID, slug))
+const newsPost = cache((tenantID: string, slug: string, unpublished = false) =>
+  loadNewsPost(tenantID, slug, { unpublished }),
+)
 
 /** On another of the club's addresses: the same page on its main address. */
 export const forwardToMainAddress = async (site: { redirect: string | null }) => {
@@ -127,14 +132,21 @@ export const PathView = async ({
     )
   }
 
-  // Events is a template too: /events, the upcoming events.
+  // Events is a template too: /events, the upcoming events. In the admin's live preview
+  // (?live=1&event=<id>) the club's own editors also see the event they're editing.
   if (path[0] === 'events' && path.length === 1) {
+    const live = query.live === '1'
+    const asked = one(query.event)
+    const preview =
+      live && asked && UUID.test(asked) && (await canSeeDrafts(club.tenantID, '1')) ? asked : null
     const archive = await eventsArchive(club.tenantID, {
       category: one(query.category),
       show: Number.parseInt(one(query.show) ?? '0', 10) || 0,
+      include: preview,
     })
     return (
       <ClubShell club={club} base={base} currentPath={`${base}/events`}>
+        {live ? <LiveRefresh /> : null}
         <EventsArchive archive={archive} base={base} />
       </ClubShell>
     )
@@ -143,10 +155,14 @@ export const PathView = async ({
   // News is a template, not a page: /news (the archive) and /news/<address> (an article).
   if (path[0] === 'news') {
     if (path.length === 2) {
-      const post = await newsPost(club.tenantID, path[1])
+      // In the admin's live preview, the club's own editors also see drafts.
+      const live = query.live === '1'
+      const unpublished = live && (await canSeeDrafts(club.tenantID, '1'))
+      const post = await newsPost(club.tenantID, path[1], unpublished)
       if (!post) notFound()
       return (
         <ClubShell club={club} base={base} currentPath={`${base}/news`}>
+          {live ? <LiveRefresh /> : null}
           <NewsPost post={post} base={base} />
         </ClubShell>
       )

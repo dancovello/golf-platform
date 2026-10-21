@@ -162,15 +162,25 @@ const wordCount = (value: unknown): number => {
   return n
 }
 
-/** One published article, with its neighbours (older and newer) and up to six more to read. */
+/**
+ * One published article, with its neighbours (older and newer) and up to six more to read.
+ * `unpublished`: the admin's live preview for the club's own editors, which also shows a draft
+ * or a scheduled article (the caller checks who may see it: src/site/livePreviewAccess.ts).
+ */
 export const loadNewsPost = async (
   tenantID: string,
   slug: string,
+  { unpublished = false }: { unpublished?: boolean } = {},
 ): Promise<SiteNewsPost | null> => {
   const payload = await getPayload({ config })
   const { docs } = await payload.find({
     collection: 'news',
-    where: { and: [...live(tenantID), { slug: { equals: slug } }] },
+    where: {
+      and: [
+        ...(unpublished ? [{ tenant: { equals: tenantID } }] : live(tenantID)),
+        { slug: { equals: slug } },
+      ],
+    },
     limit: 1,
     depth: 0,
     overrideAccess: true,

@@ -302,3 +302,10 @@ Recorded afterwards from PRs #106, #108, #109 and #112–#116.
 - **Above the Pages list, the club's pages as a tree** (`src/admin/PageTree.tsx`): each page under its parent page, in the order drop-downs use (home first, then position number, then A–Z), with its address and status: Published; Published, with unpublished changes; or Draft (visitors can't see it). Pages left out of drop-downs are marked. It can be folded away.
 - **Read-only.** Pages are moved by opening them and changing "Parent page" (drag-and-drop ordering in Payload is still experimental).
 - Built only from the club's own pages; a parent that isn't one of them puts the page at the top level. The super-admin sees it for the club picked in the club selector.
+
+## 2026-10-21: News and Events previews (plan part E, last item)
+
+- **News and Events get the live preview** (the eye button), reloaded on each save. News and events have a Draft/Published status rather than page-style drafts, so there's nothing to autosave.
+- **News:** the article as visitors will see it, at its own address. **Events:** events have no page of their own, so the preview is the Events page with the event being edited shown first.
+- **Drafts show only to that club's signed-in editors and the super-admin** inside the preview (`?live=1`, the same rule as pages). Visitors adding `?live=1` still see only published articles and upcoming published events. The event to show comes from the address only if it's a proper record ID, and only from the club's own events.
+- The preview needs the article's address or the event's ID, so it appears once the item has been saved once.

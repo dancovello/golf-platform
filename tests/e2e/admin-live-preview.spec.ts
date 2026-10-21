@@ -62,3 +62,65 @@ test('the Club Settings preview shows the home page and updates on save', async 
   await page.getByRole('button', { name: 'Save' }).click()
   await expect(preview.getByText(changed)).toBeVisible()
 })
+
+// News and Events (plan part E): a draft shows in the editor's preview, never to visitors.
+test('the News preview shows a draft article to the editor only', async ({
+  editorPage,
+  page: visitor,
+  world,
+}) => {
+  const title = `Draft story ${Date.now()}`
+  const created = await editorPage.request.post('/api/news', {
+    data: {
+      title,
+      status: 'draft',
+      category: 'club',
+      publishedAt: new Date().toISOString(),
+      tenant: world.clubA.id,
+    },
+  })
+  expect(created.ok()).toBe(true)
+  const { doc } = (await created.json()) as { doc: { id: string; slug: string } }
+  try {
+    const response = await visitor.goto(`/preview/test-club-a/news/${doc.slug}?live=1`)
+    expect(response?.status()).toBe(404)
+
+    await openReady(editorPage, `/admin/collections/news/${doc.id}`)
+    await editorPage.getByRole('button', { name: 'Live Preview' }).click()
+    const preview = editorPage.frameLocator('#live-preview-iframe')
+    await expect(preview.getByRole('heading', { level: 1, name: title })).toBeVisible()
+  } finally {
+    await editorPage.request.delete(`/api/news/${doc.id}`)
+  }
+})
+
+test('the Events preview shows a draft event to the editor only', async ({
+  editorPage,
+  page: visitor,
+  world,
+}) => {
+  const title = `Draft event ${Date.now()}`
+  const created = await editorPage.request.post('/api/events', {
+    data: {
+      title,
+      status: 'draft',
+      category: 'dining',
+      booking: 'book',
+      startsAt: new Date(Date.now() + 30 * 86_400_000).toISOString(),
+      tenant: world.clubA.id,
+    },
+  })
+  expect(created.ok()).toBe(true)
+  const { doc } = (await created.json()) as { doc: { id: string } }
+  try {
+    await visitor.goto(`/preview/test-club-a/events?live=1&event=${doc.id}`)
+    await expect(visitor.getByText(title)).toHaveCount(0)
+
+    await openReady(editorPage, `/admin/collections/events/${doc.id}`)
+    await editorPage.getByRole('button', { name: 'Live Preview' }).click()
+    const preview = editorPage.frameLocator('#live-preview-iframe')
+    await expect(preview.getByText(title).first()).toBeVisible()
+  } finally {
+    await editorPage.request.delete(`/api/events/${doc.id}`)
+  }
+})
