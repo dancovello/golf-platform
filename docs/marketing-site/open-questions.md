@@ -23,11 +23,12 @@ Each has a safe default so building isn't blocked. The default is what ships unt
 | N4 | **Company privacy policy, cookie notice and terms** wording | Phase 6 | Pages built, unpublished |
 | N5 | **Image licences** for the hero, two-column and accessibility photos | Phase 4 | Clearly licensed stock or demo pictures, captioned as demo clubs |
 | N6 | **Vercel functions in London?** Needed before the Trust page can say "Stored in London" (doc 03) | Phase 6 (Trust, held) | The line stays out |
-| N7 | **Old page addresses.** The Switching page and FAQ promise old page addresses forward to the new ones. Today the platform forwards a club's *extra domains* (e.g. without `www`), but not old page addresses like `/about-us.php`. Build page forwarding, or soften the copy? | Phase 5 (Switching) | Claim held back until decided |
+| N7 | **Old page addresses.** The Switching page and FAQ promise old page addresses forward to the new ones (softened for now: D8). Today the platform forwards a club's *extra domains* (e.g. without `www`), but not old page addresses like `/about-us.php`. Build page forwarding, or soften the copy? | Phase 5 (Switching) | Claim held back until decided |
 | N8 | **"Alt text required."** For club photos, the description is optional (your decision, 17 Oct); the library marks missing ones "Needs description". The marketing site's own Media block will require it. | Before any copy says it | Not claimed for club sites |
 | N9 | **Search in the nav.** Figma's nav has a Search button, but the marketing site has no search for it to open. Add site search later, or remove it from Figma? | Phase 8 | Left out |
 | N10 | **Leaving: exporting a club's content.** The Pricing FAQ (Figma) says a leaving club takes "pages and news as Markdown, every photo and PDF in its original file, and form entries as CSV". No self-service export exists. Build one, or do it by hand on request? | Before Pricing ships | Wording kept; we do it by hand (a script) if a club leaves |
 | N11 | **Data processing agreement.** The FAQ promises to send one before a club signs. Is there one? | Before Pricing ships | Wording kept, flagged in the claims register |
+| N12 | **Where homepage requests are emailed.** Set an address in Company website → Settings → Requests. Turnstile's widget also needs the company domain added in Cloudflare | Before Switching ships | Requests are saved in the admin; nothing is emailed to you |
 
 ### Finding for Q5 (from the code, 2026-10-21)
 
@@ -46,6 +47,8 @@ Places where the build differs from Figma to meet WCAG 2.2 AA. Update Figma or t
 | D5 | Home "A week at the club" header; Pricing intro | Bold "Whoever's on duty can post it"; bold "£149 a month plus VAT" | Plain text | Section Header bodies are plain text (CMS rules) |
 | D6 | Pricing calculator, "Coming next" rows | Whole text dimmed to 72% | Only the module name dimmed | The dimmed description fell to 3.5:1 contrast (needs 4.5:1) |
 | D7 | Pricing, VAT wording | "plus VAT" in sentences, "+ VAT" beside the price | "+ VAT" everywhere | One VAT setting (Q2). If you prefer "plus VAT", change it once in Settings |
+| D8 | Switching: week 4 and "Will we lose our place on Google?" | "…and redirect your old page addresses"; "We redirect your old page addresses" | "We switch the domain over and check every page straight after"; "Your domain stays the same and we keep your page titles…" | The platform doesn't forward old page addresses yet (N7). Restore Figma's lines if you build page forwarding |
+| D9 | Switching example, desktop | The deprecated URL Reskin, 504px tall | The demo club's real homepage hero, full height (about 770px at 1200 wide) | Figma has no desktop frame for the replacement; the hand-off says use the mobile one's demo club. Say if it should be cropped shorter |
 
 ## Answered
 

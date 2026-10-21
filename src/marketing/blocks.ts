@@ -4,6 +4,7 @@ import { marketingHref, maxWords, noTypedPrices, TOKEN_HELP } from './fields'
 import { FEATURE_ICONS } from './icons'
 import { homeBlocks } from './homeBlocks'
 import { pricingBlocks } from './pricingBlocks'
+import { switchingBlocks } from './switchingBlocks'
 import { marketingRichText } from './richText'
 
 /** Short body copy: under thirty words, and prices only as {price}. */
@@ -317,4 +318,5 @@ export const marketingBlocks: Block[] = [
   ctaBand,
   ...homeBlocks,
   ...pricingBlocks,
+  ...switchingBlocks,
 ]
