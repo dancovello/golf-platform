@@ -32,3 +32,33 @@ test('the live preview shows the draft to the editor and the published page to v
     await editorPage.request.delete(`/api/pages/${doc.id}`)
   }
 })
+
+// Club Settings (plan part E): the home page beside the form, refreshed each time it's saved.
+// Uses its own club, so saving never disturbs tests that have club A's settings open.
+test('the Club Settings preview shows the home page and updates on save', async ({
+  superAdminPage: page,
+}) => {
+  const name = `Preview Club ${Date.now()}`
+  const club = await page.request.post('/api/tenants', { data: { name } })
+  expect(club.ok()).toBe(true)
+  const { doc: tenant } = (await club.json()) as { doc: { id: string } }
+  const found = await page.request.get(`/api/club-settings?where[tenant][equals]=${tenant.id}`)
+  const settingsID = ((await found.json()) as { docs: { id: string }[] }).docs[0].id
+  // Every save needs an email and address in the footer (src/collections/ClubSettings.ts).
+  const ready = await page.request.patch(`/api/club-settings/${settingsID}`, {
+    data: { footer: { email: 'office@preview.example', address: '1 Preview Road' } },
+  })
+  expect(ready.ok()).toBe(true)
+
+  const changed = `hello-${Date.now()}@preview.example`
+  await openReady(page, `/admin/collections/club-settings/${settingsID}`)
+  await page.getByRole('button', { name: 'Live Preview' }).click()
+  const preview = page.frameLocator('#live-preview-iframe')
+  await expect(preview.getByRole('link', { name: `${name}, home` }).first()).toBeVisible()
+  await expect(preview.getByText(changed)).toHaveCount(0)
+
+  await page.getByRole('button', { name: 'Footer', exact: true }).click()
+  await page.locator('#field-footer__email').fill(changed)
+  await page.getByRole('button', { name: 'Save' }).click()
+  await expect(preview.getByText(changed)).toBeVisible()
+})

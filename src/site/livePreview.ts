@@ -26,6 +26,14 @@ const breakpoints = [
   { name: 'desktop', label: 'Desktop', width: 1366, height: 900 },
 ]
 
+/** Club Settings (plan part E): the club's home page, reloaded each time the settings are
+ * saved. Settings have no drafts, so a save is live on the site straight away; the preview
+ * shows what visitors now see (Dan chose refresh-on-save over drafts, 2026-10-20). */
+export const clubSettingsLivePreview: LivePreviewConfig = {
+  breakpoints,
+  url: ({ data, req }) => pageURL(req, data?.tenant, null),
+}
+
 /** Pages: the page being edited, as you type (pages autosave drafts). */
 export const pageLivePreview: LivePreviewConfig = {
   breakpoints,

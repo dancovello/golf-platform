@@ -291,3 +291,8 @@ Recorded afterwards from PRs #106, #108, #109 and #112–#116.
 - **The super-admin** sees the same for the club picked in the club selector, plus every club's setup progress.
 - Every query names the club; the editor's page is checked for club B data in the browser tests.
 - **Still to do from the review:** a Club Settings preview (refresh on save), a page-tree view, and previews for News and Events.
+
+## 2026-10-21: Club Settings preview (plan part E, second item)
+
+- **Club Settings have the same live preview as pages** (the eye button): the club's home page beside the form, with Phone, Tablet and Desktop sizes. It **reloads each time the settings are saved** (Dan chose refresh-on-save over drafts, 2026-10-20). Settings have no drafts, so the preview shows what visitors see straight after saving.
+- Uses the same preview address and rules as pages (`/preview/<club>?live=1` on the admin's own address), so on production it works only for that club's signed-in editors and the super-admin.
