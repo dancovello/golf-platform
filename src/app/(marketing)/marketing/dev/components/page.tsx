@@ -18,6 +18,7 @@ import {
   TenantChips,
 } from '@/marketing/site/controls/interactive'
 import { AvailabilityBadge, BrowserChrome, MarketingButton } from '@/marketing/site/parts'
+import { TenantMorph } from '@/marketing/demo/TenantMorph'
 import { FounderCard } from '@/marketing/site/FounderCard'
 import { ProofStat } from '@/marketing/site/ProofStat'
 import { isSignedInSuperAdmin } from '@/marketing/superAdmin'
@@ -91,7 +92,7 @@ export default async function ComponentsReview() {
         </Row>
         <Row name="Tenant Chip" node="176:1947">
           <TenantChips
-            label="Demo clubs"
+            label="Club switcher example"
             clubs={[
               { name: 'Ashgrove Park', style: 'Heritage', swatch: '#1B2A22' },
               { name: 'Saltmarsh Links', style: 'Coastal', swatch: '#1E3F46' },
@@ -158,6 +159,11 @@ export default async function ComponentsReview() {
         <Row name="Founder Card" node="264:8707">
           <div className="mk-review-wide">
             <FounderCard />
+          </div>
+        </Row>
+        <Row name="Tenant Morph (live demo)" node="176:2177">
+          <div className="mk-review-demo">
+            <TenantMorph />
           </div>
         </Row>
         <Row name="Browser Chrome" node="176:1929">
