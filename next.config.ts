@@ -10,8 +10,9 @@ const dirname = path.dirname(__filename)
  * Sent with every page and API response. The live preview frames the club's page inside the
  * admin, on the same address, so framing by the site itself stays allowed; nothing else may
  * frame it (that would let another site trick someone into clicking inside the admin).
- * A full content security policy (which scripts may run) needs a per-request code for Next's
- * own inline scripts and is a separate change.
+ * This is the basic policy for every response. Pages get the full content security policy
+ * (which scripts may run, with a fresh code per page view) from src/proxy.ts and
+ * src/security/csp.ts.
  */
 const securityHeaders = [
   {
