@@ -2,6 +2,11 @@ import type { Page } from '@playwright/test'
 
 import { expect, openReady, test } from './fixtures'
 
+// One after another in a single worker: these open many admin and site pages, and running
+// them side by side with the rest of the suite made unrelated admin tests fail on GitHub's
+// machines (2026-10-21).
+test.describe.configure({ mode: 'default' })
+
 // The content security policy (src/security/csp.ts, src/proxy.ts). Club sites are enforced;
 // the admin is report-only for now. These visit every kind of club page, and the main admin
 // screens, and fail if the browser reports anything blocked (or, in the admin, anything that
@@ -37,17 +42,18 @@ const sitePages = [
   'http://club-a.localhost:3100/membership',
 ]
 
-for (const path of sitePages) {
-  test(`club page ${path}: nothing blocked`, async ({ page }) => {
-    const reports = await watchPolicy(page)
+test('club pages run with nothing blocked', async ({ page }) => {
+  test.setTimeout(180_000)
+  const reports = await watchPolicy(page)
+  for (const path of sitePages) {
     const response = await page.goto(path)
     const policy = response?.headers()['content-security-policy'] ?? ''
-    expect(policy).toContain("'strict-dynamic'")
-    expect(policy).toMatch(/'nonce-[A-Za-z0-9+/=]+'/)
+    expect(policy, path).toContain("'strict-dynamic'")
+    expect(policy, path).toMatch(/'nonce-[A-Za-z0-9+/=]+'/)
     await page.waitForLoadState('networkidle')
-    expect(await reports()).toEqual([])
-  })
-}
+    expect(await reports(), path).toEqual([])
+  }
+})
 
 test('the header search panel, the map and the photo viewer work under the policy', async ({
   page,
@@ -98,27 +104,28 @@ test('the admin is report-only for now', async ({ request }) => {
   expect(headers['content-security-policy']).not.toContain("'strict-dynamic'")
 })
 
-// One test per screen, so each has its own time allowance on GitHub's slower machines.
-const adminScreens: [
-  string,
-  (w: { homeA: { id: string }; settingsA: { id: string } }) => string,
-][] = [
-  ['dashboard', () => '/admin'],
-  ['pages list', () => '/admin/collections/pages'],
-  ['a page', (w) => `/admin/collections/pages/${w.homeA.id}`],
-  ['Club Settings', (w) => `/admin/collections/club-settings/${w.settingsA.id}`],
-  ['photos', () => '/admin/collections/media'],
-  ['news', () => '/admin/collections/news'],
-  ['events', () => '/admin/collections/events'],
-  ['enquiries', () => '/admin/collections/enquiries'],
-]
-for (const [name, path] of adminScreens) {
-  test(`admin ${name}: nothing the policy would block`, async ({ editorPage: page, world }) => {
-    const reports = await watchPolicy(page)
-    await openReady(page, path(world))
-    expect(await reports()).toEqual([])
-  })
-}
+test('nothing on the main admin screens that the policy would block', async ({
+  editorPage: page,
+  world,
+}) => {
+  // Generous: GitHub's machines are slower, and the club-separation leak check (editorPage)
+  // reads every response on all these screens when the test ends.
+  test.setTimeout(180_000)
+  const reports = await watchPolicy(page)
+  for (const path of [
+    '/admin',
+    '/admin/collections/pages',
+    `/admin/collections/pages/${world.homeA.id}`,
+    `/admin/collections/club-settings/${world.settingsA.id}`,
+    '/admin/collections/media',
+    '/admin/collections/news',
+    '/admin/collections/events',
+    '/admin/collections/enquiries',
+  ]) {
+    await openReady(page, path)
+    expect(await reports(), path).toEqual([])
+  }
+})
 
 test('the report address accepts reports quietly', async ({ request }) => {
   const response = await request.post('/csp-report', {
