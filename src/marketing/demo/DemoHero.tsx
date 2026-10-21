@@ -1,8 +1,5 @@
 import { Hero } from '@/site/blocks/Hero'
 
-import '@/site/blocks/blocks.css'
-import '@/site/blocks/hero.css'
-
 import { type DemoClub, demoClubSite, demoContext } from './clubs'
 import { DemoFrame } from './DemoFrame'
 

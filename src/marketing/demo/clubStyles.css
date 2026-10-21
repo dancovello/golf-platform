@@ -1,0 +1,11 @@
+/*
+ * The club site styles the live demos need, pulled in through this one marketing-only file.
+ * Importing the club's CSS files straight into marketing code makes the bundler share them
+ * with club pages and reorder them there, which changed how club blocks look (PR #137).
+ * Pulled in here, they're bundled into this file and club pages keep their own order.
+ */
+@import '../../theme/theme.css';
+@import '../../site/components/buttons.css';
+@import '../../site/components/states.css';
+@import '../../site/blocks/blocks.css';
+@import '../../site/blocks/hero.css';
