@@ -506,3 +506,13 @@ Built from Figma "Website builder — Desktop" (183:3008). Figma has no phone fr
 - **Course status:** the course report and a news post, drawn by the same preview cards as the home page's "A week at the club".
 - **Built in:** eight feature cards. Two of Figma's were reworded and one replaced so every card is true today (D13, D14).
 - **No product film** (Q8).
+
+## 2026-10-21: Bookings page, a Coming next preview (plan phase 6.2)
+
+Built from Figma "Bookings — Desktop" (184:3614). Booking is out of scope for v1, so the page is a labelled preview: "Coming next · designs from our build. Not live yet. Prices and times are examples."
+
+- **Tee Sheet Simulator:** pick an open slot and it's held for ten minutes with a live countdown; confirm and it turns Full; release and it frees up. Full, members-only and competition slots can't be held. Nothing is booked. Screen readers hear "held", "booked" and "released", not every second of the countdown.
+- **Club Settings Panel:** the card guarantee adds or removes the Card details step and unlocks the no-show fee. The copy is in the future tense ("will be settings your club controls").
+- **Facilities Carousel:** range, simulators and spa, with tabs or a swipe. Its booking button says facility booking is coming next.
+- **The tee sheet and date chips are drawn in the demo club's colours and fonts**, like the club components they preview. They're marketing code, not club blocks, because the club booking blocks aren't built yet.
+- **Left out:** the Works With strip (deprecated in Figma; it may only name providers a live club links to, and there are none yet).

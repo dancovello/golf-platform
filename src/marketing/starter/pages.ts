@@ -612,7 +612,59 @@ const websiteBuilder: StarterPage = {
   ],
 }
 
-export const STARTER_PAGES: StarterPage[] = [home, pricing, switching, bookADemo, websiteBuilder]
+// Bookings, a Coming next preview (Figma "Bookings — Desktop" 184:3614). Every simulation is
+// labelled; nothing on it books anything. Figma's Works With strip is deprecated and left out:
+// no club links to a provider in production yet (D15).
+const bookings: StarterPage = {
+  slug: 'bookings',
+  title: 'Tee times',
+  description:
+    'Your new site links to the booking system you use today. Built-in booking, an optional add-on designed around your club, is coming next.',
+  layout: [
+    {
+      blockType: 'mkSectionHeader',
+      eyebrow: 'Tee times',
+      title: 'Keep the tee sheet\nyou use today.',
+      subhead:
+        'Your new site links to the booking system you use today. Built-in booking, an optional add-on designed around your club, is coming next.',
+      align: 'center',
+    },
+    { blockType: 'mkBookingDemo', demo: 'teeSheet', showLabel: true },
+    {
+      blockType: 'mkSectionHeader',
+      title: 'Your rules, set once.',
+      subhead:
+        'Card guarantees, no-show fees and booking windows will be settings your club controls, not requests to us.',
+      align: 'left',
+    },
+    { blockType: 'mkBookingDemo', demo: 'clubSettings' },
+    {
+      blockType: 'mkSectionHeader',
+      title: 'Everything bookable,\nbooked the same way.',
+      subhead:
+        'Range bays, simulators, the spa. Anything the club hires out by the hour will use the flow members already know.',
+      align: 'left',
+    },
+    { blockType: 'mkBookingDemo', demo: 'facilities' },
+    {
+      blockType: 'mkCtaBand',
+      title: 'Start with the website.',
+      subhead:
+        'Your site links to your current tee sheet from day one. Built-in booking follows when it’s ready.',
+      primary: { label: 'Book a demo', href: '/book-a-demo' },
+      secondary: { label: '', href: '/switching' },
+    },
+  ],
+}
+
+export const STARTER_PAGES: StarterPage[] = [
+  home,
+  pricing,
+  switching,
+  bookADemo,
+  websiteBuilder,
+  bookings,
+]
 
 /** Adds each starter page as a draft unless its address is taken. Returns what happened. */
 export const addStarterPages = async (payload: Payload) => {
