@@ -3777,3 +3777,591 @@ button.mk-button {
     padding: 16px;
   }
 }
+
+/* ======== Bookings, a Coming next preview (Figma "Bookings — Desktop" 184:3614) ======== */
+
+/* Intro (184:3650): 112px top, 64px bottom; header 120px above the preview label (desktop). */
+@media (min-width: 1024px) {
+  main > .mk-section:first-child:has(.mk-booking-demo) {
+    padding: 112px 0 64px;
+  }
+  .mk-stack > .mk-header--center + .mk-booking-demo {
+    margin-top: 120px;
+  }
+}
+.mk-booking-demo {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+.mk-preview-label {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 12px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--mk-text-tertiary);
+}
+.mk-preview-label-lead {
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--mk-accent-dawn);
+}
+
+/* Marketing/Tee Sheet Simulator (184:3437): the club's tee sheet beside the booking panel. */
+.mk-tee-sim {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+@media (min-width: 1024px) {
+  .mk-tee-sim {
+    flex-direction: row;
+    align-items: stretch;
+  }
+  .mk-tee-sim-window {
+    flex: 0 0 732px;
+  }
+}
+.mk-tee-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 32px;
+  background: var(--color-surface-canvas);
+  color: var(--color-text-primary);
+  font-family: var(--font-body), sans-serif;
+}
+.mk-tee-title {
+  margin: 0;
+  font-family: var(--font-display), serif;
+  font-size: 24px;
+  line-height: 1.18;
+}
+.mk-tee-dates {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.mk-tee-date {
+  display: flex;
+  flex: 0 0 88px;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 12px 0;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 0;
+  background: none;
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+.mk-tee-date-day {
+  font-size: 11px;
+  line-height: 1.33;
+  letter-spacing: 1.54px;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+.mk-tee-date-num {
+  font-family: var(--font-display), serif;
+  font-size: 30px;
+  line-height: 1.14;
+}
+.mk-tee-date[aria-checked='true'] {
+  border-color: var(--color-surface-brand);
+  background: var(--color-surface-brand);
+  color: var(--color-text-on-inverse);
+}
+.mk-tee-date[aria-checked='true'] .mk-tee-date-day {
+  color: var(--color-text-on-inverse-muted);
+}
+.mk-tee-slots {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+@media (min-width: 768px) {
+  .mk-tee-slots {
+    grid-template-columns: repeat(4, 132px);
+  }
+}
+.mk-tee-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 12px 16px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 0;
+  background: var(--color-surface-raised);
+  color: var(--color-text-primary);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.mk-tee-slot:not([data-state='open']):not([data-state='held']) {
+  background: var(--color-surface-subtle);
+  color: var(--color-text-secondary);
+  cursor: default;
+}
+.mk-tee-slot[data-state='competition'] {
+  border: 1px dashed var(--color-text-brand);
+  color: var(--color-text-brand);
+}
+.mk-tee-slot[data-state='competition'] .mk-tee-time {
+  color: var(--color-text-secondary);
+}
+.mk-tee-slot[data-state='held'] {
+  border: 2px solid var(--color-action-accent);
+  padding: 11px 15px;
+  background: var(--color-action-solid);
+  color: var(--color-action-on-solid);
+}
+.mk-tee-slot[data-state='open']:hover {
+  border-color: var(--color-text-secondary);
+}
+.mk-tee-time {
+  font-family: var(--font-display), serif;
+  font-size: 30px;
+  line-height: 1.14;
+  font-variant-numeric: tabular-nums;
+}
+.mk-tee-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.33;
+  letter-spacing: 0.48px;
+  white-space: nowrap;
+}
+.mk-tee-slot[data-state='open'] .mk-tee-meta {
+  gap: 8px;
+  color: var(--color-text-secondary);
+}
+.mk-tee-price {
+  color: var(--color-text-primary);
+}
+.mk-tee-panel {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  min-width: 0;
+  padding: 32px;
+  border: 1px solid var(--mk-border-hairline);
+  border-radius: var(--mk-radius-panel);
+  background: var(--mk-surface-raised);
+}
+.mk-tee-panel-title {
+  margin: 0;
+  font-family: var(--mk-font-display), Georgia, serif;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.168px;
+  color: var(--mk-text-primary);
+}
+.mk-tee-panel-sub {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mk-text-secondary);
+}
+.mk-tee-panel-text {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.55;
+  letter-spacing: -0.016px;
+  color: var(--mk-text-secondary);
+}
+.mk-tee-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mk-text-secondary);
+}
+.mk-tee-legend li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mk-tee-legend li::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--mk-signal-live);
+}
+.mk-tee-legend [data-state='members']::before {
+  background: var(--mk-text-secondary);
+}
+.mk-tee-legend [data-state='competition']::before {
+  background: var(--mk-accent-dawn);
+}
+.mk-tee-legend [data-state='full']::before {
+  background: var(--mk-border-track);
+}
+.mk-tee-countdown {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+.mk-tee-count {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mk-text-secondary);
+}
+.mk-tee-count-num {
+  font-family: var(--mk-font-display), Georgia, serif;
+  font-size: 60px;
+  line-height: 1.05;
+  letter-spacing: -1.08px;
+  color: var(--mk-accent-dawn);
+  font-variant-numeric: tabular-nums;
+}
+.mk-tee-progress {
+  position: relative;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--mk-surface-hover);
+}
+.mk-tee-progress span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--mk-accent-dawn);
+  transition: width 1s linear;
+}
+.mk-tee-summary {
+  width: 100%;
+  margin: 0;
+}
+.mk-tee-summary > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--mk-border-hairline);
+}
+.mk-tee-summary dt {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mk-text-secondary);
+}
+.mk-tee-summary dd {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--mk-text-primary);
+}
+.mk-tee-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.mk-tee-tick {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  background: var(--mk-signal-live-wash);
+  color: var(--mk-signal-live);
+  animation: mk-rise 300ms var(--mk-ease-enter);
+}
+@keyframes mk-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* Marketing/Club Settings Panel (184:3519): settings beside "What the golfer sees". */
+.mk-settings-demo {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+@media (min-width: 1024px) {
+  .mk-settings-demo {
+    flex-direction: row;
+    align-items: stretch;
+  }
+  .mk-settings-list {
+    flex: 0 0 420px;
+  }
+}
+.mk-settings-list,
+.mk-settings-flow {
+  display: flex;
+  flex-direction: column;
+  padding: 32px;
+  border: 1px solid var(--mk-border-hairline);
+  border-radius: var(--mk-radius-panel);
+  background: var(--mk-surface-raised);
+}
+.mk-settings-list {
+  gap: 8px;
+}
+.mk-settings-heading,
+.mk-setting-name {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.015px;
+  color: var(--mk-text-primary);
+}
+.mk-setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 0;
+  border-top: 1px solid var(--mk-border-hairline);
+}
+.mk-setting > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mk-setting-note {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mk-text-tertiary);
+}
+.mk-setting[data-disabled] > div {
+  opacity: 0.45;
+}
+.mk-settings-flow {
+  flex: 1;
+  gap: 24px;
+  min-width: 0;
+}
+.mk-settings-flow-label {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mk-text-tertiary);
+}
+.mk-flow-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.mk-flow-steps li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mk-flow-arrow {
+  display: inline-flex;
+  color: var(--mk-text-tertiary);
+}
+.mk-flow-step {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  border: 1px solid var(--mk-border-strong);
+  border-radius: var(--mk-radius-control);
+  background: var(--mk-surface-tint);
+  white-space: nowrap;
+}
+.mk-flow-step-num {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mk-text-tertiary);
+}
+.mk-flow-step-name {
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.015px;
+  color: var(--mk-text-primary);
+}
+.mk-flow-steps [data-new] .mk-flow-step {
+  border-color: var(--mk-accent-dawn-edge);
+  background: var(--mk-accent-dawn-wash);
+  animation: mk-slide-in 200ms var(--mk-ease-enter);
+}
+.mk-flow-steps [data-new] .mk-flow-step-num {
+  color: var(--mk-accent-dawn);
+}
+@keyframes mk-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+}
+.mk-settings-flow-text {
+  max-width: 560px;
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.55;
+  letter-spacing: -0.016px;
+  color: var(--mk-text-secondary);
+}
+@media (prefers-reduced-motion: reduce) {
+  .mk-flow-steps [data-new] .mk-flow-step,
+  .mk-tee-tick {
+    animation: none;
+  }
+  .mk-tee-progress span {
+    transition: none;
+  }
+}
+
+/* Marketing/Facilities Carousel (184:3613): picture beside the booking micro-demo. */
+.mk-facilities {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  touch-action: pan-y;
+}
+@media (min-width: 1024px) {
+  .mk-facilities {
+    flex-direction: row;
+    align-items: stretch;
+  }
+  .mk-facilities-media {
+    flex: 0 0 700px;
+  }
+}
+.mk-facilities-media {
+  overflow: hidden;
+  border: 1px solid var(--mk-border-hairline);
+  border-radius: var(--mk-radius-panel);
+  background: var(--mk-surface-raised);
+}
+.mk-facilities-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 240px;
+  max-height: 480px;
+  object-fit: cover;
+}
+.mk-facilities-panel {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  min-width: 0;
+  padding: 32px;
+  border: 1px solid var(--mk-border-hairline);
+  border-radius: var(--mk-radius-panel);
+  background: var(--mk-surface-raised);
+}
+.mk-facilities-title {
+  margin: 0;
+  font-family: var(--mk-font-display), Georgia, serif;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.168px;
+  color: var(--mk-text-primary);
+}
+.mk-facilities-body {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.55;
+  letter-spacing: -0.016px;
+  color: var(--mk-text-secondary);
+}
+.mk-facilities-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.mk-facilities-slots legend {
+  margin-bottom: 12px;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mk-text-tertiary);
+}
+.mk-facility-slot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--mk-border-hairline);
+  border-radius: var(--mk-radius-control);
+  background: var(--mk-surface-tint);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mk-text-primary);
+  cursor: pointer;
+}
+.mk-facility-slot input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.mk-facility-slot:has(input:checked) {
+  border-color: var(--mk-accent-dawn);
+  background: var(--mk-surface-hover);
+}
+.mk-facility-slot:has(input:focus-visible) {
+  outline: 2px solid var(--mk-accent-dawn);
+  outline-offset: 2px;
+}
+.mk-facility-price {
+  color: var(--mk-text-secondary);
+}
+.mk-facilities-note {
+  margin: -8px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mk-accent-dawn);
+}
+.mk-facilities-note:empty {
+  display: none;
+}
+.mk-facilities-pager {
+  display: flex;
+  gap: 6px;
+}
+.mk-facilities-pager span {
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--mk-border-track);
+  transition: width 200ms var(--mk-ease-enter);
+}
+.mk-facilities-pager [data-active] {
+  width: 20px;
+  background: var(--mk-text-primary);
+}

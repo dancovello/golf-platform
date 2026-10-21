@@ -2,6 +2,7 @@ import type { Block } from 'payload'
 
 import { button, marketingHref, maxWords, noTypedPrices, TOKEN_HELP } from './fields'
 import { bookingBlocks } from './bookingBlocks'
+import { bookingsBlocks } from './bookingsBlocks'
 import { builderBlocks } from './builderBlocks'
 import { FEATURE_ICONS } from './icons'
 import { homeBlocks } from './homeBlocks'
@@ -286,4 +287,5 @@ export const marketingBlocks: Block[] = [
   ...switchingBlocks,
   ...bookingBlocks,
   ...builderBlocks,
+  ...bookingsBlocks,
 ]

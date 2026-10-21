@@ -64,3 +64,5 @@ Retired, never use: the top-100 audit stat (26 of 93), and "0 of 4 providers pub
 | Course status shows when it was last updated | Website builder | Course Status block shows the time (`src/site/blocks/CourseStatus.tsx`) | ✅ | — | Claude | — |
 | Anyone with access can post the course report | Website builder | Club editors can update Course Status | ✅ | Isolation tests | Claude | If roles are added |
 | The right access for each person | Website builder | Not built: badged Coming next | ⏳ (badged) | — | Dan | When roles ship |
+| Your new site links to the booking system you use today | Bookings | The "Book a tee time" button links to any address (Club Settings → header booking link) | ✅ | — | Claude | — |
+| Built-in booking is coming next (tee sheet, settings, facilities) | Bookings | Not built; every preview is labelled "Coming next · not live yet" | ⏳ (labelled) | `tests/e2e/marketing-bookings.spec.ts` checks the label | Dan | When booking ships |

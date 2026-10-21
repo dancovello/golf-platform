@@ -5,6 +5,7 @@ import type { MarketingMedia, MarketingPage } from '@/payload-types'
 import { Photo } from '@/site/blocks/parts'
 
 import { DemoIntro } from './booking/BookingBlocks'
+import { BookingDemo } from './bookings/BookingsBlocks'
 import { BuilderHero, LiveDemo } from './builder/BuilderBlocks'
 import { FounderCard } from './FounderCard'
 import { Compare, ContentMoves, HomeHero, ProofStats } from './home/HomeBlocks'
@@ -226,6 +227,8 @@ const drawBlock = (
       return <BuilderHero block={block} />
     case 'mkLiveDemo':
       return <LiveDemo block={block} />
+    case 'mkBookingDemo':
+      return <BookingDemo block={block} />
     default:
       return null
   }

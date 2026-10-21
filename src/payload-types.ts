@@ -1796,6 +1796,7 @@ export interface MarketingPage {
         | MarketingDemoIntroBlock
         | MarketingBuilderHeroBlock
         | MarketingLiveDemoBlock
+        | MarketingBookingDemoBlock
       )[]
     | null;
   meta?: {
@@ -2349,6 +2350,20 @@ export interface MarketingLiveDemoBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'mkLiveDemo';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingBookingDemoBlock".
+ */
+export interface MarketingBookingDemoBlock {
+  demo: 'teeSheet' | 'clubSettings' | 'facilities';
+  /**
+   * Keep it on for the first preview on a page, so visitors know none of this is live.
+   */
+  showLabel?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkBookingDemo';
 }
 /**
  * Clubs asking for their free homepage (Switching page). Each one was promised it by the date shown.
@@ -3661,6 +3676,7 @@ export interface MarketingPagesSelect<T extends boolean = true> {
         mkDemoIntro?: T | MarketingDemoIntroBlockSelect<T>;
         mkBuilderHero?: T | MarketingBuilderHeroBlockSelect<T>;
         mkLiveDemo?: T | MarketingLiveDemoBlockSelect<T>;
+        mkBookingDemo?: T | MarketingBookingDemoBlockSelect<T>;
       };
   meta?:
     | T
@@ -4036,6 +4052,16 @@ export interface MarketingLiveDemoBlockSelect<T extends boolean = true> {
         body?: T;
         id?: T;
       };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingBookingDemoBlock_select".
+ */
+export interface MarketingBookingDemoBlockSelect<T extends boolean = true> {
+  demo?: T;
+  showLabel?: T;
   id?: T;
   blockName?: T;
 }

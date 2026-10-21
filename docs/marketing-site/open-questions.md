@@ -54,6 +54,9 @@ Places where the build differs from Figma to meet WCAG 2.2 AA. Update Figma or t
 | D12 | Website builder, Token Dial and its header | "#F2E28C → #7A6A12", "AA, nudged", "We've deepened it"; header "we tell you why before it goes live" | The picked colour stays; the readout shows which text colour sits on it and its contrast. Header: "Text on it switches to stay readable, and your colour stays as you picked it" | That's what club sites do (Q5 finding). Nothing tells editors "why" before publishing yet |
 | D13 | Website builder, "Readable for everyone" and "Undo any change" cards | "Alt text is required, and club colours are contrast-checked before they save"; "Roll a page back in one click" | "Text is checked against what it sits on, and photos missing a description are flagged"; "The last 50 versions of every page are kept. Bring an earlier one back from its history" | Descriptions are optional (N8) and colours aren't blocked on save (Q5). Restoring takes a couple of clicks |
 | D14 | Website builder, "Old links keep working" card | Old page addresses redirect | Replaced by "Backed up every night" (pages, news and settings, encrypted, kept 30 days) | Page forwarding doesn't exist yet (N7). Swap back if you build it |
+| D15 | Bookings, Works With strip | In the hand-off; marked deprecated in Figma | Left out | Figma: "name only providers we have actually linked to in production". No club is live yet. Add it once one is |
+| D16 | Bookings, Tee Sheet Simulator | The page frame shows the Held state | Starts at Browsing ("Pick a time") | So visitors can tap a slot and see the hold start (the component's own first state) |
+| D17 | Bookings, Facilities pictures | Photos | The demo clubs' drawn pictures | The photos' licences aren't confirmed (N5) |
 
 ## Answered
 
