@@ -189,7 +189,93 @@ const home: StarterPage = {
   ],
 }
 
-export const STARTER_PAGES: StarterPage[] = [home]
+// Pricing (Figma "Pricing — Desktop" 185:3821). Numbers come from Settings ({price} etc.).
+const pricing: StarterPage = {
+  slug: 'pricing',
+  title: 'Pricing',
+  description:
+    'One price per club, with hosting, every live block and unlimited editors included. No setup fee.',
+  layout: [
+    {
+      blockType: 'mkSectionHeader',
+      eyebrow: 'Pricing',
+      title: 'One club, one price.',
+      subhead:
+        '{price} a month {vat} for your website, on a {term}-month term. No setup fee, and no charge per editor.',
+      align: 'center',
+    },
+    {
+      blockType: 'mkPricing',
+      title: 'Build your plan',
+      terms: 'Billed monthly · {term}-month minimum, then rolling',
+      coursesText: 'Each course gets its own guide, scorecard and hole-by-hole pages.',
+      comingNext: [
+        {
+          title: 'Tee-time bookings',
+          body: 'Members and visitors book online, with your rules and prices.',
+        },
+        { title: 'Members area', body: 'Logins, notices and the members’ directory.' },
+        { title: 'Facilities booking', body: 'Range bays, simulators, spa and function rooms.' },
+      ],
+      included: [
+        { text: 'Hosting, security and backups' },
+        { text: 'Every live block, on every page' },
+        { text: 'Unlimited editors' },
+        { text: 'We move your old site across' },
+      ],
+      footnote:
+        'Prices exclude VAT. No setup fee. {notice} days’ notice after the first {term} months.',
+    },
+    {
+      blockType: 'mkFaq',
+      title: 'Answers for\nyour committee.',
+      body: 'Forward this page before the meeting. If a question’s missing, ask us and we’ll add it.',
+      items: [
+        {
+          question: 'How long is the contract?',
+          answer:
+            'A {term}-month minimum, then it rolls monthly. Either side gives {notice} days’ notice.',
+        },
+        {
+          question: 'Who owns our content and data?',
+          answer: 'You do. Everything you publish, upload or collect belongs to the club.',
+        },
+        {
+          question: 'What happens if we leave?',
+          answer:
+            'You take everything with you: pages and news as Markdown, every photo and PDF in its original file, and form entries as CSV. Your domain was always yours.',
+        },
+        {
+          question: 'What do you move across from our old site?',
+          answer:
+            'Your public pages, news posts, PDFs and photos. We agree the exact list with you in week 1, before any work starts.',
+        },
+        {
+          question: 'Is it GDPR compliant?',
+          answer:
+            'We follow UK GDPR, and we’ll send our data processing agreement before you sign anything.',
+        },
+        {
+          question: 'Do we need a developer?',
+          answer: 'No. If you can write an email, you can update the site.',
+        },
+        {
+          question: 'Can we keep our domain and email?',
+          answer: 'Yes. You keep your domain, and your club email stays where it is.',
+        },
+      ],
+    },
+    {
+      blockType: 'mkCtaBand',
+      title: 'One price your committee can sign off.',
+      subhead: '{price} a month {vat}, everything included. See it working on your own club first.',
+      primary: { label: 'Book a demo', href: '/book-a-demo' },
+      secondary: { label: 'Get your free homepage', href: '/switching' },
+    },
+  ],
+}
+
+export const STARTER_PAGES: StarterPage[] = [home, pricing]
 
 /** Adds each starter page as a draft unless its address is taken. Returns what happened. */
 export const addStarterPages = async (payload: Payload) => {

@@ -180,6 +180,25 @@ describe('blocks follow the Figma components', () => {
     ).rejects.toThrow()
   })
 
+  it('body copy refuses a typed price: it must use {price}', async () => {
+    for (const block of [
+      { blockType: 'mkCtaBand', title: 'Sign off', subhead: '£149 a month, all in.' },
+      { blockType: 'mkSectionHeader', title: 'Price', subhead: 'Only £ 149.' },
+    ]) {
+      await expect(
+        page(`typed-${block.blockType.toLowerCase()}`, 'published', { layout: [block] }),
+      ).rejects.toMatchObject({
+        data: {
+          errors: [expect.objectContaining({ message: expect.stringContaining('{price}') })],
+        },
+      })
+    }
+    const ok = await page('token-price', 'published', {
+      layout: [{ blockType: 'mkCtaBand', title: 'Sign off', subhead: '{price} a month {vat}.' }],
+    })
+    expect(ok.slug).toBe('token-price')
+  })
+
   it('section headers default to left, features to rows', async () => {
     const doc = await page('defaults', 'published', {
       layout: [

@@ -26,6 +26,8 @@ Each has a safe default so building isn't blocked. The default is what ships unt
 | N7 | **Old page addresses.** The Switching page and FAQ promise old page addresses forward to the new ones. Today the platform forwards a club's *extra domains* (e.g. without `www`), but not old page addresses like `/about-us.php`. Build page forwarding, or soften the copy? | Phase 5 (Switching) | Claim held back until decided |
 | N8 | **"Alt text required."** For club photos, the description is optional (your decision, 17 Oct); the library marks missing ones "Needs description". The marketing site's own Media block will require it. | Before any copy says it | Not claimed for club sites |
 | N9 | **Search in the nav.** Figma's nav has a Search button, but the marketing site has no search for it to open. Add site search later, or remove it from Figma? | Phase 8 | Left out |
+| N10 | **Leaving: exporting a club's content.** The Pricing FAQ (Figma) says a leaving club takes "pages and news as Markdown, every photo and PDF in its original file, and form entries as CSV". No self-service export exists. Build one, or do it by hand on request? | Before Pricing ships | Wording kept; we do it by hand (a script) if a club leaves |
+| N11 | **Data processing agreement.** The FAQ promises to send one before a club signs. Is there one? | Before Pricing ships | Wording kept, flagged in the claims register |
 
 ### Finding for Q5 (from the code, 2026-10-21)
 
@@ -41,7 +43,9 @@ Places where the build differs from Figma to meet WCAG 2.2 AA. Update Figma or t
 | D2 | Home proof stats | Claim wording from Figma, sources slightly different | Figma's claim wording, the hand-off's exact source lines (§9: "use exactly these") | The hand-off ranks above Figma for sources; Figma's claim wording reads better |
 | D3 | Home "Your content comes with you" | Example windows on `ashgroveparkgc.co.uk` | On `ashgrovepark.golf`, labelled "Demo club" | A realistic `.co.uk` could be a real club; the counts are an example |
 | D4 | Home "Edit and live" | Live hero headline on two lines | Three lines | The club hero limits headlines to 16 characters a line; the card grows to fit |
-| D5 | Home "A week at the club" header | Bold "Whoever's on duty can post it" | Plain text | Section Header bodies are plain text (CMS rules) |
+| D5 | Home "A week at the club" header; Pricing intro | Bold "Whoever's on duty can post it"; bold "£149 a month plus VAT" | Plain text | Section Header bodies are plain text (CMS rules) |
+| D6 | Pricing calculator, "Coming next" rows | Whole text dimmed to 72% | Only the module name dimmed | The dimmed description fell to 3.5:1 contrast (needs 4.5:1) |
+| D7 | Pricing, VAT wording | "plus VAT" in sentences, "+ VAT" beside the price | "+ VAT" everywhere | One VAT setting (Q2). If you prefer "plus VAT", change it once in Settings |
 
 ## Answered
 

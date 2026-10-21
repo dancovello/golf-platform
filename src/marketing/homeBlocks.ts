@@ -1,6 +1,6 @@
 import type { Block, Field } from 'payload'
 
-import { maxWords, marketingHref } from './fields'
+import { marketingHref, maxWords, noTypedPrices } from './fields'
 
 /**
  * The home page's own sections (Figma "Home — Desktop" 176:2178 and "Home — Mobile" 273:8954).
@@ -36,12 +36,6 @@ const button = (name: string, label: string, defaults: { label: string; href: st
     },
   ],
 })
-
-/** No numbers typed into the copy: prices come from the settings ({price}). */
-const noTypedPrices = (value: unknown) =>
-  typeof value === 'string' && /£\s?\d/.test(value)
-    ? 'Use {price} for the monthly price, so it always matches the settings.'
-    : true
 
 // Hero (176:2213): headline, subhead, two buttons, a proof line, the Tenant Morph and its note.
 const homeHero: Block = {
