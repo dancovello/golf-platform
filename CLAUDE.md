@@ -28,6 +28,7 @@ These decisions are already made. Build on them. Do not propose alternatives unl
 - `docs/product/02-content-model-and-block-library.md` is the content model and block library
 - `docs/product/03-open-questions-and-next-steps.md` lists open decisions. Flag them and never silently decide them
 - `docs/design/` holds the brand colour contract (08), block design direction (05), per-block Figma build specs (07, 09–11) and the mobile spec (13). Figma file key: `GXzYibwnWKKyTeUkwRn8Of`
+- **Marketing site** (the company's own site, not a club site): `docs/marketing-site/HANDOFF.md` is the brief, `docs/marketing-site/19-marketing-tone-of-voice.md` the voice rules, `docs/plans/marketing-site-plan.md` the approved plan. Every factual claim needs a row in `docs/marketing-site/claims-register.md` before it ships; open questions live in `docs/marketing-site/open-questions.md`
 - `docs/design/06-design-skill-stack.md` lists which skills to use for which job. Use one skill per job
 - `docs/product/12-booking-and-accounts-design-brief.md` and section 4 of `docs/product/14-content-templates-and-booking-extensions.md` are **out of scope for v1**. News, events and contact templates in doc 14 are in scope
 - `docs/product/01-research-club-list.md` is background research only. Don't read it unless asked
