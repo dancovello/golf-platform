@@ -395,3 +395,20 @@ Built from the Figma "Marketing · Controls" section (219:8340) and its neighbou
 - **New token:** `accent-rose` #d97f78 (errors).
 - **One change from Figma for accessibility:** the selected Tenant Chip's style label uses secondary text, because tertiary fails 4.5:1 there (open-questions D1).
 - **Review page:** `/dev/components` shows every control live. It's for the super-admin signed in with their code, on the platform's own address only, and returns a 404 everywhere else.
+
+## 2026-10-21: Marketing nav, footer, founder card and live preview (plan phase 2.2)
+
+- **Nav** from Figma Marketing/Nav (175:1875) and Nav Mobile (272:8990):
+  - The links are the component's labels: Website builder · Tee times (with the Coming next clock; goes to `/bookings`) · Switching · Pricing · Trust. The hand-off's "expected" list differed; it also says to take labels from the component.
+  - The actions are Club log in (to `ADMIN_URL/admin`), Free homepage (`/switching`) and Book a demo.
+  - Transparent at the top; glass with a hairline after 8px of scroll.
+  - On phones, the menu is a full-height sheet: focus stays inside it, and Esc closes it.
+  - **The Search button is left out**: there's no marketing site search for it to open (open question N9).
+- **Footer** from Footer (175:1876) and Footer Mobile (272:8991): the site map in three columns plus the legal links. The status dot is left out until real monitoring feeds it (hand-off §7). Contact is the company email.
+- **Proof Stat** (264:8700): a component for the home page's researched stats (phase 4).
+- **Founder Card** (264:8707; stacked under 600px, 272:9022):
+  - Text and links come from the marketing settings. The defaults are the Figma wording; the migration only sets those defaults.
+  - Without a calendar link, "Book a call" goes to the Book a demo page. Without a phone number, "Call" isn't shown.
+  - Your initial shows until a photo is added.
+- **Phone buttons are 36px tall**, as in the mobile nav and cards. Only the CTA band's phone buttons are 44px (mobile CTA frame).
+- **Live preview:** marketing pages have the admin's preview panel. It shows the latest draft at `/dev/preview/…`, on the platform's own address, for the signed-in super-admin only.

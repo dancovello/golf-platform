@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import React from 'react'
 
 import { BRAND } from '@/brand'
+import { Footer } from '@/marketing/site/chrome/Footer'
+import { Nav } from '@/marketing/site/chrome/Nav'
 
 import { hankenGrotesk, newsreader } from './fonts'
 import './marketing.css'
@@ -23,7 +25,9 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
         <a className="mk-skip" href="#main">
           Skip to content
         </a>
+        <Nav />
         {children}
+        <Footer />
       </body>
     </html>
   )

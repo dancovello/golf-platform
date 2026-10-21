@@ -3526,6 +3526,9 @@ export interface MarketingSetting {
     message?: string | null;
     photo?: (string | null) | MarketingMedia;
     phone?: string | null;
+    /**
+     * Without one, “Book a call” goes to the Book a demo page.
+     */
     calendarLink?: string | null;
   };
   updatedAt?: string | null;

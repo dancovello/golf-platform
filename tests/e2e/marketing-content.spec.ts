@@ -16,7 +16,7 @@ test('a published page shows on the company domain; a draft doesn’t', async ({
     'content',
     'One price for your club, shown in full.',
   )
-  await expect(page.getByRole('link', { name: 'Book a demo' })).toHaveAttribute(
+  await expect(page.getByRole('main').getByRole('link', { name: 'Book a demo' })).toHaveAttribute(
     'href',
     '/book-a-demo',
   )
