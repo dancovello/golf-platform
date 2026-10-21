@@ -4,13 +4,14 @@
  * template changes every club at once.
  */
 
+import { BRAND } from '../../brand'
 import { turnstileSiteKey } from '../contact/turnstile'
 
-/** The platform company named as the clubs' processor. "Clubhouse" is a working name. */
-export const PLATFORM_NAME = 'Clubhouse'
+/** The platform company named as the clubs' processor (src/brand.ts; the name isn't chosen yet). */
+export const PLATFORM_NAME = BRAND.name
 
 /** When the template last changed. Update it with every wording change: all clubs follow. */
-export const POLICY_LAST_UPDATED = '2026-10-16'
+export const POLICY_LAST_UPDATED = '2026-10-21'
 
 /** How long each kind of information is kept. One list, so it can become per-club later. */
 export const RETENTION = {

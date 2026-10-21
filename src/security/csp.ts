@@ -7,11 +7,14 @@
  * - Club sites (own domains and /preview): enforced.
  * - The admin (/admin): report-only until a clean week of reports, then enforced (a one-line
  *   change: ADMIN_ENFORCED below).
+ * - The company's marketing site: enforced, and without the club-only extras (the map, Google
+ *   Analytics, the contact form's spam check). Each is added back only when a marketing page
+ *   needs it.
  *
  * Kept free of imports so the proxy can use it without loading Payload.
  */
 
-export type PolicyKind = 'site' | 'admin'
+export type PolicyKind = 'site' | 'admin' | 'marketing'
 
 /** Flip to true once the admin's reports have been clean for a week. */
 export const ADMIN_ENFORCED = false
@@ -63,6 +66,8 @@ export const buildPolicy = (kind: PolicyKind, nonce: string, env: Env = process.
   // The admin uploads photos straight from the browser to storage (signed links).
   const storage = kind === 'admin' ? originOf(env.MEDIA_S3_ENDPOINT) : null
   const extra = (list: string[]) => (toolbar ? list : [])
+  // Club sites and the admin (which previews them) use these; the marketing site doesn't yet.
+  const club = (list: string[]) => (kind === 'marketing' ? [] : list)
 
   const directives: Record<string, (string | null)[]> = {
     'default-src': ["'self'"],
@@ -71,8 +76,7 @@ export const buildPolicy = (kind: PolicyKind, nonce: string, env: Env = process.
       `'nonce-${nonce}'`,
       "'strict-dynamic'",
       // Ignored by browsers that understand 'strict-dynamic'; kept for older ones.
-      TURNSTILE,
-      ...GOOGLE_ANALYTICS,
+      ...club([TURNSTILE, ...GOOGLE_ANALYTICS]),
       ...extra(VERCEL_TOOLBAR.script),
       // React needs eval only in development, for its error overlays.
       ...(dev ? ["'unsafe-eval'"] : []),
@@ -85,22 +89,21 @@ export const buildPolicy = (kind: PolicyKind, nonce: string, env: Env = process.
       'data:',
       'blob:',
       media,
-      ...GOOGLE_ANALYTICS,
+      ...club(GOOGLE_ANALYTICS),
       ...extra(VERCEL_TOOLBAR.img),
     ],
     'media-src': ["'self'", 'blob:', media],
     'font-src': ["'self'", 'data:', ...extra(VERCEL_TOOLBAR.font)],
     'connect-src': [
       "'self'",
-      TURNSTILE,
-      ...GOOGLE_ANALYTICS,
+      ...club([TURNSTILE, ...GOOGLE_ANALYTICS]),
       storage,
       ...extra(VERCEL_TOOLBAR.connect),
       // Next's live reload in development.
       ...(dev ? ['ws:'] : []),
     ],
     // The admin's live preview frames the club's page on the same address.
-    'frame-src': ["'self'", TURNSTILE, OPENSTREETMAP, ...extra(VERCEL_TOOLBAR.frame)],
+    'frame-src': ["'self'", ...club([TURNSTILE, OPENSTREETMAP]), ...extra(VERCEL_TOOLBAR.frame)],
     'worker-src': ["'self'", 'blob:'],
     'object-src': ["'none'"],
     'base-uri': ["'self'"],
@@ -123,6 +126,6 @@ export const newNonce = () => {
 
 /** The response header for each kind: the admin reports only, until ADMIN_ENFORCED. */
 export const policyHeaderName = (kind: PolicyKind) =>
-  kind === 'site' || ADMIN_ENFORCED
+  kind !== 'admin' || ADMIN_ENFORCED
     ? 'Content-Security-Policy'
     : 'Content-Security-Policy-Report-Only'
