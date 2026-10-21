@@ -7,10 +7,7 @@ import { brandCSSVariables } from '@/theme/colour'
 import { DEMO_CLUBS, demoClubSite, demoPicture } from '../../demo/clubs'
 import { EditLiveClient } from './EditLiveClient'
 
-import '@/theme/theme.css'
-import '@/site/components/buttons.css'
-import '@/site/blocks/blocks.css'
-import '@/site/blocks/hero.css'
+import '@/marketing/demo/clubStyles.css'
 
 /**
  * Marketing/Edit Live Split (180:2587): the editor card beside the live site, with the same
