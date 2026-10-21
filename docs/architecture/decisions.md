@@ -379,3 +379,19 @@ Built from the Figma page "Marketing site" (170:28407): the variables, the CMS b
 - **Found while building the marketing blocks:** Payload shows an error's message only when the error has a name, and takes the name from the class name. The production build can shorten that to nothing. Unrelated code changes did exactly that, so messages like "Passwords must be at least 12 characters." became "An unknown error occurred."
 - **Fix:** `publicError()` in `src/errors.ts` creates the same error with its name set. All 11 places that made one directly now use it.
 - **Test:** `tests/unit/public-errors.spec.ts` checks the message survives, and fails if any code creates an `APIError` directly again.
+
+## 2026-10-21: Marketing controls (plan phase 2.1)
+
+Built from the Figma "Marketing · Controls" section (219:8340) and its neighbours. Each component's Figma description sets its behaviour.
+
+- **Button:** adds Ghost (nav-level, secondary text) and Disabled (40%). A link when it has an address, otherwise a real button.
+- **Nav Link, Text Link** (the underline draws in from the left; visited links keep their colour) and **Icon Button** (always labelled; 36px to see, 44px to tap; pressed 0.95).
+- **Switch:** `role="switch"`; the knob springs and stretches when pressed; 44px hit area.
+- **Pill Tabs:** a tablist where the active pill slides; arrow keys, Home and End.
+- **Segmented control, Tenant Chips:** radio groups with arrow keys. The tenant swatch is the club's colour.
+- **Filter Chips, Time Slots:** native radios. Taken slots are disabled and struck through, not just greyed.
+- **Field:** the error is tied to the input (`aria-describedby`), with a rose border and message.
+- **FAQ Item:** a disclosure button with `aria-expanded`; opens over 180ms, instantly with reduced motion.
+- **New token:** `accent-rose` #d97f78 (errors).
+- **One change from Figma for accessibility:** the selected Tenant Chip's style label uses secondary text, because tertiary fails 4.5:1 there (open-questions D1).
+- **Review page:** `/dev/components` shows every control live. It's for the super-admin signed in with their code, on the platform's own address only, and returns a 404 everywhere else.

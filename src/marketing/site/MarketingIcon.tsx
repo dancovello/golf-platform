@@ -1,6 +1,7 @@
 import {
   ArrowRight,
   Check,
+  ChevronRight,
   Clock,
   Download,
   FileIcon,
@@ -15,7 +16,9 @@ import type { FeatureIcon } from '../icons'
 import calendar from './assets/calendar.svg'
 import flag from './assets/flag.svg'
 import lock from './assets/lock.svg'
+import minus from './assets/minus.svg'
 import players from './assets/players.svg'
+import plus from './assets/plus.svg'
 import sun from './assets/sun.svg'
 
 /**
@@ -34,11 +37,12 @@ const DRAWN = {
   download: Download,
   info: Info,
   'arrow-right': ArrowRight,
+  'chevron-right': ChevronRight,
 } as const
 
-const FILES = { calendar, flag, lock, players, sun } as const
+const FILES = { calendar, flag, lock, players, sun, plus, minus } as const
 
-export type MarketingIconName = FeatureIcon | 'arrow-right'
+export type MarketingIconName = FeatureIcon | 'arrow-right' | 'chevron-right' | 'plus' | 'minus'
 
 export const MarketingIcon = ({ name, size }: { name: MarketingIconName; size: number }) => {
   if (name in DRAWN) {

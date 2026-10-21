@@ -30,6 +30,14 @@ Each has a safe default so building isn't blocked. The default is what ships unt
 
 Club sites **never block a save** over colour. If a text colour would be hard to read on its background, the site swaps it for the club's other text colour, or white or black, so it passes WCAG AA (`src/theme/colour.ts`). The Branding page also suggests curated shades that never need swapping. So doc 08's "blocked on save" doesn't match the product; "nudged" is closer. The copy should describe the swap.
 
+## Design notes (Figma vs accessibility)
+
+Places where the build differs from Figma to meet WCAG 2.2 AA. Update Figma or tell me to change them back.
+
+| # | Where | Figma | Built | Why |
+|---|---|---|---|---|
+| D1 | Tenant Chip, selected: the style label ("Heritage") | `text-tertiary` #8a968f on `surface-hover` #173327 | `text-secondary` #a3ada6 | Tertiary is under 4.5:1 on that surface |
+
 ## Answered
 
 | # | Question | Answer | Date |
