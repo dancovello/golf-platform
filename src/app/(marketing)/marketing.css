@@ -1746,3 +1746,71 @@ button.mk-button {
   width: 100%;
   max-width: 720px;
 }
+.mk-review-demo {
+  width: 100%;
+}
+
+/* ---- Live demos: Browser Chrome + a real club block, scaled (CMS block rules) ---- */
+
+.mk-demo {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--mk-border-strong);
+  border-radius: var(--mk-radius-window);
+  background: var(--mk-surface-raised);
+  box-shadow: 0 40px 120px rgb(0 0 0 / 50%);
+}
+.mk-demo-viewport {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  /* The block inside is laid out 1366px wide and scaled down: its width mustn't widen the
+   * frame or the page. */
+  contain: inline-size;
+}
+.mk-demo-stage {
+  transform-origin: top left;
+}
+/* The club's own page background inside the frame. */
+.mk-demo-club {
+  background: var(--color-surface-canvas);
+  color: var(--color-text-primary);
+}
+/* A full-bleed hero fills the window on a club's site; in a frame it takes its designed height
+ * (880px at the 1366px design width; Figma hero spec). */
+.mk-demo-stage .hero-full {
+  min-height: 880px;
+}
+@media (max-width: 599px) {
+  .mk-demo-stage .hero-full {
+    min-height: 560px;
+  }
+}
+
+/* ---- Marketing/Tenant Morph (176:2177): frame above, club chips below, 24px apart ---- */
+
+.mk-morph-sticky {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+.mk-morph[data-scroll-driven='true'] .mk-morph-sticky {
+  position: sticky;
+  top: 88px;
+}
+.mk-morph-frames {
+  width: 100%;
+}
+.mk-morph-frame[data-active='true'] {
+  animation: mk-fade 300ms var(--mk-ease-enter);
+}
+.mk-morph .mk-tenant-chips {
+  justify-content: center;
+}
+@keyframes mk-fade {
+  from {
+    opacity: 0;
+  }
+}

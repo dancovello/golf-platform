@@ -412,3 +412,21 @@ Built from the Figma "Marketing · Controls" section (219:8340) and its neighbou
   - Your initial shows until a photo is added.
 - **Phone buttons are 36px tall**, as in the mobile nav and cards. Only the CTA band's phone buttons are 44px (mobile CTA frame).
 - **Live preview:** marketing pages have the admin's preview panel. It shows the latest draft at `/dev/preview/…`, on the platform's own address, for the signed-in super-admin only.
+
+## 2026-10-21: Live demo engine and Tenant Morph (plan phase 3)
+
+- **Demo clubs** (Figma Marketing/Tenant Morph, 176:2177):
+  - Ashgrove Park (Heritage, `ashgrovepark.golf`) and Kingsmere (Booking-led, `kingsmere.golf`) use the default palette.
+  - Carreg Bay Links (Coastal, `carregbay.golf`) uses the Figma "Demo · Coastal links" palette.
+  - All three use the Heritage font set. Their content lives in `src/marketing/demo/clubs.ts`, never in the database (decision B).
+- **Real blocks, not pictures:**
+  - `DemoFrame` is the Browser Chrome bar plus the actual club block component (e.g. `Hero`), given sample content through the same `BlockContext` the club sites use.
+  - On desktop the block is laid out at the club template's 1366px design width and scaled to the frame; on phones it shows the club's own phone layout.
+  - The club's colours and fonts are set on the frame only. Tests prove they don't reach the page around it.
+- **Accessibility:** the club block inside a frame is a picture of a club site, so it's `inert` (no keyboard stops) and hidden from screen readers. The frame's label ("Demo club: Ashgrove Park's home page") is read instead.
+- **Pictures** are the demo club's illustrations, drawn in code (`src/demo/sceneSVG.ts`). The Figma hero photos aren't used because their licences aren't confirmed (hand-off §11).
+- **The Booking-led demo shows the club's booking button**, which works today, not Figma's tee-time search bar, which is coming next (hand-off §6: "shows no unbuilt booking feature").
+- **Tenant Morph:**
+  - On desktop the hero switches club as you scroll past (about a viewport each).
+  - With reduced motion or on phones it stays on Ashgrove Park until a chip is chosen.
+  - The chips work by keyboard and keep focus when the club changes.

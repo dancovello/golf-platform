@@ -178,16 +178,20 @@ export const TenantChips = ({
   label,
   clubs,
   defaultIndex = 0,
+  value,
   onChange,
 }: {
   label: string
   clubs: { name: string; style: string; swatch: string }[]
   defaultIndex?: number
+  /** Set by a parent that controls which club is chosen (the Tenant Morph). */
+  value?: number
   onChange?: (index: number) => void
 }) => {
-  const [active, setActive] = useState(defaultIndex)
+  const [own, setOwn] = useState(defaultIndex)
+  const active = value ?? own
   const select = (index: number) => {
-    setActive(index)
+    setOwn(index)
     onChange?.(index)
   }
   return (
