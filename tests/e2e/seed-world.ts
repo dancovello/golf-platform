@@ -5,6 +5,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs'
 
 import { allowAccountCreation } from '@/access/accountCreation'
+import { STARTER_PAGES } from '@/marketing/starter/pages'
 
 import { pdfFile, photoFile } from '../shared/media'
 import { rt } from '../shared/richText'
@@ -653,6 +654,20 @@ await w.payload.create({
     ],
   } as never,
 })
+
+// The marketing home page from the Figma copy, published (tests/e2e/marketing-home.spec.ts).
+for (const starter of STARTER_PAGES) {
+  await w.payload.create({
+    collection: 'marketing-pages',
+    data: {
+      _status: 'published',
+      title: starter.title,
+      slug: starter.slug,
+      meta: { description: starter.description },
+      layout: starter.layout,
+    } as never,
+  })
+}
 
 writeFileSync(
   'tests/e2e/.state/world.json',

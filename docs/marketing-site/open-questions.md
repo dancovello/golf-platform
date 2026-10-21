@@ -38,6 +38,10 @@ Places where the build differs from Figma to meet WCAG 2.2 AA. Update Figma or t
 | # | Where | Figma | Built | Why |
 |---|---|---|---|---|
 | D1 | Tenant Chip, selected: the style label ("Heritage") | `text-tertiary` #8a968f on `surface-hover` #173327 | `text-secondary` #a3ada6 | Tertiary is under 4.5:1 on that surface |
+| D2 | Home proof stats | Claim wording from Figma, sources slightly different | Figma's claim wording, the hand-off's exact source lines (§9: "use exactly these") | The hand-off ranks above Figma for sources; Figma's claim wording reads better |
+| D3 | Home "Your content comes with you" | Example windows on `ashgroveparkgc.co.uk` | On `ashgrovepark.golf`, labelled "Demo club" | A realistic `.co.uk` could be a real club; the counts are an example |
+| D4 | Home "Edit and live" | Live hero headline on two lines | Three lines | The club hero limits headlines to 16 characters a line; the card grows to fit |
+| D5 | Home "A week at the club" header | Bold "Whoever's on duty can post it" | Plain text | Section Header bodies are plain text (CMS rules) |
 
 ## Answered
 

@@ -47,6 +47,7 @@ import * as migration_20261020_212250_privacy_cleanup from './20261020_212250_pr
 import * as migration_20261021_154303_marketing_content from './20261021_154303_marketing_content';
 import * as migration_20261021_160708_marketing_blocks_from_figma from './20261021_160708_marketing_blocks_from_figma';
 import * as migration_20261021_163953_marketing_founder_card from './20261021_163953_marketing_founder_card';
+import * as migration_20261021_170032_marketing_home_blocks from './20261021_170032_marketing_home_blocks';
 
 export const migrations = [
   {
@@ -292,6 +293,11 @@ export const migrations = [
   {
     up: migration_20261021_163953_marketing_founder_card.up,
     down: migration_20261021_163953_marketing_founder_card.down,
-    name: '20261021_163953_marketing_founder_card'
+    name: '20261021_163953_marketing_founder_card',
+  },
+  {
+    up: migration_20261021_170032_marketing_home_blocks.up,
+    down: migration_20261021_170032_marketing_home_blocks.down,
+    name: '20261021_170032_marketing_home_blocks'
   },
 ];

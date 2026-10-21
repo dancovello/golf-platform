@@ -18,6 +18,8 @@ export const TenantMorphSwitcher = ({
 }) => {
   const frames = Children.toArray(children)
   const [active, setActive] = useState(0)
+  // Fade only when the club changes, not when the page first loads.
+  const [changed, setChanged] = useState(false)
   const track = useRef<HTMLDivElement>(null)
   const [scrollDriven, setScrollDriven] = useState(false)
 
@@ -40,7 +42,11 @@ export const TenantMorphSwitcher = ({
       const travel = box.height - window.innerHeight
       if (travel <= 0) return
       const progress = Math.min(1, Math.max(0, -box.top / travel))
-      setActive(Math.min(frames.length - 1, Math.floor(progress * frames.length)))
+      const next = Math.min(frames.length - 1, Math.floor(progress * frames.length))
+      setActive((current) => {
+        if (current !== next) setChanged(true)
+        return next
+      })
     }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
@@ -61,6 +67,7 @@ export const TenantMorphSwitcher = ({
               key={i}
               className="mk-morph-frame"
               data-active={i === active}
+              data-fade={changed}
               hidden={i !== active}
             >
               {frame}
@@ -72,6 +79,7 @@ export const TenantMorphSwitcher = ({
           clubs={clubs}
           value={active}
           onChange={(index) => {
+            setChanged(true)
             setActive(index)
             if (scrollDriven && track.current) {
               const box = track.current.getBoundingClientRect()

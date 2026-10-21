@@ -2,6 +2,7 @@ import type { Block, Field } from 'payload'
 
 import { maxWords, marketingHref } from './fields'
 import { FEATURE_ICONS } from './icons'
+import { homeBlocks } from './homeBlocks'
 import { marketingRichText } from './richText'
 
 /**
@@ -298,4 +299,11 @@ const featureCards: Block = {
   ],
 }
 
-export const marketingBlocks: Block[] = [sectionHeader, richText, media, featureCards, ctaBand]
+export const marketingBlocks: Block[] = [
+  sectionHeader,
+  richText,
+  media,
+  featureCards,
+  ctaBand,
+  ...homeBlocks,
+]

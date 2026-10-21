@@ -25,6 +25,7 @@ export const MarketingPages: CollectionConfig = {
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', '_status', 'updatedAt'],
     hidden: hiddenFromEditors,
+    components: { beforeListTable: ['/marketing/admin/StarterPagesButton#StarterPagesButton'] },
     // The page as you type, beside the form (src/app/(marketing)/marketing/dev/preview), on the
     // admin's own address where the super-admin is signed in. Same sizes as club pages.
     livePreview: {

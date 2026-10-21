@@ -19,6 +19,12 @@ Seeded 2026-10-21 from the hand-off's list. **Doc 18's rows are still to add** (
 | Stored in London | Trust | Needs Neon, Vercel functions (`lhr1`) and R2 all set to London/UK (N6) | ⏳ | — | Dan | Each infrastructure change |
 | Pages keep drafts until published | Website builder | Club pages have drafts with autosave (`src/collections/Pages.ts`) | ✅ | `tests/int/page-drafts.int.spec.ts` | Claude | — |
 | Price £149 a month + VAT, 12-month minimum, then 90 days' notice | Pricing, FAQ | Dan's decision, 21 Oct (hand-off §3); VAT wording waits on Q2 | ✅ (Q2 pending) | Shown only from `marketingSettings` | Dan | Each price change |
+| Update in minutes (home hero) | Home | Editing a block and publishing is a few fields and a button; not timed yet | ❓ time a real edit (e.g. green fees) and record it | — | Dan | Before launch |
+| No setup fee (home proof line) | Home, Pricing | Pricing decision; not yet in the hand-off's list | ❓ Dan to confirm | — | Dan | Each price change |
+| Homepage rebuilt free in two working days | Home, Switching | Manual service, decided (hand-off §3); the date shown skips weekends and bank holidays (phase 5) | ✅ | Phase 5 form tests | Dan | — |
+| Tee-time booking is coming next | Home, nav | Bookings is out of scope for v1; shown with the Coming next clock | ✅ | Nav test checks the clock | Claude | Each release |
+| AI copies your pages, news, photos and PDFs | Home, Switching | Switching service decided (hand-off §3) | ✅ (service, not software) | — | Dan | — |
+| Week moments: course status, news, green fees, hole guide are live blocks | Home | `courseStatus`, `newsFeed`, `rateTable`, `holeGrid` blocks exist and are tested | ✅ | Block integration tests | Claude | — |
 
 ## Researched proof stats
 

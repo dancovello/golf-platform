@@ -430,3 +430,26 @@ Built from the Figma "Marketing · Controls" section (219:8340) and its neighbou
   - On desktop the hero switches club as you scroll past (about a viewport each).
   - With reduced motion or on phones it stays on Ashgrove Park until a chip is chosen.
   - The chips work by keyboard and keep focus when the club changes.
+
+## 2026-10-21: Marketing home page (plan phase 4)
+
+Built from Figma "Home — Desktop" (176:2178) and "Home — Mobile" (273:8954). Each section is a bespoke marketing block, editable in the CMS (hand-off §5). One migration adds their tables only.
+
+- **Home hero:** headline, body, two buttons and a proof line, with the Tenant Morph below.
+  - The proof line's price comes from the settings (`{price}`), and the editor refuses typed prices.
+  - On phones the morph shows no browser bar, as in the mobile frame.
+- **Proof stats and Good vs poor:** the researched stats, with the hand-off's exact sources, and the two panels with footnotes.
+- **Edit and live:** the real Hero block, laid out about 900px wide and scaled into the card.
+  - Visitors can type the headline and eyebrow and flip the switch, and the hero follows. Nothing is saved.
+  - Figma calls it a static pair; the hand-off asks for it to be interactive.
+- **A week at the club:**
+  - Four moments with previews of live blocks, in the demo club's style.
+  - On desktop they go upcoming → active → past as you scroll; phones get a swipeable row that keyboard users can scroll; reduced motion shows the final state.
+  - The previews are pictures of blocks, so they're inert and hidden from screen readers; the moment's title and text say what they show.
+- **Your content comes with you:** the example is shown on the demo club's address and labelled "Demo club".
+- **Founder card:** full width, from the settings.
+- **Starter content:**
+  - "Add the Figma pages (as drafts)", above Company website → Pages, adds the home page from the Figma copy (`src/marketing/starter/pages.ts`).
+  - It never touches a page whose address is already used.
+  - It's for the super-admin with their code entered, from the admin only.
+- **Differences from Figma** are listed as D2–D5 in `docs/marketing-site/open-questions.md`.
