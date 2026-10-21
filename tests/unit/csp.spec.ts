@@ -50,8 +50,23 @@ describe('content security policy', () => {
     expect(buildPolicy('site', 'n', { ...env, NODE_ENV: 'development' })).toContain("'unsafe-eval'")
   })
 
-  it('club sites are enforced; the admin reports only, for now', () => {
+  it('club sites and the marketing site are enforced; the admin reports only, for now', () => {
     expect(policyHeaderName('site')).toBe('Content-Security-Policy')
+    expect(policyHeaderName('marketing')).toBe('Content-Security-Policy')
     expect(policyHeaderName('admin')).toBe('Content-Security-Policy-Report-Only')
+  })
+
+  it('the marketing site gets the strict base without the club-only extras', () => {
+    const policy = buildPolicy('marketing', 'm1', env)
+    expect(directive(policy, 'script-src')).toBe("script-src 'self' 'nonce-m1' 'strict-dynamic'")
+    expect(directive(policy, 'frame-src')).toBe("frame-src 'self'")
+    expect(directive(policy, 'connect-src')).toBe("connect-src 'self'")
+    expect(policy).not.toContain('google')
+    expect(policy).not.toContain('openstreetmap')
+    expect(policy).not.toContain('challenges.cloudflare.com')
+    expect(policy).not.toContain('r2.cloudflarestorage.com')
+    // Pictures from the photo domain (the marketing Media block uses the same storage).
+    expect(directive(policy, 'img-src')).toContain('https://pub-123.r2.dev')
+    expect(directive(policy, 'frame-ancestors')).toBe("frame-ancestors 'self'")
   })
 })

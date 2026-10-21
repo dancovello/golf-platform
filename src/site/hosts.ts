@@ -37,11 +37,27 @@ export const isPlatformHost = (host: string, adminURL = process.env.ADMIN_URL): 
   return false
 }
 
+/**
+ * The company website's addresses (the marketing site), from MARKETING_HOSTS: comma-separated,
+ * main address first, e.g. "brandname.golf,www.brandname.golf". The others forward to the main
+ * one. Empty until the company domain exists; staging and previews show the marketing site on
+ * the platform's own address instead (src/proxy.ts).
+ */
+export const marketingHosts = (value = process.env.MARKETING_HOSTS): string[] =>
+  (value ?? '')
+    .split(',')
+    .map(normaliseHost)
+    .filter((host) => HOST.test(host))
+
+export const isMarketingHost = (host: string, value = process.env.MARKETING_HOSTS): boolean =>
+  marketingHosts(value).includes(host)
+
 /** Why an address can't be used for a club, or null if it can. */
 export const hostProblem = (host: string): string | null => {
   if (!HOST.test(host)) {
     return 'Enter a web address like "www.yourclub.co.uk" (letters, numbers, dashes and dots).'
   }
   if (isPlatformHost(host)) return 'This address belongs to the platform itself.'
+  if (isMarketingHost(host)) return "This address belongs to the company's own website."
   return null
 }
