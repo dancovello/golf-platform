@@ -3,6 +3,7 @@ import type { CollectionConfig } from 'payload'
 import { clubContentCreate, loggedIn } from '../access/roles'
 import { imageField } from '../blocks/shared'
 import { linkField } from '../fields/link'
+import { eventLivePreview } from '../site/livePreview'
 import { checkEventSameClub } from '../site/sameClub'
 import { EVENT_CATEGORIES } from './eventCategories'
 import { clubBannerField } from '../tenancy'
@@ -18,6 +19,8 @@ export const Events: CollectionConfig = {
     group: 'Website',
     useAsTitle: 'title',
     defaultColumns: ['title', 'startsAt', 'category', 'status'],
+    // The eye button: how it looks on the website, reloaded on each save.
+    livePreview: eventLivePreview,
   },
   access: { create: clubContentCreate, read: loggedIn, update: loggedIn, delete: loggedIn },
   hooks: { beforeValidate: [checkEventSameClub], ...searchHooks },

@@ -164,17 +164,30 @@ export const featuredEvent = async (tenantID: string): Promise<SiteEvent | null>
   return (await toEvents(tenantID, docs as EventDoc[]))[0] ?? null
 }
 
-/** The archive: upcoming events in one category (or all), the first `show` of them. */
+/**
+ * The archive: upcoming events in one category (or all), the first `show` of them.
+ * `include`: one more of the club's events shown whatever its status or date, for the admin's
+ * live preview (the caller checks who may see it: src/site/livePreviewAccess.ts).
+ */
 export const eventsArchive = async (
   tenantID: string,
-  { category, show }: { category: string | null; show: number },
+  {
+    category,
+    show,
+    include = null,
+  }: { category: string | null; show: number; include?: string | null },
 ) => {
   const known = EVENT_CATEGORIES.some((c) => c.value === category) ? category : null
   const count = Math.min(Math.max(EVENTS_STEP, show), 200)
   const result = await find(upcoming(tenantID, known), count)
+  // The event being previewed comes first, so the editor always sees it.
+  const extra = include
+    ? (await find({ and: [{ tenant: { equals: tenantID } }, { id: { equals: include } }] }, 1)).docs
+    : []
+  const docs = [...extra, ...result.docs.filter((d) => !extra.some((e) => e.id === d.id))]
   return {
     category: known,
-    events: await toEvents(tenantID, result.docs as EventDoc[]),
+    events: await toEvents(tenantID, docs as EventDoc[]),
     total: result.totalDocs,
     show: count,
   }

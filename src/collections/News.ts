@@ -4,6 +4,7 @@ import { clubContentCreate, loggedIn } from '../access/roles'
 import { imageField } from '../blocks/shared'
 import { clubRichText } from '../blocks/richText/lexical'
 import { SLUG, SLUG_MESSAGE, slugify } from '../fields/slug'
+import { newsLivePreview } from '../site/livePreview'
 import { checkNewsSameClub } from '../site/sameClub'
 import { NEWS_CATEGORIES } from './newsCategories'
 import { clubBannerField } from '../tenancy'
@@ -27,6 +28,8 @@ export const News: CollectionConfig = {
     group: 'Website',
     useAsTitle: 'title',
     defaultColumns: ['title', 'category', 'status', 'publishedAt'],
+    // The eye button: how it looks on the website, reloaded on each save.
+    livePreview: newsLivePreview,
   },
   access: { create: clubContentCreate, read: loggedIn, update: loggedIn, delete: loggedIn },
   // An address only has to be unique within one club.
