@@ -2,11 +2,13 @@ import {
   ArrowRight,
   Check,
   ChevronRight,
+  Close,
   Clock,
   Download,
   FileIcon,
   Info,
   Mail,
+  Menu,
   Phone,
   Pin,
   Search,
@@ -38,11 +40,14 @@ const DRAWN = {
   info: Info,
   'arrow-right': ArrowRight,
   'chevron-right': ChevronRight,
+  menu: Menu,
+  close: Close,
 } as const
 
 const FILES = { calendar, flag, lock, players, sun, plus, minus } as const
 
-export type MarketingIconName = FeatureIcon | 'arrow-right' | 'chevron-right' | 'plus' | 'minus'
+export type MarketingIconName =
+  FeatureIcon | 'arrow-right' | 'chevron-right' | 'plus' | 'minus' | 'menu' | 'close'
 
 export const MarketingIcon = ({ name, size }: { name: MarketingIconName; size: number }) => {
   if (name in DRAWN) {

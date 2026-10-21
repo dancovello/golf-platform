@@ -25,6 +25,23 @@ export const MarketingPages: CollectionConfig = {
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', '_status', 'updatedAt'],
     hidden: hiddenFromEditors,
+    // The page as you type, beside the form (src/app/(marketing)/marketing/dev/preview), on the
+    // admin's own address where the super-admin is signed in. Same sizes as club pages.
+    livePreview: {
+      url: ({ data, req }) => {
+        const host = req.headers.get('x-forwarded-host') ?? req.headers.get('host')
+        const proto =
+          req.headers.get('x-forwarded-proto') ?? (host?.startsWith('localhost') ? 'http' : 'https')
+        const slug =
+          typeof data?.slug === 'string' && data.slug !== HOME_SLUG ? `/${data.slug}` : ''
+        return `${proto}://${host}/dev/preview${slug}`
+      },
+      breakpoints: [
+        { name: 'phone', label: 'Phone', width: 390, height: 844 },
+        { name: 'tablet', label: 'Tablet', width: 768, height: 1024 },
+        { name: 'desktop', label: 'Desktop', width: 1440, height: 900 },
+      ],
+    },
   },
   access: marketingAccess,
   // Drafts, saved as you type. Visitors only see the published version.

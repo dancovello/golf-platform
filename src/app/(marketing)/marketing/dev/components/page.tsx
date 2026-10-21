@@ -18,6 +18,8 @@ import {
   TenantChips,
 } from '@/marketing/site/controls/interactive'
 import { AvailabilityBadge, BrowserChrome, MarketingButton } from '@/marketing/site/parts'
+import { FounderCard } from '@/marketing/site/FounderCard'
+import { ProofStat } from '@/marketing/site/ProofStat'
 import { isSignedInSuperAdmin } from '@/marketing/superAdmin'
 
 export const dynamic = 'force-dynamic'
@@ -143,6 +145,20 @@ export default async function ComponentsReview() {
           <AvailabilityBadge status="coming-next" />
           <AvailabilityBadge status="live" size="small" />
           <AvailabilityBadge status="coming-next" size="small" />
+        </Row>
+        <Row name="Proof Stat" node="264:8700">
+          <div className="mk-review-wide">
+            <ProofStat
+              number="84%"
+              claim="of visiting golfers are highly likely to visit a club’s website before they visit."
+              source="Golfshake survey, reported by The Golf Business · 13 Jan 2022"
+            />
+          </div>
+        </Row>
+        <Row name="Founder Card" node="264:8707">
+          <div className="mk-review-wide">
+            <FounderCard />
+          </div>
         </Row>
         <Row name="Browser Chrome" node="176:1929">
           <div className="mk-review-wide">

@@ -26,3 +26,21 @@ export const publishedMarketingPage = async (path: string[]): Promise<MarketingP
   })
   return docs[0] ?? null
 }
+
+/**
+ * The latest version of a marketing page, drafts included, for the admin's live preview only
+ * (src/app/(marketing)/marketing/dev/preview). The caller checks the super-admin first.
+ */
+export const latestMarketingPage = async (path: string[]): Promise<MarketingPage | null> => {
+  if (path.length > 1 || path[0] === HOME_SLUG) return null
+  const payload = await getPayload({ config })
+  const { docs } = await payload.find({
+    collection: 'marketing-pages',
+    where: { slug: { equals: path[0] ?? HOME_SLUG } },
+    draft: true,
+    overrideAccess: true,
+    depth: 1,
+    limit: 1,
+  })
+  return docs[0] ?? null
+}

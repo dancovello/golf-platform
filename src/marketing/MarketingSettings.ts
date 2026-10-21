@@ -93,41 +93,62 @@ export const MarketingSettings: GlobalConfig = {
       ],
     },
     {
+      // Marketing/Founder Card (264:8707): photo, name, role, a one-sentence promise and a
+      // direct phone or calendar link. Defaults are the Figma wording.
       name: 'founder',
       label: 'Founder card',
       type: 'group',
       fields: [
         {
-          type: 'row',
-          fields: [
-            {
-              name: 'name',
-              label: 'Name',
-              type: 'text',
-              required: true,
-              defaultValue: 'Dan',
-              maxLength: 60,
-            },
-            { name: 'role', label: 'Role', type: 'text', maxLength: 80 },
-          ],
+          name: 'name',
+          label: 'Name',
+          type: 'text',
+          required: true,
+          defaultValue: 'Dan',
+          maxLength: 60,
+        },
+        {
+          name: 'role',
+          label: 'About you (one or two sentences)',
+          type: 'textarea',
+          maxLength: 300,
+          validate: maxWords(40),
+          defaultValue:
+            'Senior product designer with more than eight years delivering and scaling sports platforms. I designed every block, and I build and run this one from Cardiff.',
         },
         {
           name: 'message',
-          label: 'In your words (under 60 words)',
+          label: 'Your promise (one sentence)',
           type: 'textarea',
-          maxLength: 500,
-          validate: maxWords(60),
+          maxLength: 200,
+          validate: maxWords(25),
+          defaultValue: 'You’ll deal with me from the first call to launch day, and after it.',
         },
-        { name: 'photo', label: 'Photo (optional)', type: 'upload', relationTo: 'marketing-media' },
+        {
+          name: 'photo',
+          label: 'Photo (optional; your initial shows until then)',
+          type: 'upload',
+          relationTo: 'marketing-media',
+        },
         {
           type: 'row',
           fields: [
-            { name: 'phone', label: 'Phone (optional)', type: 'text', maxLength: 30 },
+            {
+              name: 'phone',
+              label: 'Phone (optional, shows “Call …”)',
+              type: 'text',
+              maxLength: 30,
+              validate: (value: unknown) =>
+                !value || (typeof value === 'string' && /^\+?[0-9 ()-]{6,30}$/.test(value))
+                  ? true
+                  : 'Digits, spaces and brackets only.',
+            },
             {
               name: 'calendarLink',
               label: 'Calendar link (optional)',
               type: 'text',
               maxLength: 300,
+              admin: { description: 'Without one, “Book a call” goes to the Book a demo page.' },
               validate: (value: unknown) =>
                 !value || (typeof value === 'string' && value.startsWith('https://'))
                   ? true
