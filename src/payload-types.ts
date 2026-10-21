@@ -1786,6 +1786,8 @@ export interface MarketingPage {
         | MarketingWeekBlock
         | MarketingContentMovesBlock
         | MarketingFounderBlock
+        | MarketingPricingBlock
+        | MarketingFaqBlock
       )[]
     | null;
   meta?: {
@@ -1813,7 +1815,7 @@ export interface MarketingSectionHeaderBlock {
    */
   title: string;
   /**
-   * One or two sentences that back the title up. Under thirty words.
+   * One or two sentences that back the title up. Under thirty words. Use {price}, {vat}, {term} (months) and {notice} (days) for values from Settings, so they always match.
    */
   subhead?: string | null;
   align: 'left' | 'center';
@@ -1976,6 +1978,9 @@ export interface MarketingFeatureCardsBlock {
  */
 export interface MarketingCtaBandBlock {
   title: string;
+  /**
+   * Use {price}, {vat}, {term} (months) and {notice} (days) for values from Settings, so they always match.
+   */
   subhead?: string | null;
   primary?: {
     label?: string | null;
@@ -2143,6 +2148,57 @@ export interface MarketingFounderBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'mkFounder';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingPricingBlock".
+ */
+export interface MarketingPricingBlock {
+  title: string;
+  /**
+   * Use {price}, {vat}, {term} (months) and {notice} (days) for values from Settings, so they always match.
+   */
+  terms?: string | null;
+  coursesText?: string | null;
+  comingNext?:
+    | {
+        title: string;
+        body: string;
+        id?: string | null;
+      }[]
+    | null;
+  included?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Use {price}, {vat}, {term} (months) and {notice} (days) for values from Settings, so they always match.
+   */
+  footnote?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkPricing';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingFaqBlock".
+ */
+export interface MarketingFaqBlock {
+  title: string;
+  body?: string | null;
+  /**
+   * Answer yes or no first where you can. Use {price}, {vat}, {term} (months) and {notice} (days) for values from Settings, so they always match.
+   */
+  items: {
+    question: string;
+    answer: string;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkFaq';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3425,6 +3481,8 @@ export interface MarketingPagesSelect<T extends boolean = true> {
         mkWeek?: T | MarketingWeekBlockSelect<T>;
         mkContentMoves?: T | MarketingContentMovesBlockSelect<T>;
         mkFounder?: T | MarketingFounderBlockSelect<T>;
+        mkPricing?: T | MarketingPricingBlockSelect<T>;
+        mkFaq?: T | MarketingFaqBlockSelect<T>;
       };
   meta?:
     | T
@@ -3648,6 +3706,48 @@ export interface MarketingContentMovesBlockSelect<T extends boolean = true> {
  * via the `definition` "MarketingFounderBlock_select".
  */
 export interface MarketingFounderBlockSelect<T extends boolean = true> {
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingPricingBlock_select".
+ */
+export interface MarketingPricingBlockSelect<T extends boolean = true> {
+  title?: T;
+  terms?: T;
+  coursesText?: T;
+  comingNext?:
+    | T
+    | {
+        title?: T;
+        body?: T;
+        id?: T;
+      };
+  included?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  footnote?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingFaqBlock_select".
+ */
+export interface MarketingFaqBlockSelect<T extends boolean = true> {
+  title?: T;
+  body?: T;
+  items?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
   id?: T;
   blockName?: T;
 }

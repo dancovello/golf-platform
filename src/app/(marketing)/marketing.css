@@ -216,10 +216,13 @@
 .mk-header-body {
   max-width: 560px;
 }
-.mk-header--center {
-  align-items: center;
-  margin-inline: auto;
-  text-align: center;
+/* Centred from tablet up; phones keep every header left-aligned (274:9199, 297:9617). */
+@media (min-width: 768px) {
+  .mk-header--center {
+    align-items: center;
+    margin-inline: auto;
+    text-align: center;
+  }
 }
 /* Phones: a section header's body sits 8px under its title (274:9281). */
 @media (max-width: 1023px) {
@@ -2497,5 +2500,397 @@ button.mk-button {
   .mk-morph-frame[data-active='true'] {
     transition: none;
     animation: none;
+  }
+}
+
+/* ======== Pricing (Figma "Pricing — Desktop" 185:3821, "Pricing — Mobile" 274:9185) ======== */
+
+/* The intro section: 112px top, 96px bottom, 48px from header to calculator (desktop). */
+@media (min-width: 1024px) {
+  main > .mk-section[data-kind='mkPricing']:first-child {
+    padding: 112px 0 96px;
+  }
+}
+.mk-stack > .mk-header + .mk-calc {
+  margin-top: 48px;
+}
+
+/* Section Header, Compact (beside content in two columns; 210:7942). */
+.mk-header--compact {
+  gap: 16px;
+}
+.mk-header--compact .mk-header-title {
+  margin: 0;
+  font-family: var(--mk-font-display), Georgia, serif;
+  font-weight: 400;
+  font-size: 32px;
+  line-height: 36px;
+  letter-spacing: -0.384px;
+  white-space: pre-line;
+}
+.mk-header--compact .mk-header-body {
+  font-size: 16px;
+  letter-spacing: -0.016px;
+}
+@media (min-width: 1024px) {
+  .mk-header--compact .mk-header-title {
+    font-size: 44px;
+    line-height: 1.1;
+    letter-spacing: -0.528px;
+  }
+}
+
+/* ---- Marketing/Pricing Calculator (185:3775) ---- */
+
+/* Phones (274:9203): one card, in the order total, terms, courses, coming next, included,
+ * button, small print. The two desktop panels are unwrapped and their parts ordered. */
+.mk-calc {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px;
+  border: 1px solid var(--mk-border-hairline);
+  border-radius: var(--mk-radius-panel);
+  background: var(--mk-surface-raised);
+}
+.mk-calc-build,
+.mk-calc-total {
+  display: contents;
+}
+.mk-calc-label {
+  order: 1;
+}
+.mk-calc-price {
+  order: 2;
+}
+.mk-calc-top {
+  order: 3;
+}
+.mk-calc-build > .mk-calc-row {
+  order: 4;
+}
+.mk-calc-next {
+  order: 5;
+}
+.mk-calc-included {
+  order: 6;
+}
+.mk-calc-total > .mk-button {
+  order: 7;
+}
+.mk-calc-footnote {
+  order: 8;
+}
+.mk-calc-breakdown {
+  display: none;
+}
+.mk-calc-top {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--mk-border-hairline);
+}
+.mk-calc-title {
+  display: none;
+  margin: 0;
+  font-family: var(--mk-font-display), Georgia, serif;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.168px;
+}
+.mk-calc-terms,
+.mk-calc-body,
+.mk-calc-later,
+.mk-calc-label,
+.mk-calc-footnote {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mk-text-tertiary);
+}
+.mk-calc-label {
+  color: var(--mk-text-secondary);
+}
+.mk-calc-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+@media (max-width: 1023px) {
+  .mk-calc-build > .mk-calc-row {
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--mk-border-hairline);
+  }
+}
+.mk-calc-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.mk-calc-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.015px;
+  color: var(--mk-text-primary);
+}
+.mk-calc-next {
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--mk-border-hairline);
+}
+.mk-calc-next-heading {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mk-text-secondary);
+}
+.mk-calc-row--next {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 16px 0 0;
+  border-top: 0;
+}
+.mk-calc-badge-desktop {
+  display: none;
+}
+/* The stepper: −, count, + in a tinted box. */
+.mk-stepper {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  border: 1px solid var(--mk-border-strong);
+  border-radius: var(--mk-radius-control);
+  background: var(--mk-surface-tint);
+}
+.mk-stepper button,
+.mk-stepper output {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 36px;
+  border: 0;
+  background: none;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.015px;
+  font-variant-numeric: tabular-nums;
+  color: var(--mk-text-primary);
+}
+.mk-stepper button {
+  color: var(--mk-text-secondary);
+  cursor: pointer;
+}
+.mk-stepper button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+@media (hover: hover) and (pointer: fine) {
+  .mk-stepper button:hover:not(:disabled) {
+    color: var(--mk-text-primary);
+  }
+}
+
+.mk-calc-price {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 0;
+}
+.mk-calc-amount {
+  font-family: var(--mk-font-display), Georgia, serif;
+  font-size: 60px;
+  line-height: 1.05;
+  letter-spacing: -1.08px;
+  color: var(--mk-text-primary);
+}
+.mk-calc-per {
+  font-size: 16px;
+  line-height: 1.55;
+  letter-spacing: -0.016px;
+  color: var(--mk-text-secondary);
+}
+.mk-calc-breakdown {
+  margin: 0;
+}
+.mk-calc-breakdown div {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-top: 1px solid var(--mk-border-hairline);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.mk-calc-breakdown dt {
+  color: var(--mk-text-secondary);
+}
+.mk-calc-breakdown dd {
+  margin: 0;
+  color: var(--mk-text-primary);
+}
+.mk-calc-included {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.mk-calc-included li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  line-height: 1.55;
+  letter-spacing: -0.016px;
+  color: var(--mk-text-secondary);
+}
+.mk-calc-included svg {
+  flex-shrink: 0;
+  color: var(--mk-signal-live);
+}
+.mk-calc-total .mk-button {
+  width: 100%;
+  height: 44px;
+}
+@media (min-width: 1024px) {
+  .mk-calc {
+    flex-direction: row;
+    gap: 24px;
+    padding: 0;
+    border: 0;
+    background: none;
+  }
+  .mk-calc-label,
+  .mk-calc-price,
+  .mk-calc-top,
+  .mk-calc-build > .mk-calc-row,
+  .mk-calc-next,
+  .mk-calc-included,
+  .mk-calc-total > .mk-button,
+  .mk-calc-footnote {
+    order: 0;
+  }
+  .mk-calc-breakdown {
+    display: block;
+  }
+  .mk-calc-build {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 40px 40px 16px;
+    border: 1px solid var(--mk-border-hairline);
+    border-radius: var(--mk-radius-panel);
+    background: var(--mk-surface-raised);
+  }
+  .mk-calc-top {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 24px;
+  }
+  .mk-calc-title {
+    display: block;
+  }
+  .mk-calc-top {
+    border-bottom: 0;
+  }
+  .mk-calc-row {
+    padding: 20px 0;
+    border-top: 1px solid var(--mk-border-hairline);
+  }
+  .mk-calc-next {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+  .mk-calc-next-heading,
+  .mk-calc-badge-phone {
+    display: none;
+  }
+  .mk-calc-row--next {
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 0;
+    border-top: 1px solid var(--mk-border-hairline);
+  }
+  /* Figma dims the whole text to 72%; only the name is dimmed, so the description keeps
+     AA contrast (design note D6). */
+  .mk-calc-row--next .mk-calc-name {
+    opacity: 0.72;
+  }
+  .mk-calc-badge-desktop {
+    display: inline-flex;
+  }
+  .mk-calc-total {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex: 0 0 400px;
+    padding: 40px;
+    border: 1px solid var(--mk-border-hairline);
+    border-radius: var(--mk-radius-panel);
+    background: var(--mk-surface-elevated);
+  }
+  .mk-calc-total .mk-button {
+    height: 36px;
+  }
+}
+
+/* Rolling digits. */
+.mk-roll-digits {
+  display: inline-flex;
+  font-variant-numeric: tabular-nums;
+}
+.mk-roll-digit {
+  display: inline-block;
+  height: 1em;
+  overflow: hidden;
+  line-height: 1;
+}
+.mk-roll-strip {
+  display: flex;
+  flex-direction: column;
+  transition: transform 400ms var(--mk-ease-move);
+}
+.mk-roll-strip > span {
+  height: 1em;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mk-roll-strip {
+    transition: none;
+  }
+}
+
+/* ---- Committee questions (185:3944): header column beside the FAQ ---- */
+
+.mk-faq-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+@media (min-width: 1024px) {
+  .mk-faq-section {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 80px;
+  }
+  .mk-faq-section .mk-header {
+    flex: 0 0 400px;
+  }
+  .mk-faq-list {
+    flex: 1;
+    min-width: 0;
   }
 }

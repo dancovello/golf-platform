@@ -39,3 +39,11 @@ Used exactly as written, with the footnote (hand-off §9).
 | 53% of mobile visits are abandoned if a page takes over 3 seconds | Google, The Need for Mobile Speed, 2016 | ✅ |
 
 Retired, never use: the top-100 audit stat (26 of 93), and "0 of 4 providers publish prices".
+| Hosting, security and backups included | Pricing | Nightly encrypted backups (`.github/workflows/backup.yml`), restore drill (`docs/operations/restore-runbook.md`) | ✅ | Backup workflow runs nightly | Claude | Each infrastructure change |
+| Every live block, on every page | Pricing | No block is limited by plan or club (`src/blocks`) | ✅ | `tests/unit/access-guard.spec.ts` (no per-club gating) | Claude | When plans are added |
+| We move your old site across (included in the price) | Pricing | A service, not a feature: Claude builds each club's pages from their content (onboarding approach) | ❓ confirm it's included at £149 | — | Dan | Each pricing change |
+| {term}-month term, then rolling; {notice} days' notice | Pricing | Values from Settings; must match the contract terms (N4) | ❓ needs the terms | — | Dan | Each contract change |
+| Leaving: pages and news as Markdown, files as originals, form entries as CSV | Pricing (FAQ) | **No self-service export exists** (N10). Possible as a manual export by us | ⏳ wording kept, delivered by hand until an export is built | — | Dan | Before Pricing ships |
+| We follow UK GDPR; DPA sent before signing | Pricing (FAQ) | Privacy policy for club sites exists (`src/site/privacy/policy.ts`). **No data processing agreement document yet** | ❓ needs the DPA | — | Dan | Before Pricing ships |
+| Your club email stays where it is | Pricing (FAQ) | The platform only serves the website; it never hosts or changes email (MX) records | ✅ | — | Claude | If email hosting is ever added |
+| What moves across: public pages, news, PDFs and photos | Pricing (FAQ) | Manual onboarding service (Claude builds pages from the club's content) | ✅ (process) | — | Dan | — |

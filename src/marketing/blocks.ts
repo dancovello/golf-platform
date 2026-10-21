@@ -1,9 +1,16 @@
 import type { Block, Field } from 'payload'
 
-import { maxWords, marketingHref } from './fields'
+import { marketingHref, maxWords, noTypedPrices, TOKEN_HELP } from './fields'
 import { FEATURE_ICONS } from './icons'
 import { homeBlocks } from './homeBlocks'
+import { pricingBlocks } from './pricingBlocks'
 import { marketingRichText } from './richText'
+
+/** Short body copy: under thirty words, and prices only as {price}. */
+const shortBody = (value: unknown) => {
+  const prices = noTypedPrices(value)
+  return prices === true ? maxWords(30)(value, {} as never) : prices
+}
 
 /**
  * The marketing site's CMS blocks, built from the Figma section "Marketing · Blocks (CMS)"
@@ -78,8 +85,10 @@ const sectionHeader: Block = {
       label: 'Body (optional)',
       type: 'textarea',
       maxLength: 240,
-      validate: maxWords(30),
-      admin: { description: 'One or two sentences that back the title up. Under thirty words.' },
+      validate: shortBody,
+      admin: {
+        description: `One or two sentences that back the title up. Under thirty words. ${TOKEN_HELP}`,
+      },
     },
     {
       name: 'align',
@@ -117,7 +126,8 @@ const ctaBand: Block = {
       label: 'Body (optional)',
       type: 'textarea',
       maxLength: 240,
-      validate: maxWords(30),
+      validate: shortBody,
+      admin: { description: TOKEN_HELP },
     },
     button('primary', 'Main button', { label: 'Book a demo', href: '/book-a-demo' }),
     button(
@@ -306,4 +316,5 @@ export const marketingBlocks: Block[] = [
   featureCards,
   ctaBand,
   ...homeBlocks,
+  ...pricingBlocks,
 ]
