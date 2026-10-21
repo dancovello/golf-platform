@@ -68,6 +68,8 @@ export const Pages: CollectionConfig = {
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'parent', '_status', 'updatedAt'],
     livePreview: pageLivePreview,
+    // The club's pages as a tree, above the list (src/admin/PageTree.tsx).
+    components: { beforeListTable: ['/admin/PageTree#PageTree'] },
   },
   // Drafts, saved automatically as you type so the live preview keeps up. Visitors only see
   // the published version (src/site/published.ts). The history keeps the last 50 versions.

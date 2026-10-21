@@ -296,3 +296,9 @@ Recorded afterwards from PRs #106, #108, #109 and #112–#116.
 
 - **Club Settings have the same live preview as pages** (the eye button): the club's home page beside the form, with Phone, Tablet and Desktop sizes. It **reloads each time the settings are saved** (Dan chose refresh-on-save over drafts, 2026-10-20). Settings have no drafts, so the preview shows what visitors see straight after saving.
 - Uses the same preview address and rules as pages (`/preview/<club>?live=1` on the admin's own address), so on production it works only for that club's signed-in editors and the super-admin.
+
+## 2026-10-21: Page tree (plan part E, third item)
+
+- **Above the Pages list, the club's pages as a tree** (`src/admin/PageTree.tsx`): each page under its parent page, in the order drop-downs use (home first, then position number, then A–Z), with its address and status: Published; Published, with unpublished changes; or Draft (visitors can't see it). Pages left out of drop-downs are marked. It can be folded away.
+- **Read-only.** Pages are moved by opening them and changing "Parent page" (drag-and-drop ordering in Payload is still experimental).
+- Built only from the club's own pages; a parent that isn't one of them puts the page at the top level. The super-admin sees it for the club picked in the club selector.
