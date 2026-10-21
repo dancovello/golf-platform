@@ -82,6 +82,7 @@ export interface Config {
     tenants: Tenant;
     'marketing-pages': MarketingPage;
     'marketing-media': MarketingMedia;
+    'homepage-requests': HomepageRequest;
     'totp-attempts': TotpAttempt;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
@@ -105,6 +106,7 @@ export interface Config {
     tenants: TenantsSelect<false> | TenantsSelect<true>;
     'marketing-pages': MarketingPagesSelect<false> | MarketingPagesSelect<true>;
     'marketing-media': MarketingMediaSelect<false> | MarketingMediaSelect<true>;
+    'homepage-requests': HomepageRequestsSelect<false> | HomepageRequestsSelect<true>;
     'totp-attempts': TotpAttemptsSelect<false> | TotpAttemptsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
@@ -1788,6 +1790,9 @@ export interface MarketingPage {
         | MarketingFounderBlock
         | MarketingPricingBlock
         | MarketingFaqBlock
+        | MarketingRequestHeroBlock
+        | MarketingDemoExampleBlock
+        | MarketingMigrationBlock
       )[]
     | null;
   meta?: {
@@ -2199,6 +2204,87 @@ export interface MarketingFaqBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'mkFaq';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingRequestHeroBlock".
+ */
+export interface MarketingRequestHeroBlock {
+  eyebrow?: string | null;
+  /**
+   * The page’s main heading. Under eight words. Line breaks are kept.
+   */
+  title: string;
+  subhead?: string | null;
+  points?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * The fields are fixed: club name, current website and email. The date in the reply is two UK working days away, worked out when they send it.
+   */
+  form: {
+    title: string;
+    intro?: string | null;
+    button: string;
+    footnote?: string | null;
+    sentTitle: string;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkRequestHero';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingDemoExampleBlock".
+ */
+export interface MarketingDemoExampleBlock {
+  eyebrow?: string | null;
+  caption: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkDemoExample';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingMigrationBlock".
+ */
+export interface MarketingMigrationBlock {
+  weeks?:
+    | {
+        label: string;
+        title: string;
+        body: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkMigration';
+}
+/**
+ * Clubs asking for their free homepage (Switching page). Each one was promised it by the date shown.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "homepage-requests".
+ */
+export interface HomepageRequest {
+  id: string;
+  status: 'new' | 'sent' | 'closed';
+  /**
+   * Two UK working days after the request, as the form told them.
+   */
+  dueBy: string;
+  clubName: string;
+  website: string;
+  email: string;
+  alertSentAt?: string | null;
+  confirmationSentAt?: string | null;
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3483,6 +3569,9 @@ export interface MarketingPagesSelect<T extends boolean = true> {
         mkFounder?: T | MarketingFounderBlockSelect<T>;
         mkPricing?: T | MarketingPricingBlockSelect<T>;
         mkFaq?: T | MarketingFaqBlockSelect<T>;
+        mkRequestHero?: T | MarketingRequestHeroBlockSelect<T>;
+        mkDemoExample?: T | MarketingDemoExampleBlockSelect<T>;
+        mkMigration?: T | MarketingMigrationBlockSelect<T>;
       };
   meta?:
     | T
@@ -3753,6 +3842,58 @@ export interface MarketingFaqBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingRequestHeroBlock_select".
+ */
+export interface MarketingRequestHeroBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  subhead?: T;
+  points?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  form?:
+    | T
+    | {
+        title?: T;
+        intro?: T;
+        button?: T;
+        footnote?: T;
+        sentTitle?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingDemoExampleBlock_select".
+ */
+export interface MarketingDemoExampleBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  caption?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingMigrationBlock_select".
+ */
+export interface MarketingMigrationBlockSelect<T extends boolean = true> {
+  weeks?:
+    | T
+    | {
+        label?: T;
+        title?: T;
+        body?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "marketing-media_select".
  */
 export interface MarketingMediaSelect<T extends boolean = true> {
@@ -3824,6 +3965,22 @@ export interface MarketingMediaSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "homepage-requests_select".
+ */
+export interface HomepageRequestsSelect<T extends boolean = true> {
+  status?: T;
+  dueBy?: T;
+  clubName?: T;
+  website?: T;
+  email?: T;
+  alertSentAt?: T;
+  confirmationSentAt?: T;
+  notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3913,6 +4070,15 @@ export interface MarketingSetting {
      */
     secondCoursePrice?: number | null;
   };
+  /**
+   * Where requests from the website are emailed. Without an address they are still saved under Homepage requests.
+   */
+  requests?: {
+    /**
+     * Replying to a request’s email answers the club directly.
+     */
+    inbox?: string | null;
+  };
   trust?: {
     /**
      * Empty: the claim isn’t shown. Only fill in once the Neon plan gives it (Q6).
@@ -3946,6 +4112,11 @@ export interface MarketingSettingsSelect<T extends boolean = true> {
         minimumTermMonths?: T;
         noticeDays?: T;
         secondCoursePrice?: T;
+      };
+  requests?:
+    | T
+    | {
+        inbox?: T;
       };
   trust?:
     | T

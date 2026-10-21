@@ -49,6 +49,7 @@ import * as migration_20261021_160708_marketing_blocks_from_figma from './202610
 import * as migration_20261021_163953_marketing_founder_card from './20261021_163953_marketing_founder_card';
 import * as migration_20261021_170032_marketing_home_blocks from './20261021_170032_marketing_home_blocks';
 import * as migration_20261021_171424_marketing_pricing_blocks from './20261021_171424_marketing_pricing_blocks';
+import * as migration_20261021_173753_marketing_switching from './20261021_173753_marketing_switching';
 
 export const migrations = [
   {
@@ -304,6 +305,11 @@ export const migrations = [
   {
     up: migration_20261021_171424_marketing_pricing_blocks.up,
     down: migration_20261021_171424_marketing_pricing_blocks.down,
-    name: '20261021_171424_marketing_pricing_blocks'
+    name: '20261021_171424_marketing_pricing_blocks',
+  },
+  {
+    up: migration_20261021_173753_marketing_switching.up,
+    down: migration_20261021_173753_marketing_switching.down,
+    name: '20261021_173753_marketing_switching'
   },
 ];

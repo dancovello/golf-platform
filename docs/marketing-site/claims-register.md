@@ -47,3 +47,9 @@ Retired, never use: the top-100 audit stat (26 of 93), and "0 of 4 providers pub
 | We follow UK GDPR; DPA sent before signing | Pricing (FAQ) | Privacy policy for club sites exists (`src/site/privacy/policy.ts`). **No data processing agreement document yet** | ❓ needs the DPA | — | Dan | Before Pricing ships |
 | Your club email stays where it is | Pricing (FAQ) | The platform only serves the website; it never hosts or changes email (MX) records | ✅ | — | Claude | If email hosting is ever added |
 | What moves across: public pages, news, PDFs and photos | Pricing (FAQ) | Manual onboarding service (Claude builds pages from the club's content) | ✅ (process) | — | Dan | — |
+| Your homepage in your inbox within two working days | Switching | A service: requests are saved with the promised date (`homepage-requests`, two UK working days) and emailed to the requests inbox | ❓ confirm you can keep this promise | `tests/unit/working-days.spec.ts`, `tests/int/homepage-requests.int.spec.ts` | Dan | Before Switching ships |
+| Nothing on your live site changes | Switching | We build from a copy; the platform never touches a club's old site | ✅ | — | Claude | — |
+| Four weeks, start to finish | Switching | Onboarding process (Gather, Shape, Review, Launch) | ❓ confirm the timescale | — | Dan | Each onboarding |
+| We flag PDFs screen readers can't read; accessible versions on request | Switching (FAQ) | A service promise, done by hand | ❓ confirm you'll offer this | — | Dan | Before Switching ships |
+| We switch over on a quiet weekday morning and check the site straight after | Switching (FAQ) | Process (domain routing, `/health` check) | ✅ (process) | — | Dan | — |
+| We keep your page titles | Switching (FAQ) | Pages are rebuilt from the club's content with their titles | ✅ (process) | — | Dan | — |

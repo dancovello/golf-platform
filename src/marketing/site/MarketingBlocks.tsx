@@ -12,6 +12,7 @@ import { MarketingIcon } from './MarketingIcon'
 import { Faq, Filled, Pricing } from './pricing/PricingBlocks'
 import { MarketingRichText } from './MarketingRichText'
 import { AvailabilityBadge, BrowserChrome, MarketingButton, marketingPhoto } from './parts'
+import { DemoExample, Migration, RequestHero } from './switching/SwitchingBlocks'
 
 type Block = NonNullable<MarketingPage['layout']>[number]
 type Header = Extract<Block, { blockType: 'mkSectionHeader' }>
@@ -30,6 +31,7 @@ const toSections = (blocks: Block[]): Block[][] => {
       block.blockType === 'mkSectionHeader' ||
       block.blockType === 'mkCtaBand' ||
       block.blockType === 'mkHomeHero' ||
+      block.blockType === 'mkRequestHero' ||
       block.blockType === 'mkFounder' ||
       // Questions carry their own compact header and sit in their own section (185:3944).
       block.blockType === 'mkFaq' ||
@@ -204,6 +206,12 @@ const drawBlock = (block: Block, isFirstHeader: boolean): ReactNode => {
       return <Pricing block={block} />
     case 'mkFaq':
       return <Faq block={block} />
+    case 'mkRequestHero':
+      return <RequestHero block={block} />
+    case 'mkDemoExample':
+      return <DemoExample block={block} />
+    case 'mkMigration':
+      return <Migration block={block} />
     default:
       return null
   }
@@ -216,11 +224,12 @@ const kindOf = (section: Block[]) =>
 
 /** Draws a marketing page's sections: 1200px container, hairline between sections. */
 export const MarketingBlocks = ({ blocks }: { blocks: Block[] }) => {
-  // The page's one H1: the home hero if there is one, otherwise the first Section Header.
-  const hasHomeHero = blocks.some((b) => b.blockType === 'mkHomeHero')
-  const firstHeader = hasHomeHero
-    ? undefined
-    : blocks.find((b) => b.blockType === 'mkSectionHeader')
+  // The page's one H1: the home hero or the Switching intro if there is one, otherwise the
+  // first Section Header.
+  const hasOwnH1 = blocks.some(
+    (b) => b.blockType === 'mkHomeHero' || b.blockType === 'mkRequestHero',
+  )
+  const firstHeader = hasOwnH1 ? undefined : blocks.find((b) => b.blockType === 'mkSectionHeader')
   return (
     <>
       {toSections(blocks).map((section, i) => (

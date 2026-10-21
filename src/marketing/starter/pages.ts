@@ -275,7 +275,153 @@ const pricing: StarterPage = {
   ],
 }
 
-export const STARTER_PAGES: StarterPage[] = [home, pricing]
+// Switching to us (Figma "Switching — Desktop" 186:6494, "Switching — Mobile" 300:9636). Lines
+// that would promise old page addresses forward are held back until question N7 is answered.
+const switching: StarterPage = {
+  slug: 'switching',
+  title: 'Switching to us',
+  description:
+    'Send us your club’s website and we’ll rebuild your homepage on our platform, free, within two working days. Then four weeks from first call to live site.',
+  layout: [
+    {
+      blockType: 'mkRequestHero',
+      eyebrow: 'Free homepage',
+      title: 'We’ll show you\nwhat we can do.',
+      subhead:
+        'Tell us your club and your current website. We’ll rebuild your homepage on our platform and send it straight to you, free.',
+      points: [
+        { text: 'Your logo, colours and photos, on our blocks' },
+        { text: 'In your inbox within two working days' },
+        { text: 'No call needed, and no commitment' },
+      ],
+      form: {
+        title: 'Your club',
+        button: 'Rebuild my homepage',
+        footnote: 'We build it from your current site. Nothing on your live site changes.',
+        sentTitle: 'On its way.',
+      },
+    },
+    {
+      blockType: 'mkDemoExample',
+      eyebrow: 'Example',
+      caption: 'A demo club rebuilt on our blocks. Same domain, same club, new site.',
+    },
+    {
+      blockType: 'mkSectionHeader',
+      eyebrow: 'Your content',
+      title: 'Your content\ncomes with you.',
+      subhead:
+        'We copy the pages, news, photos and documents from your current site, then build the new one with you. You start from your club, not a blank page.',
+      align: 'left',
+    },
+    {
+      blockType: 'mkContentMoves',
+      found: [
+        { label: 'Pages', count: '34' },
+        { label: 'News posts', count: '126' },
+        { label: 'Photos', count: '212' },
+        { label: 'Course and hole details', count: '18 holes' },
+        { label: 'PDFs and documents', count: '19' },
+      ],
+      built: [
+        { label: 'Hero · Heritage' },
+        { label: 'Course guide' },
+        { label: 'Green fees' },
+        { label: 'News' },
+        { label: 'Documents' },
+      ],
+      chip: 'Copied across with AI',
+      steps: [
+        {
+          title: 'We read your whole site',
+          body: 'AI copies your pages, news posts, photos and PDFs, so nobody has to retype a thing.',
+        },
+        {
+          title: 'We rebuild it in blocks',
+          body: 'Your content goes into the same blocks as our demo club, in your colours.',
+        },
+        {
+          title: 'You shape it with us',
+          body: 'We go through it together and change anything you want before it goes live.',
+        },
+      ],
+    },
+    {
+      blockType: 'mkSectionHeader',
+      eyebrow: 'The switch',
+      title: 'From first call to live site.',
+      subhead:
+        'Four weeks, start to finish. We do the heavy lifting, and your committee signs off before anything goes live.',
+      align: 'left',
+    },
+    {
+      blockType: 'mkMigration',
+      weeks: [
+        {
+          label: 'Week 1',
+          title: 'Gather',
+          body: 'We copy your pages, news, photos and documents across, and agree the list with you.',
+        },
+        {
+          label: 'Week 2',
+          title: 'Shape',
+          body: 'We set up your colours, courses and tee sheet link, and build each page in blocks.',
+        },
+        {
+          label: 'Week 3',
+          title: 'Review',
+          body: 'Your committee clicks around a private preview. We change whatever you ask.',
+        },
+        {
+          label: 'Week 4',
+          title: 'Launch',
+          // Figma: "…and redirect your old page addresses." Held back until N7 is answered.
+          body: 'We switch the domain over and check every page straight after.',
+        },
+      ],
+    },
+    {
+      blockType: 'mkFaq',
+      title: 'What happens to\nmy domain and emails?',
+      items: [
+        {
+          question: 'Do we keep our domain?',
+          answer: 'Yes. You keep owning it. We only change where the website part points.',
+        },
+        {
+          question: 'Will our club emails stop working?',
+          answer:
+            'No. Your club email stays exactly where it is. We only change where the website points.',
+        },
+        {
+          question: 'Will we lose our place on Google?',
+          // Figma promises redirects of old page addresses; held back until N7 is answered.
+          answer:
+            'Your domain stays the same and we keep your page titles, so search engines can follow you across. Nobody can honestly promise rankings, so we don’t.',
+        },
+        {
+          question: 'What about old PDFs and minutes?',
+          answer:
+            'They come with you. We flag any that screen readers can’t read, and can supply accessible versions on request.',
+        },
+        {
+          question: 'Will the site go down during the switch?',
+          answer:
+            'We switch over on a quiet weekday morning and check the site straight after, so any gap is short.',
+        },
+      ],
+    },
+    {
+      blockType: 'mkCtaBand',
+      title: 'Ready when your committee is.',
+      subhead: 'Start with a free homepage, or talk it through with us first.',
+      primary: { label: 'Book a demo', href: '/book-a-demo' },
+      secondary: { label: 'See pricing', href: '/pricing' },
+    },
+  ],
+}
+
+export const STARTER_PAGES: StarterPage[] = [home, pricing, switching]
 
 /** Adds each starter page as a draft unless its address is taken. Returns what happened. */
 export const addStarterPages = async (payload: Payload) => {

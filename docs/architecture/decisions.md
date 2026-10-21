@@ -453,3 +453,32 @@ Built from Figma "Home — Desktop" (176:2178) and "Home — Mobile" (273:8954).
   - It never touches a page whose address is already used.
   - It's for the super-admin with their code entered, from the admin only.
 - **Differences from Figma** are listed as D2–D5 in `docs/marketing-site/open-questions.md`.
+
+## 2026-10-21: Marketing Pricing page (plan phase 5.1)
+
+Built from Figma "Pricing — Desktop" (185:3821) and "Pricing — Mobile" (274:9185). Logged here with phase 5.2; the page itself is in PR #138.
+
+- **Every number comes from Settings.** Copy uses `{price}`, `{vat}`, `{term}` and `{notice}`, in Section Header and CTA band bodies and in the calculator. The editor refuses a typed price.
+- **The calculator** prices the website only. Modules that aren't live (tee-time bookings, members area, facilities booking) are dimmed rows with the Coming next badge and "Price confirmed at launch". The second course appears only once its price is set (Q3).
+- **Phones:** one calculator card, price first. Centred headers go left on phones on every page, as in all of Figma's phone frames.
+- **Questions** sit in their own section, with a compact header beside them on desktop.
+
+## 2026-10-21: Switching page and the free homepage form (plan phase 5.2)
+
+Built from Figma "Switching — Desktop" (186:6494) and "Switching — Mobile" (300:9636).
+
+- **The Homepage Request Form** (club name, current website, email) saves to **Company website → Homepage requests**, which only the super-admin can see. Nobody can create one through the admin or the API; only the form can.
+- **Spam protection**, the same as the club Contact form:
+  - a hidden spam trap;
+  - a signed time check, made only after the fields are checked, so a person who presses the button at once is told what to fill in;
+  - Cloudflare's "are you a person?" check (Turnstile), made for this form only;
+  - at most 20 requests an hour.
+  The marketing site's security policy now allows Turnstile.
+- **"We'll send your homepage by {date}":** two UK working days, skipping weekends and England & Wales bank holidays. The bank holidays are a saved copy of the GOV.UK list (to the end of 2028). A test fails a year before it runs out.
+- **Emails:**
+  - The request goes to the inbox set in Company website → Settings → Requests, with replies going to the club.
+  - The club gets a plain confirmation with the date. It leaves out the website they typed, so the form can't be used to send links to strangers.
+  - Without an inbox set, the request is still saved.
+- **Kept 12 months after the last contact** (decision F): the nightly clean-up deletes requests untouched for 12 months.
+- **The example under the form** is the demo club's real homepage hero, in place of Figma's deprecated URL Reskin (hand-off §6).
+- **Old page addresses (N7):** Figma's "redirect your old page addresses" lines are softened until N7 is answered.

@@ -19,7 +19,11 @@ export type TurnstileResult = 'ok' | 'failed' | 'unavailable'
  * once, for 5 minutes (the widget renews it while the page is open). The visitor's IP address
  * isn't sent: it's optional, and the platform keeps no visitor details.
  */
-export const verifyTurnstile = async (token: unknown): Promise<TurnstileResult> => {
+export const verifyTurnstile = async (
+  token: unknown,
+  /** The form the check was made for: the Contact form unless given. */
+  action: string = TURNSTILE_ACTION,
+): Promise<TurnstileResult> => {
   const secret = process.env.TURNSTILE_SECRET_KEY
   if (!secret) {
     // Staging and local: the check is optional. Production never takes messages without it:
@@ -49,7 +53,7 @@ export const verifyTurnstile = async (token: unknown): Promise<TurnstileResult> 
       return process.env.VERCEL_ENV === 'production' ? 'failed' : 'ok'
     }
     // The check must have been made for this form, not copied from another form or site.
-    return result.action === TURNSTILE_ACTION ? 'ok' : 'failed'
+    return result.action === action ? 'ok' : 'failed'
   } catch {
     return 'unavailable'
   }
