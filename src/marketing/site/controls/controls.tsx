@@ -35,12 +35,20 @@ export const IconButton = ({
   icon,
   label,
   disabled = false,
+  onClick,
 }: {
   icon: MarketingIconName
   label: string
   disabled?: boolean
+  onClick?: () => void
 }) => (
-  <button className="mk-icon-button" type="button" aria-label={label} disabled={disabled}>
+  <button
+    className="mk-icon-button"
+    type="button"
+    aria-label={label}
+    disabled={disabled}
+    onClick={onClick}
+  >
     <MarketingIcon name={icon} size={16} />
   </button>
 )

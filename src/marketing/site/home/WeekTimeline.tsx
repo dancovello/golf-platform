@@ -2,13 +2,16 @@
 
 import { type CSSProperties, useEffect, useRef, useState } from 'react'
 
+import type { PreviewData } from '@/marketing/demo/previews'
+
 import { AvailabilityBadge } from '../parts'
+import { PreviewCard } from './PreviewCard'
 
 type Moment = {
   time: string
   title: string
   body: string
-  preview: { title: string; status: string; when: string; rows: [string, string][] }
+  preview: PreviewData
 }
 
 /**
@@ -66,22 +69,7 @@ export const WeekTimeline = ({ moments, theme }: { moments: Moment[]; theme: CSS
               <p>{moment.body}</p>
             </div>
             {/* A picture of the club's live block; the title and text above carry the meaning. */}
-            <div className="club-theme mk-moment-preview" style={theme} inert aria-hidden="true">
-              <p className="mk-preview-title">{moment.preview.title}</p>
-              <p className="mk-preview-status">
-                <span className="mk-preview-dot" aria-hidden="true" />
-                <span>{moment.preview.status}</span>
-                <span className="mk-preview-when">{moment.preview.when}</span>
-              </p>
-              <dl>
-                {moment.preview.rows.map(([term, value]) => (
-                  <div key={term}>
-                    <dt>{term}</dt>
-                    <dd>{value}</dd>
-                  </div>
-                ))}
-              </dl>
-            </div>
+            <PreviewCard preview={moment.preview} theme={theme} />
           </li>
         ))}
       </ol>

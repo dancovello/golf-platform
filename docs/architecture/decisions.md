@@ -491,3 +491,18 @@ Built from Figma "Book a demo — Desktop" (187:7336) and "Book a demo — Mobil
 - **The Demo Booking component is built** (Details → Pick a time → Booked) and on the review page (`/dev/components`) with sample times. Nothing is booked there. It shows only weekdays with free times; arrow keys move through the days; the times are radios. Connecting a calendar means giving it real free times and a way to book. "Add to calendar" and "Reschedule" wait for the calendar, which provides both.
 - **Never says how long the call lasts** (hand-off §6); a test checks the page.
 - **No CTA band**: the page is the call to action. The founder card has the page's own line, and has no "Book a call" button that would only reload this page.
+
+## 2026-10-21: Website builder page (plan phase 6.1)
+
+Built from Figma "Website builder — Desktop" (183:3008). Figma has no phone frame for it; phones use the same patterns as the other pages.
+
+- **Block Flipper:** the real Hero block in its three styles (Heritage, Resort, Booking-led) for one demo club, flipped with the arrows, the arrow keys or a swipe.
+  - Club blocks change layout with the screen's width, not their box's, so Tablet and Mobile show the hero in a small embedded page (`/frame/hero/<style>`) that really is 768 or 390 wide, scaled to fit.
+  - That page has its own bare layout (no marketing nav), is never indexed, and nothing in it can be focused.
+- **Token Dial:** picking a colour re-skins the Booking-led demo club's hero using the club sites' own colour rules (`src/theme/colour.ts`).
+  - The readout says what the product really does: the colour is never changed, and the text on it uses whichever of the club's light and dark text colours reads at WCAG AA.
+  - Figma's "#F2E28C → #7A6A12, deepened" doesn't happen in the product, so it isn't shown (Q5, D12).
+- **Course guide:** the real Hole Grid (style C) with the demo club's Championship course card, the same numbers as the staging demo club (now shared in `src/demo/courseCard.ts`).
+- **Course status:** the course report and a news post, drawn by the same preview cards as the home page's "A week at the club".
+- **Built in:** eight feature cards. Two of Figma's were reworded and one replaced so every card is true today (D13, D14).
+- **No product film** (Q8).

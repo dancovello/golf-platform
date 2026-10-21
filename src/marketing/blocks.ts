@@ -1,7 +1,8 @@
-import type { Block, Field } from 'payload'
+import type { Block } from 'payload'
 
-import { marketingHref, maxWords, noTypedPrices, TOKEN_HELP } from './fields'
+import { button, marketingHref, maxWords, noTypedPrices, TOKEN_HELP } from './fields'
 import { bookingBlocks } from './bookingBlocks'
+import { builderBlocks } from './builderBlocks'
 import { FEATURE_ICONS } from './icons'
 import { homeBlocks } from './homeBlocks'
 import { pricingBlocks } from './pricingBlocks'
@@ -19,43 +20,6 @@ const shortBody = (value: unknown) => {
  * (210:7925) and its rules (212:8319): editors fill in fields; the blocks decide how it looks.
  * Each block's fields follow its Figma component description.
  */
-
-/** A button: label and where it goes (Figma Marketing/Button, exposed on Block/CTA Band). */
-const button = (
-  name: string,
-  label: string,
-  defaults: { label: string; href: string },
-  description?: string,
-): Field => ({
-  name,
-  label,
-  type: 'group',
-  admin: description ? { description } : {},
-  fields: [
-    {
-      type: 'row',
-      fields: [
-        {
-          name: 'label',
-          label: 'Button text',
-          type: 'text',
-          maxLength: 30,
-          defaultValue: defaults.label,
-          validate: maxWords(4),
-        },
-        {
-          name: 'href',
-          label: 'Goes to',
-          type: 'text',
-          maxLength: 300,
-          defaultValue: defaults.href,
-          validate: marketingHref,
-          admin: { description: 'A page on this site, like /pricing, or a full web address.' },
-        },
-      ],
-    },
-  ],
-})
 
 // Block/Section Header (210:7950): "The only way to put a heading on a page… CMS fields:
 // eyebrow (optional), title (plain text, line breaks allowed), body (optional, ≤30 words),
@@ -321,4 +285,5 @@ export const marketingBlocks: Block[] = [
   ...pricingBlocks,
   ...switchingBlocks,
   ...bookingBlocks,
+  ...builderBlocks,
 ]

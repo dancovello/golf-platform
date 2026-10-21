@@ -18,6 +18,8 @@ export const FEATURE_ICONS = [
   { value: 'download', label: 'Download' },
   { value: 'info', label: 'Information' },
   { value: 'sun', label: 'Sun' },
+  { value: 'expand', label: 'Expand' },
+  { value: 'arrow-up-right', label: 'Arrow out' },
 ] as const
 
 export type FeatureIcon = (typeof FEATURE_ICONS)[number]['value']

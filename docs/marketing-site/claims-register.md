@@ -56,3 +56,11 @@ Retired, never use: the top-100 audit stat (26 of 93), and "0 of 4 providers pub
 | We'll show you the platform with your own homepage on it | Book a demo | A service: we rebuild the club's homepage before the call | ❓ confirm you'll do this for every demo | — | Dan | Before Book a demo ships |
 | Send times by email and we'll send a video call invite | Book a demo | Manual until a calendar is connected (Q4) | ❓ confirm | — | Dan | When Q4 is answered |
 | I run every demo myself | Book a demo | Your statement | ✅ (yours) | — | Dan | If anyone else runs demos |
+| Text on your colour switches to stay readable; your colour stays as picked | Website builder | `src/theme/colour.ts` (readable, onAccent); the Token Dial uses the same functions | ✅ | `tests/unit/token-dial.spec.ts`, `tests/unit/theme-colour.spec.ts` | Claude | Each theme change |
+| Photos missing a description are flagged | Website builder | The library marks them "Needs description" (N8) | ✅ | — | Claude | If descriptions change |
+| The last 50 versions of every page are kept | Website builder | `versions.maxPerDoc: 50` on Pages (`src/collections/Pages.ts`) | ✅ | — | Claude | If the history limit changes |
+| Backed up every night, encrypted, kept 30 days | Website builder | `.github/workflows/backup.yml` (database; objects deleted after 30 days) | ✅ | Backup workflow | Claude | Each infrastructure change |
+| Photos are resized for you | Website builder | Image sizes on upload (`src/collections/Media.ts`) | ✅ | — | Claude | — |
+| Course status shows when it was last updated | Website builder | Course Status block shows the time (`src/site/blocks/CourseStatus.tsx`) | ✅ | — | Claude | — |
+| Anyone with access can post the course report | Website builder | Club editors can update Course Status | ✅ | Isolation tests | Claude | If roles are added |
+| The right access for each person | Website builder | Not built: badged Coming next | ⏳ (badged) | — | Dan | When roles ship |
