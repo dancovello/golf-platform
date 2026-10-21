@@ -321,3 +321,15 @@ Approved by Dan, 2026-10-21 (doc 04 §8; "not yet" in the 16 October security he
 - **Vercel's toolbar** is allowed on staging and previews only, never on production (Dan).
 - **Gravatar turned off in the admin** (`admin.avatar: 'default'`). The policy found that Payload loaded each account's picture from Gravatar, sending a code made from the editor's email address to a third party on every admin page.
 - **Tests:** `tests/e2e/security-policy.spec.ts` (every club page type, search, map, analytics after consent, the main admin screens, codes unique per view, forged codes ignored) and `tests/unit/csp.spec.ts`. Turnstile isn't in the automated tests (no keys there); it was checked by hand with Cloudflare's test keys.
+
+## 2026-10-21: Marketing site (plan approved)
+
+Approved by Dan, 2026-10-21. Plan: `docs/plans/marketing-site-plan.md`. Brief: `docs/marketing-site/HANDOFF.md`.
+
+- **Runs inside the platform** (hand-off Q1): the same Next.js and Payload app, in its own route group, edited in Payload by the super-admin only. Same CI gates as everything else.
+- **Live demos use sample content written in code**, fed into the real club block components with each demo club's colours and fonts. No demo clubs in the production database, and nothing a visitor can change. The "edit and live" demo changes the block in the visitor's browser only.
+- **Addresses:** the marketing site on the company domain (and `www.`); the admin on its own address (`app.` on the company domain), so the public pages and editors' logins never share an address. On staging, the marketing site is the staging address's home page, with the admin at `/admin` as now.
+- **One home for the company name**, email and domain: a single file in the code, used by the marketing site, the privacy policy and the agreement (today's "Clubhouse" placeholder moves there). Prices and other stated values live in Payload (`marketingSettings`).
+- **Homepage and demo requests are kept for 12 months** after the last contact, then deleted by the nightly clean-up job.
+- **The committee summary (A4 PDF) is removed.** Not built.
+- **Bookings stays out of scope for v1:** the marketing Bookings page is an in-page preview with made-up times, labelled Coming next.
