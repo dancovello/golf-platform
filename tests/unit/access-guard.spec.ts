@@ -5,6 +5,7 @@ import type { CollectionConfig } from 'payload'
 import { describe, expect, it } from 'vitest'
 
 import { collections } from '@/collections'
+import { globals } from '@/globals'
 
 const OPERATIONS = ['create', 'read', 'update', 'delete'] as const
 
@@ -27,4 +28,14 @@ describe('every collection defines its own access functions (default deny)', () 
     }
     expect(missingAccess(leaky)).toEqual(['delete'])
   })
+})
+
+describe('every settings screen (global) defines its own read and update access', () => {
+  it.each(globals.map((g) => [g.slug, g] as const))(
+    '%s defines read and update',
+    (_slug, global) => {
+      expect(typeof global.access?.read).toBe('function')
+      expect(typeof global.access?.update).toBe('function')
+    },
+  )
 })

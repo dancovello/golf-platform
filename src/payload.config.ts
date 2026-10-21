@@ -13,9 +13,11 @@ import { guardTenantSelection } from './admin/guardTenantSelection'
 import { encryptTotpSecrets } from './auth/totpSecretEncryption'
 import { emailAdapter } from './email/adapter'
 import { collections } from './collections'
+import { globals } from './globals'
 import { usersAccess } from './collections/Users'
 import { DOCUMENT_TYPES } from './collections/Documents'
 import { MEDIA_TYPES } from './collections/Media'
+import { MARKETING_MEDIA_TYPES } from './marketing/collections/MarketingMedia'
 import { guardBrowserUploads } from './media/uploadGuards'
 import { mediaStorageSettings } from './media/storage'
 import { jobs } from './privacy/jobs'
@@ -62,6 +64,7 @@ export default buildConfig({
   },
   // Copied so Payload adding its own collections at startup never changes our list.
   collections: [...collections],
+  globals: [...globals],
   editor: lexicalEditor(),
   // Background jobs (decided stack: Payload Jobs Queue). Only the nightly clean-up so far.
   jobs,
@@ -133,6 +136,11 @@ export default buildConfig({
           disablePayloadAccessControl: true,
           generateFileURL: ({ filename, prefix }) => `${media.publicURL}/${prefix}/${filename}`,
         },
+        'marketing-media': {
+          prefix: 'marketing-media',
+          disablePayloadAccessControl: true,
+          generateFileURL: ({ filename, prefix }) => `${media.publicURL}/${prefix}/${filename}`,
+        },
         documents: {
           prefix: 'documents',
           disablePayloadAccessControl: true,
@@ -143,6 +151,7 @@ export default buildConfig({
     // Must come after s3Storage, whose signed-link endpoint it wraps.
     guardBrowserUploads('/storage-s3-generate-signed-url', {
       media: MEDIA_TYPES,
+      'marketing-media': MARKETING_MEDIA_TYPES,
       documents: DOCUMENT_TYPES,
     }),
     // Keeps the club list from loading before the two-factor code is entered.

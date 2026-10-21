@@ -520,6 +520,35 @@ await w.payload.create({
 })
 
 mkdirSync('tests/e2e/.state', { recursive: true })
+// The company website (tests/e2e/marketing-content.spec.ts): one published page, one draft.
+await w.payload.create({
+  collection: 'marketing-pages',
+  data: {
+    _status: 'published',
+    title: 'E2E pricing',
+    slug: 'e2e-pricing',
+    meta: { description: 'One price for your club, shown in full.' },
+    layout: [
+      { blockType: 'mkSectionHeader', eyebrow: 'Pricing', title: 'One clear price' },
+      {
+        blockType: 'mkRichText',
+        content: rt.doc(rt.p('Marketing-only sentence for the browser tests.')),
+      },
+      { blockType: 'mkCtaBand', title: 'See it on your club' },
+    ],
+  } as never,
+})
+await w.payload.create({
+  collection: 'marketing-pages',
+  draft: true,
+  data: {
+    _status: 'draft',
+    title: 'E2E draft',
+    slug: 'e2e-draft',
+    layout: [{ blockType: 'mkSectionHeader', title: 'Not published yet' }],
+  } as never,
+})
+
 writeFileSync(
   'tests/e2e/.state/world.json',
   JSON.stringify({
