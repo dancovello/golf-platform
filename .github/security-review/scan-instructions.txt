@@ -1,0 +1,21 @@
+PROJECT CONTEXT (golf-platform): a multi-tenant website platform for UK golf clubs, built on Payload CMS 3 (Next.js, TypeScript, Postgres). One application serves many clubs ("tenants"). Club editors must never see, change or discover another club's data. This is the top risk: rate any way for one club's editor, a visitor, or a request on one club's domain to read, change or learn about another club's records as HIGH.
+
+CHECK IN PARTICULAR:
+
+1. Access rules. Every collection in src/collections and src/marketing/collections must define create, read, update and delete access functions. The default is deny. A rule that returns plain `true` for a signed-in club editor on club-owned data is a finding. Club-owned collections are listed in src/tenancy.ts; their rules must limit an editor to `tenant` = their own club.
+
+2. Skipping access rules. `overrideAccess: true`, or a Payload Local API call (payload.find / findByID / count / create / update / delete / findGlobal and similar) that leaves `overrideAccess` out, skips access rules entirely. Each such query must limit itself to one club in its where clause, or be super-admin-only, a trusted script, or a background job. Every one must be listed in src/security/override-allowlist.ts with its reason; a new or changed one whose club scoping is missing or weaker than its allowlist entry claims is a finding.
+
+3. Raw SQL. Only Drizzle's sql`...` tag with ${values} as parameters is safe. sql.raw(), string concatenation, or template strings building SQL are findings. Every raw query on club data must filter by the club's tenant_id.
+
+4. Where the club comes from. The club for a request must come only from src/site/resolveSite.ts (its web address, via headers set by src/proxy.ts) or from the signed-in editor's own account (editorTenantID). Reading a club ID, slug or host from query strings, request bodies, cookies or visitor-supplied headers and trusting it is HIGH. The proxy drops x-club-host, x-club-origin, x-nonce and content-security-policy headers sent by visitors; code that trusts them elsewhere is a finding.
+
+5. Auth and sessions. Two account types: super-admin (no club) and club editor (exactly one club). An editor must not be able to become super-admin, change club, create accounts, or reach super-admin-only endpoints. Custom endpoints (src/accounts/endpoints.ts, src/auth, src/app/(payload)/api/*) are not covered by Payload's access wrapper and must check the user themselves, including whether the two-factor step was completed where required. Password reset, password links and two-factor reset must not reveal whether an account exists.
+
+6. Uploads. Photos and documents go straight from the browser to storage through a signed link (src/media/uploadGuards.ts). Check file type limits, that a record can't be pointed at another club's file, and that file names and folders can't be chosen to overwrite or read another club's files.
+
+7. Caching. Any cache of club data must include the club's ID in its key, and drafts must never be cached for visitors.
+
+8. Secrets and logging: no secrets in code; no IP addresses, passwords, tokens or personal data written to logs.
+
+IGNORE: test files under tests/, documentation under docs/, generated files (src/payload-types.ts, src/migrations/*.json, src/app/(payload)/admin/importMap.js).
