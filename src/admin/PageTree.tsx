@@ -3,7 +3,8 @@ import { headers } from 'next/headers'
 import Link from 'next/link'
 import type { ServerProps } from 'payload'
 
-import { editorTenantID, isSuperAdmin } from '../access/roles'
+import { editorTenantID } from '../access/roles'
+import { isFullyAuthenticated, isSuperAdminWithCode } from '../auth/fullyAuthenticated'
 
 import { loadPageTree, type PageStatus, type TreeNode } from './pageTreeData'
 
@@ -55,8 +56,9 @@ const Branch = ({ nodes, top = false }: { nodes: TreeNode[]; top?: boolean }) =>
  * from Dan's dashboard review). To move a page, open it and change "Parent page".
  */
 export const PageTree = async ({ payload, user }: ServerProps) => {
-  if (!user) return null
-  const tenantID = isSuperAdmin(user)
+  // Reads with access rules off, so it checks the code itself (docs/security/audit-auth.md, A3).
+  if (!isFullyAuthenticated(user)) return null
+  const tenantID = isSuperAdminWithCode(user)
     ? (getTenantFromCookie(await headers(), 'text') as string | null)
     : editorTenantID(user)
   if (!tenantID) {
