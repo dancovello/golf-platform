@@ -1,4 +1,5 @@
 import type { CollectionBeforeValidateHook, CollectionConfig } from 'payload'
+import { ValidationError } from 'payload'
 
 import { editorTenantID, isSuperAdmin, superAdminOnly } from '../access/roles'
 import { SLUG, slugify } from '../fields/slug'
@@ -20,6 +21,18 @@ const tidyDomains: CollectionBeforeValidateHook = ({ data }) => {
     for (const row of data.domains as { hostname?: unknown }[]) {
       if (typeof row?.hostname === 'string') row.hostname = normaliseHost(row.hostname)
     }
+  }
+  return data
+}
+
+/** The hidden canary clubs (src/canary) must never be reachable on a web address. */
+const canaryClubsHaveNoAddress: CollectionBeforeValidateHook = ({ data, originalDoc }) => {
+  const slug = String(data?.slug ?? originalDoc?.slug ?? '')
+  const domains = (data?.domains ?? originalDoc?.domains ?? []) as unknown[]
+  if (slug.startsWith('canary-') && domains.length > 0) {
+    throw new ValidationError({
+      errors: [{ path: 'domains', message: 'The hidden canary clubs can’t have a web address.' }],
+    })
   }
   return data
 }
@@ -48,7 +61,7 @@ export const Tenants: CollectionConfig = {
     delete: superAdminOnly,
   },
   hooks: {
-    beforeValidate: [defaultSlug, tidyDomains],
+    beforeValidate: [defaultSlug, tidyDomains, canaryClubsHaveNoAddress],
     // Every club gets its Club Settings and Course status records straight away (one each).
     afterChange: [
       async ({ doc, operation, req }) => {

@@ -51,9 +51,11 @@ export default defineConfig({
     toHaveScreenshot: { maxDiffPixelRatio: 0.002 },
   },
   webServer: {
-    command: `node_modules/.bin/next start -p ${port}`,
+    // A fresh data cache each run (src/site/cache.ts): the test clubs are re-made with new IDs.
+    command: `rm -rf .next/cache/fetch-cache && node_modules/.bin/next start -p ${port}`,
     url: `${baseURL}/health`,
-    reuseExistingServer: !isCI,
+    // Never an older server left running: it may be an older build with an older cache.
+    reuseExistingServer: false,
     timeout: 120_000,
     // When APP_DATABASE_URL is set (CI does), the website runs as the limited golf_app account,
     // proving it can do everything it needs without owner rights. Seeding still uses the owner.

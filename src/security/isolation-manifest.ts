@@ -233,6 +233,13 @@ export const ROUTES: Manifest = {
   'src/app/(frontend)/cron/clean-up/route.ts': [
     { file: 'tests/int/cleanup.int.spec.ts', test: "doesn't exist without the scheduler's secret" },
   ],
+  'src/app/(frontend)/cron/canary/route.ts': [
+    {
+      file: 'tests/e2e/canary.spec.ts',
+      test: "the canary's attempts on club B, as club A's editor, all come back empty",
+    },
+    { file: 'tests/int/canary.int.spec.ts', test: 'can never be given a web address' },
+  ],
   'src/app/(frontend)/csp-report/route.ts': [
     {
       file: 'tests/e2e/security-policy.spec.ts',

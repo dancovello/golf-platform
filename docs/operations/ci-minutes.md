@@ -49,6 +49,10 @@ With b and c: about **3,200 a month** at the last 30 days' pace, which was unusu
 
 The `security-review` check (job 7, `docs/operations/ai-security-review.md`) takes about 5–12 minutes a run, so about 750–1,800 minutes a month if each pull request is reviewed once. With the repo private, that only fits inside 3,000 if the other CI is trimmed too (options b and c above). Otherwise, run the review only on pull requests that touch `src/` or the workflows.
 
+## Nightly isolation run
+
+`.github/workflows/isolation-nightly.yml` (job 9) runs 10,000 random isolation steps each night: about 3–4 minutes with set-up, roughly **110 minutes a month**.
+
 ## How to check the real number
 
 GitHub → your profile picture → **Settings** → **Billing and plans** → **Usage** → filter by **Actions**. It shows minutes used this month against the 3,000.

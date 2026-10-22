@@ -514,3 +514,11 @@ All of these run in the `tenant-isolation` CI job and block merging.
   Tests: `tests/int/cache-isolation.int.spec.ts` (part of the isolation suite) and `tests/e2e/site-cache.spec.ts`. The isolation manifest lists every cached loader.
 - **Cleared at once** for one club when anything it owns is saved or deleted (`src/site/cacheHooks.ts`). Anything that depends on today's date is kept at most 5 minutes, and everything at most an hour, which covers changes made around the website (scripts, restores).
 - **Emergency switch:** `SITE_DATA_CACHE=off`.
+
+## 2026-10-22: Stronger isolation testing, red team, live canary (job 9)
+
+- **Randomised isolation tests:** random reads and writes as each role (both editors, anonymous, super-admin) across every club-owned collection. After every step they check that nothing read belongs to another club and nothing of the other club changed. 500 steps on every change (database layer, plus 500 random REST requests). 10,000 nightly (`.github/workflows/isolation-nightly.yml`, about 2 minutes, which opens an issue on failure). Seeded and replayable.
+- **Red team, session 1** (`docs/security/red-team-1.md`): 14 kinds of attempt, each a test; none got across.
+- **Live canary** (`docs/operations/canary.md`): two hidden clubs on production, which can never be given a web address. An hourly Vercel cron signs in as canary A's editor over the real web address and tries to reach canary B; any success raises a Sentry alert. **Built, but switching it on is Dan's call** (it creates production data).
+- **Row-level security in Postgres: not now** (`docs/plans/postgres-row-level-security-spike.md`).
+- **Browser tests** always start a fresh server with an empty data cache.
