@@ -453,3 +453,13 @@ Built from Figma "Home — Desktop" (176:2178) and "Home — Mobile" (273:8954).
   - It never touches a page whose address is already used.
   - It's for the super-admin with their code entered, from the admin only.
 - **Differences from Figma** are listed as D2–D5 in `docs/marketing-site/open-questions.md`.
+
+## 2026-10-22: Safety checks that catch a cross-club leak (job 2)
+
+All of these run in the `tenant-isolation` CI job and block merging.
+
+- **Access-skip allowlist** (`src/security/override-allowlist.ts`): every place server code skips Payload's access rules, with the club it's limited to and why. That includes Local API calls that leave `overrideAccess` out, which Payload treats as a skip. A new one fails the build until it's listed. Review: `docs/security/override-review.md`.
+- **Raw SQL** must use Drizzle's `sql` tag, never text joined together (`tests/unit/raw-sql.spec.ts`).
+- **Every collection in the running config** has reviewed access, including the ones Payload and plugins add (`tests/int/config-access.int.spec.ts`). Payload's `payload-migrations` collection allows everything, so it must never get a web address.
+- **Isolation manifest** (`src/security/isolation-manifest.ts`): every collection, non-standard endpoint, web route and server action names the test that proves isolation for it. Adding a route, endpoint or collection without one fails the build.
+- **New isolation tests:** page history and drafts, the job queue, photo file addresses, paste-from-URL (off), switching off two-factor, and platform files (health, robots.txt).
