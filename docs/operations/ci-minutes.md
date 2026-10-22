@@ -37,11 +37,13 @@ The heaviest jobs are the browser checks: `tenant-isolation` (about 4 minutes a 
 | Browser checks once per pull request, not on every push (about 2 runs per pull request today) | about 1,200 |
 | **Expected total** | **about 5,750 a month** |
 
-**Still over 3,000**, by about 2,750 minutes: roughly **$17 a month**. Options, cheapest to set up first:
+**Still over 3,000**, by about 2,750 minutes (roughly $17 a month if paid). Dan chose not to pay for extra minutes on 15 Oct. The free ways to close the gap, in order:
 
-- **a. Set an Actions spending limit** so CI never stops mid-month (GitHub → Settings → Billing and plans → Spending limits → Actions, e.g. $25). **Recommended, whatever else you choose.**
-- **b. Merge the five one-minute checks into one job.** That saves about 1,600 a month. But the required check names change, so you'd update the branch protection list. Claude can do the workflow side.
-- **c. Skip the browser checks on merges to `main`.** They already passed on the pull request; this saves about 950 a month. It goes against "main always runs everything", so only if you're happy with that.
+- **b. Merge the small checks into fewer jobs**, as in the closed PR #65. Each job is billed in whole minutes and installs everything from scratch, so six one-minute jobs cost six minutes. One `quick-checks` job saves **about 1,600 a month**. The required check names change, so Dan updates the branch protection list when it merges. Claude can reopen and update it.
+- **c. Skip the browser checks on merges to `main`.** Branch protection already requires each pull request to be up to date with `main`, so they've passed on exactly what lands. Saves **about 950 a month**, but goes against "main always runs everything", so only with Dan's OK.
+- **Fewer pushes per pull request**: check locally first, push when ready (CLAUDE.md already says so).
+
+With b and c: about **3,200 a month** at the last 30 days' pace, which was unusually busy (627 runs). That should drop under 3,000 as the build slows. **Safety net:** a spending limit (GitHub → Settings → Billing and plans → Spending limits → Actions) stops CI halting mid-month, but costs money; it's Dan's call.
 
 ## How to check the real number
 
