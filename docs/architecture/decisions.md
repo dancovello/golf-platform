@@ -472,3 +472,9 @@ All of these run in the `tenant-isolation` CI job and block merging.
 - **The contact form's per-club limit is unchanged:** it already counts saved enquiries in the database.
 - **Inventory:** `src/security/rateLimitInventory.ts`; a test fails if a route, endpoint or server action has no entry.
 
+
+## 2026-10-22: The repository goes back to private (job 6)
+
+- **History:** private from 10 Oct (above), made **public on 15 Oct** so GitHub Actions minutes were free, and now **private again** (Dan, after the 21 Oct grilling). It was public for about a week. Nothing secret was in it: gitleaks scans every pull request, and secrets live in Vercel and GitHub.
+- **CI minutes:** about 7,400 a month at today's pace, against GitHub Pro's 3,000 for private repositories. CI now skips the slow checks for docs-only pull requests, and runs the browser checks on drafts only once they're marked ready. That gives an estimated 5,750 a month. Merging the small checks into fewer jobs (as PR #65 proposed) and skipping browser checks on merges to `main` would bring it to about 3,200; both need Dan's OK (`docs/operations/ci-minutes.md`).
+- **Guard:** the release workflow's first step fails if the repository is public, so staging and production releases stop until it's private again.

@@ -59,6 +59,7 @@ Member login, the booking portal, and billing/payments. They are documented for 
 ## How to work with Dan
 - **Plan first.** Propose a small plan, wait for approval, then implement only what was agreed.
 - Keep changes small. One branch per change. No direct commits to `main`.
+- Open pull requests as **drafts** while still pushing to them, and mark them ready for review when done: the browser checks only run on ready pull requests (`docs/operations/ci-minutes.md`).
 - End every change with this summary:
   > **What changed:** … · **Why it's safe:** … · **Checks run:** typecheck ✅/❌, lint ✅/❌, tests ✅/❌, tenant isolation ✅/❌ · **New dependencies:** none / list · **Migration:** none / reviewed · **Preview:** link · **Risks / open questions:** …
 - If something needs a human expert (security, production infrastructure), say so plainly.
