@@ -305,3 +305,43 @@ export const SERVER_ACTIONS: Manifest = {
     { file: ADMIN, test: "the pages list shows only club A's page" },
   ],
 }
+
+/** Every cached club loader (src/site/cache.ts, job 5): each must stay inside one club. */
+const CACHE = 'tests/int/cache-isolation.int.spec.ts'
+const cacheCovers: Cover[] = [
+  { file: CACHE, test: "every cached entry's key and tag name exactly one club" },
+  { file: CACHE, test: "publishing at club A clears club A's cache, never club B's" },
+]
+export const CACHED: Manifest = {
+  clubByHost: [{ file: CACHE, test: "changing a club's web addresses clears the address lookups" }],
+  clubIDBySlug: [
+    {
+      file: CACHE,
+      test: "the club's shared data (menus, settings) is cached per club and correct for each",
+    },
+  ],
+  loadClubSite: [
+    {
+      file: CACHE,
+      test: "the club's shared data (menus, settings) is cached per club and correct for each",
+    },
+    ...cacheCovers,
+  ],
+  publishedPage: [
+    {
+      file: CACHE,
+      test: 'two clubs with the same page address each get their own page, from the cache too',
+    },
+    { file: CACHE, test: 'a visitor never gets a cached draft' },
+    ...cacheCovers,
+  ],
+  latestNews: cacheCovers,
+  newsArchive: cacheCovers,
+  newsPost: cacheCovers,
+  upcomingEvents: [
+    { file: CACHE, test: 'a past event drops off within 5 minutes, without anyone publishing' },
+    ...cacheCovers,
+  ],
+  featuredEvent: cacheCovers,
+  eventsArchive: cacheCovers,
+}
