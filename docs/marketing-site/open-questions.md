@@ -17,6 +17,8 @@ Each has a safe default so building isn't blocked. The default is what ships unt
 | Q8 | **Product film** on Website builder: is there a video? | Phase 6 | Section left out |
 | Q9 | **Analytics.** Vercel Analytics only (no cookies)? | Phase 8 | Vercel Analytics only, so no consent banner. Cost on Pro checked first |
 | Q10 | **Founder Card:** photo, a first-person line under 60 words, phone or calendar link | Phase 4 | Placeholder initial; links from settings |
+| Q11 | **Public prices or per-club quotes?** Pricing isn't final and may differ by club. Quotes would mean removing the £149, the calculator and the Pricing page (21 Oct) | Phase 5 (Pricing, nav, CTA bands, FAQ) | Built as designed, every price from `marketingSettings`, with one switch (`showPublicPricing`) that hides the Pricing page, its nav link and every price mention. The one-off setup fee is stated wherever a price appears, never with a number |
+| Q12 | **Contract terms.** The 12-month minimum and 90 days' notice aren't final (21 Oct) | Phase 5 (Pricing, FAQ) | From `marketingSettings`; flagged ❓ in the claims register |
 | N1 | **Company name and domain** | Phase 10 (go live) | "Brandname" and `hello@brandname.golf`, in one file |
 | N2 | **Docs 15 and 18** (golf ball; marketing review and claims) | Doc 18: claims register. Doc 15: phase 7 | Register seeded from the hand-off's list only |
 | N3 | **`golf_ball.glb` and `golf-ball-generator.py`** | Phase 7 | — |
