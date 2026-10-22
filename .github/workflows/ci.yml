@@ -1,12 +1,22 @@
 # Merge gate: every pull request must pass all of these before it can merge.
 # Third-party actions are pinned to exact commit SHAs; downloaded tools are checksum-verified.
+#
+# Saving CI minutes without weakening the gate (docs/operations/ci-minutes.md, 22 Oct):
+# - secret-scan always runs, and works out whether the change touches anything but docs.
+#   Docs-only pull requests skip the slow checks (tests, build, browser checks, dry run).
+#   A skipped job counts as passed for a required check, and can't hide code: it's only
+#   skipped when no code changed.
+# - The two browser jobs (tenant-isolation, block-regression) skip draft pull requests and
+#   run when one is marked ready for review. A draft can't be merged.
+# - main and release pull requests (into production) always run everything.
 name: CI
 
 on:
   pull_request:
     branches: [main, production]
     # labeled/unlabeled: re-run when Dan adds or removes approved-destructive-migration.
-    types: [opened, synchronize, reopened, labeled, unlabeled]
+    # ready_for_review: a draft's browser checks run when it's marked ready (CI minutes, 22 Oct).
+    types: [opened, synchronize, reopened, labeled, unlabeled, ready_for_review]
   push:
     branches: [main]
 
@@ -49,6 +59,8 @@ jobs:
       - run: pnpm format:check
 
   test:
+    needs: secret-scan
+    if: needs.secret-scan.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     services:
@@ -98,6 +110,8 @@ jobs:
       - run: pnpm test
 
   build:
+    needs: secret-scan
+    if: needs.secret-scan.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -123,6 +137,9 @@ jobs:
   secret-scan:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    outputs:
+      # 'true' unless this is a pull request into main that changes only docs.
+      code: ${{ steps.changes.outputs.code }}
     env:
       GITLEAKS_VERSION: 8.30.1
       GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
@@ -140,6 +157,23 @@ jobs:
       # --log-opts, gitleaks scans every fetched branch, so one bad branch fails every PR.
       - name: Scan git history for secrets
         run: ./gitleaks git --redact --verbose --exit-code 1 --log-opts="HEAD" .
+      # Docs-only: every changed file is under docs/ or .claude/, or is Markdown. Pushes to
+      # main and pull requests into production always count as code.
+      - name: Does this change touch code?
+        id: changes
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: |
+          if [ "$EVENT" != "pull_request" ] || [ "$BASE_REF" = "production" ]; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # The checkout is GitHub's merge of this pull request; its first parent is the base.
+          changed=$(git diff --name-only HEAD^1 HEAD)
+          code=$(printf '%s\n' "$changed" | grep -vE '^(docs/|\.claude/)|\.md$' | grep -v '^$' || true)
+          if [ -n "$code" ]; then echo "code=true"; else echo "code=false"; fi >> "$GITHUB_OUTPUT"
+          echo "Changed files:"; printf '%s\n' "$changed"
 
   dependency-scan:
     runs-on: ubuntu-latest
@@ -167,6 +201,9 @@ jobs:
   # route: data layer, REST API, accounts, and every admin screen in a real browser.
   # Required to merge.
   tenant-isolation:
+    needs: secret-scan
+    # Not on drafts: they run when the pull request is marked ready for review.
+    if: needs.secret-scan.outputs.code == 'true' && !github.event.pull_request.draft
     runs-on: ubuntu-latest
     timeout-minutes: 25
     services:
@@ -256,7 +293,8 @@ jobs:
   # copied the way a release copies the real one, and this pull request's changes are applied
   # to the copy. Catches a change that works on an empty database but would stop a release.
   migration-dry-run:
-    if: github.event_name == 'pull_request'
+    needs: secret-scan
+    if: github.event_name == 'pull_request' && needs.secret-scan.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     services:
@@ -339,6 +377,9 @@ jobs:
   # themes, desktop and mobile, compared with the approved pictures in tests/visual/__screenshots__.
   # New approved pictures come from the "Update block pictures" workflow, never from a Mac.
   block-regression:
+    needs: secret-scan
+    # Not on drafts: they run when the pull request is marked ready for review.
+    if: needs.secret-scan.outputs.code == 'true' && !github.event.pull_request.draft
     runs-on: ubuntu-latest
     timeout-minutes: 25
     services:
