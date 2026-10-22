@@ -15,6 +15,8 @@
 | I3 | The proxy doesn't run on `/_next/…` addresses, so headers it normally removes survive there | Note | `src/proxy.ts:164-167` |
 | I4 | Outside this area: the live preview link is built from the `x-forwarded-host` header | Note | `src/site/livePreview.ts:15` |
 
+**Proposed fixes** (draft PRs, waiting for Dan's approval): T1 in dancovello/golf-platform#165, T2 in dancovello/golf-platform#163.
+
 Each low finding has a test that proves it: `tests/int/audit-tenancy.int.spec.ts`. They are marked `it.fails`, so they don't block CI while the findings are open. When a fix lands, its test starts passing, Vitest flags that, and the fix PR changes `it.fails` to `it`.
 
 ## Scope
