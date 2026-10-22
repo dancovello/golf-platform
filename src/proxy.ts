@@ -8,7 +8,7 @@ import {
   type PolicyKind,
   REPORT_PATH,
 } from './security/csp'
-import { isPlatformHost, normaliseHost } from './site/hosts'
+import { isMarketingHost, isPlatformHost, marketingHosts, normaliseHost } from './site/hosts'
 
 /** Headers only this proxy sets (src/site/resolveSite.ts). Any a visitor sends are dropped. */
 const CLUB_HOST = 'x-club-host'
@@ -16,6 +16,21 @@ const CLUB_ORIGIN = 'x-club-origin'
 
 /** Paths that exist only on the platform's own address, never on a club's domain. */
 const PLATFORM_ONLY = /^\/(admin|api|preview|sites|health|accounts-by-administrator)(\/|$)/
+
+/**
+ * The company's marketing site is served from /marketing/… (src/app/(marketing)), reached only
+ * through the rewrites below. On the platform's own address, these paths stay the platform's;
+ * everything else is the marketing site.
+ */
+const MARKETING = '/marketing'
+const PLATFORM_PATHS =
+  /^\/(admin|api|preview|health|accounts-by-administrator|cron|csp-report|robots\.txt|_vercel|__nextjs[\w-]*)(\/|$)/
+const INTERNAL_ONLY = /^\/(sites|marketing)(\/|$)/
+/** Marketing review pages (super-admin only): on the platform's own address, never the company's. */
+const REVIEW = /^\/dev(\/|$)/
+
+/** Search engines may index the marketing site only on the company's domain, on production. */
+const NOINDEX = 'noindex'
 
 /**
  * A fresh one-time code and the content security policy for this page view (src/security/csp.ts).
@@ -40,6 +55,28 @@ const notFound = () =>
     headers: { 'Content-Type': 'text/plain; charset=utf-8', 'X-Robots-Tag': 'noindex' },
   })
 
+/** The same request on another address (keeps http and the port locally). */
+const onHost = (request: NextRequest, host: string) => {
+  const url = request.nextUrl.clone()
+  url.hostname = host
+  return NextResponse.redirect(url, 308)
+}
+
+/** Show the marketing site page for this path, with its own policy. */
+const marketing = (
+  request: NextRequest,
+  headers: Headers,
+  pathname: string,
+  search: string,
+  indexable: boolean,
+) => {
+  const withPolicy = addPolicy('marketing', headers)
+  const target = new URL(`${MARKETING}${pathname === '/' ? '' : pathname}${search}`, request.url)
+  const response = withPolicy(NextResponse.rewrite(target, { request: { headers } }))
+  if (!indexable) response.headers.set('X-Robots-Tag', NOINDEX)
+  return response
+}
+
 export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl
   const host = normaliseHost(request.headers.get('host') ?? '')
@@ -58,6 +95,18 @@ export function proxy(request: NextRequest) {
   headers.set('x-pathname', pathname)
   headers.set('x-search', search)
 
+  // The company's own domain: only the marketing site. The admin lives on its own address
+  // (ADMIN_URL), so editors' logins never share an address with the public pages.
+  if (host && isMarketingHost(host)) {
+    const [main] = marketingHosts()
+    if (host !== main) return onHost(request, main)
+    if (PLATFORM_ONLY.test(pathname) || INTERNAL_ONLY.test(pathname) || REVIEW.test(pathname)) {
+      return notFound()
+    }
+    if (pathname === REPORT_PATH) return NextResponse.next({ request: { headers } })
+    return marketing(request, headers, pathname, search, process.env.VERCEL_ENV === 'production')
+  }
+
   // A club's own domain (build step 4): its pages are served from /sites/<host>/…, and the
   // admin, API and previews don't exist here.
   if (host && !isPlatformHost(host)) {
@@ -71,8 +120,21 @@ export function proxy(request: NextRequest) {
     return withPolicy(NextResponse.rewrite(target, { request: { headers } }))
   }
 
-  // The platform's own address. /sites/… is only reachable through the rewrite above.
-  if (/^\/sites(\/|$)/.test(pathname)) return notFound()
+  // The platform's own address. /sites/… and /marketing/… are only reachable through the
+  // rewrites.
+  if (INTERNAL_ONLY.test(pathname)) return notFound()
+
+  // Anything that isn't the admin, API, previews or a platform service is the marketing site:
+  // forwarded to the company's domain once it exists, otherwise shown here (staging and
+  // previews), never indexed.
+  // The marketing review pages (/dev/…, super-admin only) stay here, where the admin's login is.
+  if (REVIEW.test(pathname)) return marketing(request, headers, pathname, search, false)
+
+  if (!PLATFORM_PATHS.test(pathname)) {
+    const [main] = marketingHosts()
+    if (main) return onHost(request, main)
+    return marketing(request, headers, pathname, search, false)
+  }
 
   // Payload's "create first user" screen can't be switched off in its config. Accounts are only
   // created by the platform script, so show an explanation instead. The account-creation hook

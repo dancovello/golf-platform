@@ -25,10 +25,23 @@ Each has a safe default so building isn't blocked. The default is what ships unt
 | N6 | **Vercel functions in London?** Needed before the Trust page can say "Stored in London" (doc 03) | Phase 6 (Trust, held) | The line stays out |
 | N7 | **Old page addresses.** The Switching page and FAQ promise old page addresses forward to the new ones. Today the platform forwards a club's *extra domains* (e.g. without `www`), but not old page addresses like `/about-us.php`. Build page forwarding, or soften the copy? | Phase 5 (Switching) | Claim held back until decided |
 | N8 | **"Alt text required."** For club photos, the description is optional (your decision, 17 Oct); the library marks missing ones "Needs description". The marketing site's own Media block will require it. | Before any copy says it | Not claimed for club sites |
+| N9 | **Search in the nav.** Figma's nav has a Search button, but the marketing site has no search for it to open. Add site search later, or remove it from Figma? | Phase 8 | Left out |
 
 ### Finding for Q5 (from the code, 2026-10-21)
 
 Club sites **never block a save** over colour. If a text colour would be hard to read on its background, the site swaps it for the club's other text colour, or white or black, so it passes WCAG AA (`src/theme/colour.ts`). The Branding page also suggests curated shades that never need swapping. So doc 08's "blocked on save" doesn't match the product; "nudged" is closer. The copy should describe the swap.
+
+## Design notes (Figma vs accessibility)
+
+Places where the build differs from Figma to meet WCAG 2.2 AA. Update Figma or tell me to change them back.
+
+| # | Where | Figma | Built | Why |
+|---|---|---|---|---|
+| D1 | Tenant Chip, selected: the style label ("Heritage") | `text-tertiary` #8a968f on `surface-hover` #173327 | `text-secondary` #a3ada6 | Tertiary is under 4.5:1 on that surface |
+| D2 | Home proof stats | Claim wording from Figma, sources slightly different | Figma's claim wording, the hand-off's exact source lines (§9: "use exactly these") | The hand-off ranks above Figma for sources; Figma's claim wording reads better |
+| D3 | Home "Your content comes with you" | Example windows on `ashgroveparkgc.co.uk` | On `ashgrovepark.golf`, labelled "Demo club" | A realistic `.co.uk` could be a real club; the counts are an example |
+| D4 | Home "Edit and live" | Live hero headline on two lines | Three lines | The club hero limits headlines to 16 characters a line; the card grows to fit |
+| D5 | Home "A week at the club" header | Bold "Whoever's on duty can post it" | Plain text | Section Header bodies are plain text (CMS rules) |
 
 ## Answered
 

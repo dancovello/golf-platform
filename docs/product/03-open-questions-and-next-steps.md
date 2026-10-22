@@ -29,7 +29,7 @@ Production was last released on 2026-10-11. From now on releases to production h
 
 ## Still open: Dan to decide
 
-- **Platform name.** "Clubhouse" is a placeholder (`PLATFORM_NAME` in `src/site/privacy/policy.ts`). Needed before the platform's own domain, the sending email address and the legal agreement can be finalised.
+- **Platform name.** "Brandname" is a placeholder, in one file: `src/brand.ts` (name, email, domain). Needed before the platform's own domain, the sending email address and the legal agreement can be finalised.
 - **Pricing and tier boundaries.** Which features or services need the paid tier, and the prices. Needed before club #1 signs.
 - **Legal wording.** The data processing agreement (`src/agreement/text.ts`) has square brackets for the provider's legal name, company number, address, contact email and liability clause, and needs a solicitor. The privacy policy needs a data-protection adviser's review. Dan is finalising these (2026-10-20).
 - **Suppliers' own data terms.** Confirm the data processing terms of Vercel, Neon, Cloudflare, GitHub and Resend are accepted, and decide whether to move Vercel's function region to London.

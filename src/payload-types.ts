@@ -80,6 +80,8 @@ export interface Config {
     users: User;
     'agreement-acceptances': AgreementAcceptance;
     tenants: Tenant;
+    'marketing-pages': MarketingPage;
+    'marketing-media': MarketingMedia;
     'totp-attempts': TotpAttempt;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
@@ -101,6 +103,8 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     'agreement-acceptances': AgreementAcceptancesSelect<false> | AgreementAcceptancesSelect<true>;
     tenants: TenantsSelect<false> | TenantsSelect<true>;
+    'marketing-pages': MarketingPagesSelect<false> | MarketingPagesSelect<true>;
+    'marketing-media': MarketingMediaSelect<false> | MarketingMediaSelect<true>;
     'totp-attempts': TotpAttemptsSelect<false> | TotpAttemptsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
@@ -111,8 +115,12 @@ export interface Config {
     defaultIDType: string;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'marketing-settings': MarketingSetting;
+  };
+  globalsSelect: {
+    'marketing-settings': MarketingSettingsSelect<false> | MarketingSettingsSelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -1755,6 +1763,389 @@ export interface AgreementAcceptance {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "marketing-pages".
+ */
+export interface MarketingPage {
+  id: string;
+  title: string;
+  /**
+   * The part after the domain, e.g. "pricing" for /pricing. The home page is "home".
+   */
+  slug: string;
+  layout?:
+    | (
+        | MarketingSectionHeaderBlock
+        | MarketingRichTextBlock
+        | MarketingMediaBlock
+        | MarketingFeatureCardsBlock
+        | MarketingCtaBandBlock
+        | MarketingHomeHeroBlock
+        | MarketingProofStatsBlock
+        | MarketingCompareBlock
+        | MarketingEditLiveBlock
+        | MarketingWeekBlock
+        | MarketingContentMovesBlock
+        | MarketingFounderBlock
+      )[]
+    | null;
+  meta?: {
+    /**
+     * Leave empty to use the page name.
+     */
+    title?: string | null;
+    /**
+     * One benefit and one proof, under 155 characters (doc 19).
+     */
+    description?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingSectionHeaderBlock".
+ */
+export interface MarketingSectionHeaderBlock {
+  eyebrow?: string | null;
+  /**
+   * Under eight words. Line breaks are kept.
+   */
+  title: string;
+  /**
+   * One or two sentences that back the title up. Under thirty words.
+   */
+  subhead?: string | null;
+  align: 'left' | 'center';
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkSectionHeader';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingRichTextBlock".
+ */
+export interface MarketingRichTextBlock {
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkRichText';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingMediaBlock".
+ */
+export interface MarketingMediaBlock {
+  /**
+   * Cropped around the photo’s focal point, set in the library.
+   */
+  image: string | MarketingMedia;
+  ratio: '16:9' | '3:2' | '1:1' | '4:5';
+  frame: 'plain' | 'window';
+  /**
+   * The web address shown above the screenshot, e.g. a demo club’s.
+   */
+  windowAddress?: string | null;
+  caption?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkMedia';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "marketing-media".
+ */
+export interface MarketingMedia {
+  id: string;
+  /**
+   * What the photo shows, read aloud to people using screen readers. Required. For demo pictures, say so, e.g. "Demo club: a heathland fairway at dawn".
+   */
+  alt: string;
+  prefix?: string | null;
+  _objectKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    w640?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    w1024?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    w1600?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    w2400?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    w3200?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingFeatureCardsBlock".
+ */
+export interface MarketingFeatureCardsBlock {
+  style: 'rows' | 'cards';
+  /**
+   * Cards: 2 in a row, 3 or 6 in rows of three, 4 in rows of two, 8 in rows of four.
+   */
+  cards: {
+    icon:
+      | 'check'
+      | 'clock'
+      | 'calendar'
+      | 'players'
+      | 'flag'
+      | 'lock'
+      | 'mail'
+      | 'phone'
+      | 'pin'
+      | 'search'
+      | 'file'
+      | 'download'
+      | 'info'
+      | 'sun';
+    title: string;
+    body: string;
+    /**
+     * Anything not working in production today is “Coming next”.
+     */
+    availability: 'live' | 'coming-next';
+    linkLabel?: string | null;
+    linkHref?: string | null;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkFeatureCards';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingCtaBandBlock".
+ */
+export interface MarketingCtaBandBlock {
+  title: string;
+  subhead?: string | null;
+  primary?: {
+    label?: string | null;
+    /**
+     * A page on this site, like /pricing, or a full web address.
+     */
+    href?: string | null;
+  };
+  /**
+   * Leave the text empty to show only the main button.
+   */
+  secondary?: {
+    label?: string | null;
+    /**
+     * A page on this site, like /pricing, or a full web address.
+     */
+    href?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkCtaBand';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingHomeHeroBlock".
+ */
+export interface MarketingHomeHeroBlock {
+  /**
+   * The page’s one main heading. Line breaks are kept.
+   */
+  title: string;
+  subhead?: string | null;
+  primary?: {
+    label?: string | null;
+    href?: string | null;
+  };
+  secondary?: {
+    label?: string | null;
+    href?: string | null;
+  };
+  /**
+   * Separate items with “ · ”. Use {price} for the monthly price from Settings, e.g. “{price} a month”.
+   */
+  proofLine?: string | null;
+  note?: string | null;
+  noteStrong?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkHomeHero';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingProofStatsBlock".
+ */
+export interface MarketingProofStatsBlock {
+  /**
+   * Only numbers from the claims register, with their source and date (docs/marketing-site/claims-register.md).
+   */
+  stats: {
+    number: string;
+    claim: string;
+    source: string;
+    methodHref?: string | null;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkProofStats';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingCompareBlock".
+ */
+export interface MarketingCompareBlock {
+  good: {
+    label: string;
+    title: string;
+    points?:
+      | {
+          text: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  poor: {
+    label: string;
+    title: string;
+    points?:
+      | {
+          text: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  footnotes?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkCompare';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingEditLiveBlock".
+ */
+export interface MarketingEditLiveBlock {
+  headline: string;
+  toggleLabel: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkEditLive';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingWeekBlock".
+ */
+export interface MarketingWeekBlock {
+  moments: {
+    time: string;
+    /**
+     * Live blocks only (hand-off §6).
+     */
+    preview: 'courseStatus' | 'news' | 'greenFees' | 'holeGuide';
+    title: string;
+    body: string;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkWeek';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingContentMovesBlock".
+ */
+export interface MarketingContentMovesBlock {
+  found?:
+    | {
+        label: string;
+        count: string;
+        id?: string | null;
+      }[]
+    | null;
+  built?:
+    | {
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  chip?: string | null;
+  steps?:
+    | {
+        title: string;
+        body: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkContentMoves';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingFounderBlock".
+ */
+export interface MarketingFounderBlock {
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkFounder';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "totp-attempts".
  */
 export interface TotpAttempt {
@@ -3014,6 +3405,328 @@ export interface TenantsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "marketing-pages_select".
+ */
+export interface MarketingPagesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  layout?:
+    | T
+    | {
+        mkSectionHeader?: T | MarketingSectionHeaderBlockSelect<T>;
+        mkRichText?: T | MarketingRichTextBlockSelect<T>;
+        mkMedia?: T | MarketingMediaBlockSelect<T>;
+        mkFeatureCards?: T | MarketingFeatureCardsBlockSelect<T>;
+        mkCtaBand?: T | MarketingCtaBandBlockSelect<T>;
+        mkHomeHero?: T | MarketingHomeHeroBlockSelect<T>;
+        mkProofStats?: T | MarketingProofStatsBlockSelect<T>;
+        mkCompare?: T | MarketingCompareBlockSelect<T>;
+        mkEditLive?: T | MarketingEditLiveBlockSelect<T>;
+        mkWeek?: T | MarketingWeekBlockSelect<T>;
+        mkContentMoves?: T | MarketingContentMovesBlockSelect<T>;
+        mkFounder?: T | MarketingFounderBlockSelect<T>;
+      };
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingSectionHeaderBlock_select".
+ */
+export interface MarketingSectionHeaderBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  subhead?: T;
+  align?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingRichTextBlock_select".
+ */
+export interface MarketingRichTextBlockSelect<T extends boolean = true> {
+  content?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingMediaBlock_select".
+ */
+export interface MarketingMediaBlockSelect<T extends boolean = true> {
+  image?: T;
+  ratio?: T;
+  frame?: T;
+  windowAddress?: T;
+  caption?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingFeatureCardsBlock_select".
+ */
+export interface MarketingFeatureCardsBlockSelect<T extends boolean = true> {
+  style?: T;
+  cards?:
+    | T
+    | {
+        icon?: T;
+        title?: T;
+        body?: T;
+        availability?: T;
+        linkLabel?: T;
+        linkHref?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingCtaBandBlock_select".
+ */
+export interface MarketingCtaBandBlockSelect<T extends boolean = true> {
+  title?: T;
+  subhead?: T;
+  primary?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+      };
+  secondary?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingHomeHeroBlock_select".
+ */
+export interface MarketingHomeHeroBlockSelect<T extends boolean = true> {
+  title?: T;
+  subhead?: T;
+  primary?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+      };
+  secondary?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+      };
+  proofLine?: T;
+  note?: T;
+  noteStrong?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingProofStatsBlock_select".
+ */
+export interface MarketingProofStatsBlockSelect<T extends boolean = true> {
+  stats?:
+    | T
+    | {
+        number?: T;
+        claim?: T;
+        source?: T;
+        methodHref?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingCompareBlock_select".
+ */
+export interface MarketingCompareBlockSelect<T extends boolean = true> {
+  good?:
+    | T
+    | {
+        label?: T;
+        title?: T;
+        points?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+      };
+  poor?:
+    | T
+    | {
+        label?: T;
+        title?: T;
+        points?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+      };
+  footnotes?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingEditLiveBlock_select".
+ */
+export interface MarketingEditLiveBlockSelect<T extends boolean = true> {
+  headline?: T;
+  toggleLabel?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingWeekBlock_select".
+ */
+export interface MarketingWeekBlockSelect<T extends boolean = true> {
+  moments?:
+    | T
+    | {
+        time?: T;
+        preview?: T;
+        title?: T;
+        body?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingContentMovesBlock_select".
+ */
+export interface MarketingContentMovesBlockSelect<T extends boolean = true> {
+  found?:
+    | T
+    | {
+        label?: T;
+        count?: T;
+        id?: T;
+      };
+  built?:
+    | T
+    | {
+        label?: T;
+        id?: T;
+      };
+  chip?: T;
+  steps?:
+    | T
+    | {
+        title?: T;
+        body?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingFounderBlock_select".
+ */
+export interface MarketingFounderBlockSelect<T extends boolean = true> {
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "marketing-media_select".
+ */
+export interface MarketingMediaSelect<T extends boolean = true> {
+  alt?: T;
+  prefix?: T;
+  _objectKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+  sizes?:
+    | T
+    | {
+        w640?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        w1024?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        w1600?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        w2400?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        w3200?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "totp-attempts_select".
  */
 export interface TotpAttemptsSelect<T extends boolean = true> {
@@ -3080,6 +3793,78 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "marketing-settings".
+ */
+export interface MarketingSetting {
+  id: string;
+  pricing: {
+    monthlyPrice: number;
+    /**
+     * Shown next to every price. Open question Q2.
+     */
+    vatLabel: string;
+    minimumTermMonths: number;
+    noticeDays: number;
+    /**
+     * Empty: the calculator hides the second course. Open question Q3.
+     */
+    secondCoursePrice?: number | null;
+  };
+  trust?: {
+    /**
+     * Empty: the claim isn’t shown. Only fill in once the Neon plan gives it (Q6).
+     */
+    restoreWindowDays?: number | null;
+  };
+  founder: {
+    name: string;
+    role?: string | null;
+    message?: string | null;
+    photo?: (string | null) | MarketingMedia;
+    phone?: string | null;
+    /**
+     * Without one, “Book a call” goes to the Book a demo page.
+     */
+    calendarLink?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "marketing-settings_select".
+ */
+export interface MarketingSettingsSelect<T extends boolean = true> {
+  pricing?:
+    | T
+    | {
+        monthlyPrice?: T;
+        vatLabel?: T;
+        minimumTermMonths?: T;
+        noticeDays?: T;
+        secondCoursePrice?: T;
+      };
+  trust?:
+    | T
+    | {
+        restoreWindowDays?: T;
+      };
+  founder?:
+    | T
+    | {
+        name?: T;
+        role?: T;
+        message?: T;
+        photo?: T;
+        phone?: T;
+        calendarLink?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

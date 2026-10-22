@@ -44,6 +44,10 @@ import * as migration_20261020_092237_media_tone from './20261020_092237_media_t
 import * as migration_20261020_112739_menu_sections from './20261020_112739_menu_sections';
 import * as migration_20261020_164723_club_domains from './20261020_164723_club_domains';
 import * as migration_20261020_212250_privacy_cleanup from './20261020_212250_privacy_cleanup';
+import * as migration_20261021_154303_marketing_content from './20261021_154303_marketing_content';
+import * as migration_20261021_160708_marketing_blocks_from_figma from './20261021_160708_marketing_blocks_from_figma';
+import * as migration_20261021_163953_marketing_founder_card from './20261021_163953_marketing_founder_card';
+import * as migration_20261021_170032_marketing_home_blocks from './20261021_170032_marketing_home_blocks';
 
 export const migrations = [
   {
@@ -274,6 +278,26 @@ export const migrations = [
   {
     up: migration_20261020_212250_privacy_cleanup.up,
     down: migration_20261020_212250_privacy_cleanup.down,
-    name: '20261020_212250_privacy_cleanup'
+    name: '20261020_212250_privacy_cleanup',
+  },
+  {
+    up: migration_20261021_154303_marketing_content.up,
+    down: migration_20261021_154303_marketing_content.down,
+    name: '20261021_154303_marketing_content',
+  },
+  {
+    up: migration_20261021_160708_marketing_blocks_from_figma.up,
+    down: migration_20261021_160708_marketing_blocks_from_figma.down,
+    name: '20261021_160708_marketing_blocks_from_figma',
+  },
+  {
+    up: migration_20261021_163953_marketing_founder_card.up,
+    down: migration_20261021_163953_marketing_founder_card.down,
+    name: '20261021_163953_marketing_founder_card',
+  },
+  {
+    up: migration_20261021_170032_marketing_home_blocks.up,
+    down: migration_20261021_170032_marketing_home_blocks.down,
+    name: '20261021_170032_marketing_home_blocks'
   },
 ];

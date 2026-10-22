@@ -333,3 +333,123 @@ Approved by Dan, 2026-10-21. Plan: `docs/plans/marketing-site-plan.md`. Brief: `
 - **Homepage and demo requests are kept for 12 months** after the last contact, then deleted by the nightly clean-up job.
 - **The committee summary (A4 PDF) is removed.** Not built.
 - **Bookings stays out of scope for v1:** the marketing Bookings page is an in-page preview with made-up times, labelled Coming next.
+
+## 2026-10-21: Marketing site addresses (plan phase 1.1)
+
+- **`MARKETING_HOSTS`** lists the company website's addresses, main one first (e.g. `brandname.golf,www.brandname.golf`). The others forward to the main one. Not a secret. Empty until the company domain exists.
+- **On the company domain:** only the marketing site. The admin, API, previews, `/health` and club pages don't exist there (404), and a club can never be given one of these addresses.
+- **On the platform's own address** (the admin's address, staging, previews, local): the admin, API, previews and platform services stay as they are; every other path is the marketing site. Once `MARKETING_HOSTS` is set, those paths forward to the company domain, so the admin's address never shows public pages. Until then (staging, previews) they're shown in place.
+- **A club's domain never reaches the marketing site.** Its every path is that club's.
+- **Search engines:** the marketing site may be indexed only on the company domain on production (`X-Robots-Tag: noindex` everywhere else, plus a "stay away" `robots.txt`).
+- **Pages are rendered for each visit**, like club sites, because the one-time script code needs it (the hand-off said "static by default"). Content can still be cached behind the page.
+- **Content security policy:** the marketing site gets its own, enforced, without the club-only extras (map, Google Analytics, Turnstile). Each comes back only when a marketing page needs it.
+- **The company name, email and domain live in `src/brand.ts`.** The club privacy policy now names the provider from there ("Brandname" until the name is chosen; it said "Clubhouse"), so its "last updated" date moved to 21 October.
+
+## 2026-10-21: Marketing site content (plan phase 1.2)
+
+- **Three new things in Payload, under "Company website" in the sidebar, for the super-admin only:** Pages (`marketing-pages`), Photos (`marketing-media`) and Settings (`marketing-settings`). Club editors can't read, change or see them, in the admin or the API. They're platform-level in `src/tenancy.ts`, with no club.
+- **Pages** have drafts (saved as you type) and a flat address each (`home` is `/`). Only published versions reach visitors (`src/marketing/content.ts`).
+- **Sections** are the five marketing blocks: Section header, Text, Photo, Feature cards and Call to action band. Word limits from the Figma block rules are enforced: headlines 8 words, subheads 30. No size, font or colour choices. The band's buttons are always "Book a demo" and "Get your free homepage". Feature cards say "Coming next" for anything not live.
+- **Photos need a description** (unlike club photos). They're stored under `marketing-media/` in the same bucket. The nightly clean-up only looks in the club folders, so it never removes these.
+- **Settings** hold the stated values: price (£149), VAT wording ("+ VAT"), minimum term (12 months), notice (90 days), optional second-course price, optional restore window, and the Founder Card. An empty optional value means its claim isn't shown.
+- **Every settings screen must define its own access**, now checked by `tests/unit/access-guard.spec.ts` (the first global). Document locking stays off for it.
+- **Moved to phase 5:** the homepage and demo request collections, so their fields match the Figma forms when those are built.
+- **Live preview** for marketing pages comes in phase 2, with the styled blocks.
+
+## 2026-10-21: Marketing site look (plan phase 1.3), built from Figma
+
+Built from the Figma page "Marketing site" (170:28407): the variables, the CMS blocks section (210:7925), the block rules (212:8319), the interaction rules (220:8582) and the mobile frames (273:8954, 274:9185, 297:9754). Checked side by side with Figma at 1440 and 390 wide, and the key measurements are pinned in `tests/e2e/marketing-look.spec.ts`.
+
+- **Tokens:** every Figma marketing variable as `--mk-*`, including `accent-haze` (primary button hover) and `accent-peach` (Beta badge). Scoped to the marketing `<body class="mk">`; a test proves none reach a club site.
+- **Type:** the Figma text styles. Figma letter spacing is a percentage of the font size, so a 60px heading is −1.08px. Phones use Mobile Display (44/48) and Mobile Heading (32/36), with body text at 16px.
+- **Fonts:** Newsreader and Hanken Grotesk, self-hosted from Fontsource 5.3.0 (SIL Open Font License).
+- **Layout:** a 1200px container. Desktop sections are 128px apart, with 96px above a CTA band and 64px from header to content. Phones have 20px sides and 64px sections, and a page intro starts 40px down. **Tablet isn't designed**: 32px sides and 96px sections are derived.
+- **Blocks, with their fields from the Figma component descriptions** (second migration, `marketing_blocks_from_figma`, adds columns only):
+  - **Section Header:** eyebrow, title (line breaks kept), body and alignment (left or centre). Page size for the first one, Section size elsewhere.
+  - **CTA Band:** title and body, plus editable buttons that default to "Book a demo" (`/book-a-demo`) and "Get your free homepage" (`/switching`). Links must be a page on the site or a safe web address. Centred on desktop; left-aligned with full-width 44px buttons on phones.
+  - **Media:** Plain or Window frame. Window has the Browser Chrome bar with an editable address. Width comes from the layout (720px, or 480px for portrait), with an optional caption.
+  - **Rich Text:** 40px above H2, 32px above H3, 20px between paragraphs, the Figma bullet, and a dawn-ruled quote.
+  - **Features:** Rows (the default: hairline above, icon beside text, two columns) or Cards (boxed, 24px apart; 2 a row, 3 for 3 or 6, two rows of two for 4, four a row for 8). An icon from the shared set, optional link, and the "Coming next" Availability Badge (text and icon).
+- **Buttons:** Marketing/Button primary and secondary, with hover (haze or hover surface, arrow nudges 3px), press (0.97) and focus (dawn ring) states. The arrow is hidden on phones, as in the mobile frames.
+- **Icons:** the club sites' icons from the same Figma set are reused. Lock, calendar, players, flag and sun are the Figma SVG files, drawn in the current colour.
+- **404 (not designed):** a Section Header and a CTA Band in plain words, as the hand-off says.
+
+## 2026-10-21: Error messages always reach the person
+
+- **Found while building the marketing blocks:** Payload shows an error's message only when the error has a name, and takes the name from the class name. The production build can shorten that to nothing. Unrelated code changes did exactly that, so messages like "Passwords must be at least 12 characters." became "An unknown error occurred."
+- **Fix:** `publicError()` in `src/errors.ts` creates the same error with its name set. All 11 places that made one directly now use it.
+- **Test:** `tests/unit/public-errors.spec.ts` checks the message survives, and fails if any code creates an `APIError` directly again.
+
+## 2026-10-21: Marketing controls (plan phase 2.1)
+
+Built from the Figma "Marketing · Controls" section (219:8340) and its neighbours. Each component's Figma description sets its behaviour.
+
+- **Button:** adds Ghost (nav-level, secondary text) and Disabled (40%). A link when it has an address, otherwise a real button.
+- **Nav Link, Text Link** (the underline draws in from the left; visited links keep their colour) and **Icon Button** (always labelled; 36px to see, 44px to tap; pressed 0.95).
+- **Switch:** `role="switch"`; the knob springs and stretches when pressed; 44px hit area.
+- **Pill Tabs:** a tablist where the active pill slides; arrow keys, Home and End.
+- **Segmented control, Tenant Chips:** radio groups with arrow keys. The tenant swatch is the club's colour.
+- **Filter Chips, Time Slots:** native radios. Taken slots are disabled and struck through, not just greyed.
+- **Field:** the error is tied to the input (`aria-describedby`), with a rose border and message.
+- **FAQ Item:** a disclosure button with `aria-expanded`; opens over 180ms, instantly with reduced motion.
+- **New token:** `accent-rose` #d97f78 (errors).
+- **One change from Figma for accessibility:** the selected Tenant Chip's style label uses secondary text, because tertiary fails 4.5:1 there (open-questions D1).
+- **Review page:** `/dev/components` shows every control live. It's for the super-admin signed in with their code, on the platform's own address only, and returns a 404 everywhere else.
+
+## 2026-10-21: Marketing nav, footer, founder card and live preview (plan phase 2.2)
+
+- **Nav** from Figma Marketing/Nav (175:1875) and Nav Mobile (272:8990):
+  - The links are the component's labels: Website builder · Tee times (with the Coming next clock; goes to `/bookings`) · Switching · Pricing · Trust. The hand-off's "expected" list differed; it also says to take labels from the component.
+  - The actions are Club log in (to `ADMIN_URL/admin`), Free homepage (`/switching`) and Book a demo.
+  - Transparent at the top; glass with a hairline after 8px of scroll.
+  - On phones, the menu is a full-height sheet: focus stays inside it, and Esc closes it.
+  - **The Search button is left out**: there's no marketing site search for it to open (open question N9).
+- **Footer** from Footer (175:1876) and Footer Mobile (272:8991): the site map in three columns plus the legal links. The status dot is left out until real monitoring feeds it (hand-off §7). Contact is the company email.
+- **Proof Stat** (264:8700): a component for the home page's researched stats (phase 4).
+- **Founder Card** (264:8707; stacked under 600px, 272:9022):
+  - Text and links come from the marketing settings. The defaults are the Figma wording; the migration only sets those defaults.
+  - Without a calendar link, "Book a call" goes to the Book a demo page. Without a phone number, "Call" isn't shown.
+  - Your initial shows until a photo is added.
+- **Phone buttons are 36px tall**, as in the mobile nav and cards. Only the CTA band's phone buttons are 44px (mobile CTA frame).
+- **Live preview:** marketing pages have the admin's preview panel. It shows the latest draft at `/dev/preview/…`, on the platform's own address, for the signed-in super-admin only.
+
+## 2026-10-21: Live demo engine and Tenant Morph (plan phase 3)
+
+- **Demo clubs** (Figma Marketing/Tenant Morph, 176:2177):
+  - Ashgrove Park (Heritage, `ashgrovepark.golf`) and Kingsmere (Booking-led, `kingsmere.golf`) use the default palette.
+  - Carreg Bay Links (Coastal, `carregbay.golf`) uses the Figma "Demo · Coastal links" palette.
+  - All three use the Heritage font set. Their content lives in `src/marketing/demo/clubs.ts`, never in the database (decision B).
+- **Real blocks, not pictures:**
+  - `DemoFrame` is the Browser Chrome bar plus the actual club block component (e.g. `Hero`), given sample content through the same `BlockContext` the club sites use.
+  - On desktop the block is laid out at the club template's 1366px design width and scaled to the frame; on phones it shows the club's own phone layout.
+  - The club's colours and fonts are set on the frame only. Tests prove they don't reach the page around it.
+- **Accessibility:** the club block inside a frame is a picture of a club site, so it's `inert` (no keyboard stops) and hidden from screen readers. The frame's label ("Demo club: Ashgrove Park's home page") is read instead.
+- **Pictures** are the demo club's illustrations, drawn in code (`src/demo/sceneSVG.ts`). The Figma hero photos aren't used because their licences aren't confirmed (hand-off §11).
+- **The Booking-led demo shows the club's booking button**, which works today, not Figma's tee-time search bar, which is coming next (hand-off §6: "shows no unbuilt booking feature").
+- **Tenant Morph:**
+  - On desktop the hero switches club as you scroll past (about a viewport each).
+  - With reduced motion or on phones it stays on Ashgrove Park until a chip is chosen.
+  - The chips work by keyboard and keep focus when the club changes.
+
+## 2026-10-21: Marketing home page (plan phase 4)
+
+Built from Figma "Home — Desktop" (176:2178) and "Home — Mobile" (273:8954). Each section is a bespoke marketing block, editable in the CMS (hand-off §5). One migration adds their tables only.
+
+- **Home hero:** headline, body, two buttons and a proof line, with the Tenant Morph below.
+  - The proof line's price comes from the settings (`{price}`), and the editor refuses typed prices.
+  - On phones the morph shows no browser bar, as in the mobile frame.
+- **Proof stats and Good vs poor:** the researched stats, with the hand-off's exact sources, and the two panels with footnotes.
+- **Edit and live:** the real Hero block, laid out about 900px wide and scaled into the card.
+  - Visitors can type the headline and eyebrow and flip the switch, and the hero follows. Nothing is saved.
+  - Figma calls it a static pair; the hand-off asks for it to be interactive.
+- **A week at the club:**
+  - Four moments with previews of live blocks, in the demo club's style.
+  - On desktop they go upcoming → active → past as you scroll; phones get a swipeable row that keyboard users can scroll; reduced motion shows the final state.
+  - The previews are pictures of blocks, so they're inert and hidden from screen readers; the moment's title and text say what they show.
+- **Your content comes with you:** the example is shown on the demo club's address and labelled "Demo club".
+- **Founder card:** full width, from the settings.
+- **Starter content:**
+  - "Add the Figma pages (as drafts)", above Company website → Pages, adds the home page from the Figma copy (`src/marketing/starter/pages.ts`).
+  - It never touches a page whose address is already used.
+  - It's for the super-admin with their code entered, from the admin only.
+- **Differences from Figma** are listed as D2–D5 in `docs/marketing-site/open-questions.md`.

@@ -62,6 +62,8 @@ export default defineConfig({
       SITE_PREVIEW: 'on',
       // Pins "today" for date-dependent blocks (src/site/today.ts), so pictures are stable.
       SITE_FIXED_TODAY: '2026-07-15',
+      // The company website's addresses (src/site/hosts.ts): browsers send *.localhost here.
+      MARKETING_HOSTS: 'marketing.localhost,www.marketing.localhost',
       ...(process.env.APP_DATABASE_URL ? { DATABASE_URL: process.env.APP_DATABASE_URL } : {}),
     },
   },

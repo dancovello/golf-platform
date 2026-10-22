@@ -1,7 +1,7 @@
 import type { Endpoint, Payload } from 'payload'
-import { APIError } from 'payload'
 
 import { isSuperAdmin } from '../access/roles'
+import { publicError } from '../errors'
 
 /**
  * Clears an account's two-factor secret, so they set it up again at their next login
@@ -27,14 +27,14 @@ export const resetTwoFactorEndpoint: Endpoint = {
   handler: async (req) => {
     const user = req.user as (typeof req.user & { _strategy?: string }) | null
     if (!user || !isSuperAdmin(user) || user._strategy !== 'totp') {
-      throw new APIError('You are not allowed to perform this action.', 403)
+      throw publicError('You are not allowed to perform this action.', 403)
     }
     const id = String(req.routeParams?.id ?? '')
     const target = await req.payload
       .findByID({ collection: 'users', id, depth: 0, overrideAccess: true })
       .catch(() => null)
     if (!target || target.role !== 'editor') {
-      throw new APIError('Only a club editor’s two-factor can be reset here.', 400)
+      throw publicError('Only a club editor’s two-factor can be reset here.', 400)
     }
     await resetTwoFactor(req.payload, id)
     return Response.json({

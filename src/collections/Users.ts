@@ -5,7 +5,7 @@ import type {
   CollectionConfig,
   Where,
 } from 'payload'
-import { APIError, ValidationError } from 'payload'
+import { ValidationError } from 'payload'
 
 import { enforceAccountCreationRules } from '../access/accountCreation'
 import { editorTenantID, isSuperAdmin } from '../access/roles'
@@ -17,6 +17,7 @@ import {
   resetEmailSubject,
 } from '../accounts/resetEmail'
 import { resetTwoFactorEndpoint } from '../auth/resetTwoFactor'
+import { publicError } from '../errors'
 
 export const MIN_PASSWORD_LENGTH = 12
 
@@ -88,7 +89,7 @@ const passwordOperationRules: CollectionBeforeOperationHook = ({ args, operation
     req.context?.passwordLinkByAdmin !== true &&
     !passwordResetByEmailEnabled()
   ) {
-    throw new APIError(
+    throw publicError(
       'Password reset by email is not available yet. Ask your platform administrator for a new link.',
       403,
     )
@@ -96,7 +97,7 @@ const passwordOperationRules: CollectionBeforeOperationHook = ({ args, operation
   if (operation === 'resetPassword') {
     const password = (args as { data?: { password?: unknown } }).data?.password
     if (typeof password !== 'string' || password.length < MIN_PASSWORD_LENGTH) {
-      throw new APIError(`Passwords must be at least ${MIN_PASSWORD_LENGTH} characters.`, 400)
+      throw publicError(`Passwords must be at least ${MIN_PASSWORD_LENGTH} characters.`, 400)
     }
   }
   return args
