@@ -6,6 +6,7 @@ import { NEWS_CATEGORIES, newsCategoryLabel } from '@/collections/newsCategories
 import { type BlockContext, loadBlockContext } from './blocks/resolve'
 import { loadClubMedia, type SiteMedia } from './blocks/media'
 import { siteToday } from './today'
+import { clubCached } from './cache'
 import { idOf } from '@/blocks/types'
 
 /** A news article as cards and lists show it. */
@@ -100,7 +101,7 @@ const CARD_FIELDS = {
 } as const
 
 /** The latest published articles, optionally in one category (news blocks). */
-export const latestNews = async (tenantID: string, limit: number, category?: string | null) => {
+const latestNewsFresh = async (tenantID: string, limit: number, category?: string | null) => {
   const payload = await getPayload({ config })
   const { docs } = await payload.find({
     collection: 'news',
@@ -115,7 +116,7 @@ export const latestNews = async (tenantID: string, limit: number, category?: str
 }
 
 /** One page of the archive, filtered by category and search words. */
-export const newsArchive = async (
+const newsArchiveFresh = async (
   tenantID: string,
   { category, q, page }: { category: string | null; q: string | null; page: number },
 ) => {
@@ -167,7 +168,7 @@ const wordCount = (value: unknown): number => {
  * `unpublished`: the admin's live preview for the club's own editors, which also shows a draft
  * or a scheduled article (the caller checks who may see it: src/site/livePreviewAccess.ts).
  */
-export const loadNewsPost = async (
+const loadNewsPostFresh = async (
   tenantID: string,
   slug: string,
   { unpublished = false }: { unpublished?: boolean } = {},
@@ -230,3 +231,24 @@ export const loadNewsPost = async (
     more: latest.filter((p) => p.slug !== slug).slice(0, 6),
   }
 }
+
+// Cached per club (src/site/cache.ts). Which articles are live depends on today's date, so at
+// most 5 minutes.
+/** The latest published articles, optionally in one category (news blocks). */
+export const latestNews = clubCached('latestNews', latestNewsFresh, { today: true })
+/** One page of the archive, filtered by category and search words. */
+export const newsArchive = clubCached('newsArchive', newsArchiveFresh, { today: true })
+const publishedNewsPost = clubCached(
+  'newsPost',
+  (tenantID: string, slug: string) => loadNewsPostFresh(tenantID, slug),
+  { today: true },
+)
+/** One article. Unpublished ones (the live preview) never go through the cache. */
+export const loadNewsPost = (
+  tenantID: string,
+  slug: string,
+  { unpublished = false }: { unpublished?: boolean } = {},
+) =>
+  unpublished
+    ? loadNewsPostFresh(tenantID, slug, { unpublished })
+    : publishedNewsPost(tenantID, slug)

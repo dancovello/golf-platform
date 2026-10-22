@@ -24,6 +24,7 @@ import { mediaStorageSettings } from './media/storage'
 import { jobs } from './privacy/jobs'
 import { addSearchTables } from './search/schema'
 import { addRateLimitTable } from './security/rateLimitSchema'
+import { withCacheClearing } from './site/cacheHooks'
 import { clubOwnedCollections } from './tenancy'
 
 const media = mediaStorageSettings()
@@ -65,7 +66,8 @@ export default buildConfig({
     },
   },
   // Copied so Payload adding its own collections at startup never changes our list.
-  collections: [...collections],
+  // Each club's cached site data is cleared when its content changes (src/site/cacheHooks.ts).
+  collections: withCacheClearing([...collections]),
   globals: [...globals],
   editor: lexicalEditor(),
   // Background jobs (decided stack: Payload Jobs Queue). Only the nightly clean-up so far.

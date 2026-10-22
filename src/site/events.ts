@@ -8,6 +8,7 @@ import { loadClubMedia, type SiteMedia } from './blocks/media'
 import { PUBLISHED } from './published'
 import type { SiteLink } from './loadClub'
 import { siteToday } from './today'
+import { clubCached } from './cache'
 import { idOf } from '@/blocks/types'
 
 /** An event as cards, rows and the featured panel show it. */
@@ -149,7 +150,7 @@ export const clubEvents = async (tenantID: string): Promise<SiteEvent[]> => {
 }
 
 /** The next events, soonest first, optionally in one category (Events blocks). */
-export const upcomingEvents = async (
+const upcomingEventsFresh = async (
   tenantID: string,
   limit: number,
   category?: string | null,
@@ -159,7 +160,7 @@ export const upcomingEvents = async (
 }
 
 /** The featured event (the soonest one marked featured, or simply the next one). */
-export const featuredEvent = async (tenantID: string): Promise<SiteEvent | null> => {
+const featuredEventFresh = async (tenantID: string): Promise<SiteEvent | null> => {
   const marked = await find(
     tenantID,
     { and: [upcoming(tenantID), { featured: { equals: true } }] },
@@ -175,7 +176,7 @@ export const featuredEvent = async (tenantID: string): Promise<SiteEvent | null>
  * `include`: one more of the club's events shown whatever its status or date, for the admin's
  * live preview (the caller checks who may see it: src/site/livePreviewAccess.ts).
  */
-export const eventsArchive = async (
+const eventsArchiveFresh = async (
   tenantID: string,
   {
     category,
@@ -196,3 +197,21 @@ export const eventsArchive = async (
     show: count,
   }
 }
+
+// Cached per club (src/site/cache.ts). "Upcoming" depends on today's date: at most 5 minutes.
+export const upcomingEvents = clubCached('upcomingEvents', upcomingEventsFresh, { today: true })
+export const featuredEvent = clubCached('featuredEvent', featuredEventFresh, { today: true })
+const cachedArchive = clubCached(
+  'eventsArchive',
+  (tenantID: string, category: string | null, show: number) =>
+    eventsArchiveFresh(tenantID, { category, show }),
+  { today: true },
+)
+/** The archive. With `include` (the live preview's draft event) it never goes through the cache. */
+export const eventsArchive = (
+  tenantID: string,
+  options: { category: string | null; show: number; include?: string | null },
+) =>
+  options.include
+    ? eventsArchiveFresh(tenantID, options)
+    : cachedArchive(tenantID, options.category, options.show)

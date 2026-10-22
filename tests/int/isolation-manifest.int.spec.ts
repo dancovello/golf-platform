@@ -9,12 +9,20 @@ import { describe, expect, it } from 'vitest'
 
 import config from '@/payload.config'
 import {
+  CACHED,
   COLLECTIONS,
   type Cover,
   ENDPOINTS,
   ROUTES,
   SERVER_ACTIONS,
 } from '@/security/isolation-manifest'
+
+import { CACHED_LOADERS } from '@/site/cache'
+// Imported so their cached loaders register themselves.
+import '@/site/events'
+import '@/site/loadClub'
+import '@/site/news'
+import '@/site/resolveSite'
 
 import { ROOT } from '../shared/sourceScan'
 
@@ -104,6 +112,10 @@ describe('the isolation manifest lists everything', () => {
     expect(Object.keys(ROUTES).sort()).toEqual(routesInApp())
   })
 
+  it('every cached club loader (src/site/cache.ts)', () => {
+    expect(Object.keys(CACHED).sort()).toEqual(CACHED_LOADERS.map((l) => l.name).sort())
+  })
+
   it("every file of server actions ('use server')", () => {
     expect(Object.keys(SERVER_ACTIONS).sort()).toEqual(serverActionFiles())
   })
@@ -115,6 +127,7 @@ describe('every test the manifest names exists', () => {
     ['endpoints', ENDPOINTS],
     ['routes', ROUTES],
     ['server actions', SERVER_ACTIONS],
+    ['cached loaders', CACHED],
   ] as const)('%s', (_name, manifest) => {
     expect(missingTests(manifest)).toEqual([])
   })

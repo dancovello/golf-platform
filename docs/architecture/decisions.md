@@ -502,3 +502,15 @@ All of these run in the `tenant-isolation` CI job and block merging.
 - **Isolation:** the whole isolation suite (integration and browser) now runs with password-only editors, because that's the new normal. Tests also prove that a super-admin with a password but no code reaches nothing, and that escalation attempts still fail.
 - **Data processing agreement:** Schedule 2's security wording now describes this. Version `2026-10-22-draft`, so clubs accept again. The club privacy policy doesn't mention two-factor, so it's unchanged.
 - **Invite and reset emails** no longer tell editors they'll need an authenticator app.
+
+## 2026-10-22: Club sites' data is cached, cleared when a club publishes (job 5)
+
+- **The data behind club pages is cached in Next.js's data cache** (`unstable_cache`, `src/site/cache.ts`). The pages themselves are still made per view, because each needs a fresh one-time code for the security policy. Why not `'use cache'`: `docs/plans/club-data-cache-spike.md`.
+- **Never across clubs:**
+  - every cached loader takes the club's ID first, and the ID is in its key and its only tag;
+  - the two address lookups (slug and web address to club) are keyed by the address;
+  - drafts and the live preview never use the cache.
+
+  Tests: `tests/int/cache-isolation.int.spec.ts` (part of the isolation suite) and `tests/e2e/site-cache.spec.ts`. The isolation manifest lists every cached loader.
+- **Cleared at once** for one club when anything it owns is saved or deleted (`src/site/cacheHooks.ts`). Anything that depends on today's date is kept at most 5 minutes, and everything at most an hour, which covers changes made around the website (scripts, restores).
+- **Emergency switch:** `SITE_DATA_CACHE=off`.
