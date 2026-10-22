@@ -22,6 +22,7 @@ import { guardBrowserUploads } from './media/uploadGuards'
 import { mediaStorageSettings } from './media/storage'
 import { jobs } from './privacy/jobs'
 import { addSearchTables } from './search/schema'
+import { addRateLimitTable } from './security/rateLimitSchema'
 import { clubOwnedCollections } from './tenancy'
 
 const media = mediaStorageSettings()
@@ -90,8 +91,8 @@ export default buildConfig({
     idType: 'uuid',
     migrationDir: path.resolve(dirname, 'migrations'),
     // The site search index: two plain tables only the website's server code reads
-    // (src/search/schema.ts).
-    afterSchemaInit: [addSearchTables],
+    // (src/search/schema.ts). And the shared rate-limit counts (src/security/rateLimit.ts).
+    afterSchemaInit: [addSearchTables, addRateLimitTable],
     // Search's spelling tolerance needs pg_trgm. Migrations add it everywhere else (the
     // website's own account can't); locally, schema auto-sync needs it first.
     extensions: process.env.NODE_ENV === 'development' ? ['pg_trgm'] : [],

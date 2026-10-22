@@ -1,6 +1,8 @@
 import * as Sentry from '@sentry/nextjs'
 
 import { sentryEnabled } from '@/monitoring/sentry'
+import { withinLimit } from '@/security/limitRequest'
+import { CSP_REPORT_LIMIT } from '@/security/rateLimit'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,12 +13,9 @@ export const dynamic = 'force-dynamic'
  * reports are clean.
  *
  * Only the page's path and the blocked item's origin are kept: no query strings, nothing about
- * the visitor. At most 60 reports a minute per server instance, so it can't be used to flood
- * the logs.
+ * the visitor. At most 60 reports a minute from everyone together, counted across every server
+ * (src/security/rateLimit.ts), so it can't be used to flood the logs.
  */
-const PER_MINUTE = 60
-let windowStart = 0
-let count = 0
 
 const pathOf = (value: unknown) => {
   if (typeof value !== 'string') return null
@@ -51,12 +50,11 @@ const reportsIn = (body: unknown): Report[] => {
 }
 
 export async function POST(request: Request) {
-  const now = Date.now()
-  if (now - windowStart > 60_000) {
-    windowStart = now
-    count = 0
-  }
-  if (++count > PER_MINUTE) return new Response(null, { status: 204 })
+  // A database problem drops the report rather than failing: reports are only for the log.
+  const allowed = await withinLimit(CSP_REPORT_LIMIT, request.headers, { visitor: 'all' }).catch(
+    () => false,
+  )
+  if (!allowed) return new Response(null, { status: 204 })
 
   const text = (await request.text().catch(() => '')).slice(0, 10_000)
   let body: unknown = null
