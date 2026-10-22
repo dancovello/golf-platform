@@ -36,7 +36,7 @@
 - **Clearing:** saving or deleting anything a club owns clears that club's tag at once (`src/site/cacheHooks.ts`). Saving a draft over a draft doesn't clear it. A record moved between clubs clears both. Changing a club's record clears the address lookups too.
 - **Drafts and the live preview** never use the cached loaders.
 - **Site search** isn't cached; it has its own index.
-- **Nothing is kept longer than an hour.** Changes made outside the website (scripts, restoring a backup) can't clear the cache, so this is the limit for those. After a restore, pages may show the old data for up to an hour, or until each club next publishes. A redeploy doesn't clear the data cache.
+- **Nothing is kept longer than an hour.** Changes made outside the website (scripts, restoring a backup) can't clear the cache, so this is the limit for those. After a restore, pages may show the old data for up to an hour, or until each club next publishes. A redeploy doesn't clear the data cache. To avoid it, set `SITE_DATA_CACHE=off` for an hour after a restore: it bypasses the old entries rather than deleting them.
 - **Emergency switch:** `SITE_DATA_CACHE=off` in Vercel turns caching off without a code change.
 
 ## Speed
