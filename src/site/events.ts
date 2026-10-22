@@ -121,11 +121,12 @@ const toEvents = async (tenantID: string, docs: EventDoc[]): Promise<SiteEvent[]
   })
 }
 
-const find = async (where: Where, limit: number) => {
+/** One club's events. The club is always added to the query here, so no caller can forget it. */
+const find = async (tenantID: string, where: Where, limit: number) => {
   const payload = await getPayload({ config })
   return payload.find({
     collection: 'events',
-    where,
+    where: { and: [{ tenant: { equals: tenantID } }, where] },
     sort: 'startsAt',
     limit,
     depth: 0,
@@ -153,14 +154,19 @@ export const upcomingEvents = async (
   limit: number,
   category?: string | null,
 ): Promise<SiteEvent[]> => {
-  const { docs } = await find(upcoming(tenantID, category), limit)
+  const { docs } = await find(tenantID, upcoming(tenantID, category), limit)
   return toEvents(tenantID, docs as EventDoc[])
 }
 
 /** The featured event (the soonest one marked featured, or simply the next one). */
 export const featuredEvent = async (tenantID: string): Promise<SiteEvent | null> => {
-  const marked = await find({ and: [upcoming(tenantID), { featured: { equals: true } }] }, 1)
-  const docs = marked.docs.length > 0 ? marked.docs : (await find(upcoming(tenantID), 1)).docs
+  const marked = await find(
+    tenantID,
+    { and: [upcoming(tenantID), { featured: { equals: true } }] },
+    1,
+  )
+  const docs =
+    marked.docs.length > 0 ? marked.docs : (await find(tenantID, upcoming(tenantID), 1)).docs
   return (await toEvents(tenantID, docs as EventDoc[]))[0] ?? null
 }
 
@@ -179,11 +185,9 @@ export const eventsArchive = async (
 ) => {
   const known = EVENT_CATEGORIES.some((c) => c.value === category) ? category : null
   const count = Math.min(Math.max(EVENTS_STEP, show), 200)
-  const result = await find(upcoming(tenantID, known), count)
+  const result = await find(tenantID, upcoming(tenantID, known), count)
   // The event being previewed comes first, so the editor always sees it.
-  const extra = include
-    ? (await find({ and: [{ tenant: { equals: tenantID } }, { id: { equals: include } }] }, 1)).docs
-    : []
+  const extra = include ? (await find(tenantID, { id: { equals: include } }, 1)).docs : []
   const docs = [...extra, ...result.docs.filter((d) => !extra.some((e) => e.id === d.id))]
   return {
     category: known,
