@@ -453,3 +453,21 @@ Built from Figma "Home — Desktop" (176:2178) and "Home — Mobile" (273:8954).
   - It never touches a page whose address is already used.
   - It's for the super-admin with their code entered, from the admin only.
 - **Differences from Figma** are listed as D2–D5 in `docs/marketing-site/open-questions.md`.
+
+## 2026-10-21: Business model after the product grilling
+
+Dan's decisions, 21 Oct (evening). The marketing hand-off (`docs/marketing-site/HANDOFF.md`) is updated to match and wins over anything older.
+
+- **Setup is a paid, one-off fee agreed with each club.** Dan supports the club until its site is live. There's no free migration and no fixed timeline (no "four weeks", no week-by-week plan). The site never says "no setup fee" and never puts a number on the setup fee.
+- **The example homepage is built by an AI agent and shown in the demo, never sent.** Dan checks it before the call. It isn't the club's until they sign up, and it's never called free. "Get your free homepage" is gone; "Book a demo" is the only primary action, and the Switching page form now requests a demo.
+- **Bookings is an optional paid add-on in phase 2.** Clubs without it keep their current booking system, and their site links to it. That link is all we offer, so there's no "works with" list. No stored-value cards or house accounts.
+- **Pricing is reopened** (marketing open questions Q11 and Q12): public prices or per-club quotes, and the contract terms. Everything stays behind `marketingSettings` so it can be hidden or changed in one place.
+- **Club editors will log in with a password only**, in a separate change coming next. Super-admins keep two-factor. Until that change merges, the 11 Oct decision (two-factor for everyone) still applies.
+- **The repo goes back to private**, once CI usage is cut (separate change).
+
+**This replaces parts of earlier 21 Oct entries:**
+- *Marketing site content (phase 1.2)* and *Marketing site look (phase 1.3)*: the CTA band's second button no longer defaults to "Get your free homepage".
+- *Marketing nav, footer… (phase 2.2)*: the nav loses its "Free homepage" action.
+- *Marketing site (plan approved)*: there are no separate homepage requests any more, only demo requests (still kept for 12 months after the last contact).
+
+The code still has the old wording in those places (`src/marketing/blocks.ts`, `src/marketing/homeBlocks.ts`, `src/marketing/starter/pages.ts`, `src/marketing/site/chrome/Nav.tsx`, and the CTA band's database default). That's a code change, made separately.

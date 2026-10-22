@@ -4,6 +4,7 @@
 **In the repo at** `docs/marketing-site/HANDOFF.md`, linked from `CLAUDE.md`.
 
 > **Changes since this hand-off** (newest first; these win over the text below):
+> - **2026-10-21 (evening), Dan's decisions after the product grilling:** setup is a **paid, one-off fee agreed with each club**, with Dan supporting the club until the site is live. **No free migration and no four-week plan.** The **example homepage** is built with AI and **shown in the demo**, not sent to the club. **"Get your free homepage" is gone**; "Book a demo" is the only primary action. **Bookings is an optional paid add-on (phase 2)**; until then a club's site links to its current booking system, so the **Works With Strip is removed**. **Pricing is reopened** (Q11). The sections below and the Figma page are updated to match; see the Figma note *Review 21 Oct · Dan's decisions after the grilling* (`312:38533`).
 > - **2026-10-21:** the committee summary A4 is **removed**. Don't build it. The delivery plan (`docs/plans/marketing-site-plan.md`) and its decisions (`docs/architecture/decisions.md`, 21 Oct) were approved the same day.
 
 This is everything you need to build the company marketing site: what it is, what's decided, what isn't, where the designs are, and the rules every page has to pass. Read it top to bottom once before writing code.
@@ -31,7 +32,7 @@ When two sources disagree, the higher one wins. Where you find a conflict not li
 | 1 | **This handoff** | Decisions made up to 21 Oct 2026, conflicts resolved |
 | 2 | Project doc **19 · Marketing tone of voice** (`docs/marketing-site/19-marketing-tone-of-voice.md`) | Voice, copy rules, banned words, researched proof stats, CTA labels. Updated 20 Oct with Dan's amends |
 | 3 | Figma **AI-Testing** (`GXzYibwnWKKyTeUkwRn8Of`), page **Marketing site** (`170:28407`) | Layout, components, tokens, states, interaction rules |
-| 4 | Project doc **18 · Marketing site review and brief** | Truth audit, claims register, competitor research. **Partly superseded:** ignore everything about founding clubs, the sandbox demo editor and the Clubhouse page |
+| 4 | Project doc **18 · Marketing site review and brief** | Truth audit, claims register, competitor research. **Partly superseded:** ignore everything about founding clubs, the sandbox demo editor, the Clubhouse page, the free homepage sent to prospects, the four-week switching plan and the Works With strip |
 | 5 | Doc **15 · Hero golf ball asset** | The approved 3D ball for the intro |
 | 6 | Doc **04 · Infrastructure and guardrails** | Stack, CI gates, security. Applies to this site like any other code in the repo |
 | 7 | Doc **08 · Brand colour contract** | Club colour rules (relevant to the Website builder page's colour demo) |
@@ -48,12 +49,12 @@ Use the Figma MCP (`get_design_context`, `get_variable_defs`, `get_screenshot`) 
 - **No money-back or exit guarantee** at this stage.
 - **Don't name Dan's past companies.** Use "more than 8 years delivering and scaling sports platforms".
 - **Copy is plain and professional, not clever.** Doc 19 rules apply to every string, including errors, meta descriptions and alt text.
-- **Primary CTA everywhere: "Book a demo".** Secondary beside it: **"Get your free homepage"**. Book a demo page is itself the CTA, so it has no CTA band.
-- **Free homepage rebuild is a manual service**, not a scraper or instant reskin. Prospect submits club + current site; Dan sends back their homepage on the platform within two working days.
-- **Switching service:** AI copies the club's existing content; Dan builds the new site with them. Four weeks, start to finish.
-- **Bookings is Coming next.** In the nav, Bookings carries the clock icon only. Bookings, members area, facilities, competitions, function rooms and handicaps are all Coming next.
+- **Primary CTA everywhere: "Book a demo".** No "Get your free homepage" button anywhere (removed 21 Oct). A CTA band may keep a plain secondary such as "See pricing". Book a demo page is itself the CTA, so it has no CTA band.
+- **Example homepage, shown in the demo** (21 Oct). Built by an AI agent from the club's current site, then checked by Dan. It's an example of what the club gets if it signs, **not a deliverable**: it isn't sent to the club, and it isn't theirs until they sign up. Nothing else is built before signing. Never call it "free".
+- **Switching is paid** (21 Oct). A **one-off setup fee, agreed with each club** (no number on the site). AI copies the club's existing content; Dan builds the new site with them and **supports them until it's live**. **No fixed timeline**: no "four weeks", no week-by-week plan. Never write "no setup fee".
+- **Bookings is Coming next, as an optional paid add-on (phase 2).** Clubs that don't buy it keep their current booking system and the site links to it; that link is all we offer, so no "works with" list. No stored-value cards or clubhouse spending. In the nav, Bookings carries the clock icon only. Bookings, members area, facilities, competitions, function rooms and handicaps are all Coming next.
 - **Golf ball intro on the homepage stays**, behind strict rules (§6).
-- **Pricing as designed:** £149 a month **plus VAT**, billed monthly, 12-month minimum, then rolling with 90 days' notice. No annual toggle.
+- **Pricing as designed, under review (Q11):** £149 a month **plus VAT**, billed monthly, 12-month minimum, then rolling with 90 days' notice, **plus the one-off setup fee**. No annual toggle. Build it from `marketingSettings` so it can be hidden or changed in one place.
 
 ---
 
@@ -73,6 +74,8 @@ Build everything else first. Each has a default you can scaffold against, kept b
 | 8 | **Product film** on Website builder: is there a video? The frame overlaps the Token dial section in Figma | Website builder | Leave the section out |
 | 9 | **Analytics.** Vercel Analytics and maybe Google Analytics | Consent banner | Vercel Analytics only (cookieless), so no consent banner needed at launch |
 | 10 | **Real contact targets:** Dan's photo, phone or calendar link for the Founder Card | Home, Book a demo | Card built with placeholder initial; links from config |
+| 11 | **Public prices or per-club quotes?** Pricing isn't final and may differ by club, which could mean removing the £149, the calculator and the Pricing page (21 Oct) | Pricing, nav, CTA bands, FAQ | Build as designed, every price from `marketingSettings`, with one switch (`showPublicPricing`) that hides the Pricing page, its nav link and every price mention |
+| 12 | **Contract terms** (12-month minimum, 90 days' notice) aren't final either (21 Oct) | Pricing, FAQ | From `marketingSettings`; flagged ❓ in the claims register |
 
 ---
 
@@ -85,7 +88,7 @@ Build everything else first. Each has a default you can scaffold against, kept b
 - **Globals:** `marketingSettings` holds company name, email, price, VAT label, contract term, Neon restore window, Founder Card data, footnote sources. Every number on the site comes from here or from a block field, never hard-coded in JSX.
 - **Live demos:** `Browser Chrome` + a real club block rendered with a **demo tenant's** tokens, scaled inside the frame. Never a screenshot. Demo clubs are fictional and labelled "Demo club". If a club block isn't built yet, its section stays hidden; don't fake it with an image.
 - **Tokens:** marketing tokens (`--mk-*`) live in their own scope so they can't leak into club sites, and club tokens inside a live demo can't leak out. Wrap each demo in a container that sets that demo tenant's CSS variables.
-- **Forms:** Payload collections `homepageRequests` and `demoRequests`, email to Dan via Resend, rate-limited and spam-protected at edge and app (doc 04 §8).
+- **Forms:** Payload collection `demoRequests` (the Switching page form and Book a demo both create one), email to Dan via Resend, rate-limited and spam-protected at edge and app (doc 04 §8).
 - **Caching:** static by default, revalidated on publish.
 
 If Dan answers no to Q1, fall back to a standalone Next.js app in `apps/marketing` with MDX content, importing club blocks from the shared package. Drop the "what you type is what members see" claim if the site isn't editable that way.
@@ -119,7 +122,7 @@ All desktop frames are 1440 wide on a 1200 container. Mobile frames (390) exist 
 ### Home
 
 1. **Intro** (first visit only, see below).
-2. **Hero:** "Your club is better than your website." + subhead + Book a demo / Get your free homepage + proof line. **Tenant Morph** (`176:2177`): one set of blocks, three demo clubs (Heritage, Coastal, Booking-led), switched with **Tenant Chips**. This is the product story; make it the focus. Check the Booking-led variant shows no unbuilt booking feature, or badge it.
+2. **Hero:** "Your club is better than your website." + subhead + Book a demo + proof line ("Your demo includes your own club's homepage, rebuilt on the platform."). **Tenant Morph** (`176:2177`): one set of blocks, three demo clubs (Heritage, Coastal, Booking-led), switched with **Tenant Chips**. This is the product story; make it the focus. Check the Booking-led variant shows no unbuilt booking feature, or badge it.
 3. **First impressions:** three **Proof Stats** with footnotes, then "When it does the club justice" vs "When it lets the club down". Stats and sources in §9.
 4. **Edit and live:** **Edit Live Split**. Editor fields on the left, the live block on the right updating as you type. Interactive if the site runs on the platform.
 5. **A week at the club:** four **Timeline Moments** using **live blocks only** (course status, news post, green fees, hole guide). Swipeable carousel on mobile.
@@ -142,19 +145,19 @@ Intro (Section Header + CTAs + **Block Flipper** with Desktop/Tablet/Mobile **Se
 
 ### Bookings (Coming next preview)
 
-Headline frames it as coming next. **Works With Strip** (text list of tee-sheet providers we already link to through External provider mode; text only, no logos unless permitted). Label "Coming next · designs from our build. Not live yet. Prices and times are examples." **Tee Sheet Simulator** (Browsing / Held / Confirmed), **Club Settings Panel** (Guarantee off/on), **Facilities Carousel** (Range / Activities / Spa), CTA band. No brand names (no Toptracer). No "three taps", no "one basket". No-show fee copy: staff charge it in one click (it's manual).
+Headline frames it as coming next, as an **optional add-on**. The intro says the site links to the club's current booking system until then (no provider list, no "works with" strip, no brand names). Label "Coming next · designs from our build. Not live yet. Prices and times are examples." **Tee Sheet Simulator** (Browsing / Held / Confirmed), **Club Settings Panel** (Guarantee off/on), **Facilities Carousel** (Range / Activities / Spa), CTA band. No brand names (no Toptracer). No "three taps", no "one basket". No-show fee copy: staff charge it in one click (it's manual).
 
 ### Pricing
 
-**Pricing Calculator** (`185:3775`, configs One course / Two courses): price, "+ VAT", term together. Courses stepper. Only live modules toggle; Tee-time booking, Members area and Facilities booking render as **disabled rows with the Coming next badge** and "price confirmed at launch". Founding column stays hidden. Included list: hosting, security and backups · every live block, on every page · unlimited editors · migration from your old site. **Prices roll digit by digit** when the calculator changes. **Committee questions** FAQ (two columns desktop). Answers lead with yes/no. "Who owns our content" and "What happens if we leave" must name a concrete export format. Migration limits go in the FAQ so "every page" isn't unlimited.
+**Pricing Calculator** (`185:3775`, configs One course / Two courses): price, "+ VAT", term together. Courses stepper. Only live modules toggle; Tee-time booking, Members area and Facilities booking render as **disabled rows with the Coming next badge** and "price confirmed at launch". Founding column stays hidden. Included list: hosting, security and backups · every live block, on every page · unlimited editors. Setup is a **one-off fee agreed with each club**, stated next to the price with no number; never "no setup fee". **Prices roll digit by digit** when the calculator changes. **Committee questions** FAQ (two columns desktop). Answers lead with yes/no. "Who owns our content" and "What happens if we leave" must name a concrete export format. The FAQ says what the setup fee covers (we move your content across and support you until the site is live). All pricing respects Q11 and Q12.
 
 ### Switching to us
 
-Hero row: Section Header + three tick points + **Homepage Request Form** (`265:8785`). Below it an example demo-club homepage. **The desktop frame still contains a deprecated URL Reskin instance there.** Replace it with the static Demo club frame used on mobile (`Hero / A · Heritage`). Then: Your content comes with you, the four-week **Migration** plan (Gather, Shape, Review, Launch), FAQ, CTA band. Same domain before and after. "Will we lose our place on Google?": promise redirects and preserved page titles, never rankings.
+Hero row: Section Header ("See your club on it") + three tick points + **Homepage Request Form** (`265:8785`), which now **requests a demo** (button "Book my demo"); the example homepage is shown in that demo. Below it an example demo-club homepage. **The desktop frame still contains a deprecated URL Reskin instance there.** Replace it with the static Demo club frame used on mobile (`Hero / A · Heritage`). Then: Your content comes with you, **The switch** (Section Header only: set up with you for a one-off fee, supported until live; the Weeks 1–4 timeline is removed), FAQ, CTA band. Same domain before and after. "Will we lose our place on Google?": promise redirects and preserved page titles, never rankings.
 
 ### Book a demo
 
-Two columns: Section Header + "what to expect" ticks + email fallback, and the **Demo Booking** component (Details → Pick a time → Booked). Weekday slots only, from Dan's real calendar (Q4). **Never state how long the call lasts.** Founder Card below. No CTA band.
+Two columns: Section Header + "what to expect" ticks + email fallback, and the **Demo Booking** component (Details → Pick a time → Booked). Add a **Current website** field to Details so Dan can prepare the example homepage before the call. Weekday slots only, from Dan's real calendar (Q4). **Never state how long the call lasts.** Founder Card below. No CTA band.
 
 ### Trust & security
 
@@ -195,15 +198,14 @@ Logo strip, case study, and "Homepages we've rebuilt" gallery are designed for l
 | Availability Badge | `263:8726` | Live / Coming next / Beta × Default/Small. **Text plus icon, never colour alone.** Optional season text, hidden until Dan commits to dates |
 | Proof Stat | `264:8700` | Number, one-line claim, footnote source and date |
 | Founder Card / Stack | `264:8707` / `272:9022` | |
-| Works With Strip, Provider Item | `264:8734`, `264:8727` | |
 | Roadmap Card | `264:8753` | Changelog only |
-| Homepage Request Form | `265:8785` | Default, Submitted |
+| Homepage Request Form | `265:8785` | Default, Submitted. Now a demo request: "Book my demo", no date promised |
 | Golf Ball, Intro | `197:31164`, `198:7777` | |
 | Section Header, CTA Band, Media, Rich Text, Feature Card | `210:7925` section | The CMS blocks |
 
 ### Do not build
 
-Command Menu and ⌘K overlay · Kbd hint · Score Dial · Changelog Entry (as designed) · Founding Counter · Sandbox CTA · Application Form · URL Reskin · Block Card and block thumbnails (Clubhouse only) · anything in the Archived section.
+Command Menu and ⌘K overlay · Kbd hint · Score Dial · Changelog Entry (as designed) · Founding Counter · Sandbox CTA · Application Form · URL Reskin · Works With Strip and Provider Item (deprecated 21 Oct) · "Get your free homepage" buttons · Block Card and block thumbnails (Clubhouse only) · anything in the Archived section.
 
 ---
 
@@ -283,6 +285,8 @@ The top-100 audit stat (26 of 93) and "0 of 4 providers publish prices" are reti
 
 ### Things that must not appear anywhere
 
+Added 21 Oct: "free homepage", "Get your free homepage", "no setup fee", "four weeks" or any fixed switching timeline, "send it straight to you", a "works with" provider list.
+
 Lighthouse scores or "every club site scores 100" · load-time comparisons (4.8s vs 0.6s) · uptime figures · customer counts, logos or testimonials · pre-dated changelog entries · "Toptracer" or any real course named or captioned as a fictional club · roles that don't exist (captain drafts, greenkeeper posts) · "handicaps" · "nothing breaks" · "checked as you edit" for focus states.
 
 ### Claims register
@@ -293,10 +297,11 @@ Create `docs/marketing-site/claims-register.md` and add a row for every factual 
 
 ## 10. Forms and integrations
 
-**Homepage Request Form** (Switching, and the secondary CTA target everywhere):
+**Homepage Request Form** (Switching page; requests a demo):
 - Fields: club name, current website, email. Validate URL loosely (accept without `https://`).
-- Success state: "We'll send your homepage by **{date}**", where date = **two UK working days** from submission, skipping weekends and England & Wales bank holidays (use the gov.uk bank holidays JSON at build time). Use the person's name in the confirmation if collected.
-- Store in Payload, email Dan, send the prospect a plain confirmation. Rate-limit; honeypot plus Cloudflare Turnstile.
+- Success state: "Thanks. We'll be in touch." plus "We'll email {email} to arrange your demo." **No date promised.** Use the person's name if collected.
+- Creates a `demoRequests` record, emails Dan, sends the prospect a plain confirmation. Rate-limit; honeypot plus Cloudflare Turnstile.
+- The example homepage is shown in the demo. It is never emailed or linked to the prospect.
 
 **Demo Booking:** Details → Pick a time → Booked. Availability from Dan's real calendar (Q4). Weekdays only. Confirmation email with a calendar invite.
 
@@ -325,7 +330,9 @@ Create `docs/marketing-site/claims-register.md` and add a row for every factual 
 - [ ] Image licences confirmed; no real course captioned as a fictional club
 - [ ] Mobile works for every page; intro respects reduced motion and once-per-session
 - [ ] Privacy policy and cookie notice published
-- [ ] Forms deliver to Dan end to end, with the correct two-working-day date
+- [ ] Forms deliver to Dan end to end
+- [ ] Pricing shown or hidden per Q11, with the setup fee stated wherever a price appears
+- [ ] No "free homepage", "no setup fee" or fixed switching timeline anywhere
 
 ---
 
@@ -341,7 +348,9 @@ Create `docs/marketing-site/claims-register.md` and add a row for every factual 
 | Website builder: Product film frame overlaps Token dial (both at y 1359) | Leave the film out until Dan confirms (Q8) |
 | Builder colour copy (nudge) vs doc 08 (block on save) | Hide the line until Q5 is answered |
 | Home Tenant Morph has a "Booking-led" club | Check it shows nothing unbuilt; badge if it does |
-| Figma review note mentions "Thursday 23 October" | Compute dates; never hard-code them |
+| Figma review note mentions "Thursday 23 October" | No dates on the request form any more (21 Oct) |
+| Doc 19 examples still use "free homepage", "Four weeks, start to finish" and "£149" as the hard specific | This hand-off wins. Doc 19 is updated 21 Oct; if a copy still differs, follow §3 |
+| Doc 12 describes native booking as part of the platform | Booking is an optional paid add-on, phase 2 (doc 12 updated 21 Oct) |
 
 ---
 
@@ -352,7 +361,7 @@ Create `docs/marketing-site/claims-register.md` and add a row for every factual 
 3. Primitives and controls with full state sets; Storybook or a `/dev/components` route behind auth for Dan to review.
 4. Nav, footer, Section Header, CTA Band, Media, Rich Text, Feature Card.
 5. Home without the intro (hero, Tenant Morph with live blocks as they exist, proof, edit and live, week at the club, content, founder, CTA). Mobile alongside.
-6. Pricing, Switching (with the request form wired end to end), Book a demo.
+6. Pricing (behind `showPublicPricing`, Q11), Switching (with the demo request form wired end to end), Book a demo.
 7. Website builder, Bookings preview, Trust, Accessibility, legal pages, 404.
 8. Intro animation, behind a flag.
 9. SEO and analytics.

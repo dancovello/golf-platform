@@ -2,6 +2,8 @@
 
 **Status: approved by Dan, 2026-10-21** (decisions A–D and F as recommended; the committee summary is removed).
 
+> **Updated 2026-10-21 (evening)** for Dan's decisions after the product grilling (`docs/architecture/decisions.md`, "Business model after the product grilling"): setup is a paid one-off fee agreed per club, with no fixed timeline; the example homepage is shown in the demo, never sent; no "Get your free homepage"; Bookings is an optional paid add-on in phase 2, so no "works with" list; pricing is reopened (Q11, Q12). Phases 5 and 6 below are changed to match. Where anything here still differs from the hand-off, the hand-off wins.
+
 Built from Dan's hand-off (`MARKETING-SITE-HANDOFF.md`, 21 Oct) and doc 19 (tone of voice). The older brief (`marketing-site-plan.md`, 13 Oct: founding clubs, Clubhouse page, URL reskin, ⌘K menu) is replaced by the hand-off and is not used.
 
 Each phase is one or more branches and PRs, in order. About 17–21 PRs in total. As in step 5, I keep going phase after phase and you review each preview link as it comes.
@@ -19,7 +21,7 @@ Each phase is one or more branches and PRs, in order. About 17–21 PRs in total
 | C | **Which address does "Club log in" go to?** | Marketing site on `brandname.golf` and `www.`; the admin on its own address, `app.brandname.golf`. Keeping them apart means a problem on the public marketing pages (which load the 3D ball, analytics and the calendar) can't touch an editor's login. On staging, the marketing site shows at the staging address's home page, with the admin at `/admin` as now. |
 | D | **One home for the company name.** The code already uses "Clubhouse" as a placeholder name (privacy policy, agreement). The hand-off wants "Brandname" in the marketing settings. | Move the name, email and domain into **one file in the code**, used by the marketing site, privacy policy and agreement. The rename is then a one-line change. Prices, VAT label and other values stay editable in Payload, as the hand-off says. |
 | E | **Committee summary (A4 PDF).** | **Removed** (Dan, 2026-10-21). Not built. |
-| F | **How long we keep homepage and demo requests.** These hold prospects' names and emails. | 12 months after the last contact, deleted by the existing nightly clean-up job. Your company privacy policy then says so. |
+| F | **How long we keep demo requests.** These hold prospects' names and emails. (Homepage requests are gone, 21 Oct: the Switching form now requests a demo.) | 12 months after the last contact, deleted by the existing nightly clean-up job. Your company privacy policy then says so. |
 
 The hand-off's own open questions (Q2–Q10: VAT, second-course price, calendar, colour nudge, Neon plan, changelog, product film, analytics, Founder Card) all have safe defaults behind settings. I'll keep them in `docs/marketing-site/open-questions.md` and ask each one when its page is reached, not now.
 
@@ -41,7 +43,7 @@ The hand-off's own open questions (Q2–Q10: VAT, second-course price, calendar,
 4. **Production email:** `RESEND_API_KEY` exists only on staging and previews. The forms can't email you from production until production has its own key and a verified sending address on the company domain.
 5. **Doc 19 still has founding-clubs examples** (a reference block and the "Apply for a founding place" button). The hand-off overrules them. I'll ignore them, and doc 19 could drop them when you next edit it.
 6. **Cloudflare Turnstile allows 10 addresses per widget.** The company domain uses one more, so one widget now lasts for 7 clubs, not 8 (open question in doc 03).
-7. **Bookings is out of scope for v1** (CLAUDE.md). The Bookings page is a **preview only**: in-page simulations with made-up times, labelled "Coming next". No real booking is built.
+7. **Bookings is out of scope for v1** (CLAUDE.md). It becomes an **optional paid add-on in phase 2** (21 Oct). The Bookings page is a **preview only**: in-page simulations with made-up times, labelled "Coming next". No real booking is built. Clubs without it link to their current booking system.
 
 ---
 
@@ -64,7 +66,7 @@ The hand-off's own open questions (Q2–Q10: VAT, second-course price, calendar,
 2. **Content model**
    - `marketingSettings` holds every number and fact the site states (price, VAT label, term, restore window, emails, Founder Card).
    - A `marketingPages` collection with drafts and live preview, made from the five marketing blocks: Section Header, CTA Band, Media (alt text required), Rich Text and Feature Card.
-   - `homepageRequests` and `demoRequests` collections.
+   - A `demoRequests` collection (no separate homepage requests since 21 Oct). Moved to phase 5.
    - **Only you can see or edit any of these.** Club editors can't find them in the admin or the API, and tests prove it. One reviewed migration.
 3. **Look and feel basics**
    - Marketing colours (`--mk-*`), kept apart from club colours.
@@ -105,13 +107,17 @@ The hand-off's own open questions (Q2–Q10: VAT, second-course price, calendar,
 1. **Pricing:**
    - The calculator, with the price, "+ VAT" and the term shown together, and digits that roll.
    - Coming next rows switched off with their badge.
-   - Committee questions, including the export format and migration limits.
-2. **Switching to us, with the homepage request form working end to end:**
-   - Saves to Payload, emails you and sends the prospect a plain confirmation.
+   - The one-off setup fee, agreed with each club, stated next to the price with no number. Never "no setup fee".
+   - Committee questions, including the export format, and what the setup fee covers (we move your content across and support you until the site is live).
+   - Everything behind the `showPublicPricing` switch (Q11), which hides the Pricing page, its nav link and every price mention. Contract terms from settings (Q12).
+2. **Switching to us, with the demo request form working end to end:**
+   - The Homepage Request Form now requests a demo ("Book my demo"). It saves a demo request to Payload, emails you and sends the prospect a plain confirmation. No date is promised.
    - Protected by Turnstile, a hidden spam trap and rate limits.
-   - "We'll send your homepage by {date}" uses two UK working days, skipping weekends and bank holidays. The bank holiday list is a saved copy, with a test that fails before it runs out.
+   - "The switch" is a Section Header only: set up with you for a one-off fee, supported until live. No weeks 1–4 timeline.
+   - The example homepage is shown in the demo. It's never emailed or linked to the prospect.
 3. **Book a demo:**
    - Details → Pick a time → Booked, plus the Founder Card.
+   - A **Current website** field in Details, so you can prepare the example homepage before the call.
    - The calendar is wired up only after you answer Q4. Before then, it falls back to the email address.
 
 ### Phase 6: The other pages (3 PRs)
@@ -123,7 +129,7 @@ The hand-off's own open questions (Q2–Q10: VAT, second-course price, calendar,
    - The contrast line stays hidden until Q5, and there's no product film until Q8.
 2. **Bookings preview:**
    - The tee sheet, club settings and facilities simulations, all labelled Coming next.
-   - The "works with" list of booking systems, as text only.
+   - Framed as an optional add-on, coming next. Until then a club's site links to its current booking system. **No "works with" list** and no provider names (removed 21 Oct).
 3. **Trust** (built, not published), **Accessibility statement**, **privacy, cookies and terms** (your wording), **404** and **Changelog** (built, not published, and kept out of the nav).
 
 ### Phase 7: Golf ball intro (1 PR)
