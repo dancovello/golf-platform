@@ -116,7 +116,9 @@ test.describe("REST API as club A's editor", () => {
     }
   })
 
-  test('cannot switch off two-factor while it is required', async ({ editorPage }) => {
+  test('switching off two-factor does nothing for an account without it', async ({
+    editorPage,
+  }) => {
     const res = await editorPage.request.post('/api/remove-totp', { data: { token: '000000' } })
     expect((await res.json()).ok).toBe(false)
   })

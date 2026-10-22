@@ -57,6 +57,13 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
     why: 'Called only from the invite endpoint after the super-admin check. Accounts can’t be created through the normal rules at all (allowAccountCreation context)',
   },
   {
+    file: 'src/auth/sessionLimit.ts',
+    fn: 'emailPasswordReset',
+    uses: 1,
+    club: 'The one account whose password was just set through a link (by its ID)',
+    why: 'Reads only its email address, to tell the owner their password was set; nobody is signed in yet',
+  },
+  {
     file: 'src/auth/resetTwoFactor.ts',
     fn: 'resetTwoFactor',
     uses: 1,

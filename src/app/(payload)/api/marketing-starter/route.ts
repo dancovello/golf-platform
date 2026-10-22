@@ -1,7 +1,7 @@
 import config from '@payload-config'
 import { getPayload } from 'payload'
 
-import { isSuperAdmin } from '@/access/roles'
+import { isSuperAdminWithCode } from '@/auth/fullyAuthenticated'
 import { addStarterPages } from '@/marketing/starter/pages'
 
 export const dynamic = 'force-dynamic'
@@ -21,8 +21,7 @@ export async function POST(request: Request) {
   }
   const payload = await getPayload({ config })
   const { user } = await payload.auth({ headers: request.headers })
-  const signedIn = user as (typeof user & { _strategy?: string }) | null
-  if (!signedIn || !isSuperAdmin(signedIn) || signedIn._strategy !== 'totp') {
+  if (!isSuperAdminWithCode(user)) {
     return reply('You are not allowed to do this.', 403)
   }
   const { added, skipped } = await addStarterPages(payload)

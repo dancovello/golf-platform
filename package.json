@@ -22,7 +22,7 @@
     "test": "cross-env NODE_ENV=test NODE_OPTIONS=--no-deprecation payload migrate && cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
     "vercel-build": "sh ./scripts/vercel-build.sh",
     "create-super-admin": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/create-super-admin.ts",
-    "test:isolation": "cross-env NODE_ENV=test NODE_OPTIONS=--no-deprecation payload migrate && cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts tests/int/isolation.int.spec.ts tests/int/accounts.int.spec.ts tests/int/config-access.int.spec.ts tests/int/isolation-manifest.int.spec.ts tests/int/rate-limit-inventory.int.spec.ts tests/unit/tenancy-guard.spec.ts tests/unit/access-guard.spec.ts tests/unit/override-allowlist.spec.ts tests/unit/raw-sql.spec.ts",
+    "test:isolation": "cross-env NODE_ENV=test NODE_OPTIONS=--no-deprecation payload migrate && cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts tests/int/isolation.int.spec.ts tests/int/accounts.int.spec.ts tests/int/config-access.int.spec.ts tests/int/two-factor.int.spec.ts tests/int/isolation-manifest.int.spec.ts tests/int/rate-limit-inventory.int.spec.ts tests/unit/tenancy-guard.spec.ts tests/unit/access-guard.spec.ts tests/unit/override-allowlist.spec.ts tests/unit/raw-sql.spec.ts",
     "reset-two-factor": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/reset-two-factor.ts"
   },
   "dependencies": {

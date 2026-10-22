@@ -3,6 +3,7 @@ import { headers } from 'next/headers'
 import { getPayload } from 'payload'
 
 import { editorTenantID, isSuperAdmin } from '@/access/roles'
+import { isFullyAuthenticated } from '@/auth/fullyAuthenticated'
 
 /**
  * Whether this request may see a club's drafts: only inside the live preview (`?live=1`),
@@ -13,7 +14,6 @@ export const canSeeDrafts = async (tenantID: string, live: unknown): Promise<boo
   if (live !== '1') return false
   const payload = await getPayload({ config })
   const { user } = await payload.auth({ headers: await headers() })
-  const signedIn = user as (typeof user & { _strategy?: string }) | null
-  if (!signedIn || signedIn._strategy !== 'totp') return false
-  return isSuperAdmin(signedIn) || editorTenantID(signedIn) === tenantID
+  if (!isFullyAuthenticated(user)) return false
+  return isSuperAdmin(user) || editorTenantID(user) === tenantID
 }

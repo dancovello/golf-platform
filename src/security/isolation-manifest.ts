@@ -124,14 +124,18 @@ export const ENDPOINTS: Manifest = {
   'POST /api/setup-totp': [
     {
       file: 'tests/e2e/two-factor.spec.ts',
-      test: 'an account without two-factor must set it up before anything else',
+      test: 'a super-admin without two-factor must set it up before anything else',
     },
   ],
   'POST /api/verify-totp': [
     { file: 'tests/e2e/two-factor.spec.ts', test: 'a wrong code is refused' },
   ],
   'POST /api/remove-totp': [
-    { file: API, test: 'cannot switch off two-factor while it is required' },
+    { file: API, test: 'switching off two-factor does nothing for an account without it' },
+    {
+      file: 'tests/e2e/two-factor.spec.ts',
+      test: "a super-admin can't switch their two-factor off",
+    },
   ],
   'GET /api/tenants/populate-tenant-options': [noLeaks],
   // Payload's own, beyond the standard ones
