@@ -168,7 +168,7 @@ const clubIDBySlugFresh = async (slug: string) => {
   })
   return docs[0] ? String(docs[0].id) : null
 }
-const clubIDBySlug = addressCached('clubIDBySlug', clubIDBySlugFresh)
+export const clubIDBySlug = addressCached('clubIDBySlug', clubIDBySlugFresh)
 
 /** Everything the club's pages share (cached per club; notices and course status depend on
  * today, so at most 5 minutes). */

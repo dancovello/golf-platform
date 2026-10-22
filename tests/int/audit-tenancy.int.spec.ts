@@ -115,22 +115,19 @@ describe("audit T2: the live preview loads a club before checking who's asking",
     expect(await siteFromPreview('no-such-club', '1')).toBeNull()
   })
 
-  it.fails(
-    'T2: an anonymous visitor causes the same work whether or not the club exists',
-    async () => {
-      await siteFromPreview('no-such-club', '1')
-      const missing = [...cache.calls]
-      cache.reset()
-      await siteFromPreview(String(w.clubB.slug), '1')
-      const real = [...cache.calls]
-      // Today a real club's short name loads its whole site (menus, settings, photos) before
-      // the sign-in check, and a made-up one doesn't: the difference in work (and response time)
-      // tells an outsider which short names exist.
-      expect(real).toEqual(missing)
-    },
-  )
+  it('T2: an anonymous visitor causes the same work whether or not the club exists', async () => {
+    await siteFromPreview('no-such-club', '1')
+    const missing = [...cache.calls]
+    cache.reset()
+    await siteFromPreview(String(w.clubB.slug), '1')
+    const real = [...cache.calls]
+    // Today a real club's short name loads its whole site (menus, settings, photos) before
+    // the sign-in check, and a made-up one doesn't: the difference in work (and response time)
+    // tells an outsider which short names exist.
+    expect(real).toEqual(missing)
+  })
 
-  it.fails("T2: club A's editor can't tell whether another club's short name exists", async () => {
+  it("T2: club A's editor can't tell whether another club's short name exists", async () => {
     const { token } = await w.payload.login({
       collection: 'users',
       data: { email: 'editor-a@example.com', password: PASSWORD },
@@ -147,7 +144,7 @@ describe("audit T2: the live preview loads a club before checking who's asking",
     expect(cache.calls).toEqual(missing)
   })
 
-  it.fails("T2: an anonymous visitor's live-preview request loads no club data", async () => {
+  it("T2: an anonymous visitor's live-preview request loads no club data", async () => {
     await siteFromPreview(String(w.clubB.slug), '1')
     expect(cache.calls).toEqual([])
   })
