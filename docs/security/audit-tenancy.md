@@ -64,9 +64,9 @@ A visitor's request arrives with the web address they typed (the `Host` header).
 
 **Where.** `src/site/resolveSite.ts:97-104`. The same function serves the preview's not-found page and search.
 
-**Proof.** `tests/int/audit-tenancy.int.spec.ts`, "audit T2": for an anonymous visitor, a real club's name loads `clubIDBySlug` **and** `loadClubSite`, and a made-up name loads only `clubIDBySlug`. Both are refused, correctly. A passing test confirms that.
+**Proof.** `tests/int/audit-tenancy.int.spec.ts`, "audit T2". For an anonymous visitor, and for club A's signed-in editor asking for club B, a real club's name loads `clubIDBySlug` **and** `loadClubSite`, and a made-up name loads only `clubIDBySlug`. Both are refused, correctly. A passing test confirms that.
 
-**Proposed fix.** On production, check the signed-in user first: refuse straight away unless they are the super-admin or a fully signed-in club editor. Look the club up only after that. Also refuse names that aren't in short-name format before any lookup. Small.
+**Proposed fix.** On production, check the signed-in user first: refuse straight away unless they are the super-admin or a fully signed-in club editor. For an editor, compare the name's club ID with their own club before loading anything else. Also refuse names that aren't in short-name format before any lookup. Small.
 
 ### Notes (no change needed now)
 
@@ -96,7 +96,7 @@ A visitor's request arrives with the web address they typed (the `Host` header).
 
 ## Tests run
 
-- `tests/int/audit-tenancy.int.spec.ts` with `it.fails` removed: the 4 finding tests fail for the reasons above. 1 test passes.
-- With `it.fails`, together with `cache-isolation`, `domains` and `hosts`: 4 files passed, 19 tests passed, 4 expected failures.
+- `tests/int/audit-tenancy.int.spec.ts` with `it.fails` removed: the 5 finding tests fail for the reasons above. 1 test passes.
+- With `it.fails`, together with `cache-isolation`, `domains` and `hosts`: 4 files passed, 19 tests passed, 5 expected failures.
 - `corepack pnpm typecheck` ✅ and `eslint` on the new test ✅.
 - The tests ran against a separate local database (`golf_test_audittenancy`), so they didn't clash with another session's test run.

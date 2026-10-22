@@ -13,12 +13,13 @@ import { loadClubPage } from '@/site/loadClub'
 import { findClubByHost, siteFromPreview } from '@/site/resolveSite'
 
 import { memoryCache } from '../shared/memoryCache'
-import { seedWorld, type World } from './helpers/seed'
+import { PASSWORD, seedWorld, type World } from './helpers/seed'
 
 // An anonymous visitor: no session cookie. (The two-factor plugin also reads cookies, outside
 // this mock; it logs "called outside a request scope" and Payload treats the visitor as signed
 // out, which is what these tests want.)
-vi.mock('next/headers', () => ({ headers: async () => new Headers() }))
+const request = vi.hoisted(() => ({ headers: new Headers() }))
+vi.mock('next/headers', () => ({ headers: async () => request.headers }))
 
 let w: World
 const cache = memoryCache()
@@ -35,7 +36,10 @@ afterAll(() => {
   if (previewSetting === undefined) delete process.env.SITE_PREVIEW
   else process.env.SITE_PREVIEW = previewSetting
 })
-beforeEach(() => cache.reset())
+beforeEach(() => {
+  cache.reset()
+  request.headers = new Headers()
+})
 
 /** A save as it happens in the admin: inside a database transaction, committed at the end. */
 const inTransaction = async (
@@ -125,6 +129,23 @@ describe("audit T2: the live preview loads a club before checking who's asking",
       expect(real).toEqual(missing)
     },
   )
+
+  it.fails("T2: club A's editor can't tell whether another club's short name exists", async () => {
+    const { token } = await w.payload.login({
+      collection: 'users',
+      data: { email: 'editor-a@example.com', password: PASSWORD },
+    })
+    request.headers = new Headers({ authorization: `JWT ${token}` })
+    // Their own club still works.
+    expect((await siteFromPreview(String(w.clubA.slug), '1'))?.club.tenantID).toBe(w.clubA.id)
+
+    cache.reset()
+    expect(await siteFromPreview('no-such-club', '1')).toBeNull()
+    const missing = [...cache.calls]
+    cache.reset()
+    expect(await siteFromPreview(String(w.clubB.slug), '1')).toBeNull()
+    expect(cache.calls).toEqual(missing)
+  })
 
   it.fails("T2: an anonymous visitor's live-preview request loads no club data", async () => {
     await siteFromPreview(String(w.clubB.slug), '1')
