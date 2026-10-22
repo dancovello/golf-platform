@@ -3,6 +3,8 @@ import { headers } from 'next/headers'
 import { getPayload } from 'payload'
 import { cache } from 'react'
 
+import { trackDbTiming } from '@/monitoring/trackDbTiming'
+
 import { canSeeDrafts } from './livePreviewAccess'
 import { type ClubSite, loadClubBySlug } from './loadClub'
 import { siteBase, sitePreviewEnabled } from './preview'
@@ -63,6 +65,7 @@ export const findClubByHost = cache(
  */
 export const siteFromDomain = cache(
   async (domainParam: string): Promise<(ResolvedSite & { redirect: string | null }) | null> => {
+    await trackDbTiming()
     const h = await headers()
     const host = h.get(CLUB_HOST_HEADER)
     if (!host || host !== decodeURIComponent(domainParam)) return null
@@ -92,6 +95,7 @@ export const siteFromPreview = cache(
   async (slug: string, live: unknown): Promise<ResolvedSite | null> => {
     const open = sitePreviewEnabled()
     if (!open && live !== '1') return null
+    await trackDbTiming()
     const club = await loadClubBySlug(slug)
     if (!club) return null
     if (!open && !(await canSeeDrafts(club.tenantID, live))) return null
