@@ -9,7 +9,7 @@ const previewURL = async (req: PayloadRequest, tenant: unknown, path: string) =>
   const tenantID = idOf(tenant)
   if (!tenantID) return null
   const club = await req.payload
-    .findByID({ collection: 'tenants', id: tenantID, depth: 0, req })
+    .findByID({ collection: 'tenants', id: tenantID, depth: 0, overrideAccess: true, req })
     .catch(() => null)
   if (!club?.slug) return null
   const host = req.headers.get('x-forwarded-host') ?? req.headers.get('host')

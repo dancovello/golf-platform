@@ -64,11 +64,13 @@ export const Tenants: CollectionConfig = {
             announcement: { style: 'classic', tone: 'brand' },
             contact: { replyDays: 1 },
           },
+          overrideAccess: true,
           req,
         })
         await req.payload.create({
           collection: 'course-status',
           data: { tenant: doc.id, state: 'open' },
+          overrideAccess: true,
           req,
         })
         return doc
