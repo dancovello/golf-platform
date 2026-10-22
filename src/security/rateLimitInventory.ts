@@ -95,6 +95,12 @@ export const RATE_LIMITS: Record<string, Protection> = {
   'src/app/(frontend)/health/route.ts': FILE,
   'src/app/(frontend)/robots.txt/route.ts': FILE,
   'src/app/(frontend)/accounts-by-administrator/page.tsx': FILE,
+  'src/app/(frontend)/cron/canary/route.ts': {
+    who: 'scheduler',
+    limit:
+      "Only with Vercel's scheduler secret (CRON_SECRET) and the canary account set; otherwise it doesn't exist",
+    where: 'Code check in the route',
+  },
   'src/app/(frontend)/cron/clean-up/route.ts': {
     who: 'scheduler',
     limit: "Only with Vercel's scheduler secret (CRON_SECRET); otherwise it doesn't exist",

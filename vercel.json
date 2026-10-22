@@ -10,6 +10,10 @@
     {
       "path": "/cron/clean-up",
       "schedule": "30 3 * * *"
+    },
+    {
+      "path": "/cron/canary",
+      "schedule": "0 * * * *"
     }
   ]
 }

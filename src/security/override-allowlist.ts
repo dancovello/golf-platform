@@ -173,6 +173,22 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
     why: 'Helper inside buildDemoClub',
   },
 
+  // ---------- Live isolation canary (hidden canary clubs only) ----------
+  {
+    file: 'src/canary/setup.ts',
+    fn: 'createCanaryClubs',
+    uses: 7,
+    club: 'The two canary clubs it creates (slugs canary-a and canary-b), and their records',
+    why: 'Run only by scripts/create-canary-clubs.ts from a terminal (production needs Dan’s approval)',
+  },
+  {
+    file: 'src/canary/targets.ts',
+    fn: 'canaryTargets',
+    uses: 2,
+    club: 'Canary club B only (by its slug), to know what the canary must not be able to reach',
+    why: 'Runs in the canary cron route (CRON_SECRET) with no user; the attempts themselves go over HTTP as canary A’s editor, with normal access rules',
+  },
+
   // ---------- Company marketing site (no clubs) ----------
   {
     file: 'src/marketing/content.ts',
@@ -259,14 +275,14 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
   },
   {
     file: 'src/site/loadClub.ts',
-    fn: 'clubIDBySlug',
+    fn: 'clubIDBySlugFresh',
     uses: 1,
     club: 'The one club with this slug (from resolveSite); returns its ID only',
     why: PUBLIC_SITE,
   },
   {
     file: 'src/site/loadClub.ts',
-    fn: 'loadClubSite',
+    fn: 'loadClubSiteFresh',
     uses: 2,
     club: 'The one club by its ID, and its own Club Settings',
     why: PUBLIC_SITE,
