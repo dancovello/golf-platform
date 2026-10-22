@@ -1,0 +1,105 @@
+# AI security review on every pull request (job 7, 21 Oct grilling; docs/operations/ai-security-review.md).
+# Claude reviews the change with a project-specific brief (tenant isolation first). Findings are
+# posted as pull request comments. Any HIGH finding fails this check, which is required to merge,
+# unless Dan dismisses it in writing (label + comment, see the doc).
+name: Security review
+
+on:
+  pull_request:
+    branches: [main]
+    # labeled/unlabeled: re-check when Dan adds or removes security-finding-dismissed.
+    types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: security-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  security-review:
+    # Not on drafts (it runs when marked ready), and not on Dependabot's version bumps (they
+    # can't read the API key; dependency-scan covers them). A skipped run counts as passed.
+    if: ${{ !github.event.pull_request.draft && github.actor != 'dependabot[bot]' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 2
+
+      # Labels change nothing in the code, so they reuse the last review instead of paying for
+      # another one (the review's results are kept as an artifact below).
+      - name: Docs-only or label-only?
+        id: scope
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ACTION: ${{ github.event.action }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          code=$(gh pr diff "$PR" --repo "$GITHUB_REPOSITORY" --name-only | grep -vE '^(docs/|\.claude/)|\.md$' || true)
+          if [ -z "$code" ]; then echo "review=skip" >> "$GITHUB_OUTPUT"; echo "Docs only: nothing to review."
+          elif [ "$ACTION" = "labeled" ] || [ "$ACTION" = "unlabeled" ]; then echo "review=reuse" >> "$GITHUB_OUTPUT"
+          else echo "review=run" >> "$GITHUB_OUTPUT"; fi
+
+      - name: Claude security review
+        if: steps.scope.outputs.review == 'run'
+        id: review
+        # anthropics/claude-code-security-review, pinned like every other action.
+        uses: anthropics/claude-code-security-review@0c6a49f1fa56a1d472575da86a94dbc1edb78eda # main, 2026-02-11
+        with:
+          claude-api-key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude-model: claude-opus-5-5
+          comment-pr: 'true'
+          upload-results: 'true'
+          # Every push to a ready pull request is reviewed: a merge gate can't review only the first.
+          run-every-commit: 'true'
+          exclude-directories: docs,tests,.claude,src/migrations
+          custom-security-scan-instructions: ${{ github.workspace }}/.github/security-review/scan-instructions.txt
+          false-positive-filtering-instructions: ${{ github.workspace }}/.github/security-review/false-positive-instructions.txt
+
+      - name: Reuse the last review (label change only)
+        if: steps.scope.outputs.review == 'reuse'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ github.event.pull_request.head.ref }}
+        run: |
+          run_id=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow security-review.yml --branch "$BRANCH" --status completed --json databaseId,headSha --jq "[.[] | select(.headSha == \"${{ github.event.pull_request.head.sha }}\")][0].databaseId // empty")
+          if [ -z "$run_id" ]; then echo "::error::No finished review of this commit to reuse. Re-run this check after the review has run, or push again."; exit 1; fi
+          gh run download "$run_id" --repo "$GITHUB_REPOSITORY" --name security-review-results --dir .
+          ls -la claudecode-results.json
+
+      # The action reports zero findings when the review itself fails (bad key, timeout). For a
+      # required check that would be a silent pass, so: no real result, no pass.
+      - name: Pass or fail (HIGH findings fail unless Dan dismissed them)
+        if: steps.scope.outputs.review != 'skip'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          OWNER: ${{ github.repository_owner }}
+          LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+        run: |
+          set -euo pipefail
+          f=claudecode-results.json
+          if [ ! -s "$f" ] || ! jq -e 'has("findings")' "$f" > /dev/null; then
+            echo "::error::The security review didn't produce a result (see the review step's log)."
+            jq -r '.error // empty' "$f" 2>/dev/null || true
+            exit 1
+          fi
+          high=$(jq '[.findings[] | select((.severity // "" | ascii_upcase) == "HIGH")] | length' "$f")
+          total=$(jq '.findings | length' "$f")
+          echo "Findings: ${total} (HIGH: ${high})" | tee -a "$GITHUB_STEP_SUMMARY"
+          jq -r '.findings[] | "- \(.severity) \(.category // "") in \(.file):\(.line // "?") — \(.description)"' "$f" >> "$GITHUB_STEP_SUMMARY" || true
+          [ "$high" -eq 0 ] && exit 0
+          # Dismissed only with Dan's label AND a written reason from the repository owner.
+          reason=$(gh api "repos/${GITHUB_REPOSITORY}/issues/${PR}/comments" --paginate \
+            --jq ".[] | select(.user.login == \"${OWNER}\") | select(.body | test(\"^Security finding dismissed:\"; \"i\")) | .body" | tail -1)
+          if [[ ",${LABELS}," == *",security-finding-dismissed,"* ]] && [ -n "$reason" ]; then
+            echo "HIGH finding(s) dismissed by ${OWNER}: ${reason}" | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          echo "::error::${high} HIGH security finding(s). Fix them, or see docs/operations/ai-security-review.md to dismiss a false positive with a written reason."
+          exit 1

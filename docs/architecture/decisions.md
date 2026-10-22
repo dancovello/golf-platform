@@ -478,3 +478,11 @@ All of these run in the `tenant-isolation` CI job and block merging.
 - **History:** private from 10 Oct (above), made **public on 15 Oct** so GitHub Actions minutes were free, and now **private again** (Dan, after the 21 Oct grilling). It was public for about a week. Nothing secret was in it: gitleaks scans every pull request, and secrets live in Vercel and GitHub.
 - **CI minutes:** about 7,400 a month at today's pace, against GitHub Pro's 3,000 for private repositories. CI now skips the slow checks for docs-only pull requests, and runs the browser checks on drafts only once they're marked ready. That gives an estimated 5,750 a month. Merging the small checks into fewer jobs (as PR #65 proposed) and skipping browser checks on merges to `main` would bring it to about 3,200; both need Dan's OK (`docs/operations/ci-minutes.md`).
 - **Guard:** the release workflow's first step fails if the repository is public, so staging and production releases stop until it's private again.
+
+## 2026-10-22: AI security review on every pull request (job 7)
+
+- **Anthropic's `claude-code-security-review` action** runs on every non-draft pull request into `main`, pinned to commit `0c6a49f`, with Claude Opus 5.5 and a project brief that puts tenant isolation first (`.github/security-review/`).
+- **A HIGH finding fails the required `security-review` check.** So does a review that fails to run: the action alone would report zero findings then. Only Dan can dismiss a finding, with the `security-finding-dismissed` label plus a comment of his starting "Security finding dismissed:".
+- **Cost:** about $1 a review and 5–12 CI minutes, so roughly $150 and 750–1,800 minutes a month at October's pace. The model is one line to change (Sonnet 5.5 halves the cost). Details: `docs/operations/ai-security-review.md`.
+- **Secret:** `ANTHROPIC_API_KEY` in GitHub Actions secrets only.
+

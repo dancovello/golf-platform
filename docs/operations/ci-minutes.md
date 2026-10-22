@@ -45,6 +45,10 @@ The heaviest jobs are the browser checks: `tenant-isolation` (about 4 minutes a 
 
 With b and c: about **3,200 a month** at the last 30 days' pace, which was unusually busy (627 runs). That should drop under 3,000 as the build slows. **Safety net:** a spending limit (GitHub → Settings → Billing and plans → Spending limits → Actions) stops CI halting mid-month, but costs money; it's Dan's call.
 
+## The AI security review adds to this
+
+The `security-review` check (job 7, `docs/operations/ai-security-review.md`) takes about 5–12 minutes a run, so about 750–1,800 minutes a month if each pull request is reviewed once. With the repo private, that only fits inside 3,000 if the other CI is trimmed too (options b and c above). Otherwise, run the review only on pull requests that touch `src/` or the workflows.
+
 ## How to check the real number
 
 GitHub → your profile picture → **Settings** → **Billing and plans** → **Usage** → filter by **Actions**. It shows minutes used this month against the 3,000.
