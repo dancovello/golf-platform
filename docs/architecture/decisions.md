@@ -210,7 +210,7 @@ Dan approved site search from the Figma page "Search (v2)" (2026-10-19), with th
 - **Not a Payload collection, and not the Payload search plugin.** The index is two plain database tables (`search_entries`, `search_state`) that only the website's own server code reads. The admin and the API can't reach them at all, and every query names one club first. No new dependency. The tenant-isolation suite checks club A's searches never return club B's content, and the reverse.
 - **Kept fresh without slowing editors down.** Saving or deleting a page, article, event, team member, document, course or photo adds one to that club's change count, inside the same save. The next search for that club rebuilds its index first (about 0.05 seconds for the demo club), then searches are instant until something changes again.
 - **Postgres full-text search** (English word endings, "golfing" finds "golf"), each word may be the start of a longer one as you type, and `pg_trgm` for spelling mistakes ("twilite" finds "Twilight" in titles) and "Did you mean" (from words in the club's own content). `pg_trgm` is added by the migration; it's a standard extension Neon supports.
-- **Rate limit:** 120 searches a minute per visitor, counted per server instance. A Cloudflare rate-limiting rule in front of the site adds the edge limit doc 04 asks for once clubs are on their own domains (step 4).
+- **Rate limit:** 120 searches a minute per visitor. *Updated 22 Oct: counted in the database shared by every server, with a Vercel Firewall rule as the edge layer (club sites don't go through Cloudflare). See `docs/operations/rate-limits.md`.*
 
 ## 2026-10-19 — Site search (parts 2–4: results page, header panel, answers)
 
@@ -463,3 +463,12 @@ All of these run in the `tenant-isolation` CI job and block merging.
 - **Every collection in the running config** has reviewed access, including the ones Payload and plugins add (`tests/int/config-access.int.spec.ts`). Payload's `payload-migrations` collection allows everything, so it must never get a web address.
 - **Isolation manifest** (`src/security/isolation-manifest.ts`): every collection, non-standard endpoint, web route and server action names the test that proves isolation for it. Adding a route, endpoint or collection without one fails the build.
 - **New isolation tests:** page history and drafts, the job queue, photo file addresses, paste-from-URL (off), switching off two-factor, and platform files (health, robots.txt).
+
+## 2026-10-22: Rate limits shared across servers (job 4)
+
+- **Search and the security-report address counted in each server's memory**, so the real limit grew with the number of Vercel servers. They now count in one database table, `rate_limits` (reviewed migration `20261022_091355_rate_limits`), with a single upsert per request (`src/security/rateLimit.ts`).
+- **No IP addresses are stored:** the key is an HMAC (with `PAYLOAD_SECRET`) of the address and the date, so it changes daily. The nightly clean-up deletes counts over a day old.
+- **The edge layer is Vercel Firewall**, not Cloudflare (club sites point straight at Vercel, decided 20 Oct). Dan adds the rules in `docs/operations/rate-limits.md`. `TRUSTED_PROXY` stays unset.
+- **The contact form's per-club limit is unchanged:** it already counts saved enquiries in the database.
+- **Inventory:** `src/security/rateLimitInventory.ts`; a test fails if a route, endpoint or server action has no entry.
+

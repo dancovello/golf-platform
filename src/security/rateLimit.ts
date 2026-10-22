@@ -1,0 +1,111 @@
+import { createHmac } from 'node:crypto'
+
+import { sql } from '@payloadcms/db-postgres'
+import {
+  integer,
+  pgTable,
+  timestamp,
+  uniqueIndex,
+  uuid,
+  varchar,
+} from '@payloadcms/db-postgres/drizzle/pg-core'
+
+/**
+ * Rate limits that hold across every server (job 4, 21 Oct grilling). Each Vercel instance used
+ * to count in its own memory, so the real limit grew with the number of instances. Counts now
+ * live in one database table that every instance shares. Inventory of every public endpoint and
+ * its limit: docs/operations/rate-limits.md (src/security/rateLimitInventory.ts).
+ *
+ * Visitors are never stored by IP address: the key is a keyed hash of the address and today's
+ * date (HMAC with PAYLOAD_SECRET), so it changes every day and can't be turned back into an
+ * address. The nightly clean-up deletes old counts (src/privacy/cleanUp.ts).
+ */
+
+export const rateLimits = pgTable(
+  'rate_limits',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    /** "<what>:<hashed visitor>", e.g. "search:3f9a…". */
+    key: varchar('key', { length: 96 }).notNull(),
+    windowStart: timestamp('window_start', { withTimezone: true, mode: 'string' }).notNull(),
+    count: integer('count').notNull().default(0),
+  },
+  // Not a two-column primary key: local schema auto-sync can't read those back.
+  (t) => [uniqueIndex('rate_limits_key_window_idx').on(t.key, t.windowStart)],
+)
+
+export type Limit = {
+  /** What is being limited; part of the key, so limits don't share counts. */
+  name: string
+  /** Most requests allowed in one window. */
+  max: number
+  windowSeconds: number
+}
+
+/** Searches, from the results page and the header panel together (as before). */
+export const SEARCH_LIMIT: Limit = { name: 'search', max: 120, windowSeconds: 60 }
+/** Security policy reports, from all visitors together: they only go to the log. */
+export const CSP_REPORT_LIMIT: Limit = { name: 'csp-report', max: 60, windowSeconds: 60 }
+
+type Executor = { execute: (query: ReturnType<typeof sql>) => Promise<{ rows: unknown[] }> }
+
+/** A visitor's key for today: never the address itself. */
+export const hashVisitor = (
+  address: string,
+  now = new Date(),
+  secret = process.env.PAYLOAD_SECRET ?? '',
+) =>
+  createHmac('sha256', secret)
+    .update(`${now.toISOString().slice(0, 10)}|${address}`)
+    .digest('hex')
+    .slice(0, 32)
+
+const windowStartOf = (limit: Limit, now: Date) => {
+  const ms = limit.windowSeconds * 1000
+  return new Date(Math.floor(now.getTime() / ms) * ms).toISOString()
+}
+
+/**
+ * Counts this request and says whether it's within the limit. One database round trip: the
+ * count goes up by one and comes back in the same statement, so two servers counting at the
+ * same moment can't both see room for the last request.
+ */
+export const allowRequest = async (
+  db: Executor,
+  limit: Limit,
+  visitor: string,
+  now = new Date(),
+): Promise<boolean> => {
+  const key = `${limit.name}:${visitor === 'all' ? 'all' : hashVisitor(visitor, now)}`
+  const { rows } = await db.execute(sql`
+    INSERT INTO rate_limits (key, window_start, count)
+    VALUES (${key}, ${windowStartOf(limit, now)}, 1)
+    ON CONFLICT (key, window_start) DO UPDATE SET count = rate_limits.count + 1
+    RETURNING count`)
+  return Number((rows[0] as { count?: number } | undefined)?.count ?? Infinity) <= limit.max
+}
+
+/** Counts older than a day are no use to any limit (the longest window is a minute). */
+export const deleteOldCounts = async (db: Executor, now = new Date()) => {
+  const cutoff = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString()
+  const { rows } = await db.execute(
+    sql`DELETE FROM rate_limits WHERE window_start < ${cutoff} RETURNING id`,
+  )
+  return rows.length
+}
+
+/**
+ * Who is asking: the address the request came from, as the host saw it. Vercel sets x-real-ip
+ * and x-forwarded-for itself and overwrites anything the visitor sends, so those are trusted.
+ * cf-connecting-ip is only trusted with TRUSTED_PROXY=cloudflare. Club sites point straight at
+ * Vercel (decided 20 Oct), so it stays unset: any visitor could otherwise send a made-up one
+ * with every request and never reach a limit.
+ */
+export const visitorKey = (
+  headers: Headers,
+  trustedProxy: string | undefined = process.env.TRUSTED_PROXY,
+): string =>
+  (trustedProxy === 'cloudflare' ? headers.get('cf-connecting-ip')?.trim() : undefined) ||
+  headers.get('x-real-ip')?.trim() ||
+  headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+  'unknown'
