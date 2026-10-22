@@ -110,7 +110,7 @@ The form's time token also stays valid for 24 hours and is kept after each succe
 
 - `tests/int/audit-public-forms.int.spec.ts`: 2 passed (club separation), 4 expected failures (findings 1–4). Before marking them `it.fails`, I ran each as a normal test to confirm it fails for the stated reason, not some other error.
 - `corepack pnpm typecheck`: passed. ESLint and Prettier on the new test file: passed.
-- `corepack pnpm test` (full suite, on its own local database `golf_test_forms` so it didn't collide with the other audit sessions): see the pull request description for the result.
+- `corepack pnpm test` (full suite, on its own local database `golf_test_forms` so it didn't collide with the other audit sessions): 59 files, 598 passed, 4 expected failures, none failed.
 
 ## Open questions for Dan
 
