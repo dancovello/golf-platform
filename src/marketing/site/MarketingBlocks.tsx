@@ -8,6 +8,7 @@ import { DemoIntro } from './booking/BookingBlocks'
 import { BookingDemo } from './bookings/BookingsBlocks'
 import { BuilderHero, LiveDemo } from './builder/BuilderBlocks'
 import { FounderCard } from './FounderCard'
+import { readMinutes, Reviewed, Roadmap } from './info/InfoBlocks'
 import { Compare, ContentMoves, HomeHero, ProofStats } from './home/HomeBlocks'
 import { EditLive } from './home/EditLive'
 import { Week } from './home/Week'
@@ -180,7 +181,7 @@ const FeatureCards = ({ block }: { block: Features }) => {
 const drawBlock = (
   block: Block,
   isFirstHeader: boolean,
-  page: { onBookingPage: boolean },
+  page: { onBookingPage: boolean; readMinutes: number },
 ): ReactNode => {
   switch (block.blockType) {
     case 'mkSectionHeader':
@@ -229,6 +230,10 @@ const drawBlock = (
       return <LiveDemo block={block} />
     case 'mkBookingDemo':
       return <BookingDemo block={block} />
+    case 'mkReviewed':
+      return <Reviewed block={block} minutes={page.readMinutes} />
+    case 'mkRoadmap':
+      return <Roadmap block={block} />
     default:
       return null
   }
@@ -247,6 +252,9 @@ export const MarketingBlocks = ({ blocks }: { blocks: Block[] }) => {
     ['mkHomeHero', 'mkRequestHero', 'mkDemoIntro', 'mkBuilderHero'].includes(b.blockType),
   )
   const onBookingPage = blocks.some((b) => b.blockType === 'mkDemoIntro')
+  const minutes = readMinutes(
+    blocks.flatMap((b) => (b.blockType === 'mkRichText' ? [b.content] : [])),
+  )
   const firstHeader = hasOwnH1 ? undefined : blocks.find((b) => b.blockType === 'mkSectionHeader')
   return (
     <>
@@ -259,7 +267,7 @@ export const MarketingBlocks = ({ blocks }: { blocks: Block[] }) => {
           <div className="mk-container mk-stack">
             {section.map((block, j) => (
               <Fragment key={block.id ?? j}>
-                {drawBlock(block, block === firstHeader, { onBookingPage })}
+                {drawBlock(block, block === firstHeader, { onBookingPage, readMinutes: minutes })}
               </Fragment>
             ))}
           </div>

@@ -5,7 +5,8 @@
 import { mkdirSync, writeFileSync } from 'node:fs'
 
 import { allowAccountCreation } from '@/access/accountCreation'
-import { STARTER_PAGES } from '@/marketing/starter/pages'
+import { PLACEHOLDER } from '@/marketing/collections/MarketingPages'
+import { STARTER_PAGES, starterPageData } from '@/marketing/starter/pages'
 
 import { pdfFile, photoFile } from '../shared/media'
 import { rt } from '../shared/richText'
@@ -655,17 +656,15 @@ await w.payload.create({
   } as never,
 })
 
-// The marketing home page from the Figma copy, published (tests/e2e/marketing-home.spec.ts).
+// The marketing pages from the Figma copy, published (tests/e2e/marketing-*.spec.ts). The
+// legal pages keep their placeholder wording, so they stay drafts (marketing-info.spec.ts).
 for (const starter of STARTER_PAGES) {
+  const data = starterPageData(starter, new Date('2026-10-14T12:00:00Z'))
+  const draft = PLACEHOLDER.test(JSON.stringify(data.layout))
   await w.payload.create({
     collection: 'marketing-pages',
-    data: {
-      _status: 'published',
-      title: starter.title,
-      slug: starter.slug,
-      meta: { description: starter.description },
-      layout: starter.layout,
-    } as never,
+    draft,
+    data: { _status: draft ? 'draft' : 'published', ...data } as never,
   })
 }
 

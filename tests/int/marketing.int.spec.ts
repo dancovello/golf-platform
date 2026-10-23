@@ -5,7 +5,10 @@
 import type { Payload } from 'payload'
 import { beforeAll, describe, expect, it } from 'vitest'
 
-import { publishedMarketingPage } from '@/marketing/content'
+import { publishedMarketingPage, publishedMarketingSlugs } from '@/marketing/content'
+import { onlyPublished } from '@/marketing/site/chrome/links'
+import { readMinutes } from '@/marketing/site/info/InfoBlocks'
+import { addStarterPages, STARTER_PAGES } from '@/marketing/starter/pages'
 import { rt } from '@/demo/richText'
 
 import { pngFile } from '../shared/media'
@@ -271,5 +274,94 @@ describe('visitors only ever see published pages', () => {
     const found = await publishedMarketingPage(['with-link'])
     const block = found?.layout?.[0] as { content: unknown }
     expect(JSON.stringify(block.content)).toContain('"slug":"link-target"')
+  })
+})
+
+describe('information pages (plan phase 6.3)', () => {
+  const placeholderLayout = [
+    { blockType: 'mkSectionHeader', title: 'Privacy policy' },
+    { blockType: 'mkRichText', content: rt.doc(rt.p('[[Paste the wording here.]]')) },
+  ]
+
+  /** The editor-facing message of a refused save. */
+  const refusal = async (fn: () => Promise<unknown>) => {
+    try {
+      await fn()
+      return null
+    } catch (error) {
+      return JSON.stringify((error as { data?: unknown }).data ?? (error as Error).message)
+    }
+  }
+
+  it('placeholder text in [[brackets]] saves as a draft but can’t be published', async () => {
+    const doc = await page('placeholder-test', 'draft', { layout: placeholderLayout })
+    expect(
+      await refusal(() =>
+        p.update({
+          collection: 'marketing-pages',
+          id: doc.id,
+          data: { _status: 'published' } as never,
+        }),
+      ),
+    ).toMatch(/placeholder text/)
+    expect(
+      await refusal(() => page('placeholder-direct', 'published', { layout: placeholderLayout })),
+    ).toMatch(/placeholder text/)
+    // Replaced: it publishes.
+    await p.update({
+      collection: 'marketing-pages',
+      id: doc.id,
+      data: {
+        _status: 'published',
+        layout: [{ blockType: 'mkRichText', content: rt.doc(rt.p('Our real wording.')) }],
+      } as never,
+    })
+    expect(await publishedMarketingPage(['placeholder-test'])).not.toBeNull()
+  })
+
+  it('the starter button adds Trust, Accessibility, Changelog and the legal pages as drafts', async () => {
+    const { added } = await addStarterPages(p)
+    for (const title of [
+      'Trust & security',
+      'Accessibility statement',
+      'Changelog',
+      'Privacy policy',
+      'Cookie notice',
+      'Terms',
+    ]) {
+      expect(added).toContain(title)
+    }
+    expect(added).toHaveLength(STARTER_PAGES.filter((s) => s.slug !== 'home').length)
+    // Drafts only: none of them reaches visitors, and the nav and footer leave them out.
+    expect(await publishedMarketingPage(['trust'])).toBeNull()
+    const slugs = await publishedMarketingSlugs()
+    expect(slugs.has('trust')).toBe(false)
+    expect(slugs.has('pricing-test')).toBe(true)
+  })
+
+  it('links to unpublished pages are left out; email and anchors are handled', () => {
+    const links = [
+      { href: '/' },
+      { href: '/pricing-test' },
+      { href: '/trust#data-processing' },
+      { href: 'mailto:hello@example.com' },
+    ]
+    expect(onlyPublished(links, new Set(['home', 'pricing-test'])).map((l) => l.href)).toEqual([
+      '/',
+      '/pricing-test',
+      'mailto:hello@example.com',
+    ])
+    expect(onlyPublished(links, new Set(['trust'])).map((l) => l.href)).toEqual([
+      '/trust#data-processing',
+      'mailto:hello@example.com',
+    ])
+  })
+
+  it('read time counts the page’s words at 200 a minute, at least one minute', () => {
+    const words = (n: number) => rt.doc(rt.p(Array.from({ length: n }, () => 'word').join(' ')))
+    expect(readMinutes([])).toBe(1)
+    expect(readMinutes([words(150)])).toBe(1)
+    expect(readMinutes([words(150), words(150)])).toBe(2)
+    expect(readMinutes([words(801)])).toBe(5)
   })
 })

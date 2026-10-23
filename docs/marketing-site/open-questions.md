@@ -20,14 +20,14 @@ Each has a safe default so building isn't blocked. The default is what ships unt
 | N1 | **Company name and domain** | Phase 10 (go live) | "Brandname" and `hello@brandname.golf`, in one file |
 | N2 | **Docs 15 and 18** (golf ball; marketing review and claims) | Doc 18: claims register. Doc 15: phase 7 | Register seeded from the hand-off's list only |
 | N3 | **`golf_ball.glb` and `golf-ball-generator.py`** | Phase 7 | — |
-| N4 | **Company privacy policy, cookie notice and terms** wording | Phase 6 | Pages built, unpublished |
+| N4 | **Company privacy policy, cookie notice and terms** wording | Phase 6 | Pages built as drafts with a [[placeholder]] line; they can't be published until it's replaced, and the footer hides their links until then |
 | N5 | **Image licences** for the hero, two-column and accessibility photos | Phase 4 | Clearly licensed stock or demo pictures, captioned as demo clubs |
 | N6 | **Vercel functions in London?** Needed before the Trust page can say "Stored in London" (doc 03) | Phase 6 (Trust, held) | The line stays out |
 | N7 | **Old page addresses.** The Switching page and FAQ promise old page addresses forward to the new ones (softened for now: D8). Today the platform forwards a club's *extra domains* (e.g. without `www`), but not old page addresses like `/about-us.php`. Build page forwarding, or soften the copy? | Phase 5 (Switching) | Claim held back until decided |
 | N8 | **"Alt text required."** For club photos, the description is optional (your decision, 17 Oct); the library marks missing ones "Needs description". The marketing site's own Media block will require it. | Before any copy says it | Not claimed for club sites |
 | N9 | **Search in the nav.** Figma's nav has a Search button, but the marketing site has no search for it to open. Add site search later, or remove it from Figma? | Phase 8 | Left out |
 | N10 | **Leaving: exporting a club's content.** The Pricing FAQ (Figma) says a leaving club takes "pages and news as Markdown, every photo and PDF in its original file, and form entries as CSV". No self-service export exists. Build one, or do it by hand on request? | Before Pricing ships | Wording kept; we do it by hand (a script) if a club leaves |
-| N11 | **Data processing agreement.** The FAQ promises to send one before a club signs. Is there one? | Before Pricing ships | Wording kept, flagged in the claims register |
+| N11 | **Data processing agreement.** The FAQ and Trust promise to send one before a club signs. A draft exists in the admin (`src/agreement/text.ts`), awaiting your solicitor. Is it ready to send? | Before Pricing ships | Wording kept, flagged in the claims register |
 | N12 | **Where homepage requests are emailed.** Set an address in Company website → Settings → Requests. Turnstile's widget also needs the company domain added in Cloudflare | Before Switching ships | Requests are saved in the admin; nothing is emailed to you |
 
 ### Finding for Q5 (from the code, 2026-10-21)
@@ -57,6 +57,12 @@ Places where the build differs from Figma to meet WCAG 2.2 AA. Update Figma or t
 | D15 | Bookings, Works With strip | In the hand-off; marked deprecated in Figma | Left out | Figma: "name only providers we have actually linked to in production". No club is live yet. Add it once one is |
 | D16 | Bookings, Tee Sheet Simulator | The page frame shows the Held state | Starts at Browsing ("Pick a time") | So visitors can tap a slot and see the hold start (the component's own first state) |
 | D17 | Bookings, Facilities pictures | Photos | The demo clubs' drawn pictures | The photos' licences aren't confirmed (N5) |
+| D18 | Trust, Hosting card | "Your club’s database and files are stored in London" and a "Where data lives" link | "Ask us for the full list of companies we use, and where each one keeps your club’s data." Link: "Ask for the list" (email) | Photos are in Western Europe and Vercel's functions run in Washington, D.C. (N6), and there's no page for the link to go to |
+| D19 | Trust, Backups card | "Point-in-time restore to any moment in the last 7 days" and "How restores work" | "Backed up every night, encrypted and kept for 30 days." No link | The 7 days needs the Neon Launch plan (Q6); nightly backups are true today. No restores page to link to |
+| D20 | Accessibility statement | Greenkeeper photo; CTA "Email access@brandname.golf" and "Back to Trust & security" | No photo; "Email hello@brandname.golf"; one button | Photo licence unconfirmed (N5): add it as a Photo block once it is. There's one company address (`src/brand.ts`). Trust isn't published yet, so the second button would lead nowhere: add it back when Trust is |
+| D21 | Changelog | "Get updates by email" sign-up | Left out | There's no mailing list to sign people up to. Add one if you want it (it would need a privacy notice line) |
+| D22 | Trust CTA | Second button "Committee summary (PDF)" | Left out | The committee summary was removed (21 Oct) |
+| D23 | Accessibility statement read time | "4 minute read" | Worked out from the text ("1 minute read" today) | So it's always right |
 
 ## Answered
 

@@ -1797,6 +1797,8 @@ export interface MarketingPage {
         | MarketingBuilderHeroBlock
         | MarketingLiveDemoBlock
         | MarketingBookingDemoBlock
+        | MarketingReviewedBlock
+        | MarketingRoadmapBlock
       )[]
     | null;
   meta?: {
@@ -2364,6 +2366,39 @@ export interface MarketingBookingDemoBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'mkBookingDemo';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingReviewedBlock".
+ */
+export interface MarketingReviewedBlock {
+  label: 'reviewed' | 'updated';
+  /**
+   * Change this whenever you check or change the page. The read time is added for you.
+   */
+  date: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkReviewed';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingRoadmapBlock".
+ */
+export interface MarketingRoadmapBlock {
+  emptyTitle: string;
+  emptyBody?: string | null;
+  /**
+   * In rows of three. Only things being built now.
+   */
+  cards: {
+    title: string;
+    body: string;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkRoadmap';
 }
 /**
  * Clubs asking for their free homepage (Switching page). Each one was promised it by the date shown.
@@ -3677,6 +3712,8 @@ export interface MarketingPagesSelect<T extends boolean = true> {
         mkBuilderHero?: T | MarketingBuilderHeroBlockSelect<T>;
         mkLiveDemo?: T | MarketingLiveDemoBlockSelect<T>;
         mkBookingDemo?: T | MarketingBookingDemoBlockSelect<T>;
+        mkReviewed?: T | MarketingReviewedBlockSelect<T>;
+        mkRoadmap?: T | MarketingRoadmapBlockSelect<T>;
       };
   meta?:
     | T
@@ -4062,6 +4099,33 @@ export interface MarketingLiveDemoBlockSelect<T extends boolean = true> {
 export interface MarketingBookingDemoBlockSelect<T extends boolean = true> {
   demo?: T;
   showLabel?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingReviewedBlock_select".
+ */
+export interface MarketingReviewedBlockSelect<T extends boolean = true> {
+  label?: T;
+  date?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingRoadmapBlock_select".
+ */
+export interface MarketingRoadmapBlockSelect<T extends boolean = true> {
+  emptyTitle?: T;
+  emptyBody?: T;
+  cards?:
+    | T
+    | {
+        title?: T;
+        body?: T;
+        id?: T;
+      };
   id?: T;
   blockName?: T;
 }
