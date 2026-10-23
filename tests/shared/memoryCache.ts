@@ -8,6 +8,7 @@ import type { CacheStore } from '@/site/cache'
 export const memoryCache = () => {
   const entries = new Map<string, { value: unknown; tags: string[]; expires: number }>()
   const calls: string[] = []
+  const afterResponse: (() => void)[] = []
   const store: CacheStore = {
     wrap: (fn, key, { tags, revalidate }) =>
       (async (...args: unknown[]) => {
@@ -28,6 +29,9 @@ export const memoryCache = () => {
     clear: (tag) => {
       for (const [id, entry] of entries) if (entry.tags.includes(tag)) entries.delete(id)
     },
+    afterResponse: (task) => {
+      afterResponse.push(task)
+    },
   }
   return {
     store,
@@ -35,9 +39,14 @@ export const memoryCache = () => {
     calls,
     /** The cache keys currently held, with their tags. */
     keys: () => [...entries].map(([id, e]) => ({ id, tags: e.tags })),
+    /** The response has been sent: run what was scheduled for then (Next.js's `after`). */
+    finishResponse: () => {
+      for (const task of afterResponse.splice(0)) task()
+    },
     reset: () => {
       entries.clear()
       calls.length = 0
+      afterResponse.length = 0
     },
   }
 }
