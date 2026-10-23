@@ -1,4 +1,4 @@
-import { test as base, expect, type Page } from '@playwright/test'
+import { test as base, type BrowserContext, expect, type Page } from '@playwright/test'
 
 import { clubBSecrets, loadWorld, STATE_DIR, type World } from './world'
 
@@ -32,6 +32,26 @@ const watchForLeaks = (page: Page, secrets: string[], echoed: Set<string>) => {
   }
 }
 
+/**
+ * Payload accepts the login cookie only on requests from the admin's own address (sign-in
+ * audit, A5). Browsers say so with Sec-Fetch-Site on every request. The tests' direct API calls
+ * (page.request, used the way a stolen cookie would be) don't, so they add it here: the
+ * isolation suites then test the access rules themselves, not the cross-site check. Only the
+ * API client gets it; a page can't override a browser's own Sec- headers.
+ */
+export const asSameOrigin = (context: BrowserContext) => {
+  const api = context.request as unknown as Record<string, (...args: unknown[]) => unknown>
+  for (const method of ['fetch', 'get', 'post', 'put', 'patch', 'delete', 'head']) {
+    const original = api[method]!.bind(api)
+    api[method] = (url: unknown, options: { headers?: Record<string, string> } = {}) =>
+      original(url, {
+        ...options,
+        headers: { 'Sec-Fetch-Site': 'same-origin', ...options.headers },
+      })
+  }
+  return context
+}
+
 type Fixtures = {
   world: World
   /**
@@ -45,6 +65,9 @@ type Fixtures = {
 }
 
 export const test = base.extend<Fixtures>({
+  context: async ({ context }, use) => {
+    await use(asSameOrigin(context))
+  },
   world: async ({}, use) => {
     await use(loadWorld())
   },
@@ -53,7 +76,9 @@ export const test = base.extend<Fixtures>({
     await use(new Set())
   },
   editorPage: async ({ browser, world, echoed }, use) => {
-    const context = await browser.newContext({ storageState: `${STATE_DIR}/editorA.json` })
+    const context = asSameOrigin(
+      await browser.newContext({ storageState: `${STATE_DIR}/editorA.json` }),
+    )
     const page = await context.newPage()
     const leaksSoFar = watchForLeaks(page, clubBSecrets(world), echoed)
     await use(page)
@@ -61,7 +86,9 @@ export const test = base.extend<Fixtures>({
     await context.close()
   },
   superAdminPage: async ({ browser }, use) => {
-    const context = await browser.newContext({ storageState: `${STATE_DIR}/superAdmin.json` })
+    const context = asSameOrigin(
+      await browser.newContext({ storageState: `${STATE_DIR}/superAdmin.json` }),
+    )
     await use(await context.newPage())
     await context.close()
   },
