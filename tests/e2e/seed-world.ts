@@ -422,7 +422,11 @@ for (const style of ['classic', 'transparent', 'appBar'] as const) {
 // cookie banner never sits over what other tests click.
 const cookieClub = await w.payload.create({
   collection: 'tenants',
-  data: { name: 'Test Club Cookies', slug: 'test-club-cookies' },
+  data: {
+    name: 'Test Club Cookies',
+    slug: 'test-club-cookies',
+    domains: [{ hostname: 'club-cookies.localhost' }],
+  },
 })
 const { docs: cookieSettings } = await w.payload.find({
   collection: 'club-settings',
