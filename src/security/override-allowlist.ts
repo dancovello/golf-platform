@@ -205,6 +205,27 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
 
   // ---------- Nightly clean-up (every club, by design) ----------
   {
+    file: 'src/marketing/requests/alert.ts',
+    fn: 'sendHomepageRequestEmails',
+    uses: 4,
+    club: 'No club data: one homepage request (company website) and the company website settings',
+    why: 'Runs after the form has answered, with no user; reads the request by the ID the form just saved and records when its emails were sent',
+  },
+  {
+    file: 'src/marketing/requests/submit.ts',
+    fn: 'submitHomepageRequest',
+    uses: 2,
+    club: 'No club data: counts and saves company-website homepage requests only',
+    why: 'Public form with no user; nobody may create a request any other way (create is refused to everyone else)',
+  },
+  {
+    file: 'src/privacy/cleanUp.ts',
+    fn: 'deleteOldHomepageRequests',
+    uses: 1,
+    club: 'No club data: company-website homepage requests past their retention period',
+    why: 'Background job with no user. Runs from the cron route, which checks CRON_SECRET',
+  },
+  {
     file: 'src/privacy/cleanUp.ts',
     fn: 'deleteOldEnquiries',
     uses: 1,

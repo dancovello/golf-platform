@@ -73,6 +73,12 @@ export const COLLECTIONS: Manifest = {
     { file: 'tests/int/accounts.int.spec.ts', test: 'sees only its own club record' },
     { file: ADMIN, test: 'the clubs list is not available' },
   ],
+  'homepage-requests': [
+    {
+      file: 'tests/int/homepage-requests.int.spec.ts',
+      test: 'club editors can’t read, change or delete them, and nobody creates them by hand',
+    },
+  ],
   'marketing-pages': [
     { file: 'tests/int/marketing.int.spec.ts', test: 'pages: no read, create, update or delete' },
     {
@@ -261,6 +267,16 @@ export const ROUTES: Manifest = {
     },
   ],
   // The company marketing site (no club data)
+  'src/app/(marketing-frame)/marketing/frame/hero/[style]/page.tsx': [
+    {
+      file: 'tests/e2e/marketing-website-builder.spec.ts',
+      test: 'the hero frame: the real Hero block, inert, only for known styles',
+    },
+    {
+      file: 'tests/e2e/marketing-routing.spec.ts',
+      test: "a club's domain never shows the marketing site",
+    },
+  ],
   'src/app/(marketing)/marketing/[[...path]]/page.tsx': [
     {
       file: 'tests/e2e/marketing-routing.spec.ts',
@@ -289,6 +305,16 @@ export const ROUTES: Manifest = {
 
 /** Files with server actions ('use server'): each can be called by a POST to any page. */
 export const SERVER_ACTIONS: Manifest = {
+  'src/marketing/requests/actions.ts': [
+    {
+      file: 'tests/int/homepage-requests.int.spec.ts',
+      test: 'refuses an old form, or a token from another form',
+    },
+    {
+      file: 'tests/int/homepage-requests.int.spec.ts',
+      test: 'club editors can’t read, change or delete them, and nobody creates them by hand',
+    },
+  ],
   'src/site/contact/actions.ts': [
     { file: DOMAINS, test: "the Contact form on club A's domain saves into club A" },
     {
