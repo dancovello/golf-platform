@@ -17,15 +17,19 @@ import { MarketingIcon } from '../MarketingIcon'
 export const Switch = ({
   label,
   defaultChecked = false,
+  checked: controlled,
   disabled = false,
   onChange,
 }: {
   label: string
   defaultChecked?: boolean
+  /** When given, the switch shows this and the owner keeps it up to date. */
+  checked?: boolean
   disabled?: boolean
   onChange?: (checked: boolean) => void
 }) => {
-  const [checked, setChecked] = useState(defaultChecked)
+  const [own, setChecked] = useState(defaultChecked)
+  const checked = controlled ?? own
   return (
     <button
       type="button"

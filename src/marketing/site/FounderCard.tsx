@@ -8,9 +8,13 @@ import { MarketingButton } from './parts'
 /**
  * Marketing/Founder Card (264:8707), stacked on phones (Founder Card / Stack, 272:9022). Text,
  * photo and links come from the marketing settings. Without a calendar link, "Book a call" goes
- * to the Book a demo page; without a phone number, "Call" isn't shown.
+ * to the Book a demo page (and isn't shown on that page itself); without a phone number, "Call"
+ * isn't shown. A page can give the card its own line (Book a demo, 187:7336).
  */
-export const FounderCard = async () => {
+export const FounderCard = async ({
+  message,
+  onBookingPage = false,
+}: { message?: string | null; onBookingPage?: boolean } = {}) => {
   const payload = await getPayload({ config })
   const { founder } = await payload.findGlobal({
     slug: 'marketing-settings',
@@ -20,6 +24,8 @@ export const FounderCard = async () => {
   const name = founder?.name || 'Dan'
   const photo = typeof founder?.photo === 'object' ? (founder.photo as MarketingMedia | null) : null
   const firstName = name.split(' ')[0]
+  const promise = message?.trim() || founder?.message
+  const bookingLink = founder?.calendarLink || (onBookingPage ? null : '/book-a-demo')
   return (
     <aside className="mk-founder" aria-label={`Who’s behind this: ${name}`}>
       <div className="mk-founder-photo">
@@ -34,14 +40,16 @@ export const FounderCard = async () => {
         <p className="mk-eyebrow">Who’s behind this</p>
         <p className="mk-founder-name">{name}</p>
         {founder?.role ? <p className="mk-founder-role">{founder.role}</p> : null}
-        {founder?.message ? <p className="mk-founder-promise">{founder.message}</p> : null}
+        {promise ? <p className="mk-founder-promise">{promise}</p> : null}
         <div className="mk-founder-actions">
-          <MarketingButton
-            label={`Book a call with ${firstName}`}
-            href={founder?.calendarLink || '/book-a-demo'}
-            variant="secondary"
-            arrow={false}
-          />
+          {bookingLink ? (
+            <MarketingButton
+              label={`Book a call with ${firstName}`}
+              href={bookingLink}
+              variant="secondary"
+              arrow={false}
+            />
+          ) : null}
           {founder?.phone ? (
             <MarketingButton
               label={`Call ${firstName}`}

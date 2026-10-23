@@ -453,3 +453,66 @@ Built from Figma "Home — Desktop" (176:2178) and "Home — Mobile" (273:8954).
   - It never touches a page whose address is already used.
   - It's for the super-admin with their code entered, from the admin only.
 - **Differences from Figma** are listed as D2–D5 in `docs/marketing-site/open-questions.md`.
+
+## 2026-10-21: Marketing Pricing page (plan phase 5.1)
+
+Built from Figma "Pricing — Desktop" (185:3821) and "Pricing — Mobile" (274:9185). Logged here with phase 5.2; the page itself is in PR #138.
+
+- **Every number comes from Settings.** Copy uses `{price}`, `{vat}`, `{term}` and `{notice}`, in Section Header and CTA band bodies and in the calculator. The editor refuses a typed price.
+- **The calculator** prices the website only. Modules that aren't live (tee-time bookings, members area, facilities booking) are dimmed rows with the Coming next badge and "Price confirmed at launch". The second course appears only once its price is set (Q3).
+- **Phones:** one calculator card, price first. Centred headers go left on phones on every page, as in all of Figma's phone frames.
+- **Questions** sit in their own section, with a compact header beside them on desktop.
+
+## 2026-10-21: Switching page and the free homepage form (plan phase 5.2)
+
+Built from Figma "Switching — Desktop" (186:6494) and "Switching — Mobile" (300:9636).
+
+- **The Homepage Request Form** (club name, current website, email) saves to **Company website → Homepage requests**, which only the super-admin can see. Nobody can create one through the admin or the API; only the form can.
+- **Spam protection**, the same as the club Contact form:
+  - a hidden spam trap;
+  - a signed time check, made only after the fields are checked, so a person who presses the button at once is told what to fill in;
+  - Cloudflare's "are you a person?" check (Turnstile), made for this form only;
+  - at most 20 requests an hour.
+  The marketing site's security policy now allows Turnstile.
+- **"We'll send your homepage by {date}":** two UK working days, skipping weekends and England & Wales bank holidays. The bank holidays are a saved copy of the GOV.UK list (to the end of 2028). A test fails a year before it runs out.
+- **Emails:**
+  - The request goes to the inbox set in Company website → Settings → Requests, with replies going to the club.
+  - The club gets a plain confirmation with the date. It leaves out the website they typed, so the form can't be used to send links to strangers.
+  - Without an inbox set, the request is still saved.
+- **Kept 12 months after the last contact** (decision F): the nightly clean-up deletes requests untouched for 12 months.
+- **The example under the form** is the demo club's real homepage hero, in place of Figma's deprecated URL Reskin (hand-off §6).
+- **Old page addresses (N7):** Figma's "redirect your old page addresses" lines are softened until N7 is answered.
+
+## 2026-10-21: Book a demo page (plan phase 5.3)
+
+Built from Figma "Book a demo — Desktop" (187:7336) and "Book a demo — Mobile" (275:9525).
+
+- **Until a calendar is connected (Q4), the page offers email.** The booking panel says "Pick a time by email" with a button that opens an email to the company address. This is the plan's agreed fallback.
+- **The Demo Booking component is built** (Details → Pick a time → Booked) and on the review page (`/dev/components`) with sample times. Nothing is booked there. It shows only weekdays with free times; arrow keys move through the days; the times are radios. Connecting a calendar means giving it real free times and a way to book. "Add to calendar" and "Reschedule" wait for the calendar, which provides both.
+- **Never says how long the call lasts** (hand-off §6); a test checks the page.
+- **No CTA band**: the page is the call to action. The founder card has the page's own line, and has no "Book a call" button that would only reload this page.
+
+## 2026-10-21: Website builder page (plan phase 6.1)
+
+Built from Figma "Website builder — Desktop" (183:3008). Figma has no phone frame for it; phones use the same patterns as the other pages.
+
+- **Block Flipper:** the real Hero block in its three styles (Heritage, Resort, Booking-led) for one demo club, flipped with the arrows, the arrow keys or a swipe.
+  - Club blocks change layout with the screen's width, not their box's, so Tablet and Mobile show the hero in a small embedded page (`/frame/hero/<style>`) that really is 768 or 390 wide, scaled to fit.
+  - That page has its own bare layout (no marketing nav), is never indexed, and nothing in it can be focused.
+- **Token Dial:** picking a colour re-skins the Booking-led demo club's hero using the club sites' own colour rules (`src/theme/colour.ts`).
+  - The readout says what the product really does: the colour is never changed, and the text on it uses whichever of the club's light and dark text colours reads at WCAG AA.
+  - Figma's "#F2E28C → #7A6A12, deepened" doesn't happen in the product, so it isn't shown (Q5, D12).
+- **Course guide:** the real Hole Grid (style C) with the demo club's Championship course card, the same numbers as the staging demo club (now shared in `src/demo/courseCard.ts`).
+- **Course status:** the course report and a news post, drawn by the same preview cards as the home page's "A week at the club".
+- **Built in:** eight feature cards. Two of Figma's were reworded and one replaced so every card is true today (D13, D14).
+- **No product film** (Q8).
+
+## 2026-10-21: Bookings page, a Coming next preview (plan phase 6.2)
+
+Built from Figma "Bookings — Desktop" (184:3614). Booking is out of scope for v1, so the page is a labelled preview: "Coming next · designs from our build. Not live yet. Prices and times are examples."
+
+- **Tee Sheet Simulator:** pick an open slot and it's held for ten minutes with a live countdown; confirm and it turns Full; release and it frees up. Full, members-only and competition slots can't be held. Nothing is booked. Screen readers hear "held", "booked" and "released", not every second of the countdown.
+- **Club Settings Panel:** the card guarantee adds or removes the Card details step and unlocks the no-show fee. The copy is in the future tense ("will be settings your club controls").
+- **Facilities Carousel:** range, simulators and spa, with tabs or a swipe. Its booking button says facility booking is coming next.
+- **The tee sheet and date chips are drawn in the demo club's colours and fonts**, like the club components they preview. They're marketing code, not club blocks, because the club booking blocks aren't built yet.
+- **Left out:** the Works With strip (deprecated in Figma; it may only name providers a live club links to, and there are none yet).

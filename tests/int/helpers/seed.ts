@@ -99,6 +99,7 @@ export const resetDatabase = async (payload: Payload) => {
   await payload.delete({ collection: 'payload-preferences', where: all })
   await payload.delete({ collection: 'marketing-pages', where: all })
   await payload.delete({ collection: 'marketing-media', where: all })
+  await payload.delete({ collection: 'homepage-requests', where: all })
   // Settings screens have one record; removing it brings back the defaults.
   await payload.db.drizzle.execute(sql`DELETE FROM marketing_settings`)
   await payload.delete({ collection: 'users', where: all })

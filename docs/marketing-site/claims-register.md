@@ -39,3 +39,30 @@ Used exactly as written, with the footnote (hand-off §9).
 | 53% of mobile visits are abandoned if a page takes over 3 seconds | Google, The Need for Mobile Speed, 2016 | ✅ |
 
 Retired, never use: the top-100 audit stat (26 of 93), and "0 of 4 providers publish prices".
+| Hosting, security and backups included | Pricing | Nightly encrypted backups (`.github/workflows/backup.yml`), restore drill (`docs/operations/restore-runbook.md`) | ✅ | Backup workflow runs nightly | Claude | Each infrastructure change |
+| Every live block, on every page | Pricing | No block is limited by plan or club (`src/blocks`) | ✅ | `tests/unit/access-guard.spec.ts` (no per-club gating) | Claude | When plans are added |
+| We move your old site across (included in the price) | Pricing | A service, not a feature: Claude builds each club's pages from their content (onboarding approach) | ❓ confirm it's included at £149 | — | Dan | Each pricing change |
+| {term}-month term, then rolling; {notice} days' notice | Pricing | Values from Settings; must match the contract terms (N4) | ❓ needs the terms | — | Dan | Each contract change |
+| Leaving: pages and news as Markdown, files as originals, form entries as CSV | Pricing (FAQ) | **No self-service export exists** (N10). Possible as a manual export by us | ⏳ wording kept, delivered by hand until an export is built | — | Dan | Before Pricing ships |
+| We follow UK GDPR; DPA sent before signing | Pricing (FAQ) | Privacy policy for club sites exists (`src/site/privacy/policy.ts`). **No data processing agreement document yet** | ❓ needs the DPA | — | Dan | Before Pricing ships |
+| Your club email stays where it is | Pricing (FAQ) | The platform only serves the website; it never hosts or changes email (MX) records | ✅ | — | Claude | If email hosting is ever added |
+| What moves across: public pages, news, PDFs and photos | Pricing (FAQ) | Manual onboarding service (Claude builds pages from the club's content) | ✅ (process) | — | Dan | — |
+| Your homepage in your inbox within two working days | Switching | A service: requests are saved with the promised date (`homepage-requests`, two UK working days) and emailed to the requests inbox | ❓ confirm you can keep this promise | `tests/unit/working-days.spec.ts`, `tests/int/homepage-requests.int.spec.ts` | Dan | Before Switching ships |
+| Nothing on your live site changes | Switching | We build from a copy; the platform never touches a club's old site | ✅ | — | Claude | — |
+| Four weeks, start to finish | Switching | Onboarding process (Gather, Shape, Review, Launch) | ❓ confirm the timescale | — | Dan | Each onboarding |
+| We flag PDFs screen readers can't read; accessible versions on request | Switching (FAQ) | A service promise, done by hand | ❓ confirm you'll offer this | — | Dan | Before Switching ships |
+| We switch over on a quiet weekday morning and check the site straight after | Switching (FAQ) | Process (domain routing, `/health` check) | ✅ (process) | — | Dan | — |
+| We keep your page titles | Switching (FAQ) | Pages are rebuilt from the club's content with their titles | ✅ (process) | — | Dan | — |
+| We'll show you the platform with your own homepage on it | Book a demo | A service: we rebuild the club's homepage before the call | ❓ confirm you'll do this for every demo | — | Dan | Before Book a demo ships |
+| Send times by email and we'll send a video call invite | Book a demo | Manual until a calendar is connected (Q4) | ❓ confirm | — | Dan | When Q4 is answered |
+| I run every demo myself | Book a demo | Your statement | ✅ (yours) | — | Dan | If anyone else runs demos |
+| Text on your colour switches to stay readable; your colour stays as picked | Website builder | `src/theme/colour.ts` (readable, onAccent); the Token Dial uses the same functions | ✅ | `tests/unit/token-dial.spec.ts`, `tests/unit/theme-colour.spec.ts` | Claude | Each theme change |
+| Photos missing a description are flagged | Website builder | The library marks them "Needs description" (N8) | ✅ | — | Claude | If descriptions change |
+| The last 50 versions of every page are kept | Website builder | `versions.maxPerDoc: 50` on Pages (`src/collections/Pages.ts`) | ✅ | — | Claude | If the history limit changes |
+| Backed up every night, encrypted, kept 30 days | Website builder | `.github/workflows/backup.yml` (database; objects deleted after 30 days) | ✅ | Backup workflow | Claude | Each infrastructure change |
+| Photos are resized for you | Website builder | Image sizes on upload (`src/collections/Media.ts`) | ✅ | — | Claude | — |
+| Course status shows when it was last updated | Website builder | Course Status block shows the time (`src/site/blocks/CourseStatus.tsx`) | ✅ | — | Claude | — |
+| Anyone with access can post the course report | Website builder | Club editors can update Course Status | ✅ | Isolation tests | Claude | If roles are added |
+| The right access for each person | Website builder | Not built: badged Coming next | ⏳ (badged) | — | Dan | When roles ship |
+| Your new site links to the booking system you use today | Bookings | The "Book a tee time" button links to any address (Club Settings → header booking link) | ✅ | — | Claude | — |
+| Built-in booking is coming next (tee sheet, settings, facilities) | Bookings | Not built; every preview is labelled "Coming next · not live yet" | ⏳ (labelled) | `tests/e2e/marketing-bookings.spec.ts` checks the label | Dan | When booking ships |

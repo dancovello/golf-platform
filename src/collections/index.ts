@@ -13,6 +13,7 @@ import { Pages } from './Pages'
 import { Staff } from './Staff'
 import { Tenants } from './Tenants'
 import { Users } from './Users'
+import { HomepageRequests } from '../marketing/collections/HomepageRequests'
 import { MarketingMedia } from '../marketing/collections/MarketingMedia'
 import { MarketingPages } from '../marketing/collections/MarketingPages'
 
@@ -38,4 +39,5 @@ export const collections: CollectionConfig[] = [
   // The company website (super-admin only).
   MarketingPages,
   MarketingMedia,
+  HomepageRequests,
 ]

@@ -56,14 +56,17 @@ describe('content security policy', () => {
     expect(policyHeaderName('admin')).toBe('Content-Security-Policy-Report-Only')
   })
 
-  it('the marketing site gets the strict base without the club-only extras', () => {
+  it('the marketing site gets the strict base, the spam check, and no club-only extras', () => {
     const policy = buildPolicy('marketing', 'm1', env)
-    expect(directive(policy, 'script-src')).toBe("script-src 'self' 'nonce-m1' 'strict-dynamic'")
-    expect(directive(policy, 'frame-src')).toBe("frame-src 'self'")
-    expect(directive(policy, 'connect-src')).toBe("connect-src 'self'")
+    // Cloudflare's spam check, for the homepage request form.
+    const turnstile = 'https://challenges.cloudflare.com'
+    expect(directive(policy, 'script-src')).toBe(
+      `script-src 'self' 'nonce-m1' 'strict-dynamic' ${turnstile}`,
+    )
+    expect(directive(policy, 'frame-src')).toBe(`frame-src 'self' ${turnstile}`)
+    expect(directive(policy, 'connect-src')).toBe(`connect-src 'self' ${turnstile}`)
     expect(policy).not.toContain('google')
     expect(policy).not.toContain('openstreetmap')
-    expect(policy).not.toContain('challenges.cloudflare.com')
     expect(policy).not.toContain('r2.cloudflarestorage.com')
     // Pictures from the photo domain (the marketing Media block uses the same storage).
     expect(directive(policy, 'img-src')).toContain('https://pub-123.r2.dev')
