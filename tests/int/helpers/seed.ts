@@ -85,27 +85,37 @@ export const getTestPayload = async () => {
 
 export const resetDatabase = async (payload: Payload) => {
   const all = { id: { exists: true } }
-  await payload.delete({ collection: 'pages', where: all })
-  await payload.delete({ collection: 'media', where: all })
-  await payload.delete({ collection: 'documents', where: all })
-  await payload.delete({ collection: 'staff', where: all })
-  await payload.delete({ collection: 'courses', where: all })
-  await payload.delete({ collection: 'news', where: all })
-  await payload.delete({ collection: 'agreement-acceptances', where: all })
-  await payload.delete({ collection: 'events', where: all })
-  await payload.delete({ collection: 'enquiries', where: all })
-  await payload.delete({ collection: 'club-settings', where: all })
-  await payload.delete({ collection: 'course-status', where: all })
-  await payload.delete({ collection: 'payload-preferences', where: all })
-  await payload.delete({ collection: 'marketing-pages', where: all })
-  await payload.delete({ collection: 'marketing-media', where: all })
-  await payload.delete({ collection: 'homepage-requests', where: all })
+  // Says what couldn't be deleted, instead of carrying on: a leftover record (say, a club's
+  // page) stops its club being deleted, and the next file's seed then fails far from the cause.
+  const wipe = async (collection: Parameters<typeof payload.delete>[0]['collection']) => {
+    const { errors } = await payload.delete({ collection, where: all })
+    if (errors.length) {
+      throw new Error(
+        `Test reset: ${errors.length} ${collection} record(s) not deleted: ${errors.map((e) => e.message).join('; ')}`,
+      )
+    }
+  }
+  await wipe('pages')
+  await wipe('media')
+  await wipe('documents')
+  await wipe('staff')
+  await wipe('courses')
+  await wipe('news')
+  await wipe('agreement-acceptances')
+  await wipe('events')
+  await wipe('enquiries')
+  await wipe('club-settings')
+  await wipe('course-status')
+  await wipe('payload-preferences')
+  await wipe('marketing-pages')
+  await wipe('marketing-media')
+  await wipe('homepage-requests')
   // Settings screens have one record; removing it brings back the defaults.
   await payload.db.drizzle.execute(sql`DELETE FROM marketing_settings`)
   // Rate-limit counts, so one test file's sends don't count against the next one's limits.
   await payload.db.drizzle.execute(sql`DELETE FROM rate_limits`)
-  await payload.delete({ collection: 'users', where: all })
-  await payload.delete({ collection: 'tenants', where: all })
+  await wipe('users')
+  await wipe('tenants')
 }
 
 /**

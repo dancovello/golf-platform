@@ -135,14 +135,22 @@ describe('two-factor secrets are stored encrypted', () => {
     await w.payload.db.drizzle.execute(
       sql`UPDATE users SET totp_secret = ${attackersSecret} WHERE id = ${victim}`,
     )
-    await expect(
-      w.payload.findByID({
-        collection: 'users',
-        id: victim,
-        showHiddenFields: true,
-        overrideAccess: true,
-      }),
-    ).rejects.toThrow(/not encrypted/)
+    try {
+      await expect(
+        w.payload.findByID({
+          collection: 'users',
+          id: victim,
+          showHiddenFields: true,
+          overrideAccess: true,
+        }),
+      ).rejects.toThrow(/not encrypted/)
+    } finally {
+      // Take it out again: an account that can't be read can't be deleted either, so it (and
+      // its club) would be left behind and break the next test file's set-up.
+      await w.payload.db.drizzle.execute(
+        sql`UPDATE users SET totp_secret = NULL WHERE id = ${victim}`,
+      )
+    }
   })
 })
 
