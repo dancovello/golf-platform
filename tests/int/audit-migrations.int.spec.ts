@@ -68,6 +68,20 @@ describe('Finding 5 (low): the website account can add a super-admin directly', 
   })
 })
 
+describe('Finding 5: no other way for golf_app to make a super-admin', () => {
+  // The initial migration's "an account's type and club never change" trigger already refuses
+  // this; checked here so the two rules are seen together.
+  it('golf_app cannot turn an existing editor into a super-admin', async () => {
+    const { rows } = await client.query(`SELECT id FROM users WHERE role = 'editor' LIMIT 1`)
+    if (!rows[0]) return
+    await expect(
+      tryAsApp(`UPDATE users SET role = 'super-admin', tenant_id = NULL WHERE id = $1`, [
+        rows[0].id,
+      ]),
+    ).rejects.toThrow(/cannot be changed/)
+  })
+})
+
 describe('golf_app can still do what the website needs', () => {
   it('reads the list of applied database changes', async () => {
     await expect(tryAsApp('SELECT count(*) FROM payload_migrations')).resolves.toBeUndefined()
