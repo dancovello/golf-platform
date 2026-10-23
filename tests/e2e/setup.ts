@@ -3,6 +3,7 @@ import { execFileSync } from 'node:child_process'
 import { expect, test as setup } from '@playwright/test'
 
 import { currentCode } from '../shared/totp'
+import { asSameOrigin } from './fixtures'
 import { loadWorld, PASSWORD, STATE_DIR } from './world'
 
 // Seed first, then log in: these steps depend on each other.
@@ -17,6 +18,7 @@ setup('seed two test clubs', () => {
 
 for (const who of ['editorA', 'superAdmin'] as const) {
   setup(`log in through the admin screen as ${who}`, async ({ page }) => {
+    asSameOrigin(page.context())
     const w = loadWorld()
     await page.goto('/admin/login')
     await page.waitForLoadState('networkidle')

@@ -100,6 +100,8 @@ describe('A1 fix: a super-admin can still change an editor’s email', () => {
 })
 
 describe('Finding A2 (low): a password can be changed without the current password', () => {
+  // ACCEPTED FOR V1 (Dan, 23 Oct 2026): with A1 fixed, the "your password was set" email reaches
+  // the real editor. Revisit before member logins or booking; remove `.fails` when built.
   it.fails('changing your own password needs the current one', async () => {
     const editor = await createEditor(p, 'audit-pw@example.com', w.clubA.id)
     await p
@@ -150,7 +152,7 @@ describe('Finding A4 (low): the sign-in lockout tells a stranger which emails ha
       .then(() => 'signed in')
       .catch((e: Error) => e.message)
 
-  it.fails('a locked account answers exactly like an address with no account', async () => {
+  it('a locked account answers exactly like an address with no account', async () => {
     const email = 'audit-lock@example.com'
     await createEditor(p, email, w.clubB.id)
     for (let i = 0; i < 5; i++) await failedLogin(email)
@@ -161,7 +163,7 @@ describe('Finding A4 (low): the sign-in lockout tells a stranger which emails ha
 })
 
 describe('Finding A5 (low): Payload’s cross-site request check is switched off', () => {
-  it.fails('the login cookie is only accepted from the admin’s own address', () => {
+  it('the login cookie is only accepted from the admin’s own address', () => {
     // With an empty list Payload accepts the login cookie from any Origin, leaving only the
     // cookie's SameSite=Lax setting (src/collections/Users.ts) to stop cross-site requests.
     expect(p.config.csrf.length).toBeGreaterThan(0)

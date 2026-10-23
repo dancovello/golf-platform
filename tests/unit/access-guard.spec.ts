@@ -9,8 +9,12 @@ import { globals } from '@/globals'
 
 const OPERATIONS = ['create', 'read', 'update', 'delete'] as const
 
+/** readVersions too, for any collection with drafts or history: without it Payload lets anyone
+ * signed in read them (access audit, A1 and A2). */
 const missingAccess = (collection: CollectionConfig) =>
-  OPERATIONS.filter((operation) => typeof collection.access?.[operation] !== 'function')
+  [...OPERATIONS, ...(collection.versions ? (['readVersions'] as const) : [])].filter(
+    (operation) => typeof collection.access?.[operation] !== 'function',
+  )
 
 describe('every collection defines its own access functions (default deny)', () => {
   it.each(collections.map((c) => [c.slug, c] as const))(
@@ -19,6 +23,16 @@ describe('every collection defines its own access functions (default deny)', () 
       expect(missingAccess(collection)).toEqual([])
     },
   )
+
+  it('the guard catches a collection with history but no readVersions rule', () => {
+    const leaky: CollectionConfig = {
+      slug: 'leaky-history',
+      versions: { drafts: true },
+      access: { create: () => false, read: () => false, update: () => false, delete: () => false },
+      fields: [],
+    }
+    expect(missingAccess(leaky)).toEqual(['readVersions'])
+  })
 
   it('the guard catches a collection with a missing access function', () => {
     const leaky: CollectionConfig = {
