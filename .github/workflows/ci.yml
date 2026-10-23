@@ -270,12 +270,17 @@ jobs:
             test-results/
           retention-days: 7
 
-  # Not built yet. Listed so the gap is visible on every pull request.
-  # Blocks edits to merged migrations, and migrations that delete or rewrite data unless Dan
-  # has added the approved-destructive-migration label (scripts/check-migrations.ts).
+  # Blocks edits to merged migrations, and migrations that delete or rewrite data or weaken a
+  # database security rule, unless Dan added the approved-destructive-migration label after the
+  # latest push (scripts/check-migrations.ts, scripts/check-approval.ts).
   migration-guard:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+      issues: read
+      pull-requests: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -283,11 +288,39 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .nvmrc
+      - name: Was the label added after the latest push?
+        id: approval
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          OWNER: ${{ github.repository_owner }}
+        run: echo "approved=$(node scripts/check-approval.ts approved-destructive-migration)" >> "$GITHUB_OUTPUT"
       - name: Check database changes
         env:
-          APPROVED_DESTRUCTIVE: ${{ contains(github.event.pull_request.labels.*.name, 'approved-destructive-migration') }}
+          APPROVED_DESTRUCTIVE: ${{ steps.approval.outputs.approved == 'true' }}
           BASE_REF: ${{ github.event.pull_request.base.ref || 'main' }}
         run: node scripts/check-migrations.ts "origin/${BASE_REF}"
+
+  # A release pull request (into production) must come from main, so everything in it has
+  # passed main's checks and the AI security review, or from a hotfix/… branch, which the AI
+  # security review then checks itself (migrations audit, finding 2). Make this a required
+  # check on production.
+  release-source:
+    if: github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'production'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Comes from main in this repository
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+        run: |
+          if [ "$HEAD_REPO" != "$GITHUB_REPOSITORY" ] || { [ "$HEAD_REF" != "main" ] && [[ "$HEAD_REF" != hotfix/* ]]; }; then
+            echo "::error::A release must come from main or a hotfix/… branch (this one comes from ${HEAD_REPO}:${HEAD_REF})."
+            exit 1
+          fi
 
   # The release's dry run, before merging: main's database (built from main's own changes) is
   # copied the way a release copies the real one, and this pull request's changes are applied
