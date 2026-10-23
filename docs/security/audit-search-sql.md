@@ -22,6 +22,8 @@ Each finding has a test that proves it in `tests/int/audit-search-sql.int.spec.t
 
 Findings 2 and 3 multiply each other: finding 2 makes each bad search expensive, and finding 3 removes the cap on how many one person can send.
 
+**Fixed on 23 October 2026** (Dan approved all five). 1: "Did you mean" uses only visible words. 2: the stop-gap: one query for all words, skipped for searches of more than three words (no new table). 3: IPv6 addresses count by their /64 network (`visitorNetwork`, every limit). 4: searches arriving together on one server share one rebuild. 5: a rebuild never writes over an index built at the same or a later change count.
+
 ---
 
 ## Findings

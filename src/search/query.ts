@@ -114,28 +114,40 @@ const countKinds = async (db: Executor, matched: ReturnType<typeof sql>) => {
   return counts
 }
 
-/** "Did you mean …": each searched word swapped for the closest word in the club's content. */
+/** "Did you mean" is skipped for longer searches: they rarely need it, and it costs the most. */
+const SUGGEST_MAX_WORDS = 3
+
+/**
+ * "Did you mean …": each searched word swapped for the closest word in the club's content.
+ * Only words a visitor can already find count, never scheduled news (search audit, finding 1).
+ * One query for all the words together, so the club's text is read once, not once per word
+ * (finding 2).
+ */
 const suggestion = async (db: Executor, tenantID: string, words: string[]) => {
-  let changed = false
-  const better: string[] = []
-  for (const word of words) {
-    const { rows } = await db.execute(sql`
-      SELECT word, similarity(word, ${word}) AS score FROM (
-        SELECT DISTINCT lower(w) AS word
-        FROM search_entries,
-          regexp_split_to_table(
-            title || ' ' || coalesce(excerpt, '') || ' ' || coalesce(body, ''), '[^[:alnum:]]+'
-          ) AS w
-        WHERE tenant_id = ${tenantID} AND length(w) > 2
-      ) words
-      WHERE similarity(word, ${word}) >= ${SUGGEST_MATCH}
-      ORDER BY score DESC, word
-      LIMIT 1`)
-    const found = (rows[0] as { word?: string } | undefined)?.word
-    if (found && found !== word) changed = true
-    better.push(found ?? word)
-  }
-  return changed ? better.join(' ') : null
+  if (words.length === 0 || words.length > SUGGEST_MAX_WORDS) return null
+  const now = siteToday().toISOString()
+  // Words are letters and numbers only (searchWords), so joining them with spaces is safe.
+  const { rows } = await db.execute(sql`
+    WITH club_words AS (
+      SELECT DISTINCT lower(w) AS word
+      FROM search_entries,
+        regexp_split_to_table(
+          title || ' ' || coalesce(excerpt, '') || ' ' || coalesce(body, ''), '[^[:alnum:]]+'
+        ) AS w
+      WHERE tenant_id = ${tenantID} AND length(w) > 2
+        AND (visible_from IS NULL OR visible_from <= ${now}::timestamptz)
+        AND (visible_until IS NULL OR visible_until > ${now}::timestamptz)
+    ), wanted AS (
+      SELECT q, n FROM unnest(string_to_array(${words.join(' ')}, ' ')) WITH ORDINALITY AS t(q, n)
+    )
+    SELECT DISTINCT ON (n) n, word
+    FROM wanted JOIN club_words ON similarity(word, q) >= ${SUGGEST_MATCH}
+    ORDER BY n, similarity(word, q) DESC, word`)
+  const best = new Map(
+    (rows as { n: number | string; word: string }[]).map((r) => [Number(r.n), r.word]),
+  )
+  const better = words.map((word, i) => best.get(i + 1) ?? word)
+  return better.some((word, i) => word !== words[i]) ? better.join(' ') : null
 }
 
 export type SearchPage = {
