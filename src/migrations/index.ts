@@ -49,6 +49,7 @@ import * as migration_20261021_160708_marketing_blocks_from_figma from './202610
 import * as migration_20261021_163953_marketing_founder_card from './20261021_163953_marketing_founder_card';
 import * as migration_20261021_170032_marketing_home_blocks from './20261021_170032_marketing_home_blocks';
 import * as migration_20261022_091355_rate_limits from './20261022_091355_rate_limits';
+import * as migration_20261023_120000_app_role_limits from './20261023_120000_app_role_limits';
 
 export const migrations = [
   {
@@ -304,6 +305,11 @@ export const migrations = [
   {
     up: migration_20261022_091355_rate_limits.up,
     down: migration_20261022_091355_rate_limits.down,
-    name: '20261022_091355_rate_limits'
+    name: '20261022_091355_rate_limits',
+  },
+  {
+    up: migration_20261023_120000_app_role_limits.up,
+    down: migration_20261023_120000_app_role_limits.down,
+    name: '20261023_120000_app_role_limits'
   },
 ];

@@ -103,6 +103,9 @@ export async function up() { await db.execute(sql\`DROP TABLE "pages";\`) }`
     '20261016_160941_page_drafts.ts': [club],
     // The search index is rebuilt from content, so it goes with its club.
     '20261019_185238_search_index.ts': [club, club],
+    // Migrations audit 4 and 5: the website's account may no longer change the list of
+    // applied changes (it only ever narrows rights).
+    '20261023_120000_app_role_limits.ts': ['REVOKE'],
   }
 
   it('every merged migration only adds things, apart from the ones Dan approved', () => {
