@@ -6,13 +6,18 @@ name: Security review
 
 on:
   pull_request:
-    branches: [main]
+    # Into production too, for hotfix branches (a release from main was already reviewed on
+    # its way into main): migrations audit, finding 2.
+    branches: [main, production]
     # labeled/unlabeled: re-check when Dan adds or removes security-finding-dismissed.
     types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
 
 permissions:
   contents: read
   pull-requests: write
+  # To tell when the latest push was (scripts/check-approval.ts).
+  actions: read
+  issues: read
 
 concurrency:
   group: security-review-${{ github.event.pull_request.number }}
@@ -22,7 +27,7 @@ jobs:
   security-review:
     # Not on drafts (it runs when marked ready), and not on Dependabot's version bumps (they
     # can't read the API key; dependency-scan covers them). A skipped run counts as passed.
-    if: ${{ !github.event.pull_request.draft && github.actor != 'dependabot[bot]' }}
+    if: ${{ !github.event.pull_request.draft && github.actor != 'dependabot[bot]' && (github.event.pull_request.base.ref == 'main' || github.event.pull_request.head.ref != 'main') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -57,7 +62,8 @@ jobs:
           upload-results: 'true'
           # Every push to a ready pull request is reviewed: a merge gate can't review only the first.
           run-every-commit: 'true'
-          exclude-directories: docs,tests,.claude,src/migrations
+          # Migrations are reviewed too: the club rules live in the database (migrations audit, 3).
+          exclude-directories: docs,tests,.claude
           custom-security-scan-instructions: ${{ github.workspace }}/.github/security-review/scan-instructions.txt
           false-positive-filtering-instructions: ${{ github.workspace }}/.github/security-review/false-positive-instructions.txt
 
@@ -80,7 +86,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           PR: ${{ github.event.pull_request.number }}
           OWNER: ${{ github.repository_owner }}
-          LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           set -euo pipefail
           f=claudecode-results.json
@@ -94,11 +100,12 @@ jobs:
           echo "Findings: ${total} (HIGH: ${high})" | tee -a "$GITHUB_STEP_SUMMARY"
           jq -r '.findings[] | "- \(.severity) \(.category // "") in \(.file):\(.line // "?") — \(.description)"' "$f" >> "$GITHUB_STEP_SUMMARY" || true
           [ "$high" -eq 0 ] && exit 0
-          # Dismissed only with Dan's label AND a written reason from the repository owner.
-          reason=$(gh api "repos/${GITHUB_REPOSITORY}/issues/${PR}/comments" --paginate \
-            --jq ".[] | select(.user.login == \"${OWNER}\") | select(.body | test(\"^Security finding dismissed:\"; \"i\")) | .body" | tail -1)
-          if [[ ",${LABELS}," == *",security-finding-dismissed,"* ]] && [ -n "$reason" ]; then
-            echo "HIGH finding(s) dismissed by ${OWNER}: ${reason}" | tee -a "$GITHUB_STEP_SUMMARY"
+          # Dismissed only with Dan's label AND a written reason from the repository owner, both
+          # given after the latest push (migrations audit, finding 2): one dismissal never
+          # covers code pushed later.
+          dismissed=$(node scripts/check-approval.ts security-finding-dismissed "Security finding dismissed:")
+          if [ "$dismissed" = "true" ]; then
+            echo "HIGH finding(s) dismissed by ${OWNER} since the latest push." | tee -a "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
           echo "::error::${high} HIGH security finding(s). Fix them, or see docs/operations/ai-security-review.md to dismiss a false positive with a written reason."
