@@ -18,9 +18,10 @@ Every public endpoint has a limit, at two layers (doc 04 §8): **the app** and *
 - At the limit, the panel gets a 429 ("busy") and the results page asks the visitor to wait.
 
 **Contact form** (server action, `src/site/contact/actions.ts`)
-- 20 messages an hour per club, plus a hidden spam trap, too-fast sends dropped, and Cloudflare Turnstile.
-- Enforced in the app (counted from the database, so already shared) and by Vercel Firewall rule 3.
-- The per-club limit is unchanged: it already counted in the database.
+- 5 sends per visitor in 10 minutes (added 23 Oct). Checked in the app, because the form's send works from any page address, so Firewall rule 3 (paths ending `/contact`) alone can be got round.
+- 20 messages an hour per club, counted in one step so a burst can't overshoot, plus a hidden spam trap, too-fast sends dropped, and Cloudflare Turnstile.
+- Alert emails: at most 25 per club and 70 for all clubs together per day, keeping 30 of Resend's 100 free daily emails for password resets and invitations. Past that, messages are saved but not emailed.
+- Enforced in the app (shared database) and by Vercel Firewall rule 3.
 
 **Security-report address** (`/csp-report`)
 - 60 reports a minute from everyone together. Extra reports are dropped quietly.

@@ -44,6 +44,25 @@ export type Limit = {
 
 /** Searches, from the results page and the header panel together (as before). */
 export const SEARCH_LIMIT: Limit = { name: 'search', max: 120, windowSeconds: 60 }
+/** Contact form sends per visitor, before anything is saved (public forms audit, finding 1). */
+export const CONTACT_VISITOR_LIMIT: Limit = { name: 'contact', max: 5, windowSeconds: 10 * 60 }
+/** Contact form saves per club, counted in one step so a burst can't overshoot (finding 3).
+ * Matches HOURLY_LIMIT in src/site/contact/submit.ts. */
+export const CONTACT_CLUB_LIMIT: Limit = { name: 'contact-club', max: 20, windowSeconds: 60 * 60 }
+/** Contact alert emails per club per day: past this, messages are saved but not emailed, so
+ * one club can't use up the email allowance every club shares (finding 2). */
+export const CONTACT_ALERTS_PER_CLUB: Limit = {
+  name: 'contact-alert',
+  max: 25,
+  windowSeconds: 24 * 60 * 60,
+}
+/** Contact alert emails for all clubs together per day. Resend's free plan sends 100 a day in
+ * all; this keeps 30 free for password resets and invitations. Raise it on a paid plan. */
+export const CONTACT_ALERTS_ALL_CLUBS: Limit = {
+  name: 'contact-alert-all',
+  max: 70,
+  windowSeconds: 24 * 60 * 60,
+}
 /** Security policy reports, from all visitors together: they only go to the log. */
 export const CSP_REPORT_LIMIT: Limit = { name: 'csp-report', max: 60, windowSeconds: 60 }
 
@@ -87,7 +106,8 @@ export const allowRequest = async (
 
 /** Counts older than a day are no use to any limit (the longest window is a minute). */
 export const deleteOldCounts = async (db: Executor, now = new Date()) => {
-  const cutoff = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString()
+  // Two days, so a day-long window is never cut short.
+  const cutoff = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString()
   const { rows } = await db.execute(
     sql`DELETE FROM rate_limits WHERE window_start < ${cutoff} RETURNING id`,
   )
