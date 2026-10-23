@@ -46,7 +46,7 @@ afterEach(() => {
 })
 
 describe('Finding A1 (medium): an editor can change their own sign-in email, unnoticed', () => {
-  it.fails('an editor cannot change the email address they sign in with', async () => {
+  it('an editor cannot change the email address they sign in with', async () => {
     const editor = await createEditor(p, 'audit-email@example.com', w.clubA.id)
     await p
       .update({
@@ -61,7 +61,7 @@ describe('Finding A1 (medium): an editor can change their own sign-in email, unn
     expect(after.email).toBe('audit-email@example.com')
   })
 
-  it.fails('…and if it ever can, the old address is told', async () => {
+  it('…and if it ever can, the old address is told', async () => {
     vi.stubEnv('RESEND_API_KEY', 'test-only')
     const sent = vi.spyOn(p, 'sendEmail').mockResolvedValue(undefined)
     const editor = await createEditor(p, 'audit-email2@example.com', w.clubA.id)
@@ -81,6 +81,21 @@ describe('Finding A1 (medium): an editor can change their own sign-in email, unn
       ([m]) => (m as { to?: string }).to === 'audit-email2@example.com',
     )
     expect(refused || told).toBe(true)
+  })
+})
+
+describe('A1 fix: a super-admin can still change an editor’s email', () => {
+  it('when an editor changes address, the super-admin updates it', async () => {
+    const editor = await createEditor(p, 'audit-email3@example.com', w.clubA.id)
+    await p.update({
+      collection: 'users',
+      id: editor.id,
+      data: { email: 'new-address@example.com' },
+      overrideAccess: false,
+      user: w.superAdmin,
+    })
+    const after = await p.findByID({ collection: 'users', id: editor.id, overrideAccess: true })
+    expect(after.email).toBe('new-address@example.com')
   })
 })
 
@@ -107,23 +122,17 @@ describe('Finding A3 (low): admin screens that skip access rules don’t check t
   // Today the admin's two-factor redirect stops these screens rendering before the code is
   // entered. These tests check each screen protects itself too, so a change to the redirect
   // (or a new way to render the screen) can't expose another club's data.
-  it.fails(
-    'the club home screen shows nothing to an editor who has not entered their code',
-    async () => {
-      const rendered = await ClubHome({ payload: p, user: withoutCode(editorWithCode) } as never)
-      expect(rendered).toBeNull()
-    },
-  )
+  it('the club home screen shows nothing to an editor who has not entered their code', async () => {
+    const rendered = await ClubHome({ payload: p, user: withoutCode(editorWithCode) } as never)
+    expect(rendered).toBeNull()
+  })
 
-  it.fails(
-    'the club home screen shows no clubs to a super-admin who has not entered their code',
-    async () => {
-      const rendered = await ClubHome({ payload: p, user: withoutCode(w.superAdmin) } as never)
-      expect(rendered).toBeNull()
-    },
-  )
+  it('the club home screen shows no clubs to a super-admin who has not entered their code', async () => {
+    const rendered = await ClubHome({ payload: p, user: withoutCode(w.superAdmin) } as never)
+    expect(rendered).toBeNull()
+  })
 
-  it.fails('the page tree shows nothing to an editor who has not entered their code', async () => {
+  it('the page tree shows nothing to an editor who has not entered their code', async () => {
     const rendered = await PageTree({ payload: p, user: withoutCode(editorWithCode) } as never)
     expect(rendered).toBeNull()
   })

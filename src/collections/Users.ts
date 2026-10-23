@@ -16,7 +16,7 @@ import {
   resetEmailHTML,
   resetEmailSubject,
 } from '../accounts/resetEmail'
-import { isFullyAuthenticated } from '../auth/fullyAuthenticated'
+import { isFullyAuthenticated, isSuperAdminWithCode } from '../auth/fullyAuthenticated'
 import { resetTwoFactorEndpoint } from '../auth/resetTwoFactor'
 import {
   emailPasswordChange,
@@ -173,6 +173,14 @@ export const Users: CollectionConfig = {
     ],
   },
   fields: [
+    {
+      // Payload's own sign-in email field, with one rule added: only a super-admin (code
+      // entered) can change it. An editor changing it could take over their account for good,
+      // with password resets and warnings going to the new address (docs/security/audit-auth.md, A1).
+      name: 'email',
+      type: 'email',
+      access: { update: ({ req: { user } }) => isSuperAdminWithCode(user) },
+    },
     {
       // Super-admin buttons on a club editor's page: new password link, reset two-factor.
       name: 'accountActions',
