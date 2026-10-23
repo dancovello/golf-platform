@@ -123,6 +123,14 @@ export const RATE_LIMITS: Record<string, Protection> = {
   // ---------- Company marketing site ----------
   'src/app/(marketing)/marketing/[[...path]]/page.tsx': PAGE,
   'src/app/(marketing)/marketing/robots.txt/route.ts': FILE,
+  'src/app/(marketing-frame)/marketing/frame/hero/[style]/page.tsx': PAGE,
+  'src/marketing/requests/actions.ts': {
+    who: 'anyone',
+    limit:
+      '20 requests an hour from everyone together; hidden spam trap; too-fast sends dropped; Cloudflare Turnstile. No per-visitor limit or email cap yet (the Contact form has both)',
+    where:
+      'App, counted in the database (HOURLY_LIMIT, src/marketing/requests/submit.ts); Turnstile',
+  },
   'src/app/(marketing)/marketing/dev/components/page.tsx': SUPER_ADMIN,
   'src/app/(marketing)/marketing/dev/preview/[[...path]]/page.tsx': SUPER_ADMIN,
   // ---------- Endpoints beyond Payload's standard ones ----------
