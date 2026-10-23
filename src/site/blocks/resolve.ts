@@ -220,6 +220,17 @@ export type BlockContext = {
   courseStatus: SiteCourseStatus | null
 }
 
+/** What a page's blocks need, as plain data (so it can be cached: src/site/cache.ts). */
+export type BlockData = {
+  media: Record<string, SiteMedia>
+  /** Page ID to its address. */
+  pages: Record<string, string>
+  documents: Record<string, SiteDocument>
+  staff: Record<string, SitePerson>
+  courses: Record<string, SiteCourse>
+  courseStatus: SiteCourseStatus | null
+}
+
 /**
  * Prepares a page's blocks for the website. Every page and photo the blocks point at is
  * looked up within the club; anything else (another club's, deleted) is treated as missing.
@@ -228,7 +239,14 @@ export const loadBlockContext = async (
   payload: Payload,
   tenantID: string,
   layout: unknown,
-): Promise<BlockContext> => {
+): Promise<BlockContext> => blockContextFrom(await loadBlockData(payload, tenantID, layout))
+
+/** The data half of loadBlockContext. */
+export const loadBlockData = async (
+  payload: Payload,
+  tenantID: string,
+  layout: unknown,
+): Promise<BlockData> => {
   const refs = layoutRefs(layout)
   const pageIDs = [...new Set(refs.filter((r) => r.collection === 'pages').map((r) => r.id))]
   const documentIDs = [
@@ -293,10 +311,29 @@ export const loadBlockContext = async (
   ])
 
   return {
-    media: (value) => media.get(idOf(value) ?? '') ?? null,
-    document: (value) => documents.get(idOf(value) ?? '') ?? null,
-    person: (value) => staff.get(idOf(value) ?? '') ?? null,
-    course: (value) => courses.get(idOf(value) ?? '') ?? null,
+    media: Object.fromEntries(media),
+    pages: Object.fromEntries(pages),
+    documents: Object.fromEntries(documents),
+    staff: Object.fromEntries(staff),
+    courses: Object.fromEntries(courses),
+    courseStatus,
+  }
+}
+
+/** Only IDs that are the record's own keys: never `__proto__` and the like. */
+const pick = <T>(record: Record<string, T>, value: unknown): T | null => {
+  const id = idOf(value)
+  return id && Object.hasOwn(record, id) ? record[id]! : null
+}
+
+/** The lookups blocks use, from the plain data. */
+export const blockContextFrom = (data: BlockData): BlockContext => {
+  const { courseStatus } = data
+  return {
+    media: (value) => pick(data.media, value),
+    document: (value) => pick(data.documents, value),
+    person: (value) => pick(data.staff, value),
+    course: (value) => pick(data.courses, value),
     courseStatus,
     link: (value, fallbackLabel) => {
       const raw = (value ?? {}) as {
@@ -315,7 +352,7 @@ export const loadBlockContext = async (
         const builtIn = builtInLink(raw.builtIn)
         return builtIn ? { label, link: builtIn } : null
       }
-      const slug = pages.get(idOf(raw.page) ?? '')
+      const slug = pick(data.pages, raw.page)
       return slug ? { label, link: { kind: 'page', slug } } : null
     },
   }

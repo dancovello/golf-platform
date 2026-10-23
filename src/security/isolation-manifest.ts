@@ -130,14 +130,18 @@ export const ENDPOINTS: Manifest = {
   'POST /api/setup-totp': [
     {
       file: 'tests/e2e/two-factor.spec.ts',
-      test: 'an account without two-factor must set it up before anything else',
+      test: 'a super-admin without two-factor must set it up before anything else',
     },
   ],
   'POST /api/verify-totp': [
     { file: 'tests/e2e/two-factor.spec.ts', test: 'a wrong code is refused' },
   ],
   'POST /api/remove-totp': [
-    { file: API, test: 'cannot switch off two-factor while it is required' },
+    { file: API, test: 'switching off two-factor does nothing for an account without it' },
+    {
+      file: 'tests/e2e/two-factor.spec.ts',
+      test: "a super-admin can't switch their two-factor off",
+    },
   ],
   'GET /api/tenants/populate-tenant-options': [noLeaks],
   // Payload's own, beyond the standard ones
@@ -235,6 +239,13 @@ export const ROUTES: Manifest = {
   'src/app/(frontend)/cron/clean-up/route.ts': [
     { file: 'tests/int/cleanup.int.spec.ts', test: "doesn't exist without the scheduler's secret" },
   ],
+  'src/app/(frontend)/cron/canary/route.ts': [
+    {
+      file: 'tests/e2e/canary.spec.ts',
+      test: "the canary's attempts on club B, as club A's editor, all come back empty",
+    },
+    { file: 'tests/int/canary.int.spec.ts', test: 'can never be given a web address' },
+  ],
   'src/app/(frontend)/csp-report/route.ts': [
     {
       file: 'tests/e2e/security-policy.spec.ts',
@@ -326,4 +337,44 @@ export const SERVER_ACTIONS: Manifest = {
   'src/app/(payload)/layout.tsx': [
     { file: ADMIN, test: "the pages list shows only club A's page" },
   ],
+}
+
+/** Every cached club loader (src/site/cache.ts, job 5): each must stay inside one club. */
+const CACHE = 'tests/int/cache-isolation.int.spec.ts'
+const cacheCovers: Cover[] = [
+  { file: CACHE, test: "every cached entry's key and tag name exactly one club" },
+  { file: CACHE, test: "publishing at club A clears club A's cache, never club B's" },
+]
+export const CACHED: Manifest = {
+  clubByHost: [{ file: CACHE, test: "changing a club's web addresses clears the address lookups" }],
+  clubIDBySlug: [
+    {
+      file: CACHE,
+      test: "the club's shared data (menus, settings) is cached per club and correct for each",
+    },
+  ],
+  loadClubSite: [
+    {
+      file: CACHE,
+      test: "the club's shared data (menus, settings) is cached per club and correct for each",
+    },
+    ...cacheCovers,
+  ],
+  publishedPage: [
+    {
+      file: CACHE,
+      test: 'two clubs with the same page address each get their own page, from the cache too',
+    },
+    { file: CACHE, test: 'a visitor never gets a cached draft' },
+    ...cacheCovers,
+  ],
+  latestNews: cacheCovers,
+  newsArchive: cacheCovers,
+  newsPost: cacheCovers,
+  upcomingEvents: [
+    { file: CACHE, test: 'a past event drops off within 5 minutes, without anyone publishing' },
+    ...cacheCovers,
+  ],
+  featuredEvent: cacheCovers,
+  eventsArchive: cacheCovers,
 }

@@ -210,7 +210,7 @@ Dan approved site search from the Figma page "Search (v2)" (2026-10-19), with th
 - **Not a Payload collection, and not the Payload search plugin.** The index is two plain database tables (`search_entries`, `search_state`) that only the website's own server code reads. The admin and the API can't reach them at all, and every query names one club first. No new dependency. The tenant-isolation suite checks club A's searches never return club B's content, and the reverse.
 - **Kept fresh without slowing editors down.** Saving or deleting a page, article, event, team member, document, course or photo adds one to that club's change count, inside the same save. The next search for that club rebuilds its index first (about 0.05 seconds for the demo club), then searches are instant until something changes again.
 - **Postgres full-text search** (English word endings, "golfing" finds "golf"), each word may be the start of a longer one as you type, and `pg_trgm` for spelling mistakes ("twilite" finds "Twilight" in titles) and "Did you mean" (from words in the club's own content). `pg_trgm` is added by the migration; it's a standard extension Neon supports.
-- **Rate limit:** 120 searches a minute per visitor, counted per server instance. A Cloudflare rate-limiting rule in front of the site adds the edge limit doc 04 asks for once clubs are on their own domains (step 4).
+- **Rate limit:** 120 searches a minute per visitor. *Updated 22 Oct: counted in the database shared by every server, with a Vercel Firewall rule as the edge layer (club sites don't go through Cloudflare). See `docs/operations/rate-limits.md`.*
 
 ## 2026-10-19 — Site search (parts 2–4: results page, header panel, answers)
 
@@ -526,3 +526,62 @@ All of these run in the `tenant-isolation` CI job and block merging.
 - **Every collection in the running config** has reviewed access, including the ones Payload and plugins add (`tests/int/config-access.int.spec.ts`). Payload's `payload-migrations` collection allows everything, so it must never get a web address.
 - **Isolation manifest** (`src/security/isolation-manifest.ts`): every collection, non-standard endpoint, web route and server action names the test that proves isolation for it. Adding a route, endpoint or collection without one fails the build.
 - **New isolation tests:** page history and drafts, the job queue, photo file addresses, paste-from-URL (off), switching off two-factor, and platform files (health, robots.txt).
+
+## 2026-10-22: Rate limits shared across servers (job 4)
+
+- **Search and the security-report address counted in each server's memory**, so the real limit grew with the number of Vercel servers. They now count in one database table, `rate_limits` (reviewed migration `20261022_091355_rate_limits`), with a single upsert per request (`src/security/rateLimit.ts`).
+- **No IP addresses are stored:** the key is an HMAC (with `PAYLOAD_SECRET`) of the address and the date, so it changes daily. The nightly clean-up deletes counts over a day old.
+- **The edge layer is Vercel Firewall**, not Cloudflare (club sites point straight at Vercel, decided 20 Oct). Dan adds the rules in `docs/operations/rate-limits.md`. `TRUSTED_PROXY` stays unset.
+- **The contact form's per-club limit is unchanged:** it already counts saved enquiries in the database.
+- **Inventory:** `src/security/rateLimitInventory.ts`; a test fails if a route, endpoint or server action has no entry.
+
+
+## 2026-10-22: The repository goes back to private (job 6)
+
+- **History:** private from 10 Oct (above), made **public on 15 Oct** so GitHub Actions minutes were free, and now **private again** (Dan, after the 21 Oct grilling). It was public for about a week. Nothing secret was in it: gitleaks scans every pull request, and secrets live in Vercel and GitHub.
+- **CI minutes:** about 7,400 a month at today's pace, against GitHub Pro's 3,000 for private repositories. CI now skips the slow checks for docs-only pull requests, and runs the browser checks on drafts only once they're marked ready. That gives an estimated 5,750 a month. Merging the small checks into fewer jobs (as PR #65 proposed) and skipping browser checks on merges to `main` would bring it to about 3,200; both need Dan's OK (`docs/operations/ci-minutes.md`).
+- **Guard:** the release workflow's first step fails if the repository is public, so staging and production releases stop until it's private again.
+
+## 2026-10-22: AI security review on every pull request (job 7)
+
+- **Anthropic's `claude-code-security-review` action** runs on every non-draft pull request into `main`, pinned to commit `0c6a49f`, with Claude Opus 5.5 and a project brief that puts tenant isolation first (`.github/security-review/`).
+- **A HIGH finding fails the required `security-review` check.** So does a review that fails to run: the action alone would report zero findings then. Only Dan can dismiss a finding, with the `security-finding-dismissed` label plus a comment of his starting "Security finding dismissed:".
+- **Cost:** about $1 a review and 5–12 CI minutes, so roughly $150 and 750–1,800 minutes a month at October's pace. The model is one line to change (Sonnet 5.5 halves the cost). Details: `docs/operations/ai-security-review.md`.
+- **Secret:** `ANTHROPIC_API_KEY` in GitHub Actions secrets only.
+
+
+## 2026-10-22: Club editors sign in with a password; super-admins keep two-factor (job 3)
+
+**Supersedes** "Two-factor login is required for every account" (2026-10-11, step 2 decisions and devops review). Dan decided this after the 21 Oct grilling, so editors aren't put off by an authenticator app and can use "Forgot password?". **Must be checked by Dan's devops contact before it merges** (it reverses something he approved).
+
+- **Super-admins:** two-factor exactly as before. Without their code they reach nothing but their own account. Without two-factor set up, the admin sends them to the set-up screen, and they can't switch it off.
+- **Club editors:** a password is enough. Editors who already set two-factor up keep it and still need their code; they may switch it off. How it's done: `docs/plans/password-only-editors-spike.md`.
+- **Compensating controls:**
+  - passwords of 12+ characters;
+  - locked for 10 minutes after 5 wrong attempts (unchanged);
+  - **editor sessions end 8 hours after login**: each login token lasts an hour and is renewed while the admin is open, but not after 8 hours (`src/auth/sessionLimit.ts`);
+  - **an email to the account whenever its password is set or changed**, where email is set up.
+- **"Forgot password?"** turns on where `RESEND_API_KEY` and `ADMIN_URL` are both set (unchanged code). It answers the same whether or not the address has an account. At most one email per account every 15 minutes.
+- **Isolation:** the whole isolation suite (integration and browser) now runs with password-only editors, because that's the new normal. Tests also prove that a super-admin with a password but no code reaches nothing, and that escalation attempts still fail.
+- **Data processing agreement:** Schedule 2's security wording now describes this. Version `2026-10-22-draft`, so clubs accept again. The club privacy policy doesn't mention two-factor, so it's unchanged.
+- **Invite and reset emails** no longer tell editors they'll need an authenticator app.
+
+## 2026-10-22: Club sites' data is cached, cleared when a club publishes (job 5)
+
+- **The data behind club pages is cached in Next.js's data cache** (`unstable_cache`, `src/site/cache.ts`). The pages themselves are still made per view, because each needs a fresh one-time code for the security policy. Why not `'use cache'`: `docs/plans/club-data-cache-spike.md`.
+- **Never across clubs:**
+  - every cached loader takes the club's ID first, and the ID is in its key and its only tag;
+  - the two address lookups (slug and web address to club) are keyed by the address;
+  - drafts and the live preview never use the cache.
+
+  Tests: `tests/int/cache-isolation.int.spec.ts` (part of the isolation suite) and `tests/e2e/site-cache.spec.ts`. The isolation manifest lists every cached loader.
+- **Cleared at once** for one club when anything it owns is saved or deleted (`src/site/cacheHooks.ts`). Anything that depends on today's date is kept at most 5 minutes, and everything at most an hour, which covers changes made around the website (scripts, restores).
+- **Emergency switch:** `SITE_DATA_CACHE=off`.
+
+## 2026-10-22: Stronger isolation testing, red team, live canary (job 9)
+
+- **Randomised isolation tests:** random reads and writes as each role (both editors, anonymous, super-admin) across every club-owned collection. After every step they check that nothing read belongs to another club and nothing of the other club changed. 500 steps on every change (database layer, plus 500 random REST requests). 10,000 nightly (`.github/workflows/isolation-nightly.yml`, about 2 minutes, which opens an issue on failure). Seeded and replayable.
+- **Red team, session 1** (`docs/security/red-team-1.md`): 14 kinds of attempt, each a test; none got across.
+- **Live canary** (`docs/operations/canary.md`): two hidden clubs on production, which can never be given a web address. An hourly Vercel cron signs in as canary A's editor over the real web address and tries to reach canary B; any success raises a Sentry alert. **Built, but switching it on is Dan's call** (it creates production data).
+- **Row-level security in Postgres: not now** (`docs/plans/postgres-row-level-security-spike.md`).
+- **Browser tests** always start a fresh server with an empty data cache.

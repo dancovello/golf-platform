@@ -1,14 +1,29 @@
 import { sql } from '@payloadcms/db-postgres'
 import { beforeAll, describe, expect, it } from 'vitest'
 
+import { createSuperAdmin } from '@/accounts/createSuperAdmin'
 import { resetTwoFactor } from '@/auth/resetTwoFactor'
 
-import { seedWorld, TEST_TOTP_SECRET, withoutCode, type World } from './helpers/seed'
+import {
+  asUser,
+  createEditor,
+  type LoggedInUser,
+  PASSWORD,
+  seedWorld,
+  TEST_TOTP_SECRET,
+  withoutCode,
+  type World,
+} from './helpers/seed'
 
 let w: World
+/** A club A editor who chose to set two-factor up. */
+let editorWithCode: LoggedInUser
 
 beforeAll(async () => {
   w = await seedWorld()
+  editorWithCode = await createEditor(w.payload, 'editor-with-code@example.com', w.clubA.id, {
+    twoFactor: true,
+  })
 })
 
 const rawSecret = async (id: string) => {
@@ -18,38 +33,77 @@ const rawSecret = async (id: string) => {
   return (result.rows[0] as { totp_secret: string | null }).totp_secret
 }
 
-describe('until the two-factor code is entered, a password alone gets nothing', () => {
-  for (const who of ['editorA', 'superAdmin'] as const) {
-    it(`${who} with only a password can't read pages, clubs or settings`, async () => {
-      const user = withoutCode(w[who])
-      for (const collection of ['pages', 'club-settings', 'tenants'] as const) {
+describe('who needs the two-factor code (decisions.md, 22 Oct)', () => {
+  // A super-admin, and a club editor who chose to set two-factor up: password accepted, no code.
+  const halfSignedIn = () => ({
+    superAdmin: withoutCode(w.superAdmin),
+    'editor with two-factor': withoutCode(editorWithCode),
+  })
+
+  for (const who of ['superAdmin', 'editor with two-factor'] as const) {
+    it(`${who}, with only a password, can't read pages, clubs, settings or accounts`, async () => {
+      const user = halfSignedIn()[who]
+      for (const collection of ['pages', 'club-settings', 'tenants', 'enquiries'] as const) {
         const result = await w.payload
           .find({ collection, overrideAccess: false, user })
           .then((r) => r.totalDocs)
           .catch(() => 0)
         expect({ who, collection, visible: result }).toEqual({ who, collection, visible: 0 })
       }
+      // Only their own account, which the code screens need.
+      const accounts = await w.payload.find({ collection: 'users', overrideAccess: false, user })
+      expect(accounts.docs.map((d) => d.id)).toEqual([user.id])
+    })
+
+    it(`${who}, with only a password, can't change anything`, async () => {
+      await w.payload
+        .update({
+          collection: 'pages',
+          id: w.pageA.id,
+          data: { title: 'Changed without a code' },
+          overrideAccess: false,
+          user: halfSignedIn()[who],
+        })
+        .catch(() => null)
+      const page = await w.payload.findByID({ collection: 'pages', id: w.pageA.id })
+      expect(page.title).not.toBe('Changed without a code')
     })
   }
 
-  it("with only a password, an editor can't change anything", async () => {
-    await w.payload
-      .update({
-        collection: 'pages',
-        id: w.pageA.id,
-        data: { title: 'Changed without a code' },
-        overrideAccess: false,
-        user: withoutCode(w.editorA),
-      })
-      .catch(() => null)
-    const page = await w.payload.findByID({ collection: 'pages', id: w.pageA.id })
-    expect(page.title).not.toBe('Changed without a code')
+  it('a super-admin who never set two-factor up reaches nothing, even signed in', async () => {
+    const created = await createSuperAdmin(w.payload, {
+      email: `no-code-${Date.now()}@example.com`,
+      password: PASSWORD,
+    })
+    const user = await asUser(w.payload, created.id) // password only: no two-factor yet
+    for (const collection of ['pages', 'club-settings', 'tenants', 'users'] as const) {
+      const visible = await w.payload
+        .find({ collection, overrideAccess: false, user })
+        .then((r) => r.docs.filter((d) => d.id !== user.id).length)
+        .catch(() => 0)
+      expect({ collection, visible }).toEqual({ collection, visible: 0 })
+    }
+    expect(
+      await w.payload
+        .findGlobal({ slug: 'marketing-settings', overrideAccess: false, user })
+        .catch(() => null),
+    ).toBeNull()
+  })
+
+  it("a password-only club editor reaches their own club's content, and only that", async () => {
+    const pages = await w.payload.find({
+      collection: 'pages',
+      overrideAccess: false,
+      user: w.editorA,
+    })
+    expect(pages.docs.map((d) => d.id)).toContain(w.pageA.id)
+    expect(pages.docs.map((d) => d.id)).not.toContain(w.pageB.id)
   })
 })
 
 describe('two-factor secrets are stored encrypted', () => {
   it('the database never holds the secret itself', async () => {
-    const stored = await rawSecret(w.editorA.id)
+    const stored = await rawSecret(editorWithCode.id)
     expect(stored).toMatch(/^v1:/)
     expect(stored).not.toContain(TEST_TOTP_SECRET)
   })
@@ -57,7 +111,7 @@ describe('two-factor secrets are stored encrypted', () => {
   it('the app reads back the real secret', async () => {
     const user = await w.payload.findByID({
       collection: 'users',
-      id: w.editorA.id,
+      id: editorWithCode.id,
       showHiddenFields: true,
       overrideAccess: true,
       depth: 0,
@@ -94,7 +148,7 @@ describe('two-factor secrets are stored encrypted', () => {
 
 describe('resetting two-factor (lost phone)', () => {
   it('clears the secret, so they set it up again at next login', async () => {
-    await resetTwoFactor(w.payload, w.editorB.id)
-    expect(await rawSecret(w.editorB.id)).toBeNull()
+    await resetTwoFactor(w.payload, editorWithCode.id)
+    expect(await rawSecret(editorWithCode.id)).toBeNull()
   })
 })

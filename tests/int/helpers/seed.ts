@@ -113,8 +113,11 @@ export const resetDatabase = async (payload: Payload) => {
  */
 export const asUser = async (payload: Payload, id: string): Promise<LoggedInUser> => {
   const user = await payload.findByID({ collection: 'users', id, depth: 0 })
-  // `_strategy: 'totp'` is how payload-totp marks a session whose code has been entered.
-  return { ...user, collection: 'users', _strategy: 'totp' }
+  // How the account is signed in when fully logged in: with its two-factor code entered
+  // (`totp`, payload-totp's marker) if it has two-factor, otherwise with its password alone
+  // (`local-jwt`): club editors without two-factor (decisions.md, 22 Oct).
+  const hasTotp = Boolean((user as { hasTotp?: boolean }).hasTotp)
+  return { ...user, collection: 'users', _strategy: hasTotp ? 'totp' : 'local-jwt' }
 }
 
 /** The same user part-way through logging in: password accepted, no code entered yet. */
@@ -125,13 +128,19 @@ export const withoutCode = (user: LoggedInUser): LoggedInUser => {
 
 const slugOf = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
 
-const createEditor = async (payload: Payload, email: string, tenant: string) => {
+/** A club editor with a password only (the default since 22 Oct), or with two-factor too. */
+export const createEditor = async (
+  payload: Payload,
+  email: string,
+  tenant: string,
+  { twoFactor = false }: { twoFactor?: boolean } = {},
+) => {
   const created = await payload.create({
     collection: 'users',
     data: { email, password: PASSWORD, role: 'editor', tenant },
     context: allowAccountCreation,
   })
-  await enrolTwoFactor(payload, created.id)
+  if (twoFactor) await enrolTwoFactor(payload, created.id)
   return asUser(payload, created.id)
 }
 

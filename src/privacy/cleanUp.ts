@@ -2,6 +2,7 @@ import { DeleteObjectsCommand, ListObjectsV2Command, S3Client } from '@aws-sdk/c
 import type { Payload, Where } from 'payload'
 
 import { folderPattern } from '../media/folders'
+import { deleteOldCounts } from '../security/rateLimit'
 import { mediaStorageSettings } from '../media/storage'
 
 /**
@@ -14,6 +15,9 @@ import { mediaStorageSettings } from '../media/storage'
  *    contact (decision F).
  * 3. **Uploads that never became a photo or document** (the browser uploaded the file, then
  *    Payload's content check refused the record) are removed from storage after a day.
+ *
+ * It also deletes rate-limit counts older than a day (src/security/rateLimit.ts): they hold
+ * only hashed visitor keys, and no limit needs them.
  *
  * Run by the Payload job queue (src/payload.config.ts, task "cleanUp"), started daily by
  * Vercel's scheduler (vercel.json → src/app/(frontend)/cron/clean-up/route.ts).
@@ -170,8 +174,10 @@ export const runCleanUp = async (
   const enquiries = await deleteOldEnquiries(payload, now)
   const homepageRequests = await deleteOldHomepageRequests(payload, now)
   const uploads = files ? await deleteOrphanUploads(payload, now) : null
+  const db = (payload.db as unknown as { drizzle: Parameters<typeof deleteOldCounts>[0] }).drizzle
+  const counts = await deleteOldCounts(db, now)
   payload.logger.info(
-    `Clean-up: deleted ${enquiries} enquiries, ${homepageRequests} homepage requests${uploads ? `, removed ${uploads.removed} unused files` : ''}`,
+    `Clean-up: deleted ${enquiries} enquiries, ${homepageRequests} homepage requests and ${counts} old rate-limit counts${uploads ? `, removed ${uploads.removed} unused files` : ''}`,
   )
-  return { enquiries, homepageRequests, uploads }
+  return { enquiries, homepageRequests, uploads, counts }
 }

@@ -57,6 +57,13 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
     why: 'Called only from the invite endpoint after the super-admin check. Accounts can’t be created through the normal rules at all (allowAccountCreation context)',
   },
   {
+    file: 'src/auth/sessionLimit.ts',
+    fn: 'emailPasswordReset',
+    uses: 1,
+    club: 'The one account whose password was just set through a link (by its ID)',
+    why: 'Reads only its email address, to tell the owner their password was set; nobody is signed in yet',
+  },
+  {
     file: 'src/auth/resetTwoFactor.ts',
     fn: 'resetTwoFactor',
     uses: 1,
@@ -166,6 +173,22 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
     why: 'Helper inside buildDemoClub',
   },
 
+  // ---------- Live isolation canary (hidden canary clubs only) ----------
+  {
+    file: 'src/canary/setup.ts',
+    fn: 'createCanaryClubs',
+    uses: 7,
+    club: 'The two canary clubs it creates (slugs canary-a and canary-b), and their records',
+    why: 'Run only by scripts/create-canary-clubs.ts from a terminal (production needs Dan’s approval)',
+  },
+  {
+    file: 'src/canary/targets.ts',
+    fn: 'canaryTargets',
+    uses: 2,
+    club: 'Canary club B only (by its slug), to know what the canary must not be able to reach',
+    why: 'Runs in the canary cron route (CRON_SECRET) with no user; the attempts themselves go over HTTP as canary A’s editor, with normal access rules',
+  },
+
   // ---------- Company marketing site (no clubs) ----------
   {
     file: 'src/marketing/content.ts',
@@ -266,16 +289,23 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
   // ---------- Public club website ----------
   {
     file: 'src/site/resolveSite.ts',
-    fn: 'findClubByHost',
+    fn: 'clubByHost',
     uses: 1,
     club: 'The one club whose list of web addresses contains the requested host',
     why: `${PUBLIC_SITE}. This is how the club is found in the first place`,
   },
   {
     file: 'src/site/loadClub.ts',
-    fn: 'loadClubBySlug',
+    fn: 'clubIDBySlugFresh',
+    uses: 1,
+    club: 'The one club with this slug (from resolveSite); returns its ID only',
+    why: PUBLIC_SITE,
+  },
+  {
+    file: 'src/site/loadClub.ts',
+    fn: 'loadClubSiteFresh',
     uses: 2,
-    club: 'The one club with this slug (from resolveSite) and its own Club Settings',
+    club: 'The one club by its ID, and its own Club Settings',
     why: PUBLIC_SITE,
   },
   { file: 'src/site/loadClub.ts', fn: 'clubPages', uses: 1, club: RESOLVED_CLUB, why: PUBLIC_SITE },
@@ -302,7 +332,7 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
   },
   {
     file: 'src/site/loadClub.ts',
-    fn: 'loadClubPage',
+    fn: 'pageData',
     uses: 1,
     club: RESOLVED_CLUB,
     why: `${PUBLIC_SITE}. Drafts only when canSeeDrafts allowed it (the club’s own signed-in editor or the super-admin)`,
@@ -351,7 +381,7 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
   },
   {
     file: 'src/site/blocks/resolve.ts',
-    fn: 'loadBlockContext',
+    fn: 'loadBlockData',
     uses: 2,
     club: RESOLVED_CLUB,
     why: PUBLIC_SITE,
@@ -372,11 +402,23 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
     club: RESOLVED_CLUB,
     why: PUBLIC_SITE,
   },
-  { file: 'src/site/news.ts', fn: 'latestNews', uses: 1, club: RESOLVED_CLUB, why: PUBLIC_SITE },
-  { file: 'src/site/news.ts', fn: 'newsArchive', uses: 1, club: RESOLVED_CLUB, why: PUBLIC_SITE },
   {
     file: 'src/site/news.ts',
-    fn: 'loadNewsPost',
+    fn: 'latestNewsFresh',
+    uses: 1,
+    club: RESOLVED_CLUB,
+    why: PUBLIC_SITE,
+  },
+  {
+    file: 'src/site/news.ts',
+    fn: 'newsArchiveFresh',
+    uses: 1,
+    club: RESOLVED_CLUB,
+    why: PUBLIC_SITE,
+  },
+  {
+    file: 'src/site/news.ts',
+    fn: 'loadNewsPostFresh',
     uses: 1,
     club: RESOLVED_CLUB,
     why: `${PUBLIC_SITE}. Unpublished only when canSeeDrafts allowed it`,

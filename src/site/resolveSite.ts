@@ -4,6 +4,7 @@ import { getPayload } from 'payload'
 import { cache } from 'react'
 
 import { trackDbTiming } from '@/monitoring/trackDbTiming'
+import { addressCached } from './cache'
 
 import { canSeeDrafts } from './livePreviewAccess'
 import { type ClubSite, loadClubBySlug } from './loadClub'
@@ -37,7 +38,11 @@ export const CLUB_HOST_HEADER = 'x-club-host'
 export const CLUB_ORIGIN_HEADER = 'x-club-origin'
 
 /** The club that owns a web address, and its main address (the first in its list). */
-export const findClubByHost = cache(
+export const findClubByHost = cache((host: string) => clubByHost(host))
+
+/** Cached by address (src/site/cache.ts): cleared whenever any club's addresses change. */
+const clubByHost = addressCached(
+  'clubByHost',
   async (host: string): Promise<{ slug: string; mainHost: string } | null> => {
     const payload = await getPayload({ config })
     const { docs } = await payload.find({

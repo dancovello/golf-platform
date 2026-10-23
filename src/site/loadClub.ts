@@ -13,13 +13,14 @@ import { COLUMN_LINK_LIMIT } from './menuLimits'
 import { builtInLabel, builtInLink, isSafeURL, linksToPage } from '@/fields/link'
 import { measureMissing } from '@/media/measure'
 import { loadClubMedia, type SiteMedia } from '@/site/blocks/media'
-import { loadBlockContext } from '@/site/blocks/resolve'
+import { blockContextFrom, loadBlockData } from '@/site/blocks/resolve'
 import { type Brand, BRAND_INPUTS, DEFAULT_BRAND, isHex } from '@/theme/colour'
 import { DEFAULT_FONT_SET, type FontSetID, isFontSetID } from '@/theme/fontSets'
 
 import { isGAMeasurementID, type PrivacySettings } from './privacy/policy'
 import { PUBLISHED } from './published'
 import { siteToday } from './today'
+import { addressCached, clubCached } from './cache'
 import { idOf } from '@/blocks/types'
 
 /** A link on the public site: one of the club's pages (by slug) or a checked web address. */
@@ -145,10 +146,37 @@ const SOCIAL = ['instagram', 'facebook', 'x', 'youtube', 'linkedin', 'tiktok']
  * page title and the page itself both need the club).
  */
 export const loadClubBySlug = cache(async (slug: string): Promise<ClubSite | null> => {
+  const tenantID = await clubIDBySlug(slug)
+  const site = tenantID ? await loadClubSite(tenantID) : null
+  if (!tenantID || site?.slug === slug) return site
+  // The cached lookup is out of date (a club changed outside the website, e.g. by a script):
+  // look again without the cache rather than show the wrong club or none.
+  const freshID = await clubIDBySlugFresh(slug)
+  return freshID ? loadClubSiteFresh(freshID) : null
+})
+
+/** The club with this slug: its ID only (cached by address, src/site/cache.ts). */
+const clubIDBySlugFresh = async (slug: string) => {
+  const payload = await getPayload({ config })
+  const { docs } = await payload.find({
+    collection: 'tenants',
+    where: { slug: { equals: slug } },
+    select: { slug: true },
+    limit: 1,
+    depth: 0,
+    overrideAccess: true,
+  })
+  return docs[0] ? String(docs[0].id) : null
+}
+const clubIDBySlug = addressCached('clubIDBySlug', clubIDBySlugFresh)
+
+/** Everything the club's pages share (cached per club; notices and course status depend on
+ * today, so at most 5 minutes). */
+const loadClubSiteFresh = async (tenantID: string): Promise<ClubSite | null> => {
   const payload = await getPayload({ config })
   const { docs: tenants } = await payload.find({
     collection: 'tenants',
-    where: { slug: { equals: slug } },
+    where: { id: { equals: tenantID } },
     select: { name: true, slug: true },
     limit: 1,
     depth: 0,
@@ -156,7 +184,6 @@ export const loadClubBySlug = cache(async (slug: string): Promise<ClubSite | nul
   })
   const tenant = tenants[0]
   if (!tenant) return null
-  const tenantID = String(tenant.id)
 
   const { docs } = await payload.find({
     collection: 'club-settings',
@@ -390,7 +417,8 @@ export const loadClubBySlug = cache(async (slug: string): Promise<ClubSite | nul
       additionalInfo: s.privacy?.additionalInfo ?? null,
     },
   }
-})
+}
+const loadClubSite = clubCached('loadClubSite', loadClubSiteFresh, { today: true })
 
 /** Addresses and names of the given pages, only if they belong to this club. */
 const clubPages = async (payload: Payload, tenantID: string, ids: (string | null)[]) => {
@@ -530,6 +558,16 @@ export const loadClubPage = async (
   slug: string,
   { draft = false }: { draft?: boolean } = {},
 ) => {
+  // Drafts (the live preview) never go through the cache.
+  const page = draft
+    ? await pageData(tenantID, slug, true)
+    : await publishedPageData(tenantID, slug)
+  if (!page) return null
+  const { data, ...rest } = page
+  return { ...rest, ctx: blockContextFrom(data) }
+}
+
+const pageData = async (tenantID: string, slug: string, draft: boolean) => {
   const payload = await getPayload({ config })
   const { docs } = await payload.find({
     collection: 'pages',
@@ -554,9 +592,17 @@ export const loadClubPage = async (
     slug: String(doc.slug),
     updatedAt: doc.updatedAt ? String(doc.updatedAt) : null,
     layout,
-    ctx: await loadBlockContext(payload, tenantID, layout),
+    data: await loadBlockData(payload, tenantID, layout),
   }
 }
+
+/** A published page, cached per club (its blocks can show events and course status, which
+ * depend on today: at most 5 minutes). */
+const publishedPageData = clubCached(
+  'publishedPage',
+  (tenantID: string, slug: string) => pageData(tenantID, slug, false),
+  { today: true },
+)
 
 const ANNOUNCEMENT_STYLES = ['classic', 'rotator', 'utility'] as const
 const TONES = ['brand', 'accent', 'subtle'] as const
