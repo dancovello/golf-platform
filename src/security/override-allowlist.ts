@@ -177,15 +177,15 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
   {
     file: 'src/canary/setup.ts',
     fn: 'createCanaryClubs',
-    uses: 7,
+    uses: 8,
     club: 'The two canary clubs it creates (slugs canary-a and canary-b), and their records',
     why: 'Run only by scripts/create-canary-clubs.ts from a terminal (production needs Dan’s approval)',
   },
   {
     file: 'src/canary/targets.ts',
     fn: 'canaryTargets',
-    uses: 2,
-    club: 'Canary club B only (by its slug), to know what the canary must not be able to reach',
+    uses: 3,
+    club: 'Canary club B only (by its slug), its records and its marked account, to know what the canary must not be able to reach',
     why: 'Runs in the canary cron route (CRON_SECRET) with no user; the attempts themselves go over HTTP as canary A’s editor, with normal access rules',
   },
 

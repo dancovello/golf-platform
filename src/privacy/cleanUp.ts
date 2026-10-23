@@ -1,5 +1,8 @@
 import { DeleteObjectsCommand, ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3'
+import * as Sentry from '@sentry/nextjs'
 import type { Payload, Where } from 'payload'
+
+import { sentryEnabled } from '../monitoring/sentry'
 
 import { folderPattern } from '../media/folders'
 import { deleteOldCounts } from '../security/rateLimit'
@@ -24,8 +27,9 @@ import { mediaStorageSettings } from '../media/storage'
 export const ENQUIRY_MONTHS = 12
 /** An upload younger than this may still be on its way to becoming a record. */
 export const ORPHAN_MIN_AGE_MS = 24 * 60 * 60 * 1000
-/** A safety brake: never remove more files than this in one night. More than that means
- * something is wrong (say, the wrong database), and a person should look first. */
+/** A safety brake: if more files than this look unused in one night, something is wrong (say,
+ * the wrong or a half-restored database), so nothing is removed and Dan is alerted. Stored
+ * files aren't backed up, so a removed file is gone for good (audit CRON-1, 22 Oct 2026). */
 export const ORPHAN_MAX_PER_RUN = 200
 
 const monthsBefore = (now: Date, months: number) => {
@@ -126,9 +130,13 @@ export const deleteOrphanUploads = async (
   }
 
   if (skipped) {
-    payload.logger.error(
-      `Clean-up: ${due.length + skipped} unused files found, more than the ${max} allowed in one night. Removed ${due.length}; please check.`,
-    )
+    const message = `Clean-up: ${due.length + skipped} unused files found, more than the ${max} allowed in one night. Removed none; please check the database is the right one.`
+    payload.logger.error(message)
+    if (sentryEnabled()) {
+      Sentry.captureMessage(message, 'error')
+      await Sentry.flush(2000)
+    }
+    return { removed: 0, skipped: due.length + skipped }
   }
   for (let i = 0; i < due.length; i += 1000) {
     await s3.send(

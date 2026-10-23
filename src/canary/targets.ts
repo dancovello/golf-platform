@@ -30,5 +30,14 @@ export const canaryTargets = async (payload: Payload): Promise<CanaryTargets | n
     })
     records.push(...found.docs.map((d) => ({ collection, id: String(d.id) })))
   }
+  // Club B's marked account (CRON-3). Looked up by club, so canary A's own editor never counts.
+  const accounts = await payload.find({
+    collection: 'users',
+    where: { tenant: { equals: clubB.id } },
+    limit: 5,
+    depth: 0,
+    overrideAccess: true,
+  })
+  records.push(...accounts.docs.map((d) => ({ collection: 'users', id: String(d.id) })))
   return { clubB: { id: String(clubB.id), slug: CANARY_B_SLUG }, records, marker: CANARY_MARKER }
 }
