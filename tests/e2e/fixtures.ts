@@ -40,10 +40,11 @@ const watchForLeaks = (page: Page, secrets: string[], echoed: Set<string>) => {
  * API client gets it; a page can't override a browser's own Sec- headers.
  */
 export const asSameOrigin = (context: BrowserContext) => {
-  const api = context.request as unknown as Record<string, (...args: unknown[]) => unknown>
+  type Call = (url: unknown, options?: { headers?: Record<string, string> }) => unknown
+  const api = context.request as unknown as Record<string, Call>
   for (const method of ['fetch', 'get', 'post', 'put', 'patch', 'delete', 'head']) {
     const original = api[method]!.bind(api)
-    api[method] = (url: unknown, options: { headers?: Record<string, string> } = {}) =>
+    api[method] = (url, options = {}) =>
       original(url, {
         ...options,
         headers: { 'Sec-Fetch-Site': 'same-origin', ...options.headers },
