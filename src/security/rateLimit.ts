@@ -44,6 +44,8 @@ export type Limit = {
 
 /** Searches, from the results page and the header panel together (as before). */
 export const SEARCH_LIMIT: Limit = { name: 'search', max: 120, windowSeconds: 60 }
+/** Upload links, per signed-in account: well above a big bulk upload (uploads audit, finding 2). */
+export const UPLOAD_LINK_LIMIT: Limit = { name: 'upload-link', max: 100, windowSeconds: 60 * 60 }
 /** Security policy reports, from all visitors together: they only go to the log. */
 export const CSP_REPORT_LIMIT: Limit = { name: 'csp-report', max: 60, windowSeconds: 60 }
 
@@ -85,7 +87,7 @@ export const allowRequest = async (
   return Number((rows[0] as { count?: number } | undefined)?.count ?? Infinity) <= limit.max
 }
 
-/** Counts older than a day are no use to any limit (the longest window is a minute). */
+/** Counts older than a day are no use to any limit (the longest window is an hour). */
 export const deleteOldCounts = async (db: Executor, now = new Date()) => {
   const cutoff = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString()
   const { rows } = await db.execute(

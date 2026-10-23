@@ -129,7 +129,11 @@ export const RATE_LIMITS: Record<string, Protection> = {
   'POST /api/users/invite': SUPER_ADMIN,
   'POST /api/users/:id/password-link': SUPER_ADMIN,
   'POST /api/users/:id/reset-two-factor': SUPER_ADMIN,
-  'POST /api/storage-s3-generate-signed-url': SIGNED_IN,
+  'POST /api/storage-s3-generate-signed-url': {
+    who: 'signed in',
+    limit: '100 upload links an hour per account',
+    where: 'App, shared database (UPLOAD_LINK_LIMIT, src/media/uploadGuards.ts)',
+  },
   'POST /api/setup-totp': {
     who: 'signed in',
     limit: 'Password already accepted; wrong codes count towards the lockout below',

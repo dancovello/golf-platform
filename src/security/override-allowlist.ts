@@ -228,6 +228,13 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
 
   // ---------- Nightly clean-up (every club, by design) ----------
   {
+    file: 'src/media/cleanExisting.ts',
+    fn: 'cleanExistingPhotos',
+    uses: 1,
+    club: 'Every club: photo addresses and types only, to re-save older originals without hidden details',
+    why: 'One-off, run only by scripts/clean-photo-details.ts from a terminal (production needs Dan’s approval)',
+  },
+  {
     file: 'src/privacy/cleanUp.ts',
     fn: 'deleteOldEnquiries',
     uses: 1,

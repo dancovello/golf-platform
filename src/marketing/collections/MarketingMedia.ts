@@ -1,5 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
+import { cleanOriginal } from '../../media/cleanOriginal'
+
 import { uploadFolder } from '../../media/folders'
 import { randomServerUploadName } from '../../media/uploadGuards'
 import { MARKETING_GROUP, hiddenFromEditors, marketingAccess } from '../access'
@@ -29,6 +31,8 @@ export const MarketingMedia: CollectionConfig = {
     mimeTypes: MARKETING_MEDIA_TYPES,
     disableLocalStorage: true,
     filenameCompoundIndex: ['filename', 'prefix'],
+    // The original is re-saved without the camera's hidden details (src/media/cleanOriginal.ts).
+    resizeOptions: cleanOriginal,
     // The same widths and quality as club photos (src/collections/Media.ts).
     imageSizes: [640, 1024, 1600, 2400, 3200].map((width) => ({
       name: `w${width}`,
