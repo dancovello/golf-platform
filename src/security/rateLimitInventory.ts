@@ -82,9 +82,9 @@ export const RATE_LIMITS: Record<string, Protection> = {
   'src/site/contact/actions.ts': {
     who: 'anyone',
     limit:
-      '20 messages an hour per club; hidden spam trap; too-fast sends dropped; Cloudflare Turnstile',
+      '5 sends per visitor in 10 minutes; 20 messages an hour per club; alert emails capped at 25 per club and 70 in all a day; hidden spam trap; too-fast sends dropped; Cloudflare Turnstile',
     where:
-      'App, counted in the database (HOURLY_LIMIT, src/site/contact/submit.ts); Vercel Firewall rule 3',
+      'App, shared database (CONTACT_VISITOR_LIMIT, CONTACT_CLUB_LIMIT, CONTACT_ALERTS_*, src/security/rateLimit.ts); Vercel Firewall rule 3',
   },
   // ---------- Platform services ----------
   'src/app/(frontend)/csp-report/route.ts': {
