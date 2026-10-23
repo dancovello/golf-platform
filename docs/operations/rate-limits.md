@@ -7,6 +7,7 @@ Every public endpoint has a limit, at two layers (doc 04 §8): **the app** and *
 ## What changed on 22 Oct
 
 - **Search and the security-report address used to count in each server's memory.** With more than one Vercel server running, the real limit was the limit times the number of servers. They now count in one database table every server shares (`rate_limits`, `src/security/rateLimit.ts`), so a limit is a limit.
+- **IPv6 visitors count by network (added 23 Oct).** An IPv6 connection gets a whole /64 network, so every limit counts its first 64 bits, not each address.
 - **No IP addresses are stored.** A visitor is a keyed hash of their address and the date, which changes every day and can't be turned back into an address. The nightly clean-up deletes counts older than a day.
 - **`TRUSTED_PROXY` stays unset.** It's only for a Cloudflare proxy in front of the site, which we don't have. A test proves a made-up `cf-connecting-ip` is ignored.
 

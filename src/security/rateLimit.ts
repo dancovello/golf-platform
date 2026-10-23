@@ -1,4 +1,5 @@
 import { createHmac } from 'node:crypto'
+import { isIPv6 } from 'node:net'
 
 import { sql } from '@payloadcms/db-postgres'
 import {
@@ -70,6 +71,28 @@ export const CSP_REPORT_LIMIT: Limit = { name: 'csp-report', max: 60, windowSeco
 
 type Executor = { execute: (query: ReturnType<typeof sql>) => Promise<{ rows: unknown[] }> }
 
+/**
+ * The part of an address that identifies one visitor. An IPv6 home or cloud connection is given
+ * a whole /64 network and can use any address in it, so IPv6 addresses count by their first 64
+ * bits (search audit, finding 3). IPv4 and anything that isn't an address are unchanged.
+ */
+export const visitorNetwork = (address: string): string => {
+  const bare = address.replace(/^\[|\]$/g, '').split('%')[0]
+  if (!isIPv6(bare)) return address
+  const mapped = bare.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/i)
+  if (mapped) return mapped[1]
+  const [head, tail = ''] = bare.toLowerCase().split('::')
+  const left = head ? head.split(':') : []
+  const right = bare.includes('::') ? (tail ? tail.split(':') : []) : []
+  // An embedded IPv4 tail counts as two groups.
+  const groups = (parts: string[]) => parts.reduce((n, p) => n + (p.includes('.') ? 2 : 1), 0)
+  const full = [...left, ...Array(8 - groups(left) - groups(right)).fill('0'), ...right]
+  return `${full
+    .slice(0, 4)
+    .map((g) => g.replace(/^0+(?=.)/, ''))
+    .join(':')}::/64`
+}
+
 /** A visitor's key for today: never the address itself. */
 export const hashVisitor = (
   address: string,
@@ -77,7 +100,7 @@ export const hashVisitor = (
   secret = process.env.PAYLOAD_SECRET ?? '',
 ) =>
   createHmac('sha256', secret)
-    .update(`${now.toISOString().slice(0, 10)}|${address}`)
+    .update(`${now.toISOString().slice(0, 10)}|${visitorNetwork(address)}`)
     .digest('hex')
     .slice(0, 32)
 
