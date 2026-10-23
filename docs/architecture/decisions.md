@@ -585,3 +585,15 @@ All of these run in the `tenant-isolation` CI job and block merging.
 - **Live canary** (`docs/operations/canary.md`): two hidden clubs on production, which can never be given a web address. An hourly Vercel cron signs in as canary A's editor over the real web address and tries to reach canary B; any success raises a Sentry alert. **Built, but switching it on is Dan's call** (it creates production data).
 - **Row-level security in Postgres: not now** (`docs/plans/postgres-row-level-security-spike.md`).
 - **Browser tests** always start a fresh server with an empty data cache.
+
+## 2026-10-22: Website functions run in London
+
+- **`vercel.json` sets `"regions": ["lhr1"]`** (London), for production, staging and previews. Until now they ran in Vercel's default, Washington, D.C., while the database is in London (Neon, `aws-eu-west-2`). Every database query crossed the Atlantic, and club pages make 16–30 queries a view (`docs/operations/performance.md`).
+- **Nothing else depended on the old region** (checked 22 Oct):
+  - Cron: the nightly clean-up's time is in UTC, wherever it runs.
+  - Sentry: sends to its EU (Germany) region.
+  - Resend: sends from Ireland (`eu-west-1`).
+  - Photo storage: Cloudflare R2, Western Europe.
+- **Answers** the question left open in "2026-10-15 — Data processing agreement in the admin" ("before the first real club") and marketing open question N6.
+- **Still to do, with Dan's go-ahead:** the agreement's sub-processor table (`src/agreement/text.ts`, Schedule 3) still says Vercel is "USA (Washington, D.C.), or London if the hosting region is changed". Changing that wording needs a new `AGREEMENT_VERSION`, so every club accepts it again. While the agreement is a draft with no clubs, it can wait for the solicitor's review. The club privacy policy doesn't name regions, so it needs no change.
+- **"Stored in London"** (marketing Trust page) is still held: photos, documents and backups are in Western Europe, not the UK (claims register).
