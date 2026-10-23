@@ -33,7 +33,7 @@ const PRODUCTION_SECRETS =
 describe('Finding 1 (high): production secrets are open to every branch', () => {
   // A GitHub environment with a branch rule is what stops a workflow on any other branch from
   // reading these. Without one, any pushed branch can add a workflow that reads them.
-  it.fails('every job that reads a production secret is locked to a GitHub environment', () => {
+  it('every job that reads a production secret is locked to a GitHub environment', () => {
     const unlocked: string[] = []
     for (const file of ['release.yml', 'backup.yml']) {
       for (const [job, text] of Object.entries(jobsOf(workflow(file)))) {
@@ -49,7 +49,7 @@ describe('Finding 1 (high): production secrets are open to every branch', () => 
 describe('Finding 2 (medium): a release pull request can come from any branch', () => {
   // The AI security review only runs on pull requests into main. A pull request straight into
   // production from another branch skips it, and nothing checks where the release came from.
-  it.fails('pull requests into production must come from main, or be security-reviewed', () => {
+  it('pull requests into production must come from main, or be security-reviewed', () => {
     const reviewCoversProduction = /branches:\s*\[[^\]]*production/.test(
       workflow('security-review.yml'),
     )
@@ -65,11 +65,11 @@ export async function up({ db }) {
 }
 export async function down({ db }) {}
 `
-  it.fails('the AI security review reads migrations', () => {
+  it('the AI security review reads migrations', () => {
     expect(workflow('security-review.yml')).not.toMatch(/exclude-directories:.*src\/migrations/)
   })
 
-  it.fails.each([
+  it.each([
     [
       'gives the website account more rights',
       'GRANT ALL ON ALL TABLES IN SCHEMA public TO golf_app;',
@@ -92,7 +92,7 @@ export async function down({ db }) {}
     expect(findDestructive(migration(sql))).not.toEqual([])
   })
 
-  it.fails('migration-guard checks a migration whatever its file is called', () => {
+  it('migration-guard checks a migration whatever its file is called', () => {
     // Registered in src/migrations/index.ts, this runs on production like any other migration,
     // but the guard never reads it.
     expect(

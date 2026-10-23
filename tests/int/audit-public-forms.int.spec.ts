@@ -107,7 +107,7 @@ describe('Finding 1 (medium): one visitor can use up a club’s whole hourly all
   // in /contact (docs/operations/rate-limits.md). A server action runs from ANY page address
   // (Next.js forwards it), so posting to "/" or "/news" skips that rule. The app itself only
   // counts per club. Each send still needs a Turnstile pass, but those can be bought cheaply.
-  it.fails('a second visitor can still send after one visitor has sent many in a row', async () => {
+  it('a second visitor can still send after one visitor has sent many in a row', async () => {
     request.host = 'club-b.localhost'
     const already = await savedIn(w.clubB.id)
     const token = form(w.clubB.id).get('token') as string
@@ -131,44 +131,38 @@ describe('Finding 2 (medium): one club’s messages can use up every club’s em
   // EVERY club's alerts AND every editor's password reset together (decisions.md, 16 Oct).
   // One club's form takes 20 an hour (480 a day), with no daily cap on alerts, so a flood at
   // one club stops other clubs' alerts and everyone's password-reset emails for the day.
-  it.fails(
-    'stops emailing one club before it has used a quarter of the daily allowance',
-    async () => {
-      // Club A's footer email is set by the seed, so its alerts have somewhere to go. These are
-      // saved straight into the club (as the form would), spread over a day, all at once here.
-      process.env.RESEND_API_KEY = 'test-only'
-      const sendEmail = vi.spyOn(w.payload, 'sendEmail').mockResolvedValue({})
-      const ids: string[] = []
-      for (let i = 0; i < 26; i++) {
-        ids.push(String((await enquiry(w.payload, `Alert flood ${i}`, w.clubA.id)).id))
-      }
-      for (const id of ids) await sendEnquiryAlert(id).catch(() => undefined)
-      expect(sendEmail.mock.calls.length).toBeLessThanOrEqual(25)
-    },
-  )
+  it('stops emailing one club before it has used a quarter of the daily allowance', async () => {
+    // Club A's footer email is set by the seed, so its alerts have somewhere to go. These are
+    // saved straight into the club (as the form would), spread over a day, all at once here.
+    process.env.RESEND_API_KEY = 'test-only'
+    const sendEmail = vi.spyOn(w.payload, 'sendEmail').mockResolvedValue({})
+    const ids: string[] = []
+    for (let i = 0; i < 26; i++) {
+      ids.push(String((await enquiry(w.payload, `Alert flood ${i}`, w.clubA.id)).id))
+    }
+    for (const id of ids) await sendEnquiryAlert(id).catch(() => undefined)
+    expect(sendEmail.mock.calls.length).toBeLessThanOrEqual(25)
+  })
 })
 
 describe('Finding 3 (low): the per-club hourly limit can be overshot', () => {
   // submit.ts counts the last hour's messages, then saves: two steps, not one. Messages
   // arriving at the same moment all see room for one more.
-  it.fails(
-    `never saves more than ${HOURLY_LIMIT} in an hour, even when sent all at once`,
-    async () => {
-      const clubC = await newClub('Audit Club C', 'club-c.localhost')
-      const now = new Date()
-      await Promise.all(
-        Array.from({ length: HOURLY_LIMIT + 15 }, (_, i) =>
-          submitEnquiry(
-            String(clubC.slug),
-            { attempt: 0 },
-            form(clubC.id, { message: `At once ${i}` }, now.getTime()),
-            now,
-          ),
+  it(`never saves more than ${HOURLY_LIMIT} in an hour, even when sent all at once`, async () => {
+    const clubC = await newClub('Audit Club C', 'club-c.localhost')
+    const now = new Date()
+    await Promise.all(
+      Array.from({ length: HOURLY_LIMIT + 15 }, (_, i) =>
+        submitEnquiry(
+          String(clubC.slug),
+          { attempt: 0 },
+          form(clubC.id, { message: `At once ${i}` }, now.getTime()),
+          now,
         ),
-      )
-      expect(await savedIn(clubC.id)).toBeLessThanOrEqual(HOURLY_LIMIT)
-    },
-  )
+      ),
+    )
+    expect(await savedIn(clubC.id)).toBeLessThanOrEqual(HOURLY_LIMIT)
+  })
 })
 
 describe('Finding 4 (low): some email addresses pass the form but are refused on save', () => {
@@ -176,7 +170,7 @@ describe('Finding 4 (low): some email addresses pass the form but are refused on
   // field). An address only the form accepts gets past every check, then the save throws: the
   // visitor sees an error page and their message is lost. Payload's stricter check is also what
   // stops "a,b@…" or "<…>" addresses reaching the email's Reply-To, so it must stay.
-  it.fails('shows a field error, not an error page, for an address it cannot save', async () => {
+  it('shows a field error, not an error page, for an address it cannot save', async () => {
     const clubD = await newClub('Audit Club D', 'club-d.localhost')
     request.host = 'club-d.localhost'
     // Also refused on save today: "a,b@example.com", "a_b@sub_d.example.com".

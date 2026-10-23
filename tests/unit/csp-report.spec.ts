@@ -2,9 +2,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Audit 2026-10-22 (docs/security/audit-csp-headers.md, finding 4). The report address
 // (/csp-report) takes text from anyone on the internet and writes it to the server log.
-// These tests are marked `it.fails`: they prove the gap today and don't block CI. When the
-// fix lands they start passing, `it.fails` then reports them as failing, and the marker
-// should be removed.
+// Fixed 23 Oct 2026: values are cleaned of control characters and capped, and only known
+// directive names are logged.
 
 vi.mock('@/security/limitRequest', () => ({ withinLimit: vi.fn(async () => true) }))
 vi.mock('@/monitoring/sentry', () => ({ sentryEnabled: () => false }))
@@ -29,7 +28,7 @@ const send = async (report: Record<string, unknown>) => {
 afterEach(() => vi.clearAllMocks())
 
 describe('the policy report address (audit finding 4)', () => {
-  it.fails('a sender cannot add fake lines to the server log', async () => {
+  it('a sender cannot add fake lines to the server log', async () => {
     const { response, lines } = await send({
       'document-uri': 'https://club-a.example/',
       'effective-directive':
@@ -42,7 +41,7 @@ describe('the policy report address (audit finding 4)', () => {
     expect(lines[0]).not.toContain('\n')
   })
 
-  it.fails('what a sender writes is kept short', async () => {
+  it('what a sender writes is kept short', async () => {
     const { lines } = await send({
       'document-uri': 'https://club-a.example/',
       'effective-directive': 'x'.repeat(5000),
@@ -50,5 +49,23 @@ describe('the policy report address (audit finding 4)', () => {
     })
     // Today the directive is copied whole (up to the 10,000-character body limit).
     expect(lines[0].length).toBeLessThan(300)
+  })
+
+  it('logs a directive it does not know as "unknown"', async () => {
+    const { lines } = await send({
+      'document-uri': 'https://club-a.example/',
+      'effective-directive': 'made-up-directive',
+      'blocked-uri': 'inline',
+    })
+    expect(lines[0]).toContain('(unknown)')
+  })
+
+  it('keeps the name of an older browser’s whole rule', async () => {
+    const { lines } = await send({
+      'document-uri': 'https://club-a.example/',
+      'violated-directive': "script-src 'self' 'nonce-abc'",
+      'blocked-uri': 'inline',
+    })
+    expect(lines[0]).toContain('(script-src)')
   })
 })

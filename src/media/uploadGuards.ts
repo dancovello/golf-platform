@@ -2,6 +2,8 @@ import { randomBytes, randomUUID } from 'node:crypto'
 
 import type { CollectionBeforeOperationHook, Config, Plugin } from 'payload'
 
+import { allowRequest, UPLOAD_LINK_LIMIT } from '../security/rateLimit'
+
 /** "green.png" → "k3f9x2-green.png". */
 export const withRandomCode = (filename: string) =>
   `${randomBytes(4).readUInt32BE().toString(36).padStart(6, '0').slice(-6)}-${filename}`
@@ -18,6 +20,8 @@ export const withRandomCode = (filename: string) =>
  *    Payload keeps file names unique by checking every club's files, ignoring access rules:
  *    without the code, club A uploading "hero.jpg" when club B has one gets "hero-1.jpg",
  *    which tells club A that another club exists (CLAUDE.md non-negotiable 2).
+ * 4. At most 100 links an hour per account (UPLOAD_LINK_LIMIT), so one account can't fill the
+ *    public bucket with large files (uploads audit, finding 2).
  */
 export const guardBrowserUploads =
   (endpointPath: string, allowed: Record<string, string[]>): Plugin =>
@@ -28,6 +32,22 @@ export const guardBrowserUploads =
         ? {
             ...endpoint,
             handler: async (req) => {
+              if (req.user) {
+                const db = (
+                  req.payload.db as unknown as { drizzle: Parameters<typeof allowRequest>[0] }
+                ).drizzle
+                const allowed = await allowRequest(
+                  db,
+                  UPLOAD_LINK_LIMIT,
+                  `${req.user.collection}:${req.user.id}`,
+                )
+                if (!allowed) {
+                  return Response.json(
+                    { errors: [{ message: 'Too many uploads, try again later.' }] },
+                    { status: 429 },
+                  )
+                }
+              }
               const body = (await req.json?.()) as
                 { collectionSlug?: unknown; filename?: unknown; mimeType?: unknown } | undefined
               const types =

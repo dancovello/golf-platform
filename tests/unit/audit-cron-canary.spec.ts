@@ -6,8 +6,7 @@ import { probeAsCanaryA, type CanaryTargets } from '@/canary/probe'
  * Security audit of the cron and background jobs, 22 October 2026
  * (docs/security/audit-cron-jobs.md), finding CRON-3.
  *
- * KNOWN FAILURE: marked `it.fails`, so it passes while the gap is still there and doesn't
- * block CI. When the fix lands it starts failing: change `it.fails` to `it`.
+ * Fixed on 23 October 2026; this test now guards against the gap coming back.
  */
 
 const targets: CanaryTargets = {
@@ -36,18 +35,13 @@ const attempts = async () => {
 }
 
 describe('CRON-3: the canary tries the ways in an attacker would try first', () => {
-  // KNOWN FAILURE (CRON-3, low). The canary never sends the club-switcher cookie
-  // ("payload-tenant", the multi-tenant plugin's own way of picking a club), never lists the
-  // clubs (club editors mustn't even learn club B exists) and never looks at accounts. A leak
-  // through any of these would go unnoticed by the canary.
-  it.fails(
-    'picks club B with the club-switcher cookie, lists clubs and lists accounts',
-    async () => {
-      const seen = await attempts()
-      const path = (url: string) => new URL(url).pathname
-      expect(seen.some((s) => s.cookie.includes(`payload-tenant=${targets.clubB.id}`))).toBe(true)
-      expect(seen.some((s) => path(s.url) === '/api/tenants')).toBe(true)
-      expect(seen.some((s) => path(s.url) === '/api/users')).toBe(true)
-    },
-  )
+  // CRON-3 (low), fixed: the canary now sends the club-switcher cookie ("payload-tenant"),
+  // lists the clubs and lists accounts.
+  it('picks club B with the club-switcher cookie, lists clubs and lists accounts', async () => {
+    const seen = await attempts()
+    const path = (url: string) => new URL(url).pathname
+    expect(seen.some((s) => s.cookie.includes(`payload-tenant=${targets.clubB.id}`))).toBe(true)
+    expect(seen.some((s) => path(s.url) === '/api/tenants')).toBe(true)
+    expect(seen.some((s) => path(s.url) === '/api/users')).toBe(true)
+  })
 })

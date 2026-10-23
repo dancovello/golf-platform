@@ -53,6 +53,8 @@ A HIGH finding blocks merging until it's fixed or dismissed. To dismiss one:
 1. **Write the reason** as a comment on the pull request, starting exactly with `Security finding dismissed:`. For example: *"Security finding dismissed: the `overrideAccess` in loadClubPage is limited to the club from resolveSite (allowlist entry), so no other club's page can be returned."*
 2. **Add the label** `security-finding-dismissed` to the pull request. This re-runs the check, which reuses the existing review (no new cost) and passes.
 
+Both must come **after the latest push** (since 23 Oct, migrations audit finding 2). If more commits are pushed later, the dismissal no longer counts: remove and re-add the label, and write a new comment. Pull requests into `production` from a `hotfix/…` branch are reviewed too.
+
 **The check passes only with both**: the label, and a comment from the repository owner (`dancovello`) starting with those words. The reason stays on the pull request as the written record. **Claude never adds this label or writes this comment** (CLAUDE.md), the same as the `approved-destructive-migration` label.
 
 If a false positive keeps coming back, add a line to `false-positive-instructions.txt` explaining the pattern, in its own pull request.

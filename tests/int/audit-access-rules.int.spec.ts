@@ -32,8 +32,8 @@ const statusOf = async (fn: () => Promise<unknown>): Promise<number> => {
 }
 
 describe('A1 (medium): company-website drafts are readable by club editors', () => {
-  // NOT FIXED YET: remove `.fails` once marketing-pages defines readVersions (super-admin only).
-  it.fails("a club editor can't list the company website's page versions or drafts", async () => {
+  // Fixed 23 Oct: marketing-pages defines readVersions (super-admin only).
+  it("a club editor can't list the company website's page versions or drafts", async () => {
     const draft = await p.create({
       collection: 'marketing-pages',
       draft: true,
@@ -68,50 +68,46 @@ describe('A2 (low): the access guards only check four of the six operations', ()
     _strategy: 'totp',
   }
 
-  // NOT FIXED YET: remove `.fails` once every versioned collection's readVersions is reviewed
-  // (and tests/unit/access-guard.spec.ts + tests/int/config-access.int.spec.ts check it).
-  it.fails(
-    "no collection with a version history gives a club editor a plain 'yes' to it",
-    async () => {
-      const cfg = await config
-      const plainYes: string[] = []
-      for (const c of cfg.collections) {
-        if (!c.versions) continue
-        const result = await (c.access.readVersions as (args: unknown) => unknown)({
-          req: { user: editor, payload: { config: cfg }, headers: new Headers(), context: {} },
-        })
-        if (result === true) plainYes.push(c.slug)
-      }
-      expect(plainYes).toEqual([])
-    },
-  )
+  // Fixed 23 Oct: tests/unit/access-guard.spec.ts and tests/int/config-access.int.spec.ts check
+  // readVersions on every collection with a history.
+  it("no collection with a version history gives a club editor a plain 'yes' to it", async () => {
+    const cfg = await config
+    const plainYes: string[] = []
+    for (const c of cfg.collections) {
+      if (!c.versions) continue
+      const result = await (c.access.readVersions as (args: unknown) => unknown)({
+        req: { user: editor, payload: { config: cfg }, headers: new Headers(), context: {} },
+      })
+      if (result === true) plainYes.push(c.slug)
+    }
+    expect(plainYes).toEqual([])
+  })
 })
 
 describe('A3 (low): changing your own email reveals which addresses have accounts', () => {
-  // NOT FIXED YET: remove `.fails` once a taken address and a free one get the same answer.
-  it.fails(
-    'a taken address (another club’s editor) and a free one get the same answer',
-    async () => {
-      const asEditor = { overrideAccess: false as const, user: w.editorA }
-      const original = w.editorA.email
-      const tryEmail = (email: string) =>
-        statusOf(() =>
-          p.update({ collection: 'users', id: w.editorA.id, data: { email }, ...asEditor }),
-        )
+  // Fixed 23 Oct by sign-in audit A1: only a super-admin can change an account's email, so an
+  // editor gets the same answer (no change) for a taken address and a free one.
+  it('a taken address (another club’s editor) and a free one get the same answer', async () => {
+    const asEditor = { overrideAccess: false as const, user: w.editorA }
+    const original = w.editorA.email
+    const tryEmail = (email: string) =>
+      statusOf(() =>
+        p.update({ collection: 'users', id: w.editorA.id, data: { email }, ...asEditor }),
+      )
 
-      const taken = await tryEmail(w.editorB.email) // club B's editor
-      const free = await tryEmail('audit-a3-nobody@example.com')
-      // Put it back so the rest of this file sees the seeded account.
-      await p.update({ collection: 'users', id: w.editorA.id, data: { email: original } })
+    const taken = await tryEmail(w.editorB.email) // club B's editor
+    const free = await tryEmail('audit-a3-nobody@example.com')
+    // Put it back so the rest of this file sees the seeded account.
+    await p.update({ collection: 'users', id: w.editorA.id, data: { email: original } })
 
-      expect(taken).toBe(free)
-    },
-  )
+    expect(taken).toBe(free)
+  })
 })
 
 describe('A4 (low): a signed-in session can change the password without the current one', () => {
-  // NOT FIXED YET, and needs a decision from Dan (see the report). Remove `.fails` once changing
-  // your own password or email asks for the current password.
+  // ACCEPTED FOR V1 (Dan, 23 Oct 2026, with sign-in audit A2): the email half is fixed (only a
+  // super-admin can change it). Asking for the current password waits until before member
+  // logins or booking. Remove `.fails` when that's built.
   it.fails('an editor’s session alone can’t set a new password', async () => {
     const status = await statusOf(() =>
       p.update({

@@ -6,8 +6,10 @@ import { cache } from 'react'
 import { trackDbTiming } from '@/monitoring/trackDbTiming'
 import { addressCached } from './cache'
 
-import { canSeeDrafts } from './livePreviewAccess'
-import { type ClubSite, loadClubBySlug } from './loadClub'
+import { SLUG } from '@/fields/slug'
+
+import { canSeeDrafts, draftAccess } from './livePreviewAccess'
+import { type ClubSite, clubIDBySlug, loadClubBySlug } from './loadClub'
 import { siteBase, sitePreviewEnabled } from './preview'
 
 /**
@@ -98,8 +100,17 @@ export const siteFromDomain = cache(
  */
 export const siteFromPreview = cache(
   async (slug: string, live: unknown): Promise<ResolvedSite | null> => {
+    // Only names that could be a club's are looked up.
+    if (typeof slug !== 'string' || !SLUG.test(slug)) return null
     const open = sitePreviewEnabled()
-    if (!open && live !== '1') return null
+    if (!open) {
+      // Who's asking comes first, so someone who can't see this club's drafts gets the same
+      // answer, after the same work, whether or not the club exists (audit T2,
+      // docs/security/audit-tenancy.md).
+      const access = await draftAccess(live)
+      if (!access) return null
+      if (access !== 'every club' && (await clubIDBySlug(slug)) !== access.tenantID) return null
+    }
     await trackDbTiming()
     const club = await loadClubBySlug(slug)
     if (!club) return null

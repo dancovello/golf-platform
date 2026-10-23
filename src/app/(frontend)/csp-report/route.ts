@@ -17,10 +17,49 @@ export const dynamic = 'force-dynamic'
  * (src/security/rateLimit.ts), so it can't be used to flood the logs.
  */
 
+/** Line breaks and other control characters out, length capped: a sender can't write extra
+ * lines into the log or pad it (headers audit, finding 4). */
+const clean = (value: string, max: number) =>
+  value.replace(/[\u0000-\u001f\u007f-\u009f\u2028\u2029]+/g, ' ').slice(0, max)
+
+/** The policy's own directive names; anything else is logged as "unknown". */
+const DIRECTIVES = new Set([
+  'default-src',
+  'script-src',
+  'script-src-elem',
+  'script-src-attr',
+  'style-src',
+  'style-src-elem',
+  'style-src-attr',
+  'img-src',
+  'media-src',
+  'font-src',
+  'connect-src',
+  'frame-src',
+  'child-src',
+  'worker-src',
+  'manifest-src',
+  'object-src',
+  'base-uri',
+  'form-action',
+  'frame-ancestors',
+  'report-uri',
+  'report-to',
+  'sandbox',
+  'require-trusted-types-for',
+  'trusted-types',
+  'upgrade-insecure-requests',
+])
+const directiveOf = (value: unknown) => {
+  // Older browsers send the whole rule ("script-src 'self' …"): keep its name.
+  const name = typeof value === 'string' ? value.trim().split(/\s/)[0]?.toLowerCase() : ''
+  return name && DIRECTIVES.has(name) ? name : 'unknown'
+}
+
 const pathOf = (value: unknown) => {
   if (typeof value !== 'string') return null
   try {
-    return new URL(value).pathname
+    return clean(new URL(value).pathname, 200)
   } catch {
     return null
   }
@@ -28,9 +67,9 @@ const pathOf = (value: unknown) => {
 
 const originOf = (value: unknown) => {
   if (typeof value !== 'string') return null
-  if (!value.includes('://')) return value.slice(0, 40) // e.g. "inline", "eval"
+  if (!value.includes('://')) return clean(value, 40) // e.g. "inline", "eval"
   try {
-    return new URL(value).origin
+    return clean(new URL(value).origin, 200)
   } catch {
     return null
   }
@@ -67,8 +106,8 @@ export async function POST(request: Request) {
   for (const r of reportsIn(body).slice(0, 5)) {
     const summary = {
       page: pathOf(r['document-uri'] ?? r.documentURL),
-      directive: String(
-        r['effective-directive'] ?? r.effectiveDirective ?? r['violated-directive'] ?? '',
+      directive: directiveOf(
+        r['effective-directive'] ?? r.effectiveDirective ?? r['violated-directive'],
       ),
       blocked: originOf(r['blocked-uri'] ?? r.blockedURL),
       reportOnly: (r.disposition ?? '') === 'report',

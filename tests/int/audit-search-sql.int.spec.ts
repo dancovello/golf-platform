@@ -87,7 +87,7 @@ afterEach(() => {
 // ---------- Finding 1 (medium): "Did you mean" suggests words from scheduled news ----------
 
 describe('finding 1: "Did you mean" only uses words a visitor can already see', () => {
-  it.fails('never suggests a word that only appears in news scheduled for later', async () => {
+  it('never suggests a word that only appears in news scheduled for later', async () => {
     // The club has written, but not yet published, news about a merger.
     await payload.create({
       collection: 'news',
@@ -111,7 +111,7 @@ describe('finding 1: "Did you mean" only uses words a visitor can already see', 
 // ---------- Finding 2 (medium): one search can make the database read the club's text 8 times ----------
 
 describe('finding 2: a search that finds nothing costs about the same as one that does', () => {
-  it.fails('reads the club’s whole text at most once for "Did you mean"', async () => {
+  it('reads the club’s whole text at most once for "Did you mean"', async () => {
     await publishPage(
       w.clubA.id,
       'Practice ground',
@@ -140,7 +140,7 @@ describe('finding 3: the search rate limit holds for a visitor on IPv6', () => {
   const LIMIT: Limit = { name: 'audit-ipv6', max: 1, windowSeconds: 60 }
   const now = new Date('2026-10-22T10:00:10Z')
 
-  it.fails('counts addresses in the same IPv6 /64 network as one visitor', async () => {
+  it('counts addresses in the same IPv6 /64 network as one visitor', async () => {
     await db.execute(sql`DELETE FROM rate_limits WHERE key LIKE 'audit-ipv6:%'`)
     // A home or cloud connection is given a whole /64: these are the same visitor.
     expect(await allowRequest(db, LIMIT, '2001:db8:1234:5678::1', now)).toBe(true)
@@ -151,7 +151,7 @@ describe('finding 3: the search rate limit holds for a visitor on IPv6', () => {
 // ---------- Finding 4 (low): searches arriving together each rebuild the whole index ----------
 
 describe('finding 4: one rebuild after a change, however many searches arrive at once', () => {
-  it.fails('five searches at once after an edit rebuild the index once', async () => {
+  it('five searches at once after an edit rebuild the index once', async () => {
     await publishPage(w.clubA.id, 'Junior section', 'juniors', 'Coaching on Saturday mornings.')
     builder.calls = 0
     await Promise.all(Array.from({ length: 5 }, () => ensureFreshIndex(payload, w.clubA.id)))
@@ -162,7 +162,7 @@ describe('finding 4: one rebuild after a change, however many searches arrive at
 // ---------- Finding 5 (low): a slow rebuild can put back a page that was just unpublished ----------
 
 describe('finding 5: the index never goes back to an older version of the club', () => {
-  it.fails('a slower, older rebuild does not put back a page unpublished meanwhile', async () => {
+  it('a slower, older rebuild does not put back a page unpublished meanwhile', async () => {
     const page = await publishPage(
       w.clubA.id,
       'Kingfisher notice',

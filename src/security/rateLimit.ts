@@ -1,4 +1,5 @@
 import { createHmac } from 'node:crypto'
+import { isIPv6 } from 'node:net'
 
 import { sql } from '@payloadcms/db-postgres'
 import {
@@ -44,10 +45,53 @@ export type Limit = {
 
 /** Searches, from the results page and the header panel together (as before). */
 export const SEARCH_LIMIT: Limit = { name: 'search', max: 120, windowSeconds: 60 }
+/** Upload links, per signed-in account: well above a big bulk upload (uploads audit, finding 2). */
+export const UPLOAD_LINK_LIMIT: Limit = { name: 'upload-link', max: 100, windowSeconds: 60 * 60 }
+/** Contact form sends per visitor, before anything is saved (public forms audit, finding 1). */
+export const CONTACT_VISITOR_LIMIT: Limit = { name: 'contact', max: 5, windowSeconds: 10 * 60 }
+/** Contact form saves per club, counted in one step so a burst can't overshoot (finding 3).
+ * Matches HOURLY_LIMIT in src/site/contact/submit.ts. */
+export const CONTACT_CLUB_LIMIT: Limit = { name: 'contact-club', max: 20, windowSeconds: 60 * 60 }
+/** Contact alert emails per club per day: past this, messages are saved but not emailed, so
+ * one club can't use up the email allowance every club shares (finding 2). */
+export const CONTACT_ALERTS_PER_CLUB: Limit = {
+  name: 'contact-alert',
+  max: 25,
+  windowSeconds: 24 * 60 * 60,
+}
+/** Contact alert emails for all clubs together per day. Resend's free plan sends 100 a day in
+ * all; this keeps 30 free for password resets and invitations. Raise it on a paid plan. */
+export const CONTACT_ALERTS_ALL_CLUBS: Limit = {
+  name: 'contact-alert-all',
+  max: 70,
+  windowSeconds: 24 * 60 * 60,
+}
 /** Security policy reports, from all visitors together: they only go to the log. */
 export const CSP_REPORT_LIMIT: Limit = { name: 'csp-report', max: 60, windowSeconds: 60 }
 
 type Executor = { execute: (query: ReturnType<typeof sql>) => Promise<{ rows: unknown[] }> }
+
+/**
+ * The part of an address that identifies one visitor. An IPv6 home or cloud connection is given
+ * a whole /64 network and can use any address in it, so IPv6 addresses count by their first 64
+ * bits (search audit, finding 3). IPv4 and anything that isn't an address are unchanged.
+ */
+export const visitorNetwork = (address: string): string => {
+  const bare = address.replace(/^\[|\]$/g, '').split('%')[0]
+  if (!isIPv6(bare)) return address
+  const mapped = bare.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/i)
+  if (mapped) return mapped[1]
+  const [head, tail = ''] = bare.toLowerCase().split('::')
+  const left = head ? head.split(':') : []
+  const right = bare.includes('::') ? (tail ? tail.split(':') : []) : []
+  // An embedded IPv4 tail counts as two groups.
+  const groups = (parts: string[]) => parts.reduce((n, p) => n + (p.includes('.') ? 2 : 1), 0)
+  const full = [...left, ...Array(8 - groups(left) - groups(right)).fill('0'), ...right]
+  return `${full
+    .slice(0, 4)
+    .map((g) => g.replace(/^0+(?=.)/, ''))
+    .join(':')}::/64`
+}
 
 /** A visitor's key for today: never the address itself. */
 export const hashVisitor = (
@@ -56,7 +100,7 @@ export const hashVisitor = (
   secret = process.env.PAYLOAD_SECRET ?? '',
 ) =>
   createHmac('sha256', secret)
-    .update(`${now.toISOString().slice(0, 10)}|${address}`)
+    .update(`${now.toISOString().slice(0, 10)}|${visitorNetwork(address)}`)
     .digest('hex')
     .slice(0, 32)
 
@@ -85,9 +129,10 @@ export const allowRequest = async (
   return Number((rows[0] as { count?: number } | undefined)?.count ?? Infinity) <= limit.max
 }
 
-/** Counts older than a day are no use to any limit (the longest window is a minute). */
+/** Counts older than a day are no use to any limit (the longest window is a day). */
 export const deleteOldCounts = async (db: Executor, now = new Date()) => {
-  const cutoff = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString()
+  // Two days, so a day-long window is never cut short.
+  const cutoff = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString()
   const { rows } = await db.execute(
     sql`DELETE FROM rate_limits WHERE window_start < ${cutoff} RETURNING id`,
   )

@@ -5,9 +5,13 @@
  * don't block merging. When a fix lands, the test starts "failing" (the problem is gone):
  * change `it.fails` to `it` in the same pull request.
  */
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { createLocalReq, type PayloadRequest } from 'payload'
 import sharp from 'sharp'
 import { beforeAll, describe, expect, it } from 'vitest'
+
+import { cleanExistingPhotos } from '@/media/cleanExisting'
+import { mediaStorageSettings } from '@/media/storage'
 
 import { seedWorld, type World } from './helpers/seed'
 
@@ -63,10 +67,8 @@ describe('finding 1: photos keep their hidden location details', () => {
     await w.payload.delete({ collection: 'media', id: doc.id, overrideAccess: true })
   })
 
-  // OPEN FINDING (low): the original file is published as uploaded. Its public address is
-  // used on the site (hero, gallery), so anyone can read where a photo was taken and the
-  // name on the phone. Fix proposal in the report.
-  it.fails('the published original has no location or owner details', async () => {
+  // Finding 1 (low), fixed 23 Oct: the original used to be published exactly as uploaded.
+  it('the published original has no location or owner details', async () => {
     const doc = await w.payload.create({
       collection: 'media',
       data: { alt: 'audit', tenant: w.clubA.id },
@@ -74,6 +76,37 @@ describe('finding 1: photos keep their hidden location details', () => {
       ...asEditorA(),
     })
     try {
+      expect(await hiddenDetails(doc.url!)).toBe('')
+    } finally {
+      await w.payload.delete({ collection: 'media', id: doc.id, overrideAccess: true })
+    }
+  })
+})
+
+describe('finding 1: photos uploaded before the fix', () => {
+  it('the one-off clean-up removes the details from an older original', async () => {
+    const doc = await w.payload.create({
+      collection: 'media',
+      data: { alt: 'audit', tenant: w.clubA.id },
+      file: await phonePhoto(),
+      overrideAccess: true,
+    })
+    try {
+      // Put back an uncleaned original, as uploads before the fix were stored.
+      const { bucket, publicURL, config } = mediaStorageSettings()
+      const key = decodeURIComponent(doc.url!.slice(publicURL.length + 1))
+      const { data } = await phonePhoto()
+      await new S3Client(config).send(
+        new PutObjectCommand({ Bucket: bucket, Key: key, Body: data, ContentType: 'image/jpeg' }),
+      )
+      expect(await hiddenDetails(doc.url!)).toContain('Jane Member')
+
+      const dry = await cleanExistingPhotos(w.payload)
+      expect(dry.withDetails).toBeGreaterThanOrEqual(1)
+      expect(await hiddenDetails(doc.url!)).toContain('Jane Member')
+
+      const done = await cleanExistingPhotos(w.payload, { apply: true })
+      expect(done.failed).toEqual([])
       expect(await hiddenDetails(doc.url!)).toBe('')
     } finally {
       await w.payload.delete({ collection: 'media', id: doc.id, overrideAccess: true })
@@ -107,10 +140,8 @@ describe('finding 2: upload links have no limit', () => {
     expect(res.status).toBe(200)
   })
 
-  // OPEN FINDING (low): one editor account can ask for any number of 50 MB upload links. Each
-  // file lands in the public bucket and stays there until the nightly clean-up (production
-  // only; never on staging). 150 links in a row should hit a limit.
-  it.fails('an editor cannot get 150 upload links in a row', async () => {
+  // Finding 2 (low), fixed 23 Oct: one account used to get any number of 50 MB upload links.
+  it('an editor cannot get 150 upload links in a row', async () => {
     const statuses: number[] = []
     for (let i = 0; i < 150; i++) {
       const res = await askForLink({

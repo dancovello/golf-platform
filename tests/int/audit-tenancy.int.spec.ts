@@ -52,43 +52,41 @@ const inTransaction = async (
 }
 
 describe('audit T1: the cache is cleared before the save is committed', () => {
-  it.fails(
-    'T1: an address moved from club A to club B shows club B once the save is done',
-    async () => {
-      // A visitor has just looked at club A's second address, so it's cached.
-      expect((await findClubByHost('old-club-a.localhost'))?.slug).toBe(w.clubA.slug)
+  it('T1: an address moved from club A to club B shows club B once the save is done', async () => {
+    // A visitor has just looked at club A's second address, so it's cached.
+    expect((await findClubByHost('old-club-a.localhost'))?.slug).toBe(w.clubA.slug)
 
-      // The super-admin moves that address to club B (one save, one transaction).
-      const commit = await inTransaction(async (req) => {
-        await w.payload.update({
-          collection: 'tenants',
-          id: w.clubA.id,
-          data: { domains: [{ hostname: 'club-a.localhost' }] },
-          overrideAccess: true,
-          req,
-        })
-        await w.payload.update({
-          collection: 'tenants',
-          id: w.clubB.id,
-          data: {
-            domains: [{ hostname: 'club-b.localhost' }, { hostname: 'old-club-a.localhost' }],
-          },
-          overrideAccess: true,
-          req,
-        })
+    // The super-admin moves that address to club B (one save, one transaction).
+    const commit = await inTransaction(async (req) => {
+      await w.payload.update({
+        collection: 'tenants',
+        id: w.clubA.id,
+        data: { domains: [{ hostname: 'club-a.localhost' }] },
+        overrideAccess: true,
+        req,
       })
-      // The save hooks have already cleared the cache, but the database hasn't committed yet.
-      // A visitor arriving in this moment reads the old data, and it goes back into the cache.
-      await findClubByHost('old-club-a.localhost')
-      await commit()
+      await w.payload.update({
+        collection: 'tenants',
+        id: w.clubB.id,
+        data: {
+          domains: [{ hostname: 'club-b.localhost' }, { hostname: 'old-club-a.localhost' }],
+        },
+        overrideAccess: true,
+        req,
+      })
+    })
+    // The save hooks have already cleared the cache, but the database hasn't committed yet.
+    // A visitor arriving in this moment reads the old data, and it goes back into the cache.
+    await findClubByHost('old-club-a.localhost')
+    await commit()
+    cache.finishResponse() // the admin's save response is sent
 
-      // The address now belongs to club B, so its visitors should see club B.
-      // Today they keep getting club A's site for up to 5 minutes.
-      expect((await findClubByHost('old-club-a.localhost'))?.slug).toBe(w.clubB.slug)
-    },
-  )
+    // The address now belongs to club B, so its visitors should see club B.
+    // Today they keep getting club A's site for up to 5 minutes.
+    expect((await findClubByHost('old-club-a.localhost'))?.slug).toBe(w.clubB.slug)
+  })
 
-  it.fails('T1: a published change reaches visitors once the save is done', async () => {
+  it('T1: a published change reaches visitors once the save is done', async () => {
     expect((await loadClubPage(w.clubA.id, 'membership'))?.title).toBe(w.pageA.title)
 
     const commit = await inTransaction(async (req) => {
@@ -102,6 +100,7 @@ describe('audit T1: the cache is cleared before the save is committed', () => {
     })
     await loadClubPage(w.clubA.id, 'membership') // a visitor in the gap
     await commit()
+    cache.finishResponse()
 
     // Today visitors keep seeing the old version for up to an hour. The same applies to
     // unpublishing something posted by mistake.
@@ -115,22 +114,19 @@ describe("audit T2: the live preview loads a club before checking who's asking",
     expect(await siteFromPreview('no-such-club', '1')).toBeNull()
   })
 
-  it.fails(
-    'T2: an anonymous visitor causes the same work whether or not the club exists',
-    async () => {
-      await siteFromPreview('no-such-club', '1')
-      const missing = [...cache.calls]
-      cache.reset()
-      await siteFromPreview(String(w.clubB.slug), '1')
-      const real = [...cache.calls]
-      // Today a real club's short name loads its whole site (menus, settings, photos) before
-      // the sign-in check, and a made-up one doesn't: the difference in work (and response time)
-      // tells an outsider which short names exist.
-      expect(real).toEqual(missing)
-    },
-  )
+  it('T2: an anonymous visitor causes the same work whether or not the club exists', async () => {
+    await siteFromPreview('no-such-club', '1')
+    const missing = [...cache.calls]
+    cache.reset()
+    await siteFromPreview(String(w.clubB.slug), '1')
+    const real = [...cache.calls]
+    // Today a real club's short name loads its whole site (menus, settings, photos) before
+    // the sign-in check, and a made-up one doesn't: the difference in work (and response time)
+    // tells an outsider which short names exist.
+    expect(real).toEqual(missing)
+  })
 
-  it.fails("T2: club A's editor can't tell whether another club's short name exists", async () => {
+  it("T2: club A's editor can't tell whether another club's short name exists", async () => {
     const { token } = await w.payload.login({
       collection: 'users',
       data: { email: 'editor-a@example.com', password: PASSWORD },
@@ -147,7 +143,7 @@ describe("audit T2: the live preview loads a club before checking who's asking",
     expect(cache.calls).toEqual(missing)
   })
 
-  it.fails("T2: an anonymous visitor's live-preview request loads no club data", async () => {
+  it("T2: an anonymous visitor's live-preview request loads no club data", async () => {
     await siteFromPreview(String(w.clubB.slug), '1')
     expect(cache.calls).toEqual([])
   })

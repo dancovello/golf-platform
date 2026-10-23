@@ -5,7 +5,8 @@ import { expect, test } from './fixtures'
 // Club A uses no optional features. "Test Club Cookies" uses all of them, including Google
 // Analytics (tests/e2e/seed-world.ts).
 const plain = '/preview/test-club-a'
-const cookies = '/preview/test-club-cookies'
+// On the club's own address: previews never show the cookie banner (headers audit, finding 1).
+const cookies = 'http://club-cookies.localhost:3100'
 const GA = /googletagmanager\.com/
 
 const axe = async (page: import('@playwright/test').Page) =>

@@ -18,6 +18,10 @@ Two small findings, both **low**:
 
 Each finding has a test that proves it in `tests/int/audit-uploads.int.spec.ts`. The tests are marked `it.fails`, so they pass while the problem exists and don't block merging. When a fix lands, change `it.fails` to `it` in the same pull request.
 
+## Fixed on 23 October 2026
+
+Dan approved both fixes. Finding 1: Media and Marketing Media re-save every original (`resizeOptions`, `src/media/cleanOriginal.ts`), the admin asks editors to strip video location and document author details, and `pnpm clean-photo-details` cleans photos uploaded before the fix (production only with Dan's approval). Finding 2: 100 upload links an hour per account (`UPLOAD_LINK_LIMIT`).
+
 ## What I read
 
 - `src/media/folders.ts`, `measure.ts`, `storage.ts`, `uploadGuards.ts`

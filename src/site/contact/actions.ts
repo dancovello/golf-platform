@@ -4,6 +4,9 @@ import { headers } from 'next/headers'
 import { after } from 'next/server'
 import { notFound } from 'next/navigation'
 
+import { withinLimit } from '@/security/limitRequest'
+import { CONTACT_VISITOR_LIMIT } from '@/security/rateLimit'
+
 import { sitePreviewEnabled } from '../preview'
 import { CLUB_HOST_HEADER, siteFromDomain } from '../resolveSite'
 import { sendEnquiryAlert } from './alert'
@@ -20,7 +23,8 @@ export async function sendEnquiry(
   prev: ContactState,
   form: FormData,
 ): Promise<ContactState> {
-  const host = (await headers()).get(CLUB_HOST_HEADER)
+  const requestHeaders = await headers()
+  const host = requestHeaders.get(CLUB_HOST_HEADER)
   let club: string | { slug: string; base: string }
   if (host) {
     const site = await siteFromDomain(host)
@@ -33,5 +37,11 @@ export async function sendEnquiry(
   // The club's email alert goes after the visitor has their answer, so a slow or failed
   // email never holds up or breaks the form (the message is already saved either way).
   const onSaved = (id: string) => after(() => sendEnquiryAlert(id).then(() => undefined))
-  return (await submitEnquiry(club, prev, form, new Date(), onSaved)) ?? notFound()
+  // At most 5 sends per visitor in 10 minutes, so one visitor can't use up the club's hourly
+  // allowance (public forms audit, finding 1). Checked here rather than by the address the form
+  // was posted to: a server action runs from any page address.
+  const visitorAllowed = () => withinLimit(CONTACT_VISITOR_LIMIT, requestHeaders)
+  return (
+    (await submitEnquiry(club, prev, form, new Date(), onSaved, { visitorAllowed })) ?? notFound()
+  )
 }

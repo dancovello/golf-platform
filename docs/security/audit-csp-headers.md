@@ -143,6 +143,12 @@ Run locally on 22 October 2026 against a production build (`corepack pnpm build`
 - `corepack pnpm typecheck` ✅, ESLint and Prettier on the new test files ✅.
 - Not run: the full `corepack pnpm test` integration suite and the full browser suite. Nothing outside the tests and this report changed.
 
+## Fixed on 23 October 2026
+
+Dan approved the fixes. Done: finding 1 step 1 (no cookie banner or Google Analytics on previews; the analytics browser tests moved to the club's own test address `club-cookies.localhost`), finding 3 (a new enforced `platform` policy for every other page on the platform's address), finding 4 (logged values cleaned of control characters and capped; only known directive names), finding 5 (`Cross-Origin-Opener-Policy: same-origin` on every page of the platform's address, previews included, so the live preview's pop-out still works).
+
+Still open: finding 1 step 2 (previews on their own address) needs the platform domain and its own plan. Finding 2 is due on 28 October: judge the clean week on the reports from Dan's own browser, not only the log, because anyone can send reports.
+
 ## Next step
 
 No fix pull requests are open yet. CLAUDE.md asks for a plan and Dan's approval first, and each PR costs CI minutes. Suggested order once approved: finding 1 step 1 (no analytics on previews), then 4, 3 and 5 together (one small headers PR), then finding 2 on 28 October. Finding 1 step 2 (separate preview address) needs its own plan.

@@ -14,7 +14,10 @@
  * Kept free of imports so the proxy can use it without loading Payload.
  */
 
-export type PolicyKind = 'site' | 'admin' | 'marketing'
+/** 'platform': every other page on the platform's own address (the API, /health, the
+ * "accounts are made by the administrator" page). Enforced, with no club extras (headers audit,
+ * finding 3). */
+export type PolicyKind = 'site' | 'admin' | 'marketing' | 'platform'
 
 /** Flip to true once the admin's reports have been clean for a week. */
 export const ADMIN_ENFORCED = false
@@ -67,7 +70,7 @@ export const buildPolicy = (kind: PolicyKind, nonce: string, env: Env = process.
   const storage = kind === 'admin' ? originOf(env.MEDIA_S3_ENDPOINT) : null
   const extra = (list: string[]) => (toolbar ? list : [])
   // Club sites and the admin (which previews them) use these; the marketing site doesn't yet.
-  const club = (list: string[]) => (kind === 'marketing' ? [] : list)
+  const club = (list: string[]) => (kind === 'marketing' || kind === 'platform' ? [] : list)
 
   const directives: Record<string, (string | null)[]> = {
     'default-src': ["'self'"],

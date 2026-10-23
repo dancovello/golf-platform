@@ -21,6 +21,10 @@ There are four smaller findings:
 
 Each finding has a test in `tests/int/audit-access-rules.int.spec.ts`. The tests are marked `it.fails`, so CI stays green until each one is fixed (see the end of this report). I haven't fixed anything.
 
+## Fixed on 23 October 2026
+
+Dan approved the fixes. A1: `marketing-pages` has a super-admin-only `readVersions` rule. A2: both access guards check `readVersions` on every collection with a history. A3: closed by the sign-in audit's A1 fix (only a super-admin can change an account's email, option 1). A4: the email half is closed the same way; asking for the current password is **accepted for v1** (as sign-in audit A2) and revisited before member logins or booking.
+
 ## Findings
 
 ### A1 (medium): club editors can read the company website's drafts

@@ -7,6 +7,7 @@ Every public endpoint has a limit, at two layers (doc 04 §8): **the app** and *
 ## What changed on 22 Oct
 
 - **Search and the security-report address used to count in each server's memory.** With more than one Vercel server running, the real limit was the limit times the number of servers. They now count in one database table every server shares (`rate_limits`, `src/security/rateLimit.ts`), so a limit is a limit.
+- **IPv6 visitors count by network (added 23 Oct).** An IPv6 connection gets a whole /64 network, so every limit counts its first 64 bits, not each address.
 - **No IP addresses are stored.** A visitor is a keyed hash of their address and the date, which changes every day and can't be turned back into an address. The nightly clean-up deletes counts older than a day.
 - **`TRUSTED_PROXY` stays unset.** It's only for a Cloudflare proxy in front of the site, which we don't have. A test proves a made-up `cf-connecting-ip` is ignored.
 
@@ -18,9 +19,10 @@ Every public endpoint has a limit, at two layers (doc 04 §8): **the app** and *
 - At the limit, the panel gets a 429 ("busy") and the results page asks the visitor to wait.
 
 **Contact form** (server action, `src/site/contact/actions.ts`)
-- 20 messages an hour per club, plus a hidden spam trap, too-fast sends dropped, and Cloudflare Turnstile.
-- Enforced in the app (counted from the database, so already shared) and by Vercel Firewall rule 3.
-- The per-club limit is unchanged: it already counted in the database.
+- 5 sends per visitor in 10 minutes (added 23 Oct). Checked in the app, because the form's send works from any page address, so Firewall rule 3 (paths ending `/contact`) alone can be got round.
+- 20 messages an hour per club, counted in one step so a burst can't overshoot, plus a hidden spam trap, too-fast sends dropped, and Cloudflare Turnstile.
+- Alert emails: at most 25 per club and 70 for all clubs together per day, keeping 30 of Resend's 100 free daily emails for password resets and invitations. Past that, messages are saved but not emailed.
+- Enforced in the app (shared database) and by Vercel Firewall rule 3.
 
 **Security-report address** (`/csp-report`)
 - 60 reports a minute from everyone together. Extra reports are dropped quietly.
@@ -54,7 +56,11 @@ Every public endpoint has a limit, at two layers (doc 04 §8): **the app** and *
 - Doesn't exist without Vercel's scheduler secret.
 - Enforced by a code check.
 
-**Admin screens, the API, uploads, the job queue, demo club, starter pages, review pages**
+**Upload links** (`POST /api/storage-s3-generate-signed-url`)
+- 100 an hour per signed-in account (added 23 Oct, uploads audit finding 2). Past that: "Too many uploads, try again later."
+- Enforced in the app (shared database).
+
+**Admin screens, the API, other uploads, the job queue, demo club, starter pages, review pages**
 - Need a signed-in account, and some need the super-admin.
 - Enforced by Payload access rules and code checks.
 

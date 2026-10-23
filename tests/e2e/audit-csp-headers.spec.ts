@@ -25,11 +25,11 @@ test.fail(
   },
 )
 
-test.fail('Google Analytics never loads on the admin’s own address', async ({ page }) => {
+// Step 1 of the fix (23 Oct): no cookie banner or Google Analytics on previews. Step 2 (previews
+// on their own address) is a planned change, so the test above stays a known failure.
+test('Google Analytics never loads on the admin’s own address', async ({ page }) => {
   await openReady(page, '/preview/test-club-cookies')
-  await page.getByRole('button', { name: 'Accept analytics cookies' }).click()
-  await page.waitForTimeout(500)
-  // Today: Google's script is added to the page, on the same address as the admin.
+  await expect(page.getByRole('button', { name: 'Accept analytics cookies' })).toHaveCount(0)
   expect(await page.locator('script#club-ga').count()).toBe(0)
 })
 
@@ -42,17 +42,16 @@ test.fail('the admin’s policy is enforced', async ({ request }) => {
 
 // Finding 3 (low). Pages on the platform's own address outside /admin and /preview get only
 // the basic policy, which says nothing about scripts.
-test.fail(
-  'the “accounts are made by the administrator” page has a script policy',
-  async ({ request }) => {
-    const headers = (await request.get('/accounts-by-administrator')).headers()
-    expect(headers['content-security-policy'] ?? '').toContain('script-src')
-  },
-)
+test('the “accounts are made by the administrator” page has a script policy', async ({
+  request,
+}) => {
+  const headers = (await request.get('/accounts-by-administrator')).headers()
+  expect(headers['content-security-policy'] ?? '').toContain('script-src')
+})
 
 // Finding 5 (low). No Cross-Origin-Opener-Policy: another website that opens the admin in a
 // new window keeps a handle on it (it can send it elsewhere, or count its frames).
-test.fail('the admin cuts its ties to the window that opened it', async ({ request }) => {
+test('the admin cuts its ties to the window that opened it', async ({ request }) => {
   const headers = (await request.get('/admin/login')).headers()
   expect(headers['cross-origin-opener-policy']).toBe('same-origin')
 })
