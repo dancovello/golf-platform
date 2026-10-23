@@ -21,6 +21,7 @@ import { MEDIA_TYPES } from './collections/Media'
 import { MARKETING_MEDIA_TYPES } from './marketing/collections/MarketingMedia'
 import { guardBrowserUploads } from './media/uploadGuards'
 import { mediaStorageSettings } from './media/storage'
+import { trustedOrigins } from './auth/trustedOrigins'
 import { jobs } from './privacy/jobs'
 import { addSearchTables } from './search/schema'
 import { addRateLimitTable } from './security/rateLimitSchema'
@@ -44,6 +45,10 @@ const requireEnv = (name: string): string => {
 if (!/^[0-9a-f]{64}$/i.test(process.env.TOTP_ENCRYPTION_KEY ?? '')) {
   throw new Error('TOTP_ENCRYPTION_KEY must be 64 hex characters (openssl rand -hex 32)')
 }
+
+/** The one answer to a refused sign-in, whatever the reason. */
+const SIGN_IN_REFUSED =
+  'The email or password is incorrect, or there have been too many attempts. If you are sure they are right, wait 10 minutes and try again.'
 
 export default buildConfig({
   admin: {
@@ -79,6 +84,20 @@ export default buildConfig({
     disable: true,
   },
   secret: requireEnv('PAYLOAD_SECRET'),
+  // The login cookie counts only on requests from the admin's own addresses (sign-in audit, A5).
+  csrf: trustedOrigins(),
+  i18n: {
+    translations: {
+      en: {
+        // A locked account answers exactly like a wrong password or an address with no account,
+        // so the lockout doesn't tell a stranger which emails have accounts (sign-in audit, A4).
+        error: {
+          emailOrPasswordIncorrect: SIGN_IN_REFUSED,
+          userLocked: SIGN_IN_REFUSED,
+        },
+      },
+    },
+  },
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },

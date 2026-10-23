@@ -117,8 +117,9 @@ describe('every collection in the running config has reviewed access rules', () 
     const yes: string[] = []
     for (const c of (await config).collections) {
       if (!collections.some((o) => o.slug === c.slug)) continue
-      for (const op of OPERATIONS)
-        if ((await call(c.access[op])) === true) yes.push(`${c.slug}.${op}`)
+      // Version history too, where there is one (access audit, A2).
+      const ops = c.versions ? [...OPERATIONS, 'readVersions' as const] : OPERATIONS
+      for (const op of ops) if ((await call(c.access[op])) === true) yes.push(`${c.slug}.${op}`)
     }
     expect(yes).toEqual([])
   })
