@@ -76,6 +76,23 @@ export const MarketingSettings: GlobalConfig = {
       ],
     },
     {
+      name: 'requests',
+      label: 'Requests',
+      type: 'group',
+      admin: {
+        description:
+          'Where requests from the website are emailed. Without an address they are still saved under Homepage requests.',
+      },
+      fields: [
+        {
+          name: 'inbox',
+          label: 'Email requests to',
+          type: 'email',
+          admin: { description: 'Replying to a request’s email answers the club directly.' },
+        },
+      ],
+    },
+    {
       name: 'trust',
       label: 'Trust and security',
       type: 'group',

@@ -21,9 +21,12 @@ export const DemoFrame = ({
   club,
   label,
   height,
+  path = '',
   children,
 }: {
   club: DemoClub
+  /** A page on the club's site, shown in the address bar, e.g. "/the-course". */
+  path?: string
   /** What the demo shows, read out instead of the block, e.g. "Ashgrove Park's home page". */
   label: string
   height?: number
@@ -35,7 +38,7 @@ export const DemoFrame = ({
   } as CSSProperties
   return (
     <figure className="mk-demo" aria-label={`Demo club: ${label}`} data-club={club.id}>
-      <BrowserChrome address={club.domain} />
+      <BrowserChrome address={`${club.domain}${path}`} />
       <DemoScaler height={height}>
         <div className="club-theme mk-demo-club" style={theme} inert aria-hidden="true">
           {children}

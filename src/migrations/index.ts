@@ -48,6 +48,11 @@ import * as migration_20261021_154303_marketing_content from './20261021_154303_
 import * as migration_20261021_160708_marketing_blocks_from_figma from './20261021_160708_marketing_blocks_from_figma';
 import * as migration_20261021_163953_marketing_founder_card from './20261021_163953_marketing_founder_card';
 import * as migration_20261021_170032_marketing_home_blocks from './20261021_170032_marketing_home_blocks';
+import * as migration_20261021_171424_marketing_pricing_blocks from './20261021_171424_marketing_pricing_blocks';
+import * as migration_20261021_173753_marketing_switching from './20261021_173753_marketing_switching';
+import * as migration_20261021_175055_marketing_book_demo from './20261021_175055_marketing_book_demo';
+import * as migration_20261021_214128_marketing_website_builder from './20261021_214128_marketing_website_builder';
+import * as migration_20261021_215842_marketing_bookings_preview from './20261021_215842_marketing_bookings_preview';
 
 export const migrations = [
   {
@@ -298,6 +303,31 @@ export const migrations = [
   {
     up: migration_20261021_170032_marketing_home_blocks.up,
     down: migration_20261021_170032_marketing_home_blocks.down,
-    name: '20261021_170032_marketing_home_blocks'
+    name: '20261021_170032_marketing_home_blocks',
+  },
+  {
+    up: migration_20261021_171424_marketing_pricing_blocks.up,
+    down: migration_20261021_171424_marketing_pricing_blocks.down,
+    name: '20261021_171424_marketing_pricing_blocks',
+  },
+  {
+    up: migration_20261021_173753_marketing_switching.up,
+    down: migration_20261021_173753_marketing_switching.down,
+    name: '20261021_173753_marketing_switching',
+  },
+  {
+    up: migration_20261021_175055_marketing_book_demo.up,
+    down: migration_20261021_175055_marketing_book_demo.down,
+    name: '20261021_175055_marketing_book_demo',
+  },
+  {
+    up: migration_20261021_214128_marketing_website_builder.up,
+    down: migration_20261021_214128_marketing_website_builder.down,
+    name: '20261021_214128_marketing_website_builder',
+  },
+  {
+    up: migration_20261021_215842_marketing_bookings_preview.up,
+    down: migration_20261021_215842_marketing_bookings_preview.down,
+    name: '20261021_215842_marketing_bookings_preview'
   },
 ];

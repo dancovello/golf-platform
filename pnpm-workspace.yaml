@@ -9,7 +9,7 @@ overrides:
   # Remove once Payload ships with undici >=7.29.1.
   undici: 7.29.1
   # Pulled in by the admin's code editor (via @payloadcms/ui). Patch release with security fixes.
-  dompurify: 3.4.16
+  dompurify: 3.4.17
 
 auditConfig:
   ignoreGhsas:

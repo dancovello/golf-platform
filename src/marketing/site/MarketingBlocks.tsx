@@ -4,13 +4,18 @@ import { BRAND } from '@/brand'
 import type { MarketingMedia, MarketingPage } from '@/payload-types'
 import { Photo } from '@/site/blocks/parts'
 
+import { DemoIntro } from './booking/BookingBlocks'
+import { BookingDemo } from './bookings/BookingsBlocks'
+import { BuilderHero, LiveDemo } from './builder/BuilderBlocks'
 import { FounderCard } from './FounderCard'
 import { Compare, ContentMoves, HomeHero, ProofStats } from './home/HomeBlocks'
 import { EditLive } from './home/EditLive'
 import { Week } from './home/Week'
 import { MarketingIcon } from './MarketingIcon'
+import { Faq, Filled, Pricing } from './pricing/PricingBlocks'
 import { MarketingRichText } from './MarketingRichText'
 import { AvailabilityBadge, BrowserChrome, MarketingButton, marketingPhoto } from './parts'
+import { DemoExample, Migration, RequestHero } from './switching/SwitchingBlocks'
 
 type Block = NonNullable<MarketingPage['layout']>[number]
 type Header = Extract<Block, { blockType: 'mkSectionHeader' }>
@@ -29,7 +34,12 @@ const toSections = (blocks: Block[]): Block[][] => {
       block.blockType === 'mkSectionHeader' ||
       block.blockType === 'mkCtaBand' ||
       block.blockType === 'mkHomeHero' ||
+      block.blockType === 'mkRequestHero' ||
+      block.blockType === 'mkDemoIntro' ||
+      block.blockType === 'mkBuilderHero' ||
       block.blockType === 'mkFounder' ||
+      // Questions carry their own compact header and sit in their own section (185:3944).
+      block.blockType === 'mkFaq' ||
       sections.at(-1)?.at(-1)?.blockType === 'mkCtaBand'
     if (startsNew || sections.length === 0) sections.push([block])
     else sections.at(-1)!.push(block)
@@ -50,7 +60,11 @@ export const SectionHeader = ({
     <header className={`mk-header mk-header--${size} mk-header--${block.align ?? 'left'}`}>
       {block.eyebrow ? <p className="mk-eyebrow">{block.eyebrow}</p> : null}
       <Heading className="mk-header-title">{block.title}</Heading>
-      {block.subhead ? <p className="mk-header-body">{block.subhead}</p> : null}
+      {block.subhead ? (
+        <p className="mk-header-body">
+          <Filled text={block.subhead} />
+        </p>
+      ) : null}
     </header>
   )
 }
@@ -66,7 +80,11 @@ export const CtaBand = ({
   return (
     <div className="mk-cta">
       <h2 className="mk-cta-title">{block.title}</h2>
-      {block.subhead ? <p className="mk-cta-body">{block.subhead}</p> : null}
+      {block.subhead ? (
+        <p className="mk-cta-body">
+          <Filled text={block.subhead} />
+        </p>
+      ) : null}
       {primary || secondary ? (
         <div className="mk-cta-actions">
           {primary ? (
@@ -159,7 +177,11 @@ const FeatureCards = ({ block }: { block: Features }) => {
   )
 }
 
-const drawBlock = (block: Block, isFirstHeader: boolean): ReactNode => {
+const drawBlock = (
+  block: Block,
+  isFirstHeader: boolean,
+  page: { onBookingPage: boolean },
+): ReactNode => {
   switch (block.blockType) {
     case 'mkSectionHeader':
       return <SectionHeader block={block} size={isFirstHeader ? 'page' : 'section'} />
@@ -188,7 +210,25 @@ const drawBlock = (block: Block, isFirstHeader: boolean): ReactNode => {
     case 'mkContentMoves':
       return <ContentMoves block={block} />
     case 'mkFounder':
-      return <FounderCard />
+      return <FounderCard message={block.message} onBookingPage={page.onBookingPage} />
+    case 'mkPricing':
+      return <Pricing block={block} />
+    case 'mkFaq':
+      return <Faq block={block} />
+    case 'mkRequestHero':
+      return <RequestHero block={block} />
+    case 'mkDemoExample':
+      return <DemoExample block={block} />
+    case 'mkMigration':
+      return <Migration block={block} />
+    case 'mkDemoIntro':
+      return <DemoIntro block={block} />
+    case 'mkBuilderHero':
+      return <BuilderHero block={block} />
+    case 'mkLiveDemo':
+      return <LiveDemo block={block} />
+    case 'mkBookingDemo':
+      return <BookingDemo block={block} />
     default:
       return null
   }
@@ -201,11 +241,13 @@ const kindOf = (section: Block[]) =>
 
 /** Draws a marketing page's sections: 1200px container, hairline between sections. */
 export const MarketingBlocks = ({ blocks }: { blocks: Block[] }) => {
-  // The page's one H1: the home hero if there is one, otherwise the first Section Header.
-  const hasHomeHero = blocks.some((b) => b.blockType === 'mkHomeHero')
-  const firstHeader = hasHomeHero
-    ? undefined
-    : blocks.find((b) => b.blockType === 'mkSectionHeader')
+  // The page's one H1: a page intro block (home hero, Switching or Book a demo) if there is
+  // one, otherwise the first Section Header.
+  const hasOwnH1 = blocks.some((b) =>
+    ['mkHomeHero', 'mkRequestHero', 'mkDemoIntro', 'mkBuilderHero'].includes(b.blockType),
+  )
+  const onBookingPage = blocks.some((b) => b.blockType === 'mkDemoIntro')
+  const firstHeader = hasOwnH1 ? undefined : blocks.find((b) => b.blockType === 'mkSectionHeader')
   return (
     <>
       {toSections(blocks).map((section, i) => (
@@ -216,7 +258,9 @@ export const MarketingBlocks = ({ blocks }: { blocks: Block[] }) => {
         >
           <div className="mk-container mk-stack">
             {section.map((block, j) => (
-              <Fragment key={block.id ?? j}>{drawBlock(block, block === firstHeader)}</Fragment>
+              <Fragment key={block.id ?? j}>
+                {drawBlock(block, block === firstHeader, { onBookingPage })}
+              </Fragment>
             ))}
           </div>
         </section>

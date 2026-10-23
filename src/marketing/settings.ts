@@ -8,6 +8,6 @@ export const marketingSettings = cache(async () => {
   return payload.findGlobal({ slug: 'marketing-settings', depth: 1, overrideAccess: true })
 })
 
-/** "£149" from the settings' monthly price. */
+/** "£149" from the settings' monthly price (two decimals only when there are pence). */
 export const formatPrice = (pounds: number) =>
   `£${Number.isInteger(pounds) ? pounds : pounds.toFixed(2)}`

@@ -8,8 +8,8 @@
  * - The admin (/admin): report-only until a clean week of reports, then enforced (a one-line
  *   change: ADMIN_ENFORCED below).
  * - The company's marketing site: enforced, and without the club-only extras (the map, Google
- *   Analytics, the contact form's spam check). Each is added back only when a marketing page
- *   needs it.
+ *   Analytics). Each is added back only when a marketing page needs it. It has Cloudflare's
+ *   spam check, for the homepage request form (Switching page).
  *
  * Kept free of imports so the proxy can use it without loading Payload.
  */
@@ -76,7 +76,8 @@ export const buildPolicy = (kind: PolicyKind, nonce: string, env: Env = process.
       `'nonce-${nonce}'`,
       "'strict-dynamic'",
       // Ignored by browsers that understand 'strict-dynamic'; kept for older ones.
-      ...club([TURNSTILE, ...GOOGLE_ANALYTICS]),
+      TURNSTILE,
+      ...club(GOOGLE_ANALYTICS),
       ...extra(VERCEL_TOOLBAR.script),
       // React needs eval only in development, for its error overlays.
       ...(dev ? ["'unsafe-eval'"] : []),
@@ -96,14 +97,15 @@ export const buildPolicy = (kind: PolicyKind, nonce: string, env: Env = process.
     'font-src': ["'self'", 'data:', ...extra(VERCEL_TOOLBAR.font)],
     'connect-src': [
       "'self'",
-      ...club([TURNSTILE, ...GOOGLE_ANALYTICS]),
+      TURNSTILE,
+      ...club(GOOGLE_ANALYTICS),
       storage,
       ...extra(VERCEL_TOOLBAR.connect),
       // Next's live reload in development.
       ...(dev ? ['ws:'] : []),
     ],
     // The admin's live preview frames the club's page on the same address.
-    'frame-src': ["'self'", ...club([TURNSTILE, OPENSTREETMAP]), ...extra(VERCEL_TOOLBAR.frame)],
+    'frame-src': ["'self'", TURNSTILE, ...club([OPENSTREETMAP]), ...extra(VERCEL_TOOLBAR.frame)],
     'worker-src': ["'self'", 'blob:'],
     'object-src': ["'none'"],
     'base-uri': ["'self'"],

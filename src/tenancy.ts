@@ -29,6 +29,7 @@ export const platformCollections = [
   'tenants',
   'marketing-pages',
   'marketing-media',
+  'homepage-requests',
 ] as const
 
 export type ClubOwnedSlug = keyof typeof clubOwnedCollections

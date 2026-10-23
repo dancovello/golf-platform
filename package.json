@@ -23,7 +23,8 @@
     "vercel-build": "sh ./scripts/vercel-build.sh",
     "create-super-admin": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/create-super-admin.ts",
     "test:isolation": "cross-env NODE_ENV=test NODE_OPTIONS=--no-deprecation payload migrate && cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts tests/int/isolation.int.spec.ts tests/int/accounts.int.spec.ts tests/int/config-access.int.spec.ts tests/int/isolation-manifest.int.spec.ts tests/unit/tenancy-guard.spec.ts tests/unit/access-guard.spec.ts tests/unit/override-allowlist.spec.ts tests/unit/raw-sql.spec.ts",
-    "reset-two-factor": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/reset-two-factor.ts"
+    "reset-two-factor": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/reset-two-factor.ts",
+    "measure-speed": "node scripts/measure-speed.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1149.0",
@@ -39,7 +40,7 @@
     "@sentry/nextjs": "11.4.0",
     "cross-env": "7.0.3",
     "graphql": "16.14.2",
-    "next": "16.3.8",
+    "next": "16.4.2",
     "payload": "3.90.2",
     "payload-totp": "3.0.6",
     "react": "19.3.1",
@@ -54,7 +55,7 @@
     "@types/react-dom": "19.3.0",
     "dotenv": "16.4.7",
     "eslint": "9.39.5",
-    "eslint-config-next": "16.4.0",
+    "eslint-config-next": "16.4.2",
     "otpauth": "9.5.2",
     "prettier": "3.9.10",
     "typescript": "5.9.3",

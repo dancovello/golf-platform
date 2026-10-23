@@ -5,12 +5,14 @@ import { folderPattern } from '../media/folders'
 import { mediaStorageSettings } from '../media/storage'
 
 /**
- * The nightly clean-up (plan part D, 2026-10-20). It keeps two promises:
+ * The nightly clean-up (plan part D, 2026-10-20). It keeps three promises:
  *
  * 1. **Enquiries** are deleted 12 months after they're marked handled, or 12 months after
  *    they arrived if nobody ever marked them (Dan chose this, option a). The privacy policy
  *    says so (src/site/privacy/policy.ts, RETENTION.enquiries).
- * 2. **Uploads that never became a photo or document** (the browser uploaded the file, then
+ * 2. **Homepage requests** from the company website are deleted 12 months after the last
+ *    contact (decision F).
+ * 3. **Uploads that never became a photo or document** (the browser uploaded the file, then
  *    Payload's content check refused the record) are removed from storage after a day.
  *
  * Run by the Payload job queue (src/payload.config.ts, task "cleanUp"), started daily by
@@ -52,6 +54,26 @@ export const enquiriesDue = (now: Date): Where => {
       { and: [{ status: { not_equals: 'handled' } }, { createdAt: { less_than: cutoff } }] },
     ],
   }
+}
+
+/** Homepage requests are kept 12 months after the last contact (decision F, 21 October 2026):
+ * the last change to the request, so marking it sent or adding a note restarts the clock. */
+export const HOMEPAGE_REQUEST_MONTHS = 12
+
+export const deleteOldHomepageRequests = async (payload: Payload, now = new Date()) => {
+  const result = await payload.delete({
+    collection: 'homepage-requests',
+    where: { updatedAt: { less_than: monthsBefore(now, HOMEPAGE_REQUEST_MONTHS) } },
+    overrideAccess: true,
+    depth: 0,
+  })
+  if (result.errors.length) {
+    payload.logger.error(
+      { errors: result.errors },
+      'Clean-up: some homepage requests could not be deleted',
+    )
+  }
+  return result.docs.length
 }
 
 export const deleteOldEnquiries = async (payload: Payload, now = new Date()) => {
@@ -138,7 +160,7 @@ export const deleteOrphanUploads = async (
 }
 
 /**
- * Both clean-ups. Unused files are only removed on production: staging shares its storage with
+ * All three clean-ups. Unused files are only removed on production: staging shares its storage with
  * pull-request previews, whose files belong to other databases (decisions.md, 11 October).
  */
 export const runCleanUp = async (
@@ -146,9 +168,10 @@ export const runCleanUp = async (
   { now = new Date(), files = process.env.VERCEL_ENV === 'production' } = {},
 ) => {
   const enquiries = await deleteOldEnquiries(payload, now)
+  const homepageRequests = await deleteOldHomepageRequests(payload, now)
   const uploads = files ? await deleteOrphanUploads(payload, now) : null
   payload.logger.info(
-    `Clean-up: deleted ${enquiries} enquiries${uploads ? `, removed ${uploads.removed} unused files` : ''}`,
+    `Clean-up: deleted ${enquiries} enquiries, ${homepageRequests} homepage requests${uploads ? `, removed ${uploads.removed} unused files` : ''}`,
   )
-  return { enquiries, uploads }
+  return { enquiries, homepageRequests, uploads }
 }

@@ -1,52 +1,26 @@
-import type { Block, Field } from 'payload'
+import type { Block } from 'payload'
 
-import { maxWords, marketingHref } from './fields'
+import { button, marketingHref, maxWords, noTypedPrices, TOKEN_HELP } from './fields'
+import { bookingBlocks } from './bookingBlocks'
+import { bookingsBlocks } from './bookingsBlocks'
+import { builderBlocks } from './builderBlocks'
 import { FEATURE_ICONS } from './icons'
 import { homeBlocks } from './homeBlocks'
+import { pricingBlocks } from './pricingBlocks'
+import { switchingBlocks } from './switchingBlocks'
 import { marketingRichText } from './richText'
+
+/** Short body copy: under thirty words, and prices only as {price}. */
+const shortBody = (value: unknown) => {
+  const prices = noTypedPrices(value)
+  return prices === true ? maxWords(30)(value, {} as never) : prices
+}
 
 /**
  * The marketing site's CMS blocks, built from the Figma section "Marketing · Blocks (CMS)"
  * (210:7925) and its rules (212:8319): editors fill in fields; the blocks decide how it looks.
  * Each block's fields follow its Figma component description.
  */
-
-/** A button: label and where it goes (Figma Marketing/Button, exposed on Block/CTA Band). */
-const button = (
-  name: string,
-  label: string,
-  defaults: { label: string; href: string },
-  description?: string,
-): Field => ({
-  name,
-  label,
-  type: 'group',
-  admin: description ? { description } : {},
-  fields: [
-    {
-      type: 'row',
-      fields: [
-        {
-          name: 'label',
-          label: 'Button text',
-          type: 'text',
-          maxLength: 30,
-          defaultValue: defaults.label,
-          validate: maxWords(4),
-        },
-        {
-          name: 'href',
-          label: 'Goes to',
-          type: 'text',
-          maxLength: 300,
-          defaultValue: defaults.href,
-          validate: marketingHref,
-          admin: { description: 'A page on this site, like /pricing, or a full web address.' },
-        },
-      ],
-    },
-  ],
-})
 
 // Block/Section Header (210:7950): "The only way to put a heading on a page… CMS fields:
 // eyebrow (optional), title (plain text, line breaks allowed), body (optional, ≤30 words),
@@ -78,8 +52,10 @@ const sectionHeader: Block = {
       label: 'Body (optional)',
       type: 'textarea',
       maxLength: 240,
-      validate: maxWords(30),
-      admin: { description: 'One or two sentences that back the title up. Under thirty words.' },
+      validate: shortBody,
+      admin: {
+        description: `One or two sentences that back the title up. Under thirty words. ${TOKEN_HELP}`,
+      },
     },
     {
       name: 'align',
@@ -117,7 +93,8 @@ const ctaBand: Block = {
       label: 'Body (optional)',
       type: 'textarea',
       maxLength: 240,
-      validate: maxWords(30),
+      validate: shortBody,
+      admin: { description: TOKEN_HELP },
     },
     button('primary', 'Main button', { label: 'Book a demo', href: '/book-a-demo' }),
     button(
@@ -306,4 +283,9 @@ export const marketingBlocks: Block[] = [
   featureCards,
   ctaBand,
   ...homeBlocks,
+  ...pricingBlocks,
+  ...switchingBlocks,
+  ...bookingBlocks,
+  ...builderBlocks,
+  ...bookingsBlocks,
 ]
