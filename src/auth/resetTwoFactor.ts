@@ -1,6 +1,6 @@
 import type { Endpoint, Payload } from 'payload'
 
-import { isSuperAdmin } from '../access/roles'
+import { isSuperAdminWithCode } from './fullyAuthenticated'
 import { publicError } from '../errors'
 
 /**
@@ -25,8 +25,7 @@ export const resetTwoFactorEndpoint: Endpoint = {
   path: '/:id/reset-two-factor',
   method: 'post',
   handler: async (req) => {
-    const user = req.user as (typeof req.user & { _strategy?: string }) | null
-    if (!user || !isSuperAdmin(user) || user._strategy !== 'totp') {
+    if (!isSuperAdminWithCode(req.user)) {
       throw publicError('You are not allowed to perform this action.', 403)
     }
     const id = String(req.routeParams?.id ?? '')
@@ -38,7 +37,8 @@ export const resetTwoFactorEndpoint: Endpoint = {
     }
     await resetTwoFactor(req.payload, id)
     return Response.json({
-      message: 'Two-factor reset. They will set it up again when they next log in.',
+      message:
+        'Two-factor reset. They can sign in with their password, and set it up again from their account page.',
     })
   },
 }

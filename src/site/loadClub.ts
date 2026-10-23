@@ -13,13 +13,14 @@ import { COLUMN_LINK_LIMIT } from './menuLimits'
 import { builtInLabel, builtInLink, isSafeURL, linksToPage } from '@/fields/link'
 import { measureMissing } from '@/media/measure'
 import { loadClubMedia, type SiteMedia } from '@/site/blocks/media'
-import { loadBlockContext } from '@/site/blocks/resolve'
+import { blockContextFrom, loadBlockData } from '@/site/blocks/resolve'
 import { type Brand, BRAND_INPUTS, DEFAULT_BRAND, isHex } from '@/theme/colour'
 import { DEFAULT_FONT_SET, type FontSetID, isFontSetID } from '@/theme/fontSets'
 
 import { isGAMeasurementID, type PrivacySettings } from './privacy/policy'
 import { PUBLISHED } from './published'
 import { siteToday } from './today'
+import { addressCached, clubCached } from './cache'
 import { idOf } from '@/blocks/types'
 
 /** A link on the public site: one of the club's pages (by slug) or a checked web address. */
@@ -145,252 +146,279 @@ const SOCIAL = ['instagram', 'facebook', 'x', 'youtube', 'linkedin', 'tiktok']
  * page title and the page itself both need the club).
  */
 export const loadClubBySlug = cache(async (slug: string): Promise<ClubSite | null> => {
+  const tenantID = await clubIDBySlug(slug)
+  return tenantID ? loadClubSite(tenantID) : null
+})
+
+/** The club with this slug: its ID only (cached by address, src/site/cache.ts). */
+const clubIDBySlug = addressCached('clubIDBySlug', async (slug: string) => {
   const payload = await getPayload({ config })
-  const { docs: tenants } = await payload.find({
+  const { docs } = await payload.find({
     collection: 'tenants',
     where: { slug: { equals: slug } },
-    select: { name: true, slug: true },
+    select: { slug: true },
     limit: 1,
     depth: 0,
     overrideAccess: true,
   })
-  const tenant = tenants[0]
-  if (!tenant) return null
-  const tenantID = String(tenant.id)
+  return docs[0] ? String(docs[0].id) : null
+})
 
-  const { docs } = await payload.find({
-    collection: 'club-settings',
-    where: { tenant: { equals: tenantID } },
-    select: {
-      clubName: true,
-      branding: true,
-      header: true,
-      footer: true,
-      location: true,
-      announcement: true,
-      privacy: true,
-    },
-    limit: 1,
-    depth: 0,
-    overrideAccess: true,
-  })
-  const s = (docs[0] ?? {}) as RawSettings
-  const b = s.branding ?? {}
-  const h = s.header ?? {}
-  const f = s.footer ?? {}
+/** Everything the club's pages share (cached per club; notices and course status depend on
+ * today, so at most 5 minutes). */
+const loadClubSite = clubCached(
+  'loadClubSite',
+  async (tenantID: string): Promise<ClubSite | null> => {
+    const payload = await getPayload({ config })
+    const { docs: tenants } = await payload.find({
+      collection: 'tenants',
+      where: { id: { equals: tenantID } },
+      select: { name: true, slug: true },
+      limit: 1,
+      depth: 0,
+      overrideAccess: true,
+    })
+    const tenant = tenants[0]
+    if (!tenant) return null
 
-  const rawLinks: RawLink[] = [
-    ...(h.booking ? [h.booking] : []),
-    ...(h.menu ?? []).flatMap((m) => [
-      ...(m.link ? [m.link] : []),
-      ...(m.links ?? []).map((l) => l.link ?? {}),
-      ...(m.groups ?? []).flatMap((g) => (g.links ?? []).map((l) => l.link ?? {})),
-      ...(m.extraLinks ?? []).map((l) => l.link ?? {}),
-    ]),
-    ...(f.linkColumns ?? []).flatMap((c) => (c.links ?? []).map((l) => l.link ?? {})),
-    ...(f.hoursLink ? [f.hoursLink] : []),
-    ...(f.secondaryButton ? [f.secondaryButton] : []),
-    ...(f.legalLinks ?? []).map((l) => l.link ?? {}),
-    ...(s.announcement?.items ?? []).map((i) => i.link ?? {}),
-  ]
-  const dropdown: DropdownStyle = h.dropdown === 'panelTile' ? 'panelTile' : 'panel'
-  /** A drop-down's pages: "Pages in the drop-down", or the one page chosen before that list
-   * existed (copied over by the 20261020 migration; kept as a fallback). */
-  const sectionsOf = (m: NonNullable<typeof h.menu>[number]): string[] => {
-    const chosen = (m.sections ?? []).flatMap((x) => idOf(x.page) ?? [])
-    const legacy = idOf(m.page)
-    return chosen.length > 0 ? chosen : legacy ? [legacy] : []
-  }
-  const sectionPages = (h.menu ?? []).flatMap((m) => (m.kind === 'children' ? sectionsOf(m) : []))
-  // These don't depend on each other, so they're looked up at the same time.
-  const [pages, images, family, heroPhotos] = await Promise.all([
-    clubPages(
-      payload,
-      tenantID,
-      rawLinks.map((l) => (linksToPage(l.type) ? idOf(l.page) : null)),
-    ),
-    clubImages(payload, tenantID, [idOf(b.logoOnLight), idOf(b.logoOnDark)]),
-    // Menu items and footer columns that list a page's child pages.
-    clubPageFamilies(payload, tenantID, [
-      ...sectionPages,
-      ...(f.linkColumns ?? []).map((c) => (c.source === 'children' ? idOf(c.page) : null)),
-    ]),
-    dropdown === 'panelTile'
-      ? clubHeroPhotos(payload, tenantID, sectionPages)
-      : new Map<string, SiteMedia>(),
-  ])
+    const { docs } = await payload.find({
+      collection: 'club-settings',
+      where: { tenant: { equals: tenantID } },
+      select: {
+        clubName: true,
+        branding: true,
+        header: true,
+        footer: true,
+        location: true,
+        announcement: true,
+        privacy: true,
+      },
+      limit: 1,
+      depth: 0,
+      overrideAccess: true,
+    })
+    const s = (docs[0] ?? {}) as RawSettings
+    const b = s.branding ?? {}
+    const h = s.header ?? {}
+    const f = s.footer ?? {}
 
-  const toLink = (raw: RawLink | null | undefined): SiteLink | null => {
-    if (!raw) return null
-    if (raw.type === 'url') return isSafeURL(raw.url) ? { kind: 'url', href: raw.url.trim() } : null
-    if (raw.type === 'builtIn') return builtInLink(raw.builtIn)
-    const page = pages.get(idOf(raw.page) ?? '')
-    return page ? { kind: 'page', slug: page.slug } : null
-  }
-  /** What a link left without text shows: the name of the page it goes to. */
-  const nameOf = (raw: RawLink | null | undefined): string | undefined => {
-    if (!raw || raw.type === 'url') return undefined
-    if (raw.type === 'builtIn') return builtInLabel(raw.builtIn)
-    return pages.get(idOf(raw.page) ?? '')?.title
-  }
+    const rawLinks: RawLink[] = [
+      ...(h.booking ? [h.booking] : []),
+      ...(h.menu ?? []).flatMap((m) => [
+        ...(m.link ? [m.link] : []),
+        ...(m.links ?? []).map((l) => l.link ?? {}),
+        ...(m.groups ?? []).flatMap((g) => (g.links ?? []).map((l) => l.link ?? {})),
+        ...(m.extraLinks ?? []).map((l) => l.link ?? {}),
+      ]),
+      ...(f.linkColumns ?? []).flatMap((c) => (c.links ?? []).map((l) => l.link ?? {})),
+      ...(f.hoursLink ? [f.hoursLink] : []),
+      ...(f.secondaryButton ? [f.secondaryButton] : []),
+      ...(f.legalLinks ?? []).map((l) => l.link ?? {}),
+      ...(s.announcement?.items ?? []).map((i) => i.link ?? {}),
+    ]
+    const dropdown: DropdownStyle = h.dropdown === 'panelTile' ? 'panelTile' : 'panel'
+    /** A drop-down's pages: "Pages in the drop-down", or the one page chosen before that list
+     * existed (copied over by the 20261020 migration; kept as a fallback). */
+    const sectionsOf = (m: NonNullable<typeof h.menu>[number]): string[] => {
+      const chosen = (m.sections ?? []).flatMap((x) => idOf(x.page) ?? [])
+      const legacy = idOf(m.page)
+      return chosen.length > 0 ? chosen : legacy ? [legacy] : []
+    }
+    const sectionPages = (h.menu ?? []).flatMap((m) => (m.kind === 'children' ? sectionsOf(m) : []))
+    // These don't depend on each other, so they're looked up at the same time.
+    const [pages, images, family, heroPhotos] = await Promise.all([
+      clubPages(
+        payload,
+        tenantID,
+        rawLinks.map((l) => (linksToPage(l.type) ? idOf(l.page) : null)),
+      ),
+      clubImages(payload, tenantID, [idOf(b.logoOnLight), idOf(b.logoOnDark)]),
+      // Menu items and footer columns that list a page's child pages.
+      clubPageFamilies(payload, tenantID, [
+        ...sectionPages,
+        ...(f.linkColumns ?? []).map((c) => (c.source === 'children' ? idOf(c.page) : null)),
+      ]),
+      dropdown === 'panelTile'
+        ? clubHeroPhotos(payload, tenantID, sectionPages)
+        : new Map<string, SiteMedia>(),
+    ])
 
-  const labelled = (raw: RawLink | null | undefined): LabelledLink | null => {
-    const link = toLink(raw)
-    const label = raw?.label?.trim() || nameOf(raw)
-    return link && label ? { label, link } : null
-  }
-  const text = (v: string | null | undefined) => v?.trim() || null
+    const toLink = (raw: RawLink | null | undefined): SiteLink | null => {
+      if (!raw) return null
+      if (raw.type === 'url')
+        return isSafeURL(raw.url) ? { kind: 'url', href: raw.url.trim() } : null
+      if (raw.type === 'builtIn') return builtInLink(raw.builtIn)
+      const page = pages.get(idOf(raw.page) ?? '')
+      return page ? { kind: 'page', slug: page.slug } : null
+    }
+    /** What a link left without text shows: the name of the page it goes to. */
+    const nameOf = (raw: RawLink | null | undefined): string | undefined => {
+      if (!raw || raw.type === 'url') return undefined
+      if (raw.type === 'builtIn') return builtInLabel(raw.builtIn)
+      return pages.get(idOf(raw.page) ?? '')?.title
+    }
 
-  const bookingLink = toLink(h.booking)
-  const bookingLabel = h.booking?.label?.trim()
+    const labelled = (raw: RawLink | null | undefined): LabelledLink | null => {
+      const link = toLink(raw)
+      const label = raw?.label?.trim() || nameOf(raw)
+      return link && label ? { label, link } : null
+    }
+    const text = (v: string | null | undefined) => v?.trim() || null
 
-  const announcement = await loadAnnouncement(payload, tenantID, s.announcement, {
-    labelled,
-    phone: h.phone?.trim() || null,
-  })
+    const bookingLink = toLink(h.booking)
+    const bookingLabel = h.booking?.label?.trim()
 
-  return {
-    tenantID,
-    slug: String(tenant.slug),
-    name: s.clubName || String(tenant.name),
-    brand: Object.fromEntries(
-      BRAND_INPUTS.map((key) => [key, isHex(b[key]) ? b[key] : DEFAULT_BRAND[key]]),
-    ) as Brand,
-    fontSet: isFontSetID(b.fontSet) ? b.fontSet : DEFAULT_FONT_SET,
-    strapline: b.strapline?.trim() || null,
-    logoOnLight: images.get(idOf(b.logoOnLight) ?? '') ?? null,
-    logoOnDark: images.get(idOf(b.logoOnDark) ?? '') ?? null,
-    header: {
-      style: HEADER_STYLES.includes(h.style as HeaderStyle) ? (h.style as HeaderStyle) : 'classic',
-      booking: bookingLink && bookingLabel ? { label: bookingLabel, link: bookingLink } : null,
+    const announcement = await loadAnnouncement(payload, tenantID, s.announcement, {
+      labelled,
       phone: h.phone?.trim() || null,
-      dropdown,
-      menu: (h.menu ?? [])
-        .map((m): MenuItem => {
-          const text = m.label?.trim() ?? ''
-          const plain = (link: SiteLink | null, name?: string): MenuItem => ({
-            label: text || name || '',
-            link,
-            overview: null,
-            image: null,
-            children: [],
-            columns: null,
-          })
-          // Items saved before "What it does" existed: groups mean a drop-down.
-          const kind = m.kind ?? ((m.groups ?? []).length > 0 ? 'manual' : 'link')
-          if (kind === 'link') return plain(toLink(m.link), nameOf(m.link))
-          if (kind === 'children') {
-            // Only this club's published pages: anything else is left out.
-            const sections = sectionsOf(m).flatMap((id) => {
-              const page = family.parents.get(id)
-              return page ? [{ id, page }] : []
+    })
+
+    return {
+      tenantID,
+      slug: String(tenant.slug),
+      name: s.clubName || String(tenant.name),
+      brand: Object.fromEntries(
+        BRAND_INPUTS.map((key) => [key, isHex(b[key]) ? b[key] : DEFAULT_BRAND[key]]),
+      ) as Brand,
+      fontSet: isFontSetID(b.fontSet) ? b.fontSet : DEFAULT_FONT_SET,
+      strapline: b.strapline?.trim() || null,
+      logoOnLight: images.get(idOf(b.logoOnLight) ?? '') ?? null,
+      logoOnDark: images.get(idOf(b.logoOnDark) ?? '') ?? null,
+      header: {
+        style: HEADER_STYLES.includes(h.style as HeaderStyle)
+          ? (h.style as HeaderStyle)
+          : 'classic',
+        booking: bookingLink && bookingLabel ? { label: bookingLabel, link: bookingLink } : null,
+        phone: h.phone?.trim() || null,
+        dropdown,
+        menu: (h.menu ?? [])
+          .map((m): MenuItem => {
+            const text = m.label?.trim() ?? ''
+            const plain = (link: SiteLink | null, name?: string): MenuItem => ({
+              label: text || name || '',
+              link,
+              overview: null,
+              image: null,
+              children: [],
+              columns: null,
             })
-            const label = text || sections[0]?.page.label || ''
-            if (sections.length > 1) {
-              const columns = sections.map(({ id, page }): MenuColumn => {
-                const links = family.children.get(id) ?? []
-                return {
-                  heading: page,
-                  links: links.slice(0, COLUMN_LINK_LIMIT),
-                  more:
-                    links.length > COLUMN_LINK_LIMIT
-                      ? { label: `All ${page.label} pages`, link: page.link }
-                      : null,
-                }
+            // Items saved before "What it does" existed: groups mean a drop-down.
+            const kind = m.kind ?? ((m.groups ?? []).length > 0 ? 'manual' : 'link')
+            if (kind === 'link') return plain(toLink(m.link), nameOf(m.link))
+            if (kind === 'children') {
+              // Only this club's published pages: anything else is left out.
+              const sections = sectionsOf(m).flatMap((id) => {
+                const page = family.parents.get(id)
+                return page ? [{ id, page }] : []
               })
+              const label = text || sections[0]?.page.label || ''
+              if (sections.length > 1) {
+                const columns = sections.map(({ id, page }): MenuColumn => {
+                  const links = family.children.get(id) ?? []
+                  return {
+                    heading: page,
+                    links: links.slice(0, COLUMN_LINK_LIMIT),
+                    more:
+                      links.length > COLUMN_LINK_LIMIT
+                        ? { label: `All ${page.label} pages`, link: page.link }
+                        : null,
+                  }
+                })
+                return {
+                  label,
+                  link: null,
+                  overview: null,
+                  image: null,
+                  children: columns.flatMap((c) => [
+                    c.heading,
+                    ...c.links,
+                    ...(c.more ? [c.more] : []),
+                  ]),
+                  columns,
+                }
+              }
+              // One page: its child pages. The page itself is reached through "Overview", so it
+              // isn't listed.
+              const parentID = sections[0]?.id ?? ''
+              const parent = sections[0]?.page
+              const children = [
+                ...(family.children.get(parentID) ?? []),
+                ...(m.extraLinks ?? []).flatMap((l) => labelled(l.link) ?? []),
+              ]
+              // A page with fewer than two child pages is just a link to it.
+              if (children.length < 2) return plain(parent?.link ?? null, label)
               return {
                 label,
-                link: null,
-                overview: null,
-                image: null,
-                children: columns.flatMap((c) => [
-                  c.heading,
-                  ...c.links,
-                  ...(c.more ? [c.more] : []),
-                ]),
-                columns,
+                link: parent?.link ?? null,
+                overview: parent?.link ?? null,
+                image: heroPhotos.get(parentID) ?? null,
+                children,
+                columns: null,
               }
             }
-            // One page: its child pages. The page itself is reached through "Overview", so it
-            // isn't listed.
-            const parentID = sections[0]?.id ?? ''
-            const parent = sections[0]?.page
-            const children = [
-              ...(family.children.get(parentID) ?? []),
-              ...(m.extraLinks ?? []).flatMap((l) => labelled(l.link) ?? []),
-            ]
-            // A page with fewer than two child pages is just a link to it.
-            if (children.length < 2) return plain(parent?.link ?? null, label)
-            return {
-              label,
-              link: parent?.link ?? null,
-              overview: parent?.link ?? null,
-              image: heroPhotos.get(parentID) ?? null,
-              children,
-              columns: null,
-            }
-          }
-          // "Links I type": one list. Before that list existed, the links of every group (whose
-          // headings were never shown); the 20261020 migration copied them over.
-          const typed =
-            (m.links ?? []).length > 0 ? m.links : (m.groups ?? []).flatMap((g) => g.links ?? [])
-          const children = (typed ?? []).flatMap((l) => labelled(l.link) ?? [])
-          if (children.length < 2) return plain(children[0]?.link ?? null, children[0]?.label)
-          return { label: text, link: null, overview: null, image: null, children, columns: null }
-        })
-        .filter((m) => m.label && (m.link || m.children.length > 0)),
-    },
-    location: {
-      latitude: typeof s.location?.latitude === 'number' ? s.location.latitude : null,
-      longitude: typeof s.location?.longitude === 'number' ? s.location.longitude : null,
-      mapLabel: s.location?.mapLabel?.trim() || null,
-      what3words: /^[a-z]+\.[a-z]+\.[a-z]+$/.test(s.location?.what3words?.trim() ?? '')
-        ? (s.location?.what3words?.trim() ?? null)
-        : null,
-    },
-    announcement,
-    footer: {
-      style: FOOTER_STYLES.includes(f.style as FooterStyle)
-        ? (f.style as FooterStyle)
-        : 'brandColumns',
-      about: text(f.about),
-      linkColumns: (f.linkColumns ?? [])
-        .map((c) => ({
-          heading: c.heading?.trim() ?? '',
-          links:
-            c.source === 'children'
-              ? (family.children.get(idOf(c.page) ?? '') ?? [])
-              : (c.links ?? []).flatMap((l) => labelled(l.link) ?? []),
-        }))
-        .filter((c) => c.heading && c.links.length > 0),
-      hours: (f.hours ?? []).flatMap((r) =>
-        r.place?.trim() && r.times?.trim()
-          ? [{ place: r.place.trim(), times: r.times.trim() }]
-          : [],
-      ),
-      hoursLink: labelled(f.hoursLink),
-      email: text(f.email),
-      address: text(f.address),
-      directions: isSafeURL(f.directions) ? f.directions.trim() : null,
-      social: (f.social ?? []).flatMap((x) =>
-        x.network && SOCIAL.includes(x.network) && x.url && /^https:\/\/\S+$/.test(x.url.trim())
-          ? [{ network: x.network, url: x.url.trim() }]
-          : [],
-      ),
-      secondaryButton: labelled(f.secondaryButton),
-      legalLinks: (f.legalLinks ?? []).flatMap((l) => labelled(l.link) ?? []),
-    },
-    privacy: {
-      legalName: text(s.privacy?.legalName),
-      email: text(s.privacy?.email),
-      newsletterProvider: text(s.privacy?.newsletterProvider),
-      gaMeasurementId: isGAMeasurementID(s.privacy?.gaMeasurementId)
-        ? s.privacy.gaMeasurementId.trim()
-        : null,
-      additionalInfo: s.privacy?.additionalInfo ?? null,
-    },
-  }
-})
+            // "Links I type": one list. Before that list existed, the links of every group (whose
+            // headings were never shown); the 20261020 migration copied them over.
+            const typed =
+              (m.links ?? []).length > 0 ? m.links : (m.groups ?? []).flatMap((g) => g.links ?? [])
+            const children = (typed ?? []).flatMap((l) => labelled(l.link) ?? [])
+            if (children.length < 2) return plain(children[0]?.link ?? null, children[0]?.label)
+            return { label: text, link: null, overview: null, image: null, children, columns: null }
+          })
+          .filter((m) => m.label && (m.link || m.children.length > 0)),
+      },
+      location: {
+        latitude: typeof s.location?.latitude === 'number' ? s.location.latitude : null,
+        longitude: typeof s.location?.longitude === 'number' ? s.location.longitude : null,
+        mapLabel: s.location?.mapLabel?.trim() || null,
+        what3words: /^[a-z]+\.[a-z]+\.[a-z]+$/.test(s.location?.what3words?.trim() ?? '')
+          ? (s.location?.what3words?.trim() ?? null)
+          : null,
+      },
+      announcement,
+      footer: {
+        style: FOOTER_STYLES.includes(f.style as FooterStyle)
+          ? (f.style as FooterStyle)
+          : 'brandColumns',
+        about: text(f.about),
+        linkColumns: (f.linkColumns ?? [])
+          .map((c) => ({
+            heading: c.heading?.trim() ?? '',
+            links:
+              c.source === 'children'
+                ? (family.children.get(idOf(c.page) ?? '') ?? [])
+                : (c.links ?? []).flatMap((l) => labelled(l.link) ?? []),
+          }))
+          .filter((c) => c.heading && c.links.length > 0),
+        hours: (f.hours ?? []).flatMap((r) =>
+          r.place?.trim() && r.times?.trim()
+            ? [{ place: r.place.trim(), times: r.times.trim() }]
+            : [],
+        ),
+        hoursLink: labelled(f.hoursLink),
+        email: text(f.email),
+        address: text(f.address),
+        directions: isSafeURL(f.directions) ? f.directions.trim() : null,
+        social: (f.social ?? []).flatMap((x) =>
+          x.network && SOCIAL.includes(x.network) && x.url && /^https:\/\/\S+$/.test(x.url.trim())
+            ? [{ network: x.network, url: x.url.trim() }]
+            : [],
+        ),
+        secondaryButton: labelled(f.secondaryButton),
+        legalLinks: (f.legalLinks ?? []).flatMap((l) => labelled(l.link) ?? []),
+      },
+      privacy: {
+        legalName: text(s.privacy?.legalName),
+        email: text(s.privacy?.email),
+        newsletterProvider: text(s.privacy?.newsletterProvider),
+        gaMeasurementId: isGAMeasurementID(s.privacy?.gaMeasurementId)
+          ? s.privacy.gaMeasurementId.trim()
+          : null,
+        additionalInfo: s.privacy?.additionalInfo ?? null,
+      },
+    }
+  },
+  { today: true },
+)
 
 /** Addresses and names of the given pages, only if they belong to this club. */
 const clubPages = async (payload: Payload, tenantID: string, ids: (string | null)[]) => {
@@ -530,6 +558,16 @@ export const loadClubPage = async (
   slug: string,
   { draft = false }: { draft?: boolean } = {},
 ) => {
+  // Drafts (the live preview) never go through the cache.
+  const page = draft
+    ? await pageData(tenantID, slug, true)
+    : await publishedPageData(tenantID, slug)
+  if (!page) return null
+  const { data, ...rest } = page
+  return { ...rest, ctx: blockContextFrom(data) }
+}
+
+const pageData = async (tenantID: string, slug: string, draft: boolean) => {
   const payload = await getPayload({ config })
   const { docs } = await payload.find({
     collection: 'pages',
@@ -554,9 +592,17 @@ export const loadClubPage = async (
     slug: String(doc.slug),
     updatedAt: doc.updatedAt ? String(doc.updatedAt) : null,
     layout,
-    ctx: await loadBlockContext(payload, tenantID, layout),
+    data: await loadBlockData(payload, tenantID, layout),
   }
 }
+
+/** A published page, cached per club (its blocks can show events and course status, which
+ * depend on today: at most 5 minutes). */
+const publishedPageData = clubCached(
+  'publishedPage',
+  (tenantID: string, slug: string) => pageData(tenantID, slug, false),
+  { today: true },
+)
 
 const ANNOUNCEMENT_STYLES = ['classic', 'rotator', 'utility'] as const
 const TONES = ['brand', 'accent', 'subtle'] as const

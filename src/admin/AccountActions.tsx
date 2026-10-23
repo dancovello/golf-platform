@@ -48,7 +48,7 @@ export const AccountActions = () => {
             run(async () => {
               if (
                 !window.confirm(
-                  'Reset this editor’s two-factor login? They’ll set it up again at their next login.',
+                  'Reset this editor’s two-factor login? They’ll sign in with their password only, and can set it up again from their account page.',
                 )
               )
                 return

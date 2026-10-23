@@ -486,3 +486,31 @@ All of these run in the `tenant-isolation` CI job and block merging.
 - **Cost:** about $1 a review and 5–12 CI minutes, so roughly $150 and 750–1,800 minutes a month at October's pace. The model is one line to change (Sonnet 5.5 halves the cost). Details: `docs/operations/ai-security-review.md`.
 - **Secret:** `ANTHROPIC_API_KEY` in GitHub Actions secrets only.
 
+
+## 2026-10-22: Club editors sign in with a password; super-admins keep two-factor (job 3)
+
+**Supersedes** "Two-factor login is required for every account" (2026-10-11, step 2 decisions and devops review). Dan decided this after the 21 Oct grilling, so editors aren't put off by an authenticator app and can use "Forgot password?". **Must be checked by Dan's devops contact before it merges** (it reverses something he approved).
+
+- **Super-admins:** two-factor exactly as before. Without their code they reach nothing but their own account. Without two-factor set up, the admin sends them to the set-up screen, and they can't switch it off.
+- **Club editors:** a password is enough. Editors who already set two-factor up keep it and still need their code; they may switch it off. How it's done: `docs/plans/password-only-editors-spike.md`.
+- **Compensating controls:**
+  - passwords of 12+ characters;
+  - locked for 10 minutes after 5 wrong attempts (unchanged);
+  - **editor sessions end 8 hours after login**: each login token lasts an hour and is renewed while the admin is open, but not after 8 hours (`src/auth/sessionLimit.ts`);
+  - **an email to the account whenever its password is set or changed**, where email is set up.
+- **"Forgot password?"** turns on where `RESEND_API_KEY` and `ADMIN_URL` are both set (unchanged code). It answers the same whether or not the address has an account. At most one email per account every 15 minutes.
+- **Isolation:** the whole isolation suite (integration and browser) now runs with password-only editors, because that's the new normal. Tests also prove that a super-admin with a password but no code reaches nothing, and that escalation attempts still fail.
+- **Data processing agreement:** Schedule 2's security wording now describes this. Version `2026-10-22-draft`, so clubs accept again. The club privacy policy doesn't mention two-factor, so it's unchanged.
+- **Invite and reset emails** no longer tell editors they'll need an authenticator app.
+
+## 2026-10-22: Club sites' data is cached, cleared when a club publishes (job 5)
+
+- **The data behind club pages is cached in Next.js's data cache** (`unstable_cache`, `src/site/cache.ts`). The pages themselves are still made per view, because each needs a fresh one-time code for the security policy. Why not `'use cache'`: `docs/plans/club-data-cache-spike.md`.
+- **Never across clubs:**
+  - every cached loader takes the club's ID first, and the ID is in its key and its only tag;
+  - the two address lookups (slug and web address to club) are keyed by the address;
+  - drafts and the live preview never use the cache.
+
+  Tests: `tests/int/cache-isolation.int.spec.ts` (part of the isolation suite) and `tests/e2e/site-cache.spec.ts`. The isolation manifest lists every cached loader.
+- **Cleared at once** for one club when anything it owns is saved or deleted (`src/site/cacheHooks.ts`). Anything that depends on today's date is kept at most 5 minutes, and everything at most an hour, which covers changes made around the website (scripts, restores).
+- **Emergency switch:** `SITE_DATA_CACHE=off`.

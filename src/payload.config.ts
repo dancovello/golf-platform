@@ -10,6 +10,7 @@ import { fileURLToPath } from 'url'
 
 import { isSuperAdmin } from './access/roles'
 import { guardTenantSelection } from './admin/guardTenantSelection'
+import { superAdminTwoFactor } from './auth/superAdminTwoFactor'
 import { encryptTotpSecrets } from './auth/totpSecretEncryption'
 import { emailAdapter } from './email/adapter'
 import { collections } from './collections'
@@ -23,6 +24,7 @@ import { mediaStorageSettings } from './media/storage'
 import { jobs } from './privacy/jobs'
 import { addSearchTables } from './search/schema'
 import { addRateLimitTable } from './security/rateLimitSchema'
+import { withCacheClearing } from './site/cacheHooks'
 import { clubOwnedCollections } from './tenancy'
 
 const media = mediaStorageSettings()
@@ -64,7 +66,8 @@ export default buildConfig({
     },
   },
   // Copied so Payload adding its own collections at startup never changes our list.
-  collections: [...collections],
+  // Each club's cached site data is cleared when its content changes (src/site/cacheHooks.ts).
+  collections: withCacheClearing([...collections]),
   globals: [...globals],
   editor: lexicalEditor(),
   // Background jobs (decided stack: Payload Jobs Queue). Only the nightly clean-up so far.
@@ -157,12 +160,14 @@ export default buildConfig({
     }),
     // Keeps the club list from loading before the two-factor code is entered.
     guardTenantSelection,
-    // Two-factor login, required for every account (docs/architecture/decisions.md).
-    // Must come after the plugins that add collections: it wraps every access rule so nothing
-    // is reachable until the code has been entered (or, for new accounts, set up).
+    // Two-factor login. Required for super-admins; optional for club editors, who may sign in
+    // with a password only (decisions.md, 22 Oct). Must come after the plugins that add
+    // collections: it wraps every access rule, so anyone who has set two-factor up gets nothing
+    // until their code is entered. `forceSetup` would force set-up on everyone, so it's off and
+    // superAdminTwoFactor (below) enforces it for super-admins.
     payloadTotp({
       collection: 'users',
-      forceSetup: true,
+      forceSetup: false,
       totp: { issuer: 'Golf Platform' },
       // In a dark admin theme the QR code was drawn light-on-dark with no white border, which
       // many authenticator apps can't scan. Always draw it dark-on-white.
@@ -170,5 +175,7 @@ export default buildConfig({
     }),
     // Must come after payloadTotp, which adds the secret field it encrypts.
     encryptTotpSecrets('users'),
+    // Must come after payloadTotp: super-admins need their code for everything.
+    superAdminTwoFactor,
   ],
 })

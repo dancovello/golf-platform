@@ -1,16 +1,13 @@
 import type { Config, PayloadRequest } from 'payload'
 
-import { isSuperAdmin } from '../access/roles'
+import { isSuperAdminWithCode } from '../auth/fullyAuthenticated'
 
 import { runCleanUp } from './cleanUp'
 
 /** Only a super-admin with their two-factor code entered may run or queue jobs by hand.
  * Payload's default would let any signed-in account do it. The nightly schedule doesn't go
  * through this: its route checks Vercel's secret and calls the queue directly. */
-const superAdminWithCode = ({ req }: { req: PayloadRequest }) => {
-  const user = req.user as (typeof req.user & { _strategy?: string }) | null
-  return Boolean(user && isSuperAdmin(user) && user._strategy === 'totp')
-}
+const superAdminWithCode = ({ req }: { req: PayloadRequest }) => isSuperAdminWithCode(req.user)
 
 export const jobs: NonNullable<Config['jobs']> = {
   access: { run: superAdminWithCode, queue: superAdminWithCode, cancel: superAdminWithCode },

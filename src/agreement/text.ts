@@ -6,7 +6,7 @@
  * again before its next settings save.
  */
 
-export const AGREEMENT_VERSION = '2026-10-20-draft'
+export const AGREEMENT_VERSION = '2026-10-22-draft'
 
 /** False until a solicitor has approved the wording; the admin then shows a "draft" notice. */
 export const AGREEMENT_APPROVED = false
@@ -281,7 +281,7 @@ export const agreementText = (club: AgreementParty): AgreementSection[] => {
       blocks: [
         list(
           'All connections use encryption (HTTPS). The database, stored files and backups are encrypted at rest.',
-          'Every editing account needs a strong password and two-factor login. Accounts are created only by the Provider.',
+          'Every editing account needs a strong password (at least 12 characters) and is locked for 10 minutes after 5 wrong attempts. A Club editor is signed out 8 hours after logging in and is emailed whenever their password is set or changed; Club editors may also turn on two-factor login. The Provider’s own administrator accounts must use two-factor login. Accounts are created only by the Provider.',
           'Each club’s information is kept separate. Automated tests check, on every change to the software, that one club’s editors cannot see or change another club’s information, and a change cannot go live until they pass.',
           'The website uses a database account that can only read and write data, not change the database’s structure.',
           'Nightly backups are encrypted before they leave the hosting environment, and restoring from them is tested.',
