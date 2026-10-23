@@ -17,6 +17,10 @@ Each finding has a test that proves it (`tests/int/audit-auth.int.spec.ts`). The
 
 Fixes for A1 and A3 are in a separate **draft** PR for you to approve. A2, A4 and A5 need a decision from you first (see each one).
 
+## Decisions and fixes, 23 October 2026
+
+Dan approved them all. A1 and A3: fixed in the A1/A3 fix PR. A2: **accepted for v1**, as recommended; revisit before member logins or booking. A4: a locked account now gets the same answer as a wrong password or an unknown address (one message for every refused sign-in, set in `src/payload.config.ts`). A5: Payload's `csrf` list is the admin's own addresses (`src/auth/trustedOrigins.ts`): ADMIN_URL and the deployment's own Vercel addresses, or localhost off Vercel. Check it on staging once released: if signing in or saving ever fails with "unauthorised", the address in use is missing from the list.
+
 ## What I read
 
 - `src/auth/`: `fullyAuthenticated.ts`, `superAdminTwoFactor.ts`, `resetTwoFactor.ts`, `sessionLimit.ts`, `totpSecretEncryption.ts`
