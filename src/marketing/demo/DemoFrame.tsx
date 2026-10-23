@@ -9,9 +9,7 @@ import { DemoScaler } from './DemoScaler'
 
 // The club template's own styles, for the real blocks inside the frame. They're scoped to
 // .club-theme, so they don't touch the marketing page around it.
-import '@/theme/theme.css'
-import '@/site/components/buttons.css'
-import '@/site/components/states.css'
+import './clubStyles.css'
 
 /**
  * Marketing/Browser Chrome plus a real club block scaled inside it (Figma CMS block rules: "Never
