@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   addedMigrations,
+  badIndexImports,
   changedExistingMigrations,
   findDestructive,
 } from '../../scripts/lib/migrationGuard'
@@ -81,9 +82,27 @@ export async function up() { await db.execute(sql\`DROP TABLE "pages";\`) }`
   })
 
   // Migrations Dan approved with the approved-destructive-migration label, and what they do.
+  // The security rules (added 23 Oct 2026, migrations audit finding 3) also list what earlier
+  // merged migrations did on purpose, so a new one doing the same is still flagged.
+  const club = 'club link that deletes or clears'
   const APPROVED: Record<string, string[]> = {
+    // Payload's generated "clear the club" links, replaced in the same file by "refuse while
+    // the club has content" (the real database has no set-null club links: audit finding 6).
+    '20261011_072736_initial.ts': [club],
+    '20261011_082024_club_content.ts': [club, club],
+    // The website's own limited account and its rights (doc 04).
+    '20261011_173431_app_role_grants.ts': [
+      ...Array(5).fill('GRANT'),
+      ...Array(5).fill('role change'),
+    ],
     // PR #38: fills in each existing club's new short name from its name.
     '20261011_201540_branding_and_club_short_name.ts': ['UPDATE … SET'],
+    // Agreement acceptances can never be changed or deleted.
+    '20261016_083527_club_agreement.ts': ['REVOKE'],
+    // Page history may outlive its club (only super-admins can see such rows).
+    '20261016_160941_page_drafts.ts': [club],
+    // The search index is rebuilt from content, so it goes with its club.
+    '20261019_185238_search_index.ts': [club, club],
   }
 
   it('every merged migration only adds things, apart from the ones Dan approved', () => {
@@ -121,6 +140,18 @@ describe('merged migrations never change', () => {
   it('checks every file in src/migrations except the index, whatever it is called', () => {
     expect(addedMigrations(files).map((f) => f.path)).toEqual([
       'src/migrations/20261101_120000_new_thing.ts',
+      'src/migrations/oddly-named.ts',
     ])
+  })
+
+  it('lets the list of migrations bring in only properly named migration files', () => {
+    expect(
+      badIndexImports(`
+        import * as a from './20261011_072736_initial'
+        import * as b from './later/20261101_120000_x'
+        import * as c from './helpers'
+        import * as d from '../collections/Pages'
+      `),
+    ).toEqual(['./later/20261101_120000_x', './helpers', '../collections/Pages'])
   })
 })

@@ -26,6 +26,8 @@ No critical findings. Each finding except 6 has a test that proves it (below). T
 - The repository is **public** right now (checked with the GitHub API on 22 Oct). `decisions.md` says it's private again from 22 Oct. Until it's made private, the release workflow's first step stops every release, so nothing unsafe can ship. But workflow logs and test reports are visible to anyone.
 - The AI `security-review` check **is not a required check** on `main` or `production`, and there's no `ANTHROPIC_API_KEY` repository secret, so it can't run. CLAUDE.md says a HIGH finding blocks merging. Right now it can't.
 
+**Fixes, 23 October 2026** (Dan approved them all). Findings 1–3 are in the pipeline fix PR: `environment:` on every job that reads a production key, a `release-source` check, approvals that count only after the latest push, migrations included in the AI review, and the security rules in migration-guard. Findings 4–6 are in the database fix PR. Dan's GitHub settings steps: `docs/operations/github-environments.md`.
+
 ---
 
 ## Findings
