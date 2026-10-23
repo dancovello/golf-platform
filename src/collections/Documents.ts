@@ -44,6 +44,8 @@ export const Documents: CollectionConfig = {
     group: 'Club information',
     useAsTitle: 'title',
     defaultColumns: ['title', 'category', 'lastReviewed', 'updatedAt'],
+    description:
+      'Word and PDF files carry hidden details, such as the author’s name. Before uploading, check them in the file’s properties (in Word: File, then Info, then Inspect Document).',
   },
   access: { create: clubContentCreate, read: loggedIn, update: loggedIn, delete: loggedIn },
   hooks: {

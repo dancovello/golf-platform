@@ -54,7 +54,11 @@ Every public endpoint has a limit, at two layers (doc 04 §8): **the app** and *
 - Doesn't exist without Vercel's scheduler secret.
 - Enforced by a code check.
 
-**Admin screens, the API, uploads, the job queue, demo club, starter pages, review pages**
+**Upload links** (`POST /api/storage-s3-generate-signed-url`)
+- 100 an hour per signed-in account (added 23 Oct, uploads audit finding 2). Past that: "Too many uploads, try again later."
+- Enforced in the app (shared database).
+
+**Admin screens, the API, other uploads, the job queue, demo club, starter pages, review pages**
 - Need a signed-in account, and some need the super-admin.
 - Enforced by Payload access rules and code checks.
 
