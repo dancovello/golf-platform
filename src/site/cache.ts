@@ -1,4 +1,5 @@
 import { revalidateTag, unstable_cache } from 'next/cache'
+import { after } from 'next/server'
 
 /**
  * Caching the public club sites' data (job 5, 21 Oct grilling; decisions.md, 22 Oct).
@@ -18,6 +19,7 @@ import { revalidateTag, unstable_cache } from 'next/cache'
  *   status "stale") is kept at most 5 minutes.
  * - Publishing, changing or deleting anything of a club clears that club's tag, and only that
  *   club's (src/site/cacheHooks.ts). Changing a club's addresses clears the address lookups.
+ *   It's cleared again once the response is sent, after the save is committed (`clearCache`).
  * - Nothing is kept longer than an hour (address lookups 5 minutes), because changes made
  *   outside the website (scripts, restoring a backup) can't clear the cache.
  *
@@ -47,11 +49,14 @@ type AnyFn = (...args: any[]) => Promise<unknown>
 export type CacheStore = {
   wrap: <F extends AnyFn>(fn: F, key: string[], options: Options) => F
   clear: (tag: string) => void
+  /** Runs `task` once the current response has been sent. Throws outside a request. */
+  afterResponse?: (task: () => void) => void
 }
 
 const nextStore: CacheStore = {
   wrap: (fn, key, options) => unstable_cache(fn, key, options) as never,
   clear: (tag) => revalidateTag(tag, { expire: 0 }),
+  afterResponse: (task) => after(task),
 }
 
 /** Outside a Next.js server (scripts, integration tests) there is no data cache: call through. */
@@ -113,11 +118,24 @@ export const addressCached = <R>(
 /**
  * Clears cached data. Called from save hooks, which can also run outside a request (scripts,
  * the demo club build, tests); there's nothing to clear there.
+ *
+ * Save hooks run before the database commits the save. A visitor arriving in between reads the
+ * old version and puts it back in the cache, so it's cleared again once the response has been
+ * sent, which is after the commit (audit T1, docs/security/audit-tenancy.md).
  */
 export const clearCache = (tag: string) => {
+  const store = current()
+  const clear = () => {
+    try {
+      store.clear(tag)
+    } catch {
+      // Outside a request: no data cache to clear.
+    }
+  }
+  clear()
   try {
-    current().clear(tag)
+    store.afterResponse?.(clear)
   } catch {
-    // Outside a request: no data cache to clear.
+    // Outside a request: nothing is sent, and the time limits above still apply.
   }
 }
