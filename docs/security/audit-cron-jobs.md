@@ -18,7 +18,7 @@ Each real finding (CRON-1 to CRON-3) has a test that proves it. The tests are ma
 - `tests/int/audit-cron-jobs.int.spec.ts`: CRON-1, CRON-2
 - `tests/unit/audit-cron-canary.spec.ts`: CRON-3
 
-**No fixes made.** Each fix below is a proposal for you to approve. Each one then gets its own small draft PR.
+**Fixed on 23 October 2026** (Dan approved all four): CRON-1 to CRON-3 in the fix PR stacked on this audit, CRON-4 as a setup note in `docs/operations/canary.md`. The R2 "undelete" window from CRON-1 is optional and left for Dan (a Cloudflare setting that may cost a little).
 
 ## What was reviewed
 

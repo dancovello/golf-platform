@@ -45,8 +45,8 @@ export const probeAsCanaryA = async ({
   const { token } = (await login.json()) as { token?: string }
   if (!token) throw new Error('Canary login returned no token')
   const asA = { ...common, Authorization: `JWT ${token}` }
-  const get = async (path: string) => {
-    const res = await f(`${base}${path}`, { headers: asA, redirect: 'manual' })
+  const get = async (path: string, extra: Record<string, string> = {}) => {
+    const res = await f(`${base}${path}`, { headers: { ...asA, ...extra }, redirect: 'manual' })
     return { status: res.status, body: await res.text() }
   }
 
@@ -79,7 +79,27 @@ export const probeAsCanaryA = async ({
       await get(`/api/${collection}?where[title][like]=${encodeURIComponent(targets.marker)}`),
     )
   }
-  // 3. By address: club previews exist only on staging, and must never answer on production.
+  // 3. The ways an attacker would try first (audit CRON-3): the multi-tenant plugin's own
+  // club-switcher cookie, listing every club (editors mustn't even learn club B exists), and
+  // listing accounts (club B has a marked account of its own).
+  const asClubB = { Cookie: `payload-tenant=${targets.clubB.id}` }
+  for (const collection of collections) {
+    check(
+      `${collection} with the club-switcher cookie`,
+      await get(`/api/${collection}?limit=200&depth=1`, asClubB),
+    )
+  }
+  check('clubs listed', await get('/api/tenants?limit=200&depth=0'))
+  check(
+    'clubs listed with the club-switcher cookie',
+    await get('/api/tenants?limit=200&depth=0', asClubB),
+  )
+  check('accounts listed', await get('/api/users?limit=200&depth=0'))
+  check(
+    'accounts listed with the club-switcher cookie',
+    await get('/api/users?limit=200&depth=0', asClubB),
+  )
+  // 4. By address: club previews exist only on staging, and must never answer on production.
   if (previewsClosed) {
     for (const path of [
       `/preview/${targets.clubB.slug}`,

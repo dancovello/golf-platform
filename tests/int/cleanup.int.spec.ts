@@ -180,15 +180,15 @@ describe('unused uploads are removed from storage', () => {
     expect(await stored(otherKey)).toBe(true)
   })
 
-  it('stops at the nightly limit and reports the rest, rather than removing everything', async () => {
+  it('removes nothing past the nightly limit, so a wrong database can never empty storage', async () => {
     for (const name of ['a', 'b', 'c']) {
       const key = `media/${randomUUID()}/${name}.png`
       await s3.send(new PutObjectCommand({ Bucket: bucket, Key: key, Body: 'x' }))
     }
     const later = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
     const result = await deleteOrphanUploads(w.payload, later, 1)
-    expect(result.removed).toBe(1)
-    expect(result.skipped).toBeGreaterThanOrEqual(2)
+    expect(result.removed).toBe(0)
+    expect(result.skipped).toBeGreaterThanOrEqual(3)
   })
 
   it('only touches storage on production (staging shares it with pull-request previews)', async () => {

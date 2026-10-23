@@ -34,10 +34,9 @@ describe('CRON-1: the nightly brake on removing files', () => {
       .then(() => true)
       .catch(() => false)
 
-  // KNOWN FAILURE (CRON-1, medium). Today it removes the first 200 and only writes a log line,
-  // every night, so a wrong or half-restored database loses 200 club files a night for good
-  // (stored files aren't backed up). It should remove nothing and raise an alert.
-  it.fails('removes nothing when more files look unused than the nightly limit', async () => {
+  // CRON-1 (medium), fixed: it used to remove the first 200 and only write a log line, so a
+  // wrong or half-restored database lost 200 club files a night for good.
+  it('removes nothing when more files look unused than the nightly limit', async () => {
     const keys = ['a', 'b', 'c'].map((name) => `media/${randomUUID()}/${name}.png`)
     for (const key of keys) {
       await s3.send(new PutObjectCommand({ Bucket: bucket, Key: key, Body: 'x' }))
@@ -58,10 +57,8 @@ describe('CRON-2: a failed clean-up is reported as a success', () => {
     ).drizzle.execute(sql`DELETE FROM payload_jobs`)
   })
 
-  // KNOWN FAILURE (CRON-2, low). The job queue catches the error, the route answers 200
-  // {"ok":true}, and nothing reaches Sentry. The privacy policy's 12-month promise could stop
-  // being kept with no one told. It should answer 500 and report to Sentry.
-  it.fails("doesn't answer 'ok' when the clean-up fails", async () => {
+  // CRON-2 (low), fixed: the route used to answer 200 {"ok":true} even when the job failed.
+  it("doesn't answer 'ok' when the clean-up fails", async () => {
     vi.stubEnv('CRON_SECRET', 'test-only-cron-secret')
     // Production, with storage settings broken: the file clean-up throws.
     vi.stubEnv('VERCEL_ENV', 'production')

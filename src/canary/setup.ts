@@ -50,6 +50,19 @@ export const createCanaryClubs = async (payload: Payload, editorEmail: string) =
     data: { name: `${CANARY_MARKER} person`, role: 'Canary', department: 'golf', tenant } as never,
     overrideAccess: true,
   })
+  // A marked account in club B, so the canary notices if club A can ever list it (CRON-3).
+  // Nobody signs in as it: its password is thrown away.
+  await payload.create({
+    collection: 'users',
+    data: {
+      email: `canary-b-${randomBytes(6).toString('hex')}@canary.invalid`,
+      password: randomBytes(24).toString('base64url'),
+      role: 'editor',
+      tenant,
+    },
+    context: allowAccountCreation,
+    overrideAccess: true,
+  })
   const password = randomBytes(24).toString('base64url')
   await payload.create({
     collection: 'users',
