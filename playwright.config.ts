@@ -16,6 +16,11 @@ export default defineConfig({
   reporter: isCI ? [['github'], ['html', { open: 'never' }]] : [['list']],
   use: {
     baseURL,
+    // Payload accepts the login cookie only on requests from the admin's own address (sign-in
+    // audit, A5): browsers say so with Sec-Fetch-Site. The tests' direct API calls
+    // (page.request, as a stolen cookie would be used) say the same, so the isolation suites
+    // test the access rules themselves, not the cross-site check.
+    extraHTTPHeaders: { 'Sec-Fetch-Site': 'same-origin' },
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },
