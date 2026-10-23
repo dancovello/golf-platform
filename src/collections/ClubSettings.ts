@@ -1,5 +1,4 @@
 import type { CollectionBeforeValidateHook, CollectionConfig, Field, Validate } from 'payload'
-import { APIError } from 'payload'
 import {
   array as arrayRules,
   email as emailFormat,
@@ -16,6 +15,7 @@ import { BRAND_INPUTS, type Brand, DEFAULT_BRAND, isHex } from '../theme/colour'
 import { DEFAULT_FONT_SET, FONT_SETS } from '../theme/fontSets'
 import { ENQUIRY_PURPOSES } from './enquiryPurposes'
 import { idOf } from '../blocks/types'
+import { publicError } from '../errors'
 
 type MenuRow = {
   kind?: string | null
@@ -104,7 +104,7 @@ const requireAgreement: CollectionBeforeValidateHook = async ({
   const tenant = originalDoc?.tenant
   const tenantID = typeof tenant === 'object' && tenant ? String(tenant.id) : String(tenant ?? '')
   if (!tenantID || !(await clubHasAccepted(req.payload, tenantID, req))) {
-    throw new APIError(
+    throw publicError(
       'Your club needs to accept the data processing agreement before these settings can be saved. Open “Data processing agreement” in the menu to read and accept it.',
       403,
       null,
