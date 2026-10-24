@@ -1,5 +1,6 @@
 import config from '@payload-config'
 import { getPayload } from 'payload'
+import { cache } from 'react'
 
 import type { MarketingPage } from '@/payload-types'
 
@@ -44,3 +45,23 @@ export const latestMarketingPage = async (path: string[]): Promise<MarketingPage
   })
   return docs[0] ?? null
 }
+
+/**
+ * The addresses of every published marketing page ("home" for the home page), once per visit.
+ * The nav and footer only link to these, so a page that's built but not published (Trust,
+ * the legal pages) never leads to "page not found".
+ */
+export const publishedMarketingSlugs = cache(async (): Promise<Set<string>> => {
+  const payload = await getPayload({ config })
+  const { docs } = await payload.find({
+    collection: 'marketing-pages',
+    where: { _status: { equals: 'published' } },
+    draft: false,
+    overrideAccess: true,
+    depth: 0,
+    limit: 200,
+    pagination: false,
+    select: { slug: true },
+  })
+  return new Set(docs.map((doc) => doc.slug))
+})
