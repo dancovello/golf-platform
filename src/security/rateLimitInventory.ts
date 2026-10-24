@@ -84,7 +84,7 @@ export const RATE_LIMITS: Record<string, Protection> = {
     limit:
       '5 sends per visitor in 10 minutes; 20 messages an hour per club; alert emails capped at 25 per club and 70 in all a day; hidden spam trap; too-fast sends dropped; Cloudflare Turnstile',
     where:
-      'App, shared database (CONTACT_VISITOR_LIMIT, CONTACT_CLUB_LIMIT, CONTACT_ALERTS_*, src/security/rateLimit.ts); Vercel Firewall rule 3',
+      'App, shared database (CONTACT_VISITOR_LIMIT, CONTACT_CLUB_LIMIT, CONTACT_ALERTS_PER_CLUB, WEBSITE_FORM_EMAILS, src/security/rateLimit.ts); Vercel Firewall rule 3',
   },
   // ---------- Platform services ----------
   'src/app/(frontend)/csp-report/route.ts': {
@@ -127,9 +127,9 @@ export const RATE_LIMITS: Record<string, Protection> = {
   'src/marketing/requests/actions.ts': {
     who: 'anyone',
     limit:
-      '20 requests an hour from everyone together; hidden spam trap; too-fast sends dropped; Cloudflare Turnstile. No per-visitor limit or email cap yet (the Contact form has both)',
+      '5 sends per visitor in 10 minutes; 20 requests an hour from everyone together; 10 requests emailed a day, within the website forms’ shared 70 emails a day; hidden spam trap; too-fast sends dropped; Cloudflare Turnstile',
     where:
-      'App, counted in the database (HOURLY_LIMIT, src/marketing/requests/submit.ts); Turnstile',
+      'App, shared database (HOMEPAGE_REQUEST_VISITOR_LIMIT, HOMEPAGE_REQUESTS_PER_HOUR, HOMEPAGE_REQUESTS_EMAILED_PER_DAY, WEBSITE_FORM_EMAILS, src/security/rateLimit.ts); Turnstile',
   },
   'src/app/(marketing)/marketing/dev/components/page.tsx': SUPER_ADMIN,
   'src/app/(marketing)/marketing/dev/preview/[[...path]]/page.tsx': SUPER_ADMIN,

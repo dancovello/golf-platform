@@ -23,7 +23,7 @@ Each finding has a test in `tests/int/audit-public-forms.int.spec.ts`. The tests
 
 ## Fixed on 23 October 2026
 
-Dan approved all four. 1: 5 sends per visitor in 10 minutes, checked in the app (`CONTACT_VISITOR_LIMIT`), whatever page address the form is posted to. 2: at most 25 alert emails per club per day and 70 for all clubs together, which keeps 30 of Resend's 100 free daily emails for password resets and invitations (`CONTACT_ALERTS_PER_CLUB`, `CONTACT_ALERTS_ALL_CLUBS`). Past that, messages are still saved, with "Emailed to the club" blank. No paid plan: raise the all-clubs number if Dan moves to one. 3: the per-club hourly count is taken in one database step (`CONTACT_CLUB_LIMIT`). 4: the form uses Payload's own email rule.
+Dan approved all four (Contact form, 23 Oct). The Homepage Request Form, built since, got the same fixes on 24 Oct: 5 sends per visitor in 10 minutes, a one-step hourly count, at most 10 requests emailed a day within the forms' shared 70 emails a day (`WEBSITE_FORM_EMAILS`, which replaced `CONTACT_ALERTS_ALL_CLUBS`), and Payload's own email rule. 1: 5 sends per visitor in 10 minutes, checked in the app (`CONTACT_VISITOR_LIMIT`), whatever page address the form is posted to. 2: at most 25 alert emails per club per day and 70 for all clubs together, which keeps 30 of Resend's 100 free daily emails for password resets and invitations (`CONTACT_ALERTS_PER_CLUB`, `CONTACT_ALERTS_ALL_CLUBS`). Past that, messages are still saved, with "Emailed to the club" blank. No paid plan: raise the all-clubs number if Dan moves to one. 3: the per-club hourly count is taken in one database step (`CONTACT_CLUB_LIMIT`). 4: the form uses Payload's own email rule.
 
 ## Files read
 

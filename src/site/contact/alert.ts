@@ -3,11 +3,7 @@ import { getPayload } from 'payload'
 
 import { enquiryPurposeLabel } from '@/collections/enquiryPurposes'
 import { emailEnabled } from '@/email/adapter'
-import {
-  allowRequest,
-  CONTACT_ALERTS_ALL_CLUBS,
-  CONTACT_ALERTS_PER_CLUB,
-} from '@/security/rateLimit'
+import { allowRequest, WEBSITE_FORM_EMAILS, CONTACT_ALERTS_PER_CLUB } from '@/security/rateLimit'
 
 import { loadClubBySlug } from '../loadClub'
 
@@ -35,7 +31,7 @@ export type AlertResult = 'sent' | 'email-off' | 'no-inbox' | 'not-found' | 'dai
  * visitor. Plain text only, so nothing the visitor typed can become a link or markup. Records
  * when it was sent on the enquiry; a failure is logged and the message is still in the admin.
  *
- * At most 25 alerts per club per day, and 70 for all clubs together, so one club's flood can't
+ * At most 25 alerts per club per day, and 70 website-form emails a day in all (WEBSITE_FORM_EMAILS), so one club's flood can't
  * use up the email allowance other clubs' alerts and everyone's password resets share (public
  * forms audit, finding 2). Past that the message is saved, with "Emailed to the club" blank.
  */
@@ -77,7 +73,7 @@ export const sendEnquiryAlert = async (enquiryID: string): Promise<AlertResult> 
   const db = (payload.db as unknown as { drizzle: Parameters<typeof allowRequest>[0] }).drizzle
   if (
     !(await allowRequest(db, CONTACT_ALERTS_PER_CLUB, `club:${tenantID}`)) ||
-    !(await allowRequest(db, CONTACT_ALERTS_ALL_CLUBS, 'all'))
+    !(await allowRequest(db, WEBSITE_FORM_EMAILS, 'all'))
   ) {
     payload.logger.warn(
       `Enquiry ${enquiry.reference}: not emailed, the daily alert limit is reached (it's in the admin)`,

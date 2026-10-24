@@ -2,6 +2,7 @@
  * The Homepage Request Form on the Switching page (plan phase 5.2): saved for the super-admin
  * alone, protected like the club Contact form, emailed, and deleted after 12 months.
  */
+import { sql } from '@payloadcms/db-postgres'
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { deleteOldHomepageRequests } from '@/privacy/cleanUp'
@@ -11,6 +12,12 @@ import {
   REQUEST_FORM_SCOPE,
   submitHomepageRequest,
 } from '@/marketing/requests/submit'
+import {
+  allowRequest,
+  HOMEPAGE_REQUEST_VISITOR_LIMIT,
+  HOMEPAGE_REQUESTS_EMAILED_PER_DAY,
+  WEBSITE_FORM_EMAILS,
+} from '@/security/rateLimit'
 import { issueFormToken } from '@/site/contact/formToken'
 
 import { seedWorld, type World } from './helpers/seed'
@@ -50,12 +57,18 @@ const saved = async () =>
     })
   ).docs
 
-const clear = () =>
-  w.payload.delete({
+type Executor = Parameters<typeof allowRequest>[0]
+const db = () => (w.payload.db as unknown as { drizzle: Executor }).drizzle
+
+// Requests and the limit counts both start empty in each test.
+const clear = async () => {
+  await w.payload.delete({
     collection: 'homepage-requests',
     where: { id: { exists: true } },
     overrideAccess: true,
   })
+  await db().execute(sql`DELETE FROM rate_limits`)
+}
 
 beforeAll(async () => {
   w = await seedWorld()
@@ -203,6 +216,53 @@ describe('only the super-admin sees requests', () => {
   })
 })
 
+describe('limits, as on the club Contact form (public forms audit)', () => {
+  it('one visitor gets 5 sends in 10 minutes; another visitor can still send', async () => {
+    const asVisitor = (ip: string) => () =>
+      allowRequest(db(), HOMEPAGE_REQUEST_VISITOR_LIMIT, ip, NOW)
+    for (let i = 0; i < HOMEPAGE_REQUEST_VISITOR_LIMIT.max; i++) {
+      const ok = await submitHomepageRequest(
+        { attempt: 0 },
+        form({ clubName: `Club ${i}` }),
+        NOW,
+        undefined,
+        {
+          visitorAllowed: asVisitor('203.0.113.9'),
+        },
+      )
+      expect(ok.sent).not.toBeNull()
+    }
+    const sixth = await submitHomepageRequest({ attempt: 0 }, form(), NOW, undefined, {
+      visitorAllowed: asVisitor('203.0.113.9'),
+    })
+    expect(sixth.formError).toMatch(/a lot of requests/)
+    const other = await submitHomepageRequest({ attempt: 0 }, form(), NOW, undefined, {
+      visitorAllowed: asVisitor('198.51.100.4'),
+    })
+    expect(other.sent).not.toBeNull()
+  })
+
+  it(`never saves more than ${HOURLY_LIMIT} in an hour, even when sent all at once`, async () => {
+    await Promise.all(
+      Array.from({ length: HOURLY_LIMIT + 15 }, (_, i) => send(form({ clubName: `At once ${i}` }))),
+    )
+    expect((await saved()).length).toBeLessThanOrEqual(HOURLY_LIMIT)
+  })
+
+  it('refuses addresses that could not be saved or could add reply addresses', async () => {
+    for (const email of [
+      'a,b@example.com',
+      'A <a@example.com>',
+      '"a"@example.com',
+      'josé@example.com',
+    ]) {
+      const result = await send(form({ email }))
+      expect(result.errors.email, email).toMatch(/like you@yourclub/)
+    }
+    expect(await saved()).toHaveLength(0)
+  })
+})
+
 describe('emails', () => {
   afterEach(async () => {
     vi.restoreAllMocks()
@@ -260,6 +320,37 @@ describe('emails', () => {
     })
     expect(request.alertSentAt).toBeTruthy()
     expect(request.confirmationSentAt).toBeTruthy()
+  })
+
+  it(`emails at most ${HOMEPAGE_REQUESTS_EMAILED_PER_DAY.max} requests a day, and keeps the rest`, async () => {
+    process.env.RESEND_API_KEY = 'test-only'
+    const sendEmail = vi.spyOn(w.payload, 'sendEmail').mockResolvedValue({})
+    vi.spyOn(w.payload.logger, 'warn').mockImplementation(() => undefined)
+    const results = []
+    for (let i = 0; i <= HOMEPAGE_REQUESTS_EMAILED_PER_DAY.max; i++) {
+      results.push(await sendHomepageRequestEmails(await sendAndKeepID()))
+    }
+    expect(results.at(-1)).toEqual({ alert: 'daily-limit', confirmation: 'daily-limit' })
+    // No inbox set: one confirmation each, for the first 10 only.
+    expect(sendEmail).toHaveBeenCalledTimes(HOMEPAGE_REQUESTS_EMAILED_PER_DAY.max)
+    expect(await saved()).toHaveLength(HOMEPAGE_REQUESTS_EMAILED_PER_DAY.max + 1)
+  })
+
+  it('sends nothing once the website forms have used their shared daily emails', async () => {
+    process.env.RESEND_API_KEY = 'test-only'
+    const sendEmail = vi.spyOn(w.payload, 'sendEmail').mockResolvedValue({})
+    vi.spyOn(w.payload.logger, 'warn').mockImplementation(() => undefined)
+    // The Contact form has used the whole allowance today (the 30 kept back are for
+    // password resets and invitations, which don't count here).
+    for (let i = 0; i < WEBSITE_FORM_EMAILS.max; i++) {
+      await allowRequest(db(), WEBSITE_FORM_EMAILS, 'all')
+    }
+    const id = await sendAndKeepID()
+    expect(await sendHomepageRequestEmails(id)).toEqual({
+      alert: 'no-inbox',
+      confirmation: 'daily-limit',
+    })
+    expect(sendEmail).not.toHaveBeenCalled()
   })
 
   it('without an inbox, still confirms to the club and keeps the request', async () => {

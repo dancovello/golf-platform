@@ -1,3 +1,5 @@
+import { EMAIL_ADDRESS } from '@/email/address'
+
 /** The Homepage Request Form's fields (Figma 265:8785): club name, current website, email. */
 export type RequestValues = { clubName: string; website: string; email: string }
 
@@ -37,7 +39,8 @@ export const cleanWebsite = (value: string): string | null => {
   }
 }
 
-const EMAIL = /^[^\s@<>"]+@[^\s@<>"]+\.[a-z]{2,}$/i
+// Payload's own rule, so every address accepted here can be saved and emailed safely.
+const EMAIL = EMAIL_ADDRESS
 
 export const validateRequest = (v: RequestValues): RequestErrors => {
   const errors: RequestErrors = {}

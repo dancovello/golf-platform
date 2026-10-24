@@ -59,11 +59,33 @@ export const CONTACT_ALERTS_PER_CLUB: Limit = {
   max: 25,
   windowSeconds: 24 * 60 * 60,
 }
-/** Contact alert emails for all clubs together per day. Resend's free plan sends 100 a day in
- * all; this keeps 30 free for password resets and invitations. Raise it on a paid plan. */
-export const CONTACT_ALERTS_ALL_CLUBS: Limit = {
-  name: 'contact-alert-all',
+/** Emails from the public website forms (Contact alerts, and Homepage Request alerts and
+ * confirmations), all together per day. Resend's free plan sends 100 a day in all; this keeps
+ * 30 free for password resets and invitations. Raise it on a paid plan. */
+export const WEBSITE_FORM_EMAILS: Limit = {
+  name: 'form-emails',
   max: 70,
+  windowSeconds: 24 * 60 * 60,
+}
+/** Homepage Request Form sends per visitor, before anything is saved (as the Contact form). */
+export const HOMEPAGE_REQUEST_VISITOR_LIMIT: Limit = {
+  name: 'homepage-request',
+  max: 5,
+  windowSeconds: 10 * 60,
+}
+/** Homepage requests saved, from everyone together, counted in one step so a burst can't
+ * overshoot. Matches HOURLY_LIMIT in src/marketing/requests/submit.ts. */
+export const HOMEPAGE_REQUESTS_PER_HOUR: Limit = {
+  name: 'homepage-requests',
+  max: 20,
+  windowSeconds: 60 * 60,
+}
+/** Homepage requests emailed per day (an alert to the company and a confirmation to the club
+ * each). Past this they're saved but not emailed, so the form can't be used to send strangers
+ * confirmations or use up the shared email allowance. */
+export const HOMEPAGE_REQUESTS_EMAILED_PER_DAY: Limit = {
+  name: 'homepage-request-emails',
+  max: 10,
   windowSeconds: 24 * 60 * 60,
 }
 /** Security policy reports, from all visitors together: they only go to the log. */
