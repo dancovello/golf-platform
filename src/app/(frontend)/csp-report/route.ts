@@ -1,6 +1,8 @@
 import * as Sentry from '@sentry/nextjs'
 
 import { sentryEnabled } from '@/monitoring/sentry'
+import { withinLimit } from '@/security/limitRequest'
+import { CSP_REPORT_LIMIT } from '@/security/rateLimit'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,17 +13,53 @@ export const dynamic = 'force-dynamic'
  * reports are clean.
  *
  * Only the page's path and the blocked item's origin are kept: no query strings, nothing about
- * the visitor. At most 60 reports a minute per server instance, so it can't be used to flood
- * the logs.
+ * the visitor. At most 60 reports a minute from everyone together, counted across every server
+ * (src/security/rateLimit.ts), so it can't be used to flood the logs.
  */
-const PER_MINUTE = 60
-let windowStart = 0
-let count = 0
+
+/** Line breaks and other control characters out, length capped: a sender can't write extra
+ * lines into the log or pad it (headers audit, finding 4). */
+const clean = (value: string, max: number) =>
+  value.replace(/[\u0000-\u001f\u007f-\u009f\u2028\u2029]+/g, ' ').slice(0, max)
+
+/** The policy's own directive names; anything else is logged as "unknown". */
+const DIRECTIVES = new Set([
+  'default-src',
+  'script-src',
+  'script-src-elem',
+  'script-src-attr',
+  'style-src',
+  'style-src-elem',
+  'style-src-attr',
+  'img-src',
+  'media-src',
+  'font-src',
+  'connect-src',
+  'frame-src',
+  'child-src',
+  'worker-src',
+  'manifest-src',
+  'object-src',
+  'base-uri',
+  'form-action',
+  'frame-ancestors',
+  'report-uri',
+  'report-to',
+  'sandbox',
+  'require-trusted-types-for',
+  'trusted-types',
+  'upgrade-insecure-requests',
+])
+const directiveOf = (value: unknown) => {
+  // Older browsers send the whole rule ("script-src 'self' …"): keep its name.
+  const name = typeof value === 'string' ? value.trim().split(/\s/)[0]?.toLowerCase() : ''
+  return name && DIRECTIVES.has(name) ? name : 'unknown'
+}
 
 const pathOf = (value: unknown) => {
   if (typeof value !== 'string') return null
   try {
-    return new URL(value).pathname
+    return clean(new URL(value).pathname, 200)
   } catch {
     return null
   }
@@ -29,9 +67,9 @@ const pathOf = (value: unknown) => {
 
 const originOf = (value: unknown) => {
   if (typeof value !== 'string') return null
-  if (!value.includes('://')) return value.slice(0, 40) // e.g. "inline", "eval"
+  if (!value.includes('://')) return clean(value, 40) // e.g. "inline", "eval"
   try {
-    return new URL(value).origin
+    return clean(new URL(value).origin, 200)
   } catch {
     return null
   }
@@ -51,12 +89,11 @@ const reportsIn = (body: unknown): Report[] => {
 }
 
 export async function POST(request: Request) {
-  const now = Date.now()
-  if (now - windowStart > 60_000) {
-    windowStart = now
-    count = 0
-  }
-  if (++count > PER_MINUTE) return new Response(null, { status: 204 })
+  // A database problem drops the report rather than failing: reports are only for the log.
+  const allowed = await withinLimit(CSP_REPORT_LIMIT, request.headers, { visitor: 'all' }).catch(
+    () => false,
+  )
+  if (!allowed) return new Response(null, { status: 204 })
 
   const text = (await request.text().catch(() => '')).slice(0, 10_000)
   let body: unknown = null
@@ -69,8 +106,8 @@ export async function POST(request: Request) {
   for (const r of reportsIn(body).slice(0, 5)) {
     const summary = {
       page: pathOf(r['document-uri'] ?? r.documentURL),
-      directive: String(
-        r['effective-directive'] ?? r.effectiveDirective ?? r['violated-directive'] ?? '',
+      directive: directiveOf(
+        r['effective-directive'] ?? r.effectiveDirective ?? r['violated-directive'],
       ),
       blocked: originOf(r['blocked-uri'] ?? r.blockedURL),
       reportOnly: (r.disposition ?? '') === 'report',

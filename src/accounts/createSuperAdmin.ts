@@ -14,4 +14,5 @@ export const createSuperAdmin = async (
     collection: 'users',
     data: { email, password, role: 'super-admin', tenant: null },
     context: allowAccountCreation,
+    overrideAccess: true,
   })

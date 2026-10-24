@@ -22,7 +22,6 @@ Each has a safe default so building isn't blocked. The default is what ships unt
 | N3 | **`golf_ball.glb` and `golf-ball-generator.py`** | Phase 7 | — |
 | N4 | **Company privacy policy, cookie notice and terms** wording | Phase 6 | Pages built as drafts with a [[placeholder]] line; they can't be published until it's replaced, and the footer hides their links until then |
 | N5 | **Image licences** for the hero, two-column and accessibility photos | Phase 4 | Clearly licensed stock or demo pictures, captioned as demo clubs |
-| N6 | **Vercel functions in London?** Needed before the Trust page can say "Stored in London" (doc 03) | Phase 6 (Trust, held) | The line stays out |
 | N7 | **Old page addresses.** The Switching page and FAQ promise old page addresses forward to the new ones (softened for now: D8). Today the platform forwards a club's *extra domains* (e.g. without `www`), but not old page addresses like `/about-us.php`. Build page forwarding, or soften the copy? | Phase 5 (Switching) | Claim held back until decided |
 | N8 | **"Alt text required."** For club photos, the description is optional (your decision, 17 Oct); the library marks missing ones "Needs description". The marketing site's own Media block will require it. | Before any copy says it | Not claimed for club sites |
 | N9 | **Search in the nav.** Figma's nav has a Search button, but the marketing site has no search for it to open. Add site search later, or remove it from Figma? | Phase 8 | Left out |
@@ -70,3 +69,4 @@ Places where the build differs from Figma to meet WCAG 2.2 AA. Update Figma or t
 |---|---|---|---|
 | Q1 | Run the marketing site inside the platform? | Yes (decision A) | 2026-10-21 |
 | — | Committee summary A4 | Removed. Not built | 2026-10-21 |
+| N6 | Vercel functions in London? | Yes: `regions: ["lhr1"]` in `vercel.json`. "Stored in London" still waits on photo storage (R2 is Western Europe, not the UK; see the claims register) | 2026-10-22 |

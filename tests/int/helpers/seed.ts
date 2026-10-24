@@ -85,25 +85,37 @@ export const getTestPayload = async () => {
 
 export const resetDatabase = async (payload: Payload) => {
   const all = { id: { exists: true } }
-  await payload.delete({ collection: 'pages', where: all })
-  await payload.delete({ collection: 'media', where: all })
-  await payload.delete({ collection: 'documents', where: all })
-  await payload.delete({ collection: 'staff', where: all })
-  await payload.delete({ collection: 'courses', where: all })
-  await payload.delete({ collection: 'news', where: all })
-  await payload.delete({ collection: 'agreement-acceptances', where: all })
-  await payload.delete({ collection: 'events', where: all })
-  await payload.delete({ collection: 'enquiries', where: all })
-  await payload.delete({ collection: 'club-settings', where: all })
-  await payload.delete({ collection: 'course-status', where: all })
-  await payload.delete({ collection: 'payload-preferences', where: all })
-  await payload.delete({ collection: 'marketing-pages', where: all })
-  await payload.delete({ collection: 'marketing-media', where: all })
-  await payload.delete({ collection: 'homepage-requests', where: all })
+  // Says what couldn't be deleted, instead of carrying on: a leftover record (say, a club's
+  // page) stops its club being deleted, and the next file's seed then fails far from the cause.
+  const wipe = async (collection: Parameters<typeof payload.delete>[0]['collection']) => {
+    const { errors } = await payload.delete({ collection, where: all })
+    if (errors.length) {
+      throw new Error(
+        `Test reset: ${errors.length} ${collection} record(s) not deleted: ${errors.map((e) => e.message).join('; ')}`,
+      )
+    }
+  }
+  await wipe('pages')
+  await wipe('media')
+  await wipe('documents')
+  await wipe('staff')
+  await wipe('courses')
+  await wipe('news')
+  await wipe('agreement-acceptances')
+  await wipe('events')
+  await wipe('enquiries')
+  await wipe('club-settings')
+  await wipe('course-status')
+  await wipe('payload-preferences')
+  await wipe('marketing-pages')
+  await wipe('marketing-media')
+  await wipe('homepage-requests')
   // Settings screens have one record; removing it brings back the defaults.
   await payload.db.drizzle.execute(sql`DELETE FROM marketing_settings`)
-  await payload.delete({ collection: 'users', where: all })
-  await payload.delete({ collection: 'tenants', where: all })
+  // Rate-limit counts, so one test file's sends don't count against the next one's limits.
+  await payload.db.drizzle.execute(sql`DELETE FROM rate_limits`)
+  await wipe('users')
+  await wipe('tenants')
 }
 
 /**
@@ -113,8 +125,11 @@ export const resetDatabase = async (payload: Payload) => {
  */
 export const asUser = async (payload: Payload, id: string): Promise<LoggedInUser> => {
   const user = await payload.findByID({ collection: 'users', id, depth: 0 })
-  // `_strategy: 'totp'` is how payload-totp marks a session whose code has been entered.
-  return { ...user, collection: 'users', _strategy: 'totp' }
+  // How the account is signed in when fully logged in: with its two-factor code entered
+  // (`totp`, payload-totp's marker) if it has two-factor, otherwise with its password alone
+  // (`local-jwt`): club editors without two-factor (decisions.md, 22 Oct).
+  const hasTotp = Boolean((user as { hasTotp?: boolean }).hasTotp)
+  return { ...user, collection: 'users', _strategy: hasTotp ? 'totp' : 'local-jwt' }
 }
 
 /** The same user part-way through logging in: password accepted, no code entered yet. */
@@ -125,13 +140,19 @@ export const withoutCode = (user: LoggedInUser): LoggedInUser => {
 
 const slugOf = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
 
-const createEditor = async (payload: Payload, email: string, tenant: string) => {
+/** A club editor with a password only (the default since 22 Oct), or with two-factor too. */
+export const createEditor = async (
+  payload: Payload,
+  email: string,
+  tenant: string,
+  { twoFactor = false }: { twoFactor?: boolean } = {},
+) => {
   const created = await payload.create({
     collection: 'users',
     data: { email, password: PASSWORD, role: 'editor', tenant },
     context: allowAccountCreation,
   })
-  await enrolTwoFactor(payload, created.id)
+  if (twoFactor) await enrolTwoFactor(payload, created.id)
   return asUser(payload, created.id)
 }
 

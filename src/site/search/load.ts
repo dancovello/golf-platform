@@ -12,7 +12,8 @@ import {
   searchGrouped,
   searchWhenCounts,
 } from '@/search/query'
-import { allowSearch, visitorKey } from '@/search/rateLimit'
+import { withinLimit } from '@/security/limitRequest'
+import { SEARCH_LIMIT } from '@/security/rateLimit'
 import { searchWords, tidyQuery } from '@/search/words'
 
 import type { ClubSite } from '../loadClub'
@@ -73,7 +74,7 @@ export const loadSearch = async (
   const tenantID = club.tenantID
   const words = searchWords(filters.q)
   if (filters.q.length < 2 || words.length === 0) return { state: 'empty', filters }
-  if (!allowSearch(visitorKey(await headers()))) return { state: 'busy', filters }
+  if (!(await withinLimit(SEARCH_LIMIT, await headers()))) return { state: 'busy', filters }
 
   const [grouped, list, whenCounts, answer] = await Promise.all([
     filters.kind

@@ -277,6 +277,8 @@ export interface HeroBlock {
   blockType: 'hero';
 }
 /**
+ * Photos are cleaned of hidden details (like where they were taken) when you upload them. Videos are not: before uploading a video, turn off location in your phone’s camera settings.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
@@ -596,6 +598,8 @@ export interface DocumentListBlock {
   blockType: 'documentList';
 }
 /**
+ * Word and PDF files carry hidden details, such as the author’s name. Before uploading, check them in the file’s properties (in Word: File, then Info, then Inspect Document).
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "documents".
  */

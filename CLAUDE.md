@@ -59,6 +59,7 @@ Member login, the booking portal, and billing/payments. They are documented for 
 ## How to work with Dan
 - **Plan first.** Propose a small plan, wait for approval, then implement only what was agreed.
 - Keep changes small. One branch per change. No direct commits to `main`.
+- Open pull requests as **drafts** while still pushing to them, and mark them ready for review when done: the browser checks only run on ready pull requests (`docs/operations/ci-minutes.md`).
 - End every change with this summary:
   > **What changed:** … · **Why it's safe:** … · **Checks run:** typecheck ✅/❌, lint ✅/❌, tests ✅/❌, tenant isolation ✅/❌ · **New dependencies:** none / list · **Migration:** none / reviewed · **Preview:** link · **Risks / open questions:** …
 - If something needs a human expert (security, production infrastructure), say so plainly.
@@ -85,6 +86,7 @@ Node 24 and pnpm (via corepack: `corepack pnpm …` if `pnpm` isn't on PATH). Lo
 - **Database accounts:** the website uses the limited `golf_app` account (read/write data only). Only the release workflow uses the owner account.
 - **Backups:** `.github/workflows/backup.yml` runs nightly and before each release, encrypted with the public key in `ops/backup-recipient.txt`. Restore procedure: `docs/operations/restore-runbook.md`.
 - **Migrations:** never edit a merged migration; the `migration-guard` CI check blocks it. Data-deleting changes need Dan's `approved-destructive-migration` label.
+- **AI security review:** every PR into `main` gets the `security-review` check (`docs/operations/ai-security-review.md`). A HIGH finding blocks merging. Fix it; only Dan may dismiss one (the `security-finding-dismissed` label plus his written comment). Claude never adds that label or writes that comment.
 - Decisions made after doc 04 are in `docs/architecture/decisions.md`.
 - **Security checks:** run in a separate chat with the prompt in `docs/operations/security-checks.md` (read-only; it writes a dated report).
 

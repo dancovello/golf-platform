@@ -51,7 +51,7 @@ export const linkEmailContent = ({ clubName, link, expiresInHours, kind }: LinkE
       : `Here's a new link to set your password for the ${club} website.`
   const steps = [
     `Choose a password (at least 12 characters).`,
-    `Set up two-factor login: you'll scan a code with an authenticator app on your phone, such as Google Authenticator or Microsoft Authenticator.`,
+    `Sign in with your email address and that password. For extra security you can also turn on two-factor login from your account page.`,
   ]
   const expiry = `The link works once, for ${expiresInHours} hours. If it runs out, ask for a new one.`
   const text = [

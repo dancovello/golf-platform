@@ -8,6 +8,7 @@ import { loadClubMedia, type SiteMedia } from './blocks/media'
 import { PUBLISHED } from './published'
 import type { SiteLink } from './loadClub'
 import { siteToday } from './today'
+import { clubCached } from './cache'
 import { idOf } from '@/blocks/types'
 
 /** An event as cards, rows and the featured panel show it. */
@@ -121,11 +122,12 @@ const toEvents = async (tenantID: string, docs: EventDoc[]): Promise<SiteEvent[]
   })
 }
 
-const find = async (where: Where, limit: number) => {
+/** One club's events. The club is always added to the query here, so no caller can forget it. */
+const find = async (tenantID: string, where: Where, limit: number) => {
   const payload = await getPayload({ config })
   return payload.find({
     collection: 'events',
-    where,
+    where: { and: [{ tenant: { equals: tenantID } }, where] },
     sort: 'startsAt',
     limit,
     depth: 0,
@@ -148,19 +150,24 @@ export const clubEvents = async (tenantID: string): Promise<SiteEvent[]> => {
 }
 
 /** The next events, soonest first, optionally in one category (Events blocks). */
-export const upcomingEvents = async (
+const upcomingEventsFresh = async (
   tenantID: string,
   limit: number,
   category?: string | null,
 ): Promise<SiteEvent[]> => {
-  const { docs } = await find(upcoming(tenantID, category), limit)
+  const { docs } = await find(tenantID, upcoming(tenantID, category), limit)
   return toEvents(tenantID, docs as EventDoc[])
 }
 
 /** The featured event (the soonest one marked featured, or simply the next one). */
-export const featuredEvent = async (tenantID: string): Promise<SiteEvent | null> => {
-  const marked = await find({ and: [upcoming(tenantID), { featured: { equals: true } }] }, 1)
-  const docs = marked.docs.length > 0 ? marked.docs : (await find(upcoming(tenantID), 1)).docs
+const featuredEventFresh = async (tenantID: string): Promise<SiteEvent | null> => {
+  const marked = await find(
+    tenantID,
+    { and: [upcoming(tenantID), { featured: { equals: true } }] },
+    1,
+  )
+  const docs =
+    marked.docs.length > 0 ? marked.docs : (await find(tenantID, upcoming(tenantID), 1)).docs
   return (await toEvents(tenantID, docs as EventDoc[]))[0] ?? null
 }
 
@@ -169,7 +176,7 @@ export const featuredEvent = async (tenantID: string): Promise<SiteEvent | null>
  * `include`: one more of the club's events shown whatever its status or date, for the admin's
  * live preview (the caller checks who may see it: src/site/livePreviewAccess.ts).
  */
-export const eventsArchive = async (
+const eventsArchiveFresh = async (
   tenantID: string,
   {
     category,
@@ -179,11 +186,9 @@ export const eventsArchive = async (
 ) => {
   const known = EVENT_CATEGORIES.some((c) => c.value === category) ? category : null
   const count = Math.min(Math.max(EVENTS_STEP, show), 200)
-  const result = await find(upcoming(tenantID, known), count)
+  const result = await find(tenantID, upcoming(tenantID, known), count)
   // The event being previewed comes first, so the editor always sees it.
-  const extra = include
-    ? (await find({ and: [{ tenant: { equals: tenantID } }, { id: { equals: include } }] }, 1)).docs
-    : []
+  const extra = include ? (await find(tenantID, { id: { equals: include } }, 1)).docs : []
   const docs = [...extra, ...result.docs.filter((d) => !extra.some((e) => e.id === d.id))]
   return {
     category: known,
@@ -192,3 +197,21 @@ export const eventsArchive = async (
     show: count,
   }
 }
+
+// Cached per club (src/site/cache.ts). "Upcoming" depends on today's date: at most 5 minutes.
+export const upcomingEvents = clubCached('upcomingEvents', upcomingEventsFresh, { today: true })
+export const featuredEvent = clubCached('featuredEvent', featuredEventFresh, { today: true })
+const cachedArchive = clubCached(
+  'eventsArchive',
+  (tenantID: string, category: string | null, show: number) =>
+    eventsArchiveFresh(tenantID, { category, show }),
+  { today: true },
+)
+/** The archive. With `include` (the live preview's draft event) it never goes through the cache. */
+export const eventsArchive = (
+  tenantID: string,
+  options: { category: string | null; show: number; include?: string | null },
+) =>
+  options.include
+    ? eventsArchiveFresh(tenantID, options)
+    : cachedArchive(tenantID, options.category, options.show)

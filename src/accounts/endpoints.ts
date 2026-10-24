@@ -1,6 +1,6 @@
 import type { Endpoint, PayloadRequest } from 'payload'
 
-import { isSuperAdmin } from '../access/roles'
+import { isSuperAdminWithCode } from '../auth/fullyAuthenticated'
 
 import { createPasswordLink, inviteEditor } from './passwordLinks'
 import { publicError } from '../errors'
@@ -10,8 +10,7 @@ import { publicError } from '../errors'
  * super-admin whose two-factor code has been entered.
  */
 const requireSuperAdminWithCode = (req: PayloadRequest) => {
-  const user = req.user as (typeof req.user & { _strategy?: string }) | null
-  if (!user || !isSuperAdmin(user) || user._strategy !== 'totp') {
+  if (!isSuperAdminWithCode(req.user)) {
     throw publicError('You are not allowed to perform this action.', 403)
   }
 }

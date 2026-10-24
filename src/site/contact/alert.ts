@@ -3,6 +3,11 @@ import { getPayload } from 'payload'
 
 import { enquiryPurposeLabel } from '@/collections/enquiryPurposes'
 import { emailEnabled } from '@/email/adapter'
+import {
+  allowRequest,
+  CONTACT_ALERTS_ALL_CLUBS,
+  CONTACT_ALERTS_PER_CLUB,
+} from '@/security/rateLimit'
 
 import { loadClubBySlug } from '../loadClub'
 
@@ -22,13 +27,17 @@ const ukDate = (iso: string) =>
     year: 'numeric',
   }).format(new Date(iso))
 
-export type AlertResult = 'sent' | 'email-off' | 'no-inbox' | 'not-found'
+export type AlertResult = 'sent' | 'email-off' | 'no-inbox' | 'not-found' | 'daily-limit'
 
 /**
  * Emails a new Contact page message to the club: to the inbox set for its topic in Club
  * Settings → Contact page, or the footer email if there isn't one. Replying answers the
  * visitor. Plain text only, so nothing the visitor typed can become a link or markup. Records
  * when it was sent on the enquiry; a failure is logged and the message is still in the admin.
+ *
+ * At most 25 alerts per club per day, and 70 for all clubs together, so one club's flood can't
+ * use up the email allowance other clubs' alerts and everyone's password resets share (public
+ * forms audit, finding 2). Past that the message is saved, with "Emailed to the club" blank.
  */
 export const sendEnquiryAlert = async (enquiryID: string): Promise<AlertResult> => {
   if (!emailEnabled()) return 'email-off'
@@ -63,6 +72,17 @@ export const sendEnquiryAlert = async (enquiryID: string): Promise<AlertResult> 
   if (!to) {
     payload.logger.warn(`Enquiry ${enquiry.reference}: no inbox or footer email to send it to`)
     return 'no-inbox'
+  }
+
+  const db = (payload.db as unknown as { drizzle: Parameters<typeof allowRequest>[0] }).drizzle
+  if (
+    !(await allowRequest(db, CONTACT_ALERTS_PER_CLUB, `club:${tenantID}`)) ||
+    !(await allowRequest(db, CONTACT_ALERTS_ALL_CLUBS, 'all'))
+  ) {
+    payload.logger.warn(
+      `Enquiry ${enquiry.reference}: not emailed, the daily alert limit is reached (it's in the admin)`,
+    )
+    return 'daily-limit'
   }
 
   const about = enquiryPurposeLabel(enquiry.purpose)
