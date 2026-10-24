@@ -6,6 +6,7 @@ import { bookingsBlocks } from './bookingsBlocks'
 import { builderBlocks } from './builderBlocks'
 import { FEATURE_ICONS } from './icons'
 import { homeBlocks } from './homeBlocks'
+import { infoBlocks } from './infoBlocks'
 import { pricingBlocks } from './pricingBlocks'
 import { switchingBlocks } from './switchingBlocks'
 import { marketingRichText } from './richText'
@@ -288,4 +289,5 @@ export const marketingBlocks: Block[] = [
   ...bookingBlocks,
   ...builderBlocks,
   ...bookingsBlocks,
+  ...infoBlocks,
 ]

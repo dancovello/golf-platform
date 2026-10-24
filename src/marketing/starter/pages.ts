@@ -1,5 +1,8 @@
 import type { Payload } from 'payload'
 
+import { BRAND } from '@/brand'
+import { rt } from '@/demo/richText'
+
 /**
  * The marketing pages as Figma has them (copy from the frames on the "Marketing site" page),
  * so Dan doesn't have to type them in. Added as drafts by the super-admin's "Add the Figma pages"
@@ -657,6 +660,203 @@ const bookings: StarterPage = {
   ],
 }
 
+// Trust & security (Figma "Trust & security — Desktop" 187:6879). Built, not published until
+// the hosting and backup lines can be stated (hand-off §6, Q6, N6). Two lines differ from
+// Figma (D18, D19) and the CTA's "Committee summary (PDF)" is left out (removed 21 Oct).
+const trust: StarterPage = {
+  slug: 'trust',
+  title: 'Trust & security',
+  description:
+    'Where your club’s data is kept, how it’s backed up and how the site meets accessibility standards, in plain English.',
+  layout: [
+    {
+      blockType: 'mkSectionHeader',
+      eyebrow: 'Trust & security',
+      title: 'Your members’ data,\nlooked after.',
+      subhead:
+        'Where it’s stored, how it’s backed up and how the site meets accessibility standards. In plain English, for your committee.',
+      align: 'left',
+    },
+    {
+      blockType: 'mkFeatureCards',
+      style: 'cards',
+      cards: [
+        {
+          icon: 'check',
+          title: 'Accessibility',
+          body: 'Designed to meet WCAG 2.2 AA. We’re recording a keyboard and screen reader test for every block, and publishing the log.',
+          availability: 'live',
+          linkLabel: 'Read the statement',
+          linkHref: '/accessibility',
+        },
+        {
+          icon: 'lock',
+          title: 'Hosting',
+          body: 'Ask us for the full list of companies we use, and where each one keeps your club’s data.',
+          availability: 'live',
+          linkLabel: 'Ask for the list',
+          linkHref: `mailto:${BRAND.email}?subject=Where%20our%20data%20is%20kept`,
+        },
+        {
+          icon: 'clock',
+          title: 'Backups',
+          body: 'Backed up every night, encrypted and kept for 30 days.',
+          availability: 'live',
+        },
+        {
+          icon: 'file',
+          title: 'Data protection',
+          body: 'UK GDPR throughout. We sign a data processing agreement with every club, and send it before you commit.',
+          availability: 'live',
+          linkLabel: 'Ask for the DPA',
+          linkHref: `mailto:${BRAND.email}?subject=Data%20processing%20agreement`,
+        },
+      ],
+    },
+    {
+      blockType: 'mkCtaBand',
+      title: 'Questions from your committee?',
+      subhead: 'We’ll walk them through it, or send the paperwork ahead of the meeting.',
+      primary: { label: 'Book a demo', href: '/book-a-demo' },
+      secondary: { label: '', href: '/switching' },
+    },
+  ],
+}
+
+// Accessibility statement (Figma "Accessibility statement — Desktop" 212:8158). "Designed to
+// meet", not "built to" (hand-off §6). The greenkeeper photo isn't added: its licence isn't
+// confirmed (N5); add it as a Photo block once it is, without the caption (D20).
+const accessibility: StarterPage = {
+  slug: 'accessibility',
+  title: 'Accessibility statement',
+  description:
+    'How we make club websites work for everyone, what we test, and what to do if something doesn’t work for you.',
+  layout: [
+    {
+      blockType: 'mkSectionHeader',
+      eyebrow: 'Trust & security',
+      title: 'Accessibility statement',
+      subhead: 'How we make club sites work for everyone, and what to do if something doesn’t.',
+      align: 'left',
+    },
+    { blockType: 'mkReviewed', label: 'reviewed' },
+    {
+      blockType: 'mkRichText',
+      content: rt.doc(
+        rt.h2('Our commitment'),
+        rt.p(
+          'Every club site on the platform is designed to meet WCAG 2.2 AA. We’re testing each block with a keyboard, a screen reader and at 400% zoom, and we publish the results as each test is recorded.',
+        ),
+        rt.p(
+          'If something doesn’t work for you, email ',
+          rt.urlLink(BRAND.email, `mailto:${BRAND.email}`),
+          ' and we’ll fix it or find another way to get you what you need.',
+        ),
+        rt.h3('What we test'),
+        rt.ul(
+          'Keyboard access to every control, with a visible focus ring',
+          'Colour contrast of text and controls, including club colours',
+          'Screen reader labels on images, buttons and form fields',
+          'Motion, which respects reduced-motion settings',
+        ),
+        rt.quote('We design accessibility into each block from the start.'),
+      ),
+    },
+    {
+      blockType: 'mkRichText',
+      content: rt.doc(
+        rt.h2('Known issues'),
+        rt.p(
+          'Some older PDFs that clubs bring with them aren’t tagged for screen readers. We flag these when you switch to us, and can supply accessible versions on request.',
+        ),
+        rt.p('We review this statement every six months and whenever we ship a new block.'),
+      ),
+    },
+    {
+      blockType: 'mkCtaBand',
+      title: 'Found something that doesn’t work?',
+      subhead: 'Tell us. We reply within two working days and fix it or find another way.',
+      primary: { label: `Email ${BRAND.email}`, href: `mailto:${BRAND.email}` },
+      // Figma's "Back to Trust & security" waits until the Trust page is published (D20).
+      secondary: { label: '', href: '/trust' },
+    },
+  ],
+}
+
+// Changelog (Figma "Changelog — Desktop" 187:6499). Built, unpublished, kept out of the nav
+// and footer (Q7). The email sign-up is left out: there's no mailing list to send to (D21).
+const changelog: StarterPage = {
+  slug: 'changelog',
+  title: 'Changelog',
+  description: 'What’s new on the platform. We only post here once something is live for a club.',
+  layout: [
+    {
+      blockType: 'mkSectionHeader',
+      eyebrow: 'Changelog',
+      title: 'What’s new.',
+      subhead: 'We post here when something ships to a club. Nothing goes up before it’s live.',
+      align: 'left',
+    },
+    {
+      blockType: 'mkRoadmap',
+      emptyTitle: 'Nothing has shipped to a club yet.',
+      emptyBody:
+        'The first entry goes up the day the first club goes live. Here’s what’s being built now.',
+      cards: [
+        {
+          title: 'Keeping each club’s site private',
+          body: 'Tests that prove one club can never see another club’s content.',
+        },
+        { title: 'Block library', body: 'Every block, with desktop, tablet and mobile variants.' },
+        {
+          title: 'Tools for switching to us',
+          body: 'Redirects and content import, so clubs move across cleanly.',
+        },
+      ],
+    },
+    {
+      blockType: 'mkCtaBand',
+      title: 'Want this for your club?',
+      subhead: 'We post here when something goes live for a club. Nothing before.',
+      primary: { label: 'Book a demo', href: '/book-a-demo' },
+      secondary: { label: '', href: '/switching' },
+    },
+  ],
+}
+
+// Privacy policy, cookie notice and terms: not designed; text pages on the Accessibility
+// template (hand-off §6). The wording is Dan's (N4): the [[…]] placeholder stops them being
+// published until it's replaced (src/marketing/collections/MarketingPages.ts).
+const legalPage = (slug: string, title: string, description: string): StarterPage => ({
+  slug,
+  title,
+  description,
+  layout: [
+    { blockType: 'mkSectionHeader', title, align: 'left' },
+    { blockType: 'mkReviewed', label: 'updated' },
+    {
+      blockType: 'mkRichText',
+      content: rt.doc(
+        rt.p(
+          `[[Paste the ${title.toLowerCase()} wording here. This page can’t be published until this line is replaced.]]`,
+        ),
+      ),
+    },
+  ],
+})
+
+const privacy = legalPage(
+  'privacy',
+  'Privacy policy',
+  'How we collect, use and look after personal information, and the choices you have.',
+)
+const cookies = legalPage(
+  'cookies',
+  'Cookie notice',
+  'The cookies this website uses, and what each one is for.',
+)
+const terms = legalPage('terms', 'Terms', 'The terms for using this website and our service.')
+
 export const STARTER_PAGES: StarterPage[] = [
   home,
   pricing,
@@ -664,7 +864,26 @@ export const STARTER_PAGES: StarterPage[] = [
   bookADemo,
   websiteBuilder,
   bookings,
+  trust,
+  accessibility,
+  changelog,
+  privacy,
+  cookies,
+  terms,
 ]
+
+/** A starter page as saved: "Last reviewed" dates are the day it's added, until Dan changes
+ * them. */
+export const starterPageData = (page: StarterPage, today = new Date()) => ({
+  title: page.title,
+  slug: page.slug,
+  meta: { description: page.description },
+  layout: page.layout.map((block) =>
+    (block as { blockType?: string }).blockType === 'mkReviewed'
+      ? { ...(block as object), date: today.toISOString() }
+      : block,
+  ),
+})
 
 /** Adds each starter page as a draft unless its address is taken. Returns what happened. */
 export const addStarterPages = async (payload: Payload) => {
@@ -684,13 +903,7 @@ export const addStarterPages = async (payload: Payload) => {
       collection: 'marketing-pages',
       draft: true,
       overrideAccess: true,
-      data: {
-        _status: 'draft',
-        title: page.title,
-        slug: page.slug,
-        meta: { description: page.description },
-        layout: page.layout,
-      } as never,
+      data: { _status: 'draft', ...starterPageData(page) } as never,
     })
     added.push(page.title)
   }

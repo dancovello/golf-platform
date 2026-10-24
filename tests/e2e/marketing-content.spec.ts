@@ -53,7 +53,7 @@ test("club A's editor doesn't see it in the admin", async ({ editorPage }) => {
 })
 
 test('the super-admin sees it in the admin', async ({ superAdminPage }) => {
-  await superAdminPage.goto('/admin/collections/marketing-pages')
+  await superAdminPage.goto('/admin/collections/marketing-pages?limit=50')
   await expect(superAdminPage.getByText('E2E pricing').first()).toBeVisible()
   await superAdminPage.goto('/admin/globals/marketing-settings')
   await expect(superAdminPage.getByLabel('Price a month (£)')).toHaveValue('149')
