@@ -12,7 +12,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import { clubOwnedCollections } from '@/tenancy'
 
-import { getTestPayload } from './helpers/seed'
+import { seedWorld } from './helpers/seed'
 
 type PoolClient = {
   query: (sql: string, params?: unknown[]) => Promise<{ rows: Record<string, unknown>[] }>
@@ -23,7 +23,8 @@ let payload: Payload
 let client: PoolClient
 
 beforeAll(async () => {
-  payload = await getTestPayload()
+  // Its own clubs and accounts (a super-admin and editors), whatever ran before.
+  payload = (await seedWorld()).payload
   client = await (
     payload.db as unknown as { pool: { connect: () => Promise<PoolClient> } }
   ).pool.connect()
@@ -83,6 +84,21 @@ describe('Finding 5: no other way for golf_app to make a super-admin', () => {
 })
 
 describe('golf_app can still do what the website needs', () => {
+  // Payload saves an existing account as "insert, or update if it exists" (sign-in does it on
+  // every login), and Postgres runs insert triggers for that too. The super-admin rule must
+  // let it through, or nobody can sign in as a super-admin (seen on CI, 24 Oct 2026).
+  it('saves changes to an existing super-admin the way Payload does', async () => {
+    const { rows } = await client.query(`SELECT id FROM users WHERE role = 'super-admin' LIMIT 1`)
+    expect(rows[0], 'the test database needs a super-admin').toBeTruthy()
+    await expect(
+      tryAsApp(
+        `INSERT INTO users SELECT * FROM users WHERE id = $1
+         ON CONFLICT (id) DO UPDATE SET updated_at = now()`,
+        [rows[0]!.id],
+      ),
+    ).resolves.toBeUndefined()
+  })
+
   it('reads the list of applied database changes', async () => {
     await expect(tryAsApp('SELECT count(*) FROM payload_migrations')).resolves.toBeUndefined()
   })
