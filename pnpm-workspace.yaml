@@ -5,9 +5,13 @@ allowBuilds:
   unrs-resolver: true
 
 overrides:
-  # payload@3.90.2 pins undici 7.29.0, which has two high-severity advisories.
-  # Remove once Payload ships with undici >=7.29.1.
-  undici: 7.29.1
+  # payload@3.90.2 pins undici 7.29.0, which has high-severity advisories (the latest,
+  # GHSA-xjj6-f33q-929c, fixed in 7.30.1). Remove once Payload ships with undici >=7.30.1.
+  undici: 7.30.1
+  # Pulled in by the rich text editor (@lexical/headless). GHSA-834v-8h66-3h79, fixed in 21.0.4.
+  happy-dom: 21.0.4
+  # Pulled in by the lint tools (eslint-plugin-react-hooks). GHSA-mrhx-c7xc-m3w5, fixed in 4.6.6.
+  zod: 4.6.6
   # Pulled in by the admin's code editor (via @payloadcms/ui). Patch release with security fixes.
   dompurify: 3.4.17
 
