@@ -3,6 +3,11 @@ import { getPayload } from 'payload'
 
 import { BRAND } from '@/brand'
 import { emailEnabled } from '@/email/adapter'
+import {
+  allowRequest,
+  HOMEPAGE_REQUESTS_EMAILED_PER_DAY,
+  WEBSITE_FORM_EMAILS,
+} from '@/security/rateLimit'
 
 import { formatDueDate } from './workingDays'
 
@@ -15,8 +20,8 @@ const headerSafe = (value: string, max = 80) =>
     .slice(0, max)
 
 export type RequestEmailResult = {
-  alert: 'sent' | 'email-off' | 'no-inbox' | 'not-found' | 'failed'
-  confirmation: 'sent' | 'email-off' | 'not-found' | 'failed'
+  alert: 'sent' | 'email-off' | 'no-inbox' | 'not-found' | 'failed' | 'daily-limit'
+  confirmation: 'sent' | 'email-off' | 'not-found' | 'failed' | 'daily-limit'
 }
 
 /**
@@ -26,6 +31,11 @@ export type RequestEmailResult = {
  * the website the club typed, so the form can't be used to send links to strangers. Each
  * email that goes is stamped on the request; a failure is logged and the request is still in
  * the admin.
+ *
+ * At most 10 requests are emailed a day, and every email counts towards the daily allowance the
+ * website forms share (WEBSITE_FORM_EMAILS), so the form can't send strangers confirmations in
+ * bulk or use up the emails password resets need. Past either, the request is saved, with its
+ * "sent" dates left blank.
  */
 export const sendHomepageRequestEmails = async (id: string): Promise<RequestEmailResult> => {
   if (!emailEnabled()) return { alert: 'email-off', confirmation: 'email-off' }
@@ -34,6 +44,14 @@ export const sendHomepageRequestEmails = async (id: string): Promise<RequestEmai
     .findByID({ collection: 'homepage-requests', id, depth: 0, overrideAccess: true })
     .catch(() => null)
   if (!request) return { alert: 'not-found', confirmation: 'not-found' }
+  const db = (payload.db as unknown as { drizzle: Parameters<typeof allowRequest>[0] }).drizzle
+  const withinBudget = () => allowRequest(db, WEBSITE_FORM_EMAILS, 'all')
+  if (!(await allowRequest(db, HOMEPAGE_REQUESTS_EMAILED_PER_DAY, 'all'))) {
+    payload.logger.warn(
+      `Homepage request ${request.id}: not emailed, the daily limit is reached (it's in the admin)`,
+    )
+    return { alert: 'daily-limit', confirmation: 'daily-limit' }
+  }
   const settings = await payload.findGlobal({
     slug: 'marketing-settings',
     depth: 0,
@@ -45,7 +63,10 @@ export const sendHomepageRequestEmails = async (id: string): Promise<RequestEmai
   const club = headerSafe(request.clubName)
   const result: RequestEmailResult = { alert: 'no-inbox', confirmation: 'failed' }
 
-  if (inbox) {
+  if (inbox && !(await withinBudget())) {
+    result.alert = 'daily-limit'
+    payload.logger.warn(`Homepage request ${request.id}: alert not sent, daily email limit reached`)
+  } else if (inbox) {
     try {
       await payload.sendEmail({
         from,
@@ -80,6 +101,12 @@ export const sendHomepageRequestEmails = async (id: string): Promise<RequestEmai
     )
   }
 
+  if (!(await withinBudget())) {
+    payload.logger.warn(
+      `Homepage request ${request.id}: confirmation not sent, daily email limit reached`,
+    )
+    return { ...result, confirmation: 'daily-limit' }
+  }
   try {
     await payload.sendEmail({
       from,

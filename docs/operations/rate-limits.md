@@ -21,8 +21,13 @@ Every public endpoint has a limit, at two layers (doc 04 §8): **the app** and *
 **Contact form** (server action, `src/site/contact/actions.ts`)
 - 5 sends per visitor in 10 minutes (added 23 Oct). Checked in the app, because the form's send works from any page address, so Firewall rule 3 (paths ending `/contact`) alone can be got round.
 - 20 messages an hour per club, counted in one step so a burst can't overshoot, plus a hidden spam trap, too-fast sends dropped, and Cloudflare Turnstile.
-- Alert emails: at most 25 per club and 70 for all clubs together per day, keeping 30 of Resend's 100 free daily emails for password resets and invitations. Past that, messages are saved but not emailed.
+- Alert emails: at most 25 per club a day, within the website forms' shared 70 emails a day (with the Homepage Request Form), keeping 30 of Resend's 100 free daily emails for password resets and invitations. Past that, messages are saved but not emailed.
 - Enforced in the app (shared database) and by Vercel Firewall rule 3.
+
+**Homepage Request Form** (company website, server action, `src/marketing/requests/actions.ts`; added 24 Oct)
+- The same protections as the Contact form: 5 sends per visitor in 10 minutes, checked in the app whatever page address it's posted to; 20 requests an hour from everyone together, counted in one step; hidden spam trap, too-fast sends dropped, Cloudflare Turnstile.
+- Emails: at most 10 requests emailed a day (each is an alert to the company and a confirmation to the club), and every email counts towards the website forms' shared 70 a day. Past either, the request is saved but not emailed, so the form can't send strangers confirmations in bulk.
+- Enforced in the app (shared database).
 
 **Security-report address** (`/csp-report`)
 - 60 reports a minute from everyone together. Extra reports are dropped quietly.

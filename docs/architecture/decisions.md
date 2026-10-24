@@ -597,3 +597,12 @@ All of these run in the `tenant-isolation` CI job and block merging.
 - **Answers** the question left open in "2026-10-15 — Data processing agreement in the admin" ("before the first real club") and marketing open question N6.
 - **Still to do, with Dan's go-ahead:** the agreement's sub-processor table (`src/agreement/text.ts`, Schedule 3) still says Vercel is "USA (Washington, D.C.), or London if the hosting region is changed". Changing that wording needs a new `AGREEMENT_VERSION`, so every club accepts it again. While the agreement is a draft with no clubs, it can wait for the solicitor's review. The club privacy policy doesn't name regions, so it needs no change.
 - **"Stored in London"** (marketing Trust page) is still held: photos, documents and backups are in Western Europe, not the UK (claims register).
+
+## 2026-10-24: Homepage Request Form gets the Contact form's limits
+
+Dan asked for the public forms audit's fixes on the company website's Homepage Request Form too (the audit said they applied to it once built).
+
+- **5 sends per visitor in 10 minutes**, checked in the app (a server action runs from any page address).
+- **20 requests an hour**, now counted in one step, so a burst can't overshoot.
+- **Emails:** at most 10 requests emailed a day. Every email from the public forms (Contact alerts, request alerts and confirmations) now comes out of one shared allowance of 70 a day (`WEBSITE_FORM_EMAILS`), keeping 30 of Resend's 100 free daily emails for password resets and invitations. Past either limit the request is saved, with its "sent" dates blank.
+- **Email addresses** use Payload's own rule, shared with the Contact form (`src/email/address.ts`).
