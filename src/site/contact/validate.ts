@@ -1,3 +1,4 @@
+import { EMAIL_ADDRESS } from '@/email/address'
 import {
   asksForDateAndPeople,
   type EnquiryPurpose,
@@ -56,11 +57,7 @@ export const EMPTY_VALUES: ContactValues = {
   newsletter: false,
 }
 
-// The same rule as Payload's email field (payload/dist/fields/validations.js), so every
-// address the form accepts can also be saved (public forms audit, finding 4). It also keeps
-// commas, angle brackets, quotes and line breaks out of the alert email's Reply-To.
-const EMAIL =
-  /^(?!.*\.\.)[\w!#$%&'*+/=?^`{|}~-](?:[\w!#$%&'*+/=?^`{|}~.-]*[\w!#$%&'*+/=?^`{|}~-])?@[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)*\.[a-z]{2,}$/i
+const EMAIL = EMAIL_ADDRESS
 const PHONE = /^\+?[0-9 ()-]{7,20}$/
 const DATE = /^\d{4}-\d{2}-\d{2}$/
 

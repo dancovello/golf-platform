@@ -1,6 +1,7 @@
 import config from '@payload-config'
 import { getPayload } from 'payload'
 
+import { allowRequest, HOMEPAGE_REQUESTS_PER_HOUR } from '@/security/rateLimit'
 import { checkFormToken, issueFormToken } from '@/site/contact/formToken'
 import { verifyTurnstile } from '@/site/contact/turnstile'
 
@@ -42,7 +43,8 @@ export const initialRequestState = (now = Date.now()): RequestState => ({
  * - the signed time check (after the fields are checked): too quick to be a person, or long
  *   expired;
  * - Cloudflare's "are you a person?" check, when switched on;
- * - at most HOURLY_LIMIT requests an hour.
+ * - at most 5 sends per visitor in 10 minutes (`visitorAllowed`, from the page's request);
+ * - at most HOURLY_LIMIT requests an hour, counted in one step (no overshoot).
  * Bots caught by the first two see the normal "on its way" screen, so they learn nothing.
  * `onSaved` gets the new request's ID (the action emails it after answering the visitor).
  */
@@ -51,6 +53,7 @@ export const submitHomepageRequest = async (
   form: FormData,
   now = new Date(),
   onSaved?: (id: string) => void,
+  { visitorAllowed }: { visitorAllowed?: () => Promise<boolean> } = {},
 ): Promise<RequestState> => {
   const attempt = prev.attempt + 1
   const values = requestFromForm(form)
@@ -86,7 +89,15 @@ export const submitHomepageRequest = async (
   if (person === 'failed') return keep({ formError: NOT_CHECKED })
   if (person === 'unavailable') return keep({ formError: CHECK_UNAVAILABLE })
 
+  if (visitorAllowed && !(await visitorAllowed())) return keep({ formError: BUSY })
+
   const payload = await getPayload({ config })
+  // Counted and checked in one database step, so requests sent at the same moment can't all
+  // see room for one more.
+  const db = (payload.db as unknown as { drizzle: Parameters<typeof allowRequest>[0] }).drizzle
+  if (!(await allowRequest(db, HOMEPAGE_REQUESTS_PER_HOUR, 'all', now))) {
+    return keep({ formError: BUSY })
+  }
   const { totalDocs: lastHour } = await payload.count({
     collection: 'homepage-requests',
     where: { createdAt: { greater_than: new Date(now.getTime() - 3_600_000).toISOString() } },
