@@ -4,9 +4,12 @@ import { getPayload } from 'payload'
 import { cache } from 'react'
 
 import { trackDbTiming } from '@/monitoring/trackDbTiming'
+import { addressCached } from './cache'
 
-import { canSeeDrafts } from './livePreviewAccess'
-import { type ClubSite, loadClubBySlug } from './loadClub'
+import { SLUG } from '@/fields/slug'
+
+import { canSeeDrafts, draftAccess } from './livePreviewAccess'
+import { type ClubSite, clubIDBySlug, loadClubBySlug } from './loadClub'
 import { siteBase, sitePreviewEnabled } from './preview'
 
 /**
@@ -37,7 +40,11 @@ export const CLUB_HOST_HEADER = 'x-club-host'
 export const CLUB_ORIGIN_HEADER = 'x-club-origin'
 
 /** The club that owns a web address, and its main address (the first in its list). */
-export const findClubByHost = cache(
+export const findClubByHost = cache((host: string) => clubByHost(host))
+
+/** Cached by address (src/site/cache.ts): cleared whenever any club's addresses change. */
+const clubByHost = addressCached(
+  'clubByHost',
   async (host: string): Promise<{ slug: string; mainHost: string } | null> => {
     const payload = await getPayload({ config })
     const { docs } = await payload.find({
@@ -93,8 +100,17 @@ export const siteFromDomain = cache(
  */
 export const siteFromPreview = cache(
   async (slug: string, live: unknown): Promise<ResolvedSite | null> => {
+    // Only names that could be a club's are looked up.
+    if (typeof slug !== 'string' || !SLUG.test(slug)) return null
     const open = sitePreviewEnabled()
-    if (!open && live !== '1') return null
+    if (!open) {
+      // Who's asking comes first, so someone who can't see this club's drafts gets the same
+      // answer, after the same work, whether or not the club exists (audit T2,
+      // docs/security/audit-tenancy.md).
+      const access = await draftAccess(live)
+      if (!access) return null
+      if (access !== 'every club' && (await clubIDBySlug(slug)) !== access.tenantID) return null
+    }
     await trackDbTiming()
     const club = await loadClubBySlug(slug)
     if (!club) return null

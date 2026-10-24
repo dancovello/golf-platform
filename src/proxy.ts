@@ -49,6 +49,16 @@ const addPolicy = (kind: PolicyKind, headers: Headers) => {
   }
 }
 
+/**
+ * Every page on the platform's own address (the admin and its previews alike): a website that
+ * opens one in a new window keeps no handle on it (headers audit, finding 5). The previews get
+ * it too, so the live preview's pop-out window can still talk to the admin that opened it.
+ */
+const isolateWindow = (response: NextResponse) => {
+  response.headers.set('Cross-Origin-Opener-Policy', 'same-origin')
+  return response
+}
+
 const notFound = () =>
   new NextResponse('Page not found', {
     status: 404,
@@ -141,24 +151,29 @@ export function proxy(request: NextRequest) {
   // (src/access/accountCreation.ts) is the real protection; this only removes the misleading form.
   if (pathname === '/admin/create-first-user') {
     const withPolicy = addPolicy('admin', headers)
-    return withPolicy(
-      NextResponse.rewrite(new URL('/accounts-by-administrator', request.url), {
-        request: { headers },
-      }),
+    return isolateWindow(
+      withPolicy(
+        NextResponse.rewrite(new URL('/accounts-by-administrator', request.url), {
+          request: { headers },
+        }),
+      ),
     )
   }
 
   // Club pages on the staging preview (and the admin's live preview): enforced. The admin:
-  // report-only for now (src/security/csp.ts). Other addresses (API, /health) keep the basic
-  // policy from next.config.ts.
+  // report-only for now (src/security/csp.ts). Everything else here (the API, /health,
+  // /accounts-by-administrator): the enforced platform policy (headers audit, finding 3).
+  // Vercel's and Next.js's own development paths keep the basic policy from next.config.ts.
   const kind: PolicyKind | null = /^\/preview(\/|$)/.test(pathname)
     ? 'site'
     : /^\/admin(\/|$)/.test(pathname)
       ? 'admin'
-      : null
+      : /^\/(_vercel|__nextjs[\w-]*)(\/|$)/.test(pathname)
+        ? null
+        : 'platform'
   if (!kind) return NextResponse.next({ request: { headers } })
   const withPolicy = addPolicy(kind, headers)
-  return withPolicy(NextResponse.next({ request: { headers } }))
+  return isolateWindow(withPolicy(NextResponse.next({ request: { headers } })))
 }
 
 export const config = {

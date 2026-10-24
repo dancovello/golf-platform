@@ -45,6 +45,15 @@ jobs:
     outputs:
       environment: ${{ steps.pick.outputs.environment }}
     steps:
+      # The repository is private again (decisions.md, 22 Oct): releases stop if it's ever public.
+      - name: The repository must be private
+        env:
+          PRIVATE: ${{ github.event.repository.private }}
+        run: |
+          if [ "$PRIVATE" != "true" ]; then
+            echo "::error::The repository is public. Make it private (GitHub → Settings → General → Danger Zone) before releasing."
+            exit 1
+          fi
       - id: pick
         run: |
           if [ "${GITHUB_REF_NAME}" = "production" ]; then env=production; else env=staging; fi
@@ -61,6 +70,9 @@ jobs:
 
   dry-run:
     needs: target
+    # Production keys live only in a GitHub environment that only these branches can use
+    # (migrations audit, finding 1; docs/operations/github-environments.md).
+    environment: ${{ needs.target.outputs.environment == 'production' && 'release-production' || 'release-staging' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     services:
@@ -114,6 +126,9 @@ jobs:
 
   migrate:
     needs: [target, backup, dry-run]
+    # Production keys live only in a GitHub environment that only these branches can use
+    # (migrations audit, finding 1; docs/operations/github-environments.md).
+    environment: ${{ needs.target.outputs.environment == 'production' && 'release-production' || 'release-staging' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -139,6 +154,9 @@ jobs:
 
   deploy:
     needs: [target, migrate]
+    # Production keys live only in a GitHub environment that only these branches can use
+    # (migrations audit, finding 1; docs/operations/github-environments.md).
+    environment: ${{ needs.target.outputs.environment == 'production' && 'release-production' || 'release-staging' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:

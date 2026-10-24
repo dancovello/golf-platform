@@ -5,6 +5,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs'
 
 import { allowAccountCreation } from '@/access/accountCreation'
+import { createSuperAdmin } from '@/accounts/createSuperAdmin'
 import { STARTER_PAGES } from '@/marketing/starter/pages'
 
 import { pdfFile, photoFile } from '../shared/media'
@@ -315,6 +316,12 @@ const extraEditor = async (email: string, enrol: boolean) => {
   return { id: user.id, email }
 }
 const editorNotSetUp = await extraEditor('editor-not-set-up@example.com', false)
+// A super-admin who hasn't set two-factor up: must do so before anything else (22 Oct).
+const superAdminNotSetUp = await (async () => {
+  const email = 'super-not-set-up@example.com'
+  const created = await createSuperAdmin(w.payload, { email, password: PASSWORD })
+  return { id: created.id, email }
+})()
 const editorToReset = await extraEditor('editor-to-reset@example.com', true)
 // One account per login test: Payload saves a login by writing back the whole account record,
 // so two tests logging in as the same account at the same moment can log each other out.
@@ -415,7 +422,11 @@ for (const style of ['classic', 'transparent', 'appBar'] as const) {
 // cookie banner never sits over what other tests click.
 const cookieClub = await w.payload.create({
   collection: 'tenants',
-  data: { name: 'Test Club Cookies', slug: 'test-club-cookies' },
+  data: {
+    name: 'Test Club Cookies',
+    slug: 'test-club-cookies',
+    domains: [{ hostname: 'club-cookies.localhost' }],
+  },
 })
 const { docs: cookieSettings } = await w.payload.find({
   collection: 'club-settings',
@@ -690,6 +701,7 @@ writeFileSync(
       url: w.mediaB.url,
     },
     editorNotSetUp,
+    superAdminNotSetUp,
     editorToReset,
     editorLoginOnly,
     editorTypesCode,

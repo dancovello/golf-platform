@@ -11,6 +11,9 @@ export const marketingAccess = {
   read: superAdminOnly,
   update: superAdminOnly,
   delete: superAdminOnly,
+  // Drafts and page history too (access audit, A1): without this rule, Payload lets anyone
+  // signed in read them.
+  readVersions: superAdminOnly,
 }
 
 /** Hides a collection or settings screen from everyone but the super-admin. */

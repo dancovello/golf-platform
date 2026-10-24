@@ -313,6 +313,60 @@ describe("Payload's own records", () => {
     const res = await p().find({ collection: 'payload-preferences', ...asEditorA() })
     expect(res.docs).toHaveLength(0)
   })
+
+  it("editor A gets none of club B's page history or drafts", async () => {
+    // A draft change gives club B's page a history to look for.
+    await p().update({
+      collection: 'pages',
+      id: w.pageB.id,
+      data: { title: 'Club B draft' },
+      draft: true,
+      overrideAccess: true,
+    })
+    const all = await p().findVersions({
+      collection: 'pages',
+      where: { parent: { equals: w.pageB.id } },
+      overrideAccess: true,
+    })
+    expect(all.totalDocs).toBeGreaterThan(0)
+    const versionB = String(all.docs[0]!.id)
+
+    const listed = await p().findVersions({
+      collection: 'pages',
+      where: { parent: { equals: w.pageB.id } },
+      ...asEditorA(),
+    })
+    expect(listed.totalDocs).toBe(0)
+    const everything = await p().findVersions({ collection: 'pages', limit: 500, ...asEditorA() })
+    expect(JSON.stringify(everything.docs)).not.toContain(w.pageB.id)
+    expect(JSON.stringify(everything.docs)).not.toContain('Club B draft')
+
+    // By ID, club B's version answers exactly like one that doesn't exist.
+    const real = await errorOf(() =>
+      p().findVersionByID({ collection: 'pages', id: versionB, ...asEditorA() }),
+    )
+    const madeUp = await errorOf(() =>
+      p().findVersionByID({ collection: 'pages', id: MISSING_ID, ...asEditorA() }),
+    )
+    expect(real).not.toBeNull()
+    expect(real).toEqual(madeUp)
+
+    // And it can't be restored over club B's page.
+    await expect(
+      p().restoreVersion({ collection: 'pages', id: versionB, ...asEditorA() }),
+    ).rejects.toThrow()
+    const pageB = await p().findByID({ collection: 'pages', id: w.pageB.id, overrideAccess: true })
+    expect(pageB.tenant).toEqual(expect.objectContaining({ id: w.clubB.id }))
+  })
+
+  it('editor A can neither read nor run the background job queue', async () => {
+    await expect(p().find({ collection: 'payload-jobs', ...asEditorA() })).rejects.toThrow()
+    const access = p().config.jobs.access!
+    const req = { user: w.editorA, payload: p() }
+    for (const op of ['run', 'queue', 'cancel'] as const) {
+      expect(await (access[op] as (a: unknown) => unknown)({ req }), op).toBe(false)
+    }
+  })
 })
 
 describe('the database enforces club ownership on its own', () => {

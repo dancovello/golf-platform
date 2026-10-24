@@ -14,6 +14,7 @@ export type World = {
   settingsB: { id: string }
   mediaB: { id: string; prefix: string; filename: string; url: string }
   editorNotSetUp: { id: string; email: string }
+  superAdminNotSetUp: { id: string; email: string }
   editorToReset: { id: string; email: string }
   editorLoginOnly: { id: string; email: string }
   editorTypesCode: { id: string; email: string }

@@ -71,7 +71,8 @@ test('the header search panel, the map and the photo viewer work under the polic
 
 test('Google Analytics may load once the visitor accepts cookies', async ({ page }) => {
   const reports = await watchPolicy(page)
-  await openReady(page, '/preview/test-club-cookies')
+  // On the club's own address: previews never load Google Analytics (headers audit, finding 1).
+  await openReady(page, 'http://club-cookies.localhost:3100/')
   await page.getByRole('button', { name: 'Accept analytics cookies' }).click()
   await expect(page.locator('script#club-ga')).toHaveCount(1)
   await page.waitForTimeout(500)

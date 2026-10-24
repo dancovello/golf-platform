@@ -75,6 +75,18 @@ describe('the website shows only upcoming, published events from its own club', 
   })
 })
 
+describe('the events archive never shows another club’s event', () => {
+  it("asking club A's archive to include club B's event shows nothing from club B", async () => {
+    const archive = await eventsArchive(w.clubA.id, {
+      category: null,
+      show: 50,
+      include: String(w.eventB.id),
+    })
+    expect(archive.events.map((e) => e.title)).not.toContain('Club B dinner')
+    expect(archive.events.some((e) => e.id === String(w.eventB.id))).toBe(false)
+  })
+})
+
 describe('events can only use their own club’s photos and pages', () => {
   it("refuses club B's photo and page", async () => {
     const error = await w.payload

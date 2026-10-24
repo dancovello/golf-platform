@@ -2,7 +2,7 @@
 import { expect, openReady, test } from './fixtures'
 
 test.describe('inviting a club editor', () => {
-  test('invite → set password from the link → straight into two-factor set-up', async ({
+  test('invite → set password from the link → straight into the admin', async ({
     superAdminPage,
     browser,
   }) => {
@@ -42,11 +42,11 @@ test.describe('inviting a club editor', () => {
       expect(await answer.text()).toContain('Passwords must be at least 12 characters.')
       await expect(page).toHaveURL(/\/admin\/reset\//)
     })
-    await test.step('a good password logs them in and asks for two-factor set-up', async () => {
+    await test.step('a good password logs them in (two-factor is optional for editors)', async () => {
       await page.getByLabel('New Password').fill('a-long-invited-password')
       await page.getByLabel('Confirm Password').fill('a-long-invited-password')
       await page.getByRole('button', { name: 'Reset Password' }).click()
-      await expect(page).toHaveURL(/\/admin\/setup-totp/)
+      await expect(page).toHaveURL(/\/admin$/)
     })
     await test.step('the link only works once', async () => {
       const reuse = await context.request.post('/api/users/reset-password', {

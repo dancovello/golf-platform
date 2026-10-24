@@ -34,7 +34,7 @@ export const resetEmailHTML = (token: string) => {
   return [
     '<p>Someone asked to reset the password for your club website account.</p>',
     `<p><a href="${escape(link)}">Choose a new password</a></p>`,
-    '<p>The link works once, for one hour. You will still need the code from your authenticator app to sign in.</p>',
+    '<p>The link works once, for one hour. If you use two-factor login, you will still need the code from your authenticator app to sign in.</p>',
     '<p>If you didn’t ask for this, you can ignore this email: your password hasn’t changed.</p>',
   ].join('\n')
 }

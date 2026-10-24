@@ -35,7 +35,7 @@ Local server and local database, so each query takes about 5 ms. **The query cou
 
 ## Staging, before and after London
 
-To fill in. Before: run `pnpm measure-speed` against staging once this change is live there. After: run it again once part B (functions in London) is live.
+To fill in. **Before:** run `pnpm measure-speed` against staging once part A (#145) is live there and part B isn't. **After:** run it again once part B (`regions: ["lhr1"]`, #146 or later) is live on staging. Add the `db-timing` lines from Vercel's logs for the same pages.
 
 | Page | Before p50 / p95 (ms) | After p50 / p95 (ms) |
 |---|---|---|

@@ -1,6 +1,8 @@
 import { TenantSelectionProvider } from '@payloadcms/plugin-multi-tenant/rsc'
 import type { ComponentProps } from 'react'
 
+import { isFullyAuthenticated } from '../auth/fullyAuthenticated'
+
 type Props = ComponentProps<typeof TenantSelectionProvider>
 
 /**
@@ -11,7 +13,7 @@ type Props = ComponentProps<typeof TenantSelectionProvider>
  * the real user and behaves exactly as before.
  */
 export const TenantSelectionAfterTwoFactor = (props: Props) => {
-  const codeEntered = (props.user as { _strategy?: string } | null)?._strategy === 'totp'
+  const codeEntered = isFullyAuthenticated(props.user)
   // The plugin types `user` as always present, but its lookup returns no clubs when it is null.
   return <TenantSelectionProvider {...props} user={codeEntered ? props.user : (null as never)} />
 }
