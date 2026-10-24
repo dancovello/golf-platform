@@ -12,6 +12,9 @@ overrides:
   happy-dom: 21.0.4
   # Pulled in by the lint tools (eslint-plugin-react-hooks). GHSA-mrhx-c7xc-m3w5, fixed in 4.6.6.
   zod: 4.6.6
+  # Pulled in by Payload (via ajv). Four advisories (GHSA-333x-w4r6-6crp and
+  # others), fixed in 3.1.9.
+  fast-uri: 3.1.9
   # Pulled in by the admin's code editor (via @payloadcms/ui). Patch release with security fixes.
   dompurify: 3.4.17
 
