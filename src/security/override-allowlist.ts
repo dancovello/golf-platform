@@ -205,6 +205,13 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
     why: 'Drafts for the live preview; the preview page checks for the super-admin first',
   },
   {
+    file: 'src/marketing/content.ts',
+    fn: 'publishedMarketingSlugs',
+    uses: 1,
+    club: 'None: marketing pages are platform-level',
+    why: 'The addresses of published pages only, so the nav and footer leave out unpublished ones',
+  },
+  {
     file: 'src/marketing/settings.ts',
     fn: 'marketingSettings',
     uses: 1,

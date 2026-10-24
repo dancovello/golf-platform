@@ -43,6 +43,20 @@ export const LEGAL_LINKS = [
   { label: 'Cookies', href: '/cookies' },
 ] as const
 
+/**
+ * Leaves out links to this site's pages that aren't published. Other links (email, the admin)
+ * always stay. "/trust#data-processing" counts as the Trust page; "/" as the home page.
+ */
+export const onlyPublished = <T extends { href: string }>(
+  links: readonly T[],
+  published: Set<string>,
+): T[] =>
+  links.filter((link) => {
+    if (!link.href.startsWith('/')) return true
+    const slug = link.href.slice(1).split(/[#?]/)[0] || 'home'
+    return published.has(slug)
+  })
+
 /** "Club log in" goes to the admin, on its own address (decision C). */
 export const clubLogInHref = () => {
   try {

@@ -1,4 +1,9 @@
-import type { CollectionConfig, TextFieldSingleValidation } from 'payload'
+import {
+  type CollectionBeforeChangeHook,
+  type CollectionConfig,
+  type TextFieldSingleValidation,
+  ValidationError,
+} from 'payload'
 import { text as textRules } from 'payload/shared'
 
 import { SLUG, SLUG_MESSAGE } from '../../fields/slug'
@@ -13,6 +18,29 @@ const validSlug: TextFieldSingleValidation = (value, args) => {
   const basics = textRules(value, args)
   if (basics !== true || !value) return basics
   return SLUG.test(value) ? true : `${SLUG_MESSAGE} e.g. "pricing".`
+}
+
+/**
+ * Placeholder text is written in double square brackets, e.g. "[[Your privacy policy wording]]"
+ * (the legal starter pages). A page can be saved as a draft with it, but not published.
+ */
+export const PLACEHOLDER = /\[\[[^\]]*\]\]/
+
+const noPlaceholdersWhenPublished: CollectionBeforeChangeHook = ({ data, originalDoc }) => {
+  const layout = data?.layout ?? originalDoc?.layout ?? []
+  if (data?._status === 'published' && PLACEHOLDER.test(JSON.stringify(layout))) {
+    throw new ValidationError({
+      collection: 'marketing-pages',
+      errors: [
+        {
+          path: 'layout',
+          message:
+            'This page still has placeholder text in [[double brackets]]. Replace it before publishing.',
+        },
+      ],
+    })
+  }
+  return data
 }
 
 // Platform-level (src/tenancy.ts): the company website's pages, not any club's.
@@ -45,6 +73,7 @@ export const MarketingPages: CollectionConfig = {
     },
   },
   access: marketingAccess,
+  hooks: { beforeChange: [noPlaceholdersWhenPublished] },
   // Drafts, saved as you type. Visitors only see the published version.
   versions: { drafts: { autosave: { interval: 800 } }, maxPerDoc: 50 },
   fields: [

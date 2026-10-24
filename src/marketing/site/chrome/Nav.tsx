@@ -1,8 +1,9 @@
 import { headers } from 'next/headers'
 
+import { publishedMarketingSlugs } from '../../content'
 import { MarketingIcon } from '../MarketingIcon'
 import { MarketingButton } from '../parts'
-import { clubLogInHref, NAV_LINKS } from './links'
+import { clubLogInHref, NAV_LINKS, onlyPublished } from './links'
 import { NavBehaviour } from './NavBehaviour'
 import { Wordmark } from './Wordmark'
 
@@ -24,12 +25,13 @@ export const Nav = async () => {
   const path = (await headers()).get('x-pathname') ?? '/'
   const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`)
   const logIn = clubLogInHref()
+  const links = onlyPublished(NAV_LINKS, await publishedMarketingSlugs())
   return (
     <header className="mk-nav" data-scrolled="false">
       <div className="mk-nav-bar">
         <Wordmark />
         <nav className="mk-nav-links" aria-label="Main">
-          {NAV_LINKS.map((link) => (
+          {links.map((link) => (
             <span key={link.href} className="mk-nav-item">
               <a
                 className="mk-nav-link"
@@ -97,7 +99,7 @@ export const Nav = async () => {
           </div>
         </div>
         <nav className="mk-nav-sheet-links" aria-label="Main">
-          {NAV_LINKS.map((link) => (
+          {links.map((link) => (
             <a
               key={link.href}
               href={link.href}
