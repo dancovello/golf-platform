@@ -1,10 +1,14 @@
 import { execFileSync } from 'node:child_process'
+import { readFileSync } from 'node:fs'
 
-import { expect, test as setup } from '@playwright/test'
+import { type Cookie, expect, test as setup } from '@playwright/test'
 
 import { currentCode } from '../shared/totp'
 import { asSameOrigin } from './fixtures'
 import { loadWorld, PASSWORD, STATE_DIR } from './world'
+
+const clubCookie = (cookies: Pick<Cookie, 'name' | 'value'>[]) =>
+  cookies.find((c) => c.name === 'payload-tenant')?.value
 
 // Seed first, then log in: these steps depend on each other.
 setup.describe.configure({ mode: 'serial' })
@@ -44,6 +48,24 @@ for (const who of ['editorA', 'superAdmin'] as const) {
     expect((await page.request.get('/api/users/me')).ok()).toBe(true)
     const me = await (await page.request.get('/api/users/me')).json()
     expect(me.user?.email).toBe(w[who].email)
-    await page.context().storageState({ path: `${STATE_DIR}/${who}.json` })
+    if (who === 'editorA') {
+      // The multi-tenant plugin's club cookie is written by the admin's own script once the page
+      // has loaded, not by the server. Saving the login before that leaves every editor test
+      // without it, and the screens that read it on their first load then fail: Club Settings
+      // sends the editor back to /admin, and a new photo is refused ("Assigned Tenant"). On
+      // slower CI machines that happened at random (24 Oct). So wait for it.
+      await expect
+        .poll(async () => clubCookie(await page.context().cookies()), {
+          message: "the admin never set club A's club cookie for its editor",
+          timeout: 15_000,
+        })
+        .toBe(w.clubA.id)
+    }
+    const path = `${STATE_DIR}/${who}.json`
+    await page.context().storageState({ path })
+    // What every later test starts from: club A's editor with club A picked; the super-admin
+    // with no club picked (they choose one in the club selector).
+    const saved = JSON.parse(readFileSync(path, 'utf8')) as { cookies: Cookie[] }
+    expect(clubCookie(saved.cookies)).toBe(who === 'editorA' ? w.clubA.id : undefined)
   })
 }
