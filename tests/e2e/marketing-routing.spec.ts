@@ -1,5 +1,5 @@
 import { clubBSecrets } from './world'
-import { expect, test } from './fixtures'
+import { expect, homeLink, test } from './fixtures'
 
 // The company's marketing site (src/proxy.ts, src/app/(marketing)). playwright.config.ts sets
 // MARKETING_HOSTS to marketing.localhost (main) and www.marketing.localhost. These join the
@@ -65,7 +65,7 @@ test("the admin, API, previews and clubs' routes don't exist on the company doma
 test("a club's domain never shows the marketing site", async ({ page, world: w }) => {
   const response = await page.goto(at('club-a.localhost', '/marketing'))
   expect(response?.status()).toBe(404)
-  await expect(page.getByRole('link', { name: `${w.clubA.name}, home` }).first()).toBeVisible()
+  await expect(homeLink(page, w.clubA.name).first()).toBeVisible()
   expect(await page.content()).not.toContain('Your club is better than your website.')
 })
 
