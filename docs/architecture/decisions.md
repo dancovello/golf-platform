@@ -546,8 +546,9 @@ All of these run in the `tenant-isolation` CI job and block merging.
 
 - **Anthropic's `claude-code-security-review` action** runs on every non-draft pull request into `main`, pinned to commit `0c6a49f`, with Claude Opus 5.5 and a project brief that puts tenant isolation first (`.github/security-review/`).
 - **A HIGH finding fails the required `security-review` check.** So does a review that fails to run: the action alone would report zero findings then. Only Dan can dismiss a finding, with the `security-finding-dismissed` label plus a comment of his starting "Security finding dismissed:".
-- **Cost:** about $1 a review and 5–12 CI minutes, so roughly $150 and 750–1,800 minutes a month at October's pace. The model is one line to change (Sonnet 5.5 halves the cost). Details: `docs/operations/ai-security-review.md`.
+- **Cost:** about $1 a review and 5–12 CI minutes, so roughly $150 and 750–1,800 minutes a month at October's pace. The model is one line to change (Sonnet 5.5 halves the cost). Details were in `docs/operations/ai-security-review.md`, now `docs/operations/security-review.md`.
 - **Secret:** `ANTHROPIC_API_KEY` in GitHub Actions secrets only.
+- **Replaced on 26 Oct**, see below. The key was never added, so it never ran.
 
 
 ## 2026-10-22: Club editors sign in with a password; super-admins keep two-factor (job 3)
@@ -606,3 +607,11 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **20 requests an hour**, now counted in one step, so a burst can't overshoot.
 - **Emails:** at most 10 requests emailed a day. Every email from the public forms (Contact alerts, request alerts and confirmations) now comes out of one shared allowance of 70 a day (`WEBSITE_FORM_EMAILS`), keeping 30 of Resend's 100 free daily emails for password resets and invitations. Past either limit the request is saved, with its "sent" dates blank.
 - **Email addresses** use Payload's own rule, shared with the Contact form (`src/email/address.ts`).
+
+## 2026-10-26: the security check is free (Semgrep), not the paid AI review
+
+- **Dan, 26 Oct:** no paid API for this. The `security-review` check now runs **Semgrep Community Edition** (free, open source, no account or key), pinned to 1.180.0, with Semgrep's free TypeScript, JavaScript, Node, React, Next.js and security-audit rules. It replaces the 22 Oct AI review (about $150 a month), which never ran because its key was never added.
+- **Same check name and the same rules for Dan:** only what the pull request adds counts; an ERROR finding fails the check; a scan that fails to run fails the check; only Dan can dismiss a finding (label plus written comment, after the latest push).
+- **What it can't do:** it matches known patterns and doesn't understand club isolation. That stays with the required tenant-isolation suites, the access-rule guards and `migration-guard`, plus the independent review before launch. Details: `docs/operations/security-review.md`.
+- **About a minute** of CI time a run, against 5–12 for the AI review.
+

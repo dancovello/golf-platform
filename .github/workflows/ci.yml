@@ -304,8 +304,8 @@ jobs:
         run: node scripts/check-migrations.ts "origin/${BASE_REF}"
 
   # A release pull request (into production) must come from main, so everything in it has
-  # passed main's checks and the AI security review, or from a hotfix/… branch, which the AI
-  # security review then checks itself (migrations audit, finding 2). Make this a required
+  # passed main's checks and the security scan, or from a hotfix/… branch, which the security
+  # scan then checks itself (migrations audit, finding 2). Make this a required
   # check on production.
   release-source:
     if: github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'production'

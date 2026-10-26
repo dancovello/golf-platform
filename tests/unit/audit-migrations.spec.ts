@@ -47,7 +47,7 @@ describe('Finding 1 (high): production secrets are open to every branch', () => 
 })
 
 describe('Finding 2 (medium): a release pull request can come from any branch', () => {
-  // The AI security review only runs on pull requests into main. A pull request straight into
+  // The security scan only runs on pull requests into main. A pull request straight into
   // production from another branch skips it, and nothing checks where the release came from.
   it('pull requests into production must come from main, or be security-reviewed', () => {
     const reviewCoversProduction = /branches:\s*\[[^\]]*production/.test(
@@ -65,8 +65,8 @@ export async function up({ db }) {
 }
 export async function down({ db }) {}
 `
-  it('the AI security review reads migrations', () => {
-    expect(workflow('security-review.yml')).not.toMatch(/exclude-directories:.*src\/migrations/)
+  it('the security scan reads migrations', () => {
+    expect(workflow('security-review.yml')).not.toMatch(/--exclude[ =]\S*src\/migrations/)
   })
 
   it.each([

@@ -1,7 +1,0 @@
-golf-platform context for judging findings:
-
-- Public club website loaders in src/site and src/search use `overrideAccess: true` on purpose: visitors aren't signed in, so there is no user for access rules to apply to. These are NOT findings when the where clause includes `tenant: { equals: tenantID }` (or `tenant_id = ${tenantID}` in SQL) and tenantID came from src/site/resolveSite.ts. They ARE findings if that club filter is missing.
-- Each `overrideAccess: true` is listed with its reason in src/security/override-allowlist.ts, and a unit test enforces the list. Use the list to judge whether the reason holds; don't report a use only because it exists.
-- Drizzle's sql`...` tag sends every ${value} as a bound parameter. Interpolating a value into sql`...` is not SQL injection.
-- The website runs as the limited golf_app database account; migrations run as the owner, only in CI.
-- Rate limiting, denial of service and missing security headers are out of scope for this review (covered elsewhere); don't report them.
