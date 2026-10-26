@@ -41,6 +41,13 @@ export const chooseLogo = (
   return { kind: 'image', image: any, recolour: lightBackground ? 'black' : 'white' }
 }
 
+/**
+ * Goes inside a link around a Logo, after it. The link takes its name from what it shows (the
+ * logo's alt text, or the name and strapline) plus ", home". An aria-label would hide the
+ * strapline from screen readers and voice control (WCAG 2.5.3, Label in Name).
+ */
+export const HomeHint = () => <span className="sh-visually-hidden">, home</span>
+
 /** The club's logo for `surface`, or its name set in the heading font with the strapline beneath. */
 export const Logo = ({
   club,

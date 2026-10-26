@@ -1,4 +1,10 @@
-import { test as base, type BrowserContext, expect, type Page } from '@playwright/test'
+import {
+  test as base,
+  type BrowserContext,
+  expect,
+  type FrameLocator,
+  type Page,
+} from '@playwright/test'
 
 import { clubBSecrets, loadWorld, STATE_DIR, type World } from './world'
 
@@ -104,5 +110,14 @@ export const openReady = async (page: Page, url: string) => {
   await page.goto(url)
   await page.waitForLoadState('networkidle')
 }
+
+/**
+ * The club's logo link home. Its name is what the logo shows (its alt text, or the club name
+ * and strapline) followed by ", home".
+ */
+export const homeLink = (scope: Page | FrameLocator, clubName: string) =>
+  scope.getByRole('link', {
+    name: new RegExp(`^${clubName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?: .*)?, home$`),
+  })
 
 export { expect }

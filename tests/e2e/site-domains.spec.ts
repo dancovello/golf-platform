@@ -1,7 +1,7 @@
 import { MIN_FILL_MS } from '@/site/contact/formToken'
 
 import { clubBSecrets } from './world'
-import { expect, test } from './fixtures'
+import { expect, homeLink, test } from './fixtures'
 
 // Clubs on their own domains (build step 4, src/proxy.ts and src/site/resolveSite.ts).
 // Browsers send every *.localhost address to this computer, so each test club "owns" one:
@@ -17,7 +17,7 @@ test("club A's domain shows club A, with clean page addresses", async ({ page, w
   const response = await page.goto(clubA())
   expect(response?.status()).toBe(200)
   await expect(page).toHaveTitle(w.clubA.name)
-  await expect(page.getByRole('link', { name: `${w.clubA.name}, home` }).first()).toBeVisible()
+  await expect(homeLink(page, w.clubA.name).first()).toBeVisible()
   const html = await page.content()
   expect(html).not.toContain('/preview/')
   for (const secret of clubBSecrets(w)) expect(html, secret).not.toContain(secret)
@@ -56,7 +56,7 @@ test('an address no club has says nothing about any club', async ({ page, world:
 test("a missing page on a club's domain is that club's own 404", async ({ page, world: w }) => {
   const response = await page.goto(clubA('/no-such-page'))
   expect(response?.status()).toBe(404)
-  await expect(page.getByRole('link', { name: `${w.clubA.name}, home` }).first()).toBeVisible()
+  await expect(homeLink(page, w.clubA.name).first()).toBeVisible()
   expect(await page.content()).not.toContain(w.clubB.name)
 })
 
