@@ -1,21 +1,23 @@
-# AI security review on every pull request (job 7, 21 Oct grilling; docs/operations/ai-security-review.md).
-# Claude reviews the change with a project-specific brief (tenant isolation first). Findings are
-# posted as pull request comments. Any HIGH finding fails this check, which is required to merge,
-# unless Dan dismisses it in writing (label + comment, see the doc).
+# Security scan on every pull request (docs/operations/security-review.md). Free: Semgrep
+# Community Edition, open source, no account, no API key, no paid service. It looks for known
+# insecure code patterns (TypeScript, Node, React, Next.js and general security-audit rules) in what the pull request
+# changes. Any ERROR-level finding fails this check, unless Dan dismisses it in writing
+# (label + comment, see the doc). It replaced the paid AI review on 26 Oct 2026.
 name: Security review
 
 on:
   pull_request:
-    # Into production too, for hotfix branches (a release from main was already reviewed on
-    # its way into main): migrations audit, finding 2.
+    # Into production too, for hotfix branches (a release from main was already scanned on its
+    # way into main): migrations audit, finding 2.
     branches: [main, production]
     # labeled/unlabeled: re-check when Dan adds or removes security-finding-dismissed.
     types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
 
 permissions:
   contents: read
-  pull-requests: write
-  # To tell when the latest push was (scripts/check-approval.ts).
+  # To read Dan's dismissal label and comment, and when the latest push was
+  # (scripts/check-approval.ts).
+  pull-requests: read
   actions: read
   issues: read
 
@@ -25,63 +27,41 @@ concurrency:
 
 jobs:
   security-review:
-    # Not on drafts (it runs when marked ready), and not on Dependabot's version bumps (they
-    # can't read the API key; dependency-scan covers them). A skipped run counts as passed.
-    if: ${{ !github.event.pull_request.draft && github.actor != 'dependabot[bot]' && (github.event.pull_request.base.ref == 'main' || github.event.pull_request.head.ref != 'main') }}
+    # Not on drafts: it runs when the pull request is marked ready, then on every push.
+    if: ${{ !github.event.pull_request.draft && (github.event.pull_request.base.ref == 'main' || github.event.pull_request.head.ref != 'main') }}
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 2
+          # Full history, so the scan can compare against the base branch.
+          fetch-depth: 0
 
-      # Labels change nothing in the code, so they reuse the last review instead of paying for
-      # another one (the review's results are kept as an artifact below).
-      - name: Docs-only or label-only?
-        id: scope
-        env:
-          GH_TOKEN: ${{ github.token }}
-          ACTION: ${{ github.event.action }}
-          PR: ${{ github.event.pull_request.number }}
-        run: |
-          code=$(gh pr diff "$PR" --repo "$GITHUB_REPOSITORY" --name-only | grep -vE '^(docs/|\.claude/)|\.md$' || true)
-          if [ -z "$code" ]; then echo "review=skip" >> "$GITHUB_OUTPUT"; echo "Docs only: nothing to review."
-          elif [ "$ACTION" = "labeled" ] || [ "$ACTION" = "unlabeled" ]; then echo "review=reuse" >> "$GITHUB_OUTPUT"
-          else echo "review=run" >> "$GITHUB_OUTPUT"; fi
-
-      - name: Claude security review
-        if: steps.scope.outputs.review == 'run'
-        id: review
-        # anthropics/claude-code-security-review, pinned like every other action.
-        uses: anthropics/claude-code-security-review@0c6a49f1fa56a1d472575da86a94dbc1edb78eda # main, 2026-02-11
+      # Node 24 runs the dismissal check (scripts/check-approval.ts).
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          claude-api-key: ${{ secrets.ANTHROPIC_API_KEY }}
-          claude-model: claude-opus-5-5
-          comment-pr: 'true'
-          upload-results: 'true'
-          # Every push to a ready pull request is reviewed: a merge gate can't review only the first.
-          run-every-commit: 'true'
-          # Migrations are reviewed too: the club rules live in the database (migrations audit, 3).
-          exclude-directories: docs,tests,.claude
-          custom-security-scan-instructions: ${{ github.workspace }}/.github/security-review/scan-instructions.txt
-          false-positive-filtering-instructions: ${{ github.workspace }}/.github/security-review/false-positive-instructions.txt
+          node-version-file: .nvmrc
 
-      - name: Reuse the last review (label change only)
-        if: steps.scope.outputs.review == 'reuse'
+      # Pinned to a release over two weeks old. pipx comes with GitHub's Ubuntu machines.
+      - name: Install Semgrep (free, open source)
+        run: pipx install semgrep==1.180.0
+
+      # Only findings this pull request adds count (--baseline-commit), so a new rule upstream
+      # never blocks an unrelated change. Migrations are scanned too (migrations audit, 3).
+      # --metrics=off: nothing about the code is sent anywhere; the rules are downloaded.
+      - name: Scan the changes
         env:
-          GH_TOKEN: ${{ github.token }}
-          BRANCH: ${{ github.event.pull_request.head.ref }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
-          run_id=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow security-review.yml --branch "$BRANCH" --status completed --json databaseId,headSha --jq "[.[] | select(.headSha == \"${{ github.event.pull_request.head.sha }}\")][0].databaseId // empty")
-          if [ -z "$run_id" ]; then echo "::error::No finished review of this commit to reuse. Re-run this check after the review has run, or push again."; exit 1; fi
-          gh run download "$run_id" --repo "$GITHUB_REPOSITORY" --name security-review-results --dir .
-          ls -la claudecode-results.json
+          semgrep scan --metrics=off --disable-version-check \
+            --config p/typescript --config p/javascript --config p/nodejs \
+            --config p/react --config p/nextjs --config p/security-audit \
+            --exclude docs --exclude tests --exclude .claude \
+            --baseline-commit "$BASE_SHA" \
+            --json --output semgrep-results.json
 
-      # The action reports zero findings when the review itself fails (bad key, timeout). For a
-      # required check that would be a silent pass, so: no real result, no pass.
-      - name: Pass or fail (HIGH findings fail unless Dan dismissed them)
-        if: steps.scope.outputs.review != 'skip'
+      - name: Pass or fail (ERROR findings fail unless Dan dismissed them)
         env:
           GH_TOKEN: ${{ github.token }}
           PR: ${{ github.event.pull_request.number }}
@@ -89,24 +69,26 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           set -euo pipefail
-          f=claudecode-results.json
-          if [ ! -s "$f" ] || ! jq -e 'has("findings")' "$f" > /dev/null; then
-            echo "::error::The security review didn't produce a result (see the review step's log)."
-            jq -r '.error // empty' "$f" 2>/dev/null || true
+          f=semgrep-results.json
+          # No real result is never a pass: a broken scan must not look like a clean one.
+          if [ ! -s "$f" ] || ! jq -e 'has("results")' "$f" > /dev/null; then
+            echo "::error::The security scan didn't produce a result (see the scan step's log)."
             exit 1
           fi
-          high=$(jq '[.findings[] | select((.severity // "" | ascii_upcase) == "HIGH")] | length' "$f")
-          total=$(jq '.findings | length' "$f")
-          echo "Findings: ${total} (HIGH: ${high})" | tee -a "$GITHUB_STEP_SUMMARY"
-          jq -r '.findings[] | "- \(.severity) \(.category // "") in \(.file):\(.line // "?") — \(.description)"' "$f" >> "$GITHUB_STEP_SUMMARY" || true
-          [ "$high" -eq 0 ] && exit 0
+          blocking=$(jq '[.results[] | select(.extra.severity == "ERROR")] | length' "$f")
+          total=$(jq '.results | length' "$f")
+          echo "Findings: ${total} (blocking: ${blocking})" | tee -a "$GITHUB_STEP_SUMMARY"
+          # Each finding is shown on the changed line in the pull request, and in the summary.
+          jq -r '.results[] | "::\(if .extra.severity == "ERROR" then "error" else "warning" end) file=\(.path),line=\(.start.line)::\(.check_id | split(".") | last): \(.extra.message | gsub("\n"; " "))"' "$f"
+          jq -r '.results[] | "- \(.extra.severity) \(.check_id | split(".") | last) in \(.path):\(.start.line): \(.extra.message | gsub("\n"; " "))"' "$f" >> "$GITHUB_STEP_SUMMARY"
+          [ "$blocking" -eq 0 ] && exit 0
           # Dismissed only with Dan's label AND a written reason from the repository owner, both
           # given after the latest push (migrations audit, finding 2): one dismissal never
           # covers code pushed later.
           dismissed=$(node scripts/check-approval.ts security-finding-dismissed "Security finding dismissed:")
           if [ "$dismissed" = "true" ]; then
-            echo "HIGH finding(s) dismissed by ${OWNER} since the latest push." | tee -a "$GITHUB_STEP_SUMMARY"
+            echo "Blocking finding(s) dismissed by ${OWNER} since the latest push." | tee -a "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
-          echo "::error::${high} HIGH security finding(s). Fix them, or see docs/operations/ai-security-review.md to dismiss a false positive with a written reason."
+          echo "::error::${blocking} blocking security finding(s). Fix them, or see docs/operations/security-review.md to dismiss a false positive with a written reason."
           exit 1

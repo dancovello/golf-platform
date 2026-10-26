@@ -11,6 +11,8 @@ import type { Config, Field, FieldHook, Plugin } from 'payload'
  * field hooks see every read and write (checked in docs/plans/step-2-spike-findings.md §4).
  */
 const PREFIX = 'v1'
+// GCM's tamper-check value. 16 bytes is Node's default, so secrets saved before are unchanged.
+const TAG_BYTES = 16
 
 const key = (): Buffer => {
   const hex = process.env.TOTP_ENCRYPTION_KEY ?? ''
@@ -22,7 +24,7 @@ const key = (): Buffer => {
 
 export const encryptSecret = (plain: string): string => {
   const iv = randomBytes(12)
-  const cipher = createCipheriv('aes-256-gcm', key(), iv)
+  const cipher = createCipheriv('aes-256-gcm', key(), iv, { authTagLength: TAG_BYTES })
   const encrypted = Buffer.concat([cipher.update(plain, 'utf8'), cipher.final()])
   return [PREFIX, iv, cipher.getAuthTag(), encrypted]
     .map((p) => (typeof p === 'string' ? p : p.toString('base64')))
@@ -35,7 +37,10 @@ export const decryptSecret = (stored: string): string => {
   if (prefix !== PREFIX || !iv || !tag || !encrypted) {
     throw new Error('Stored two-factor secret is not encrypted')
   }
-  const decipher = createDecipheriv('aes-256-gcm', key(), Buffer.from(iv, 'base64'))
+  // The full 16-byte check value only: a shortened one would be easier to forge.
+  const decipher = createDecipheriv('aes-256-gcm', key(), Buffer.from(iv, 'base64'), {
+    authTagLength: TAG_BYTES,
+  })
   decipher.setAuthTag(Buffer.from(tag, 'base64'))
   return Buffer.concat([
     decipher.update(Buffer.from(encrypted, 'base64')),
