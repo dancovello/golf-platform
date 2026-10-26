@@ -3,7 +3,7 @@ import { CookieSettingsButton } from '../privacy/CookieConsent'
 import { BookButton } from './BookButton'
 import { ArrowRight, Mail, Phone, Pin } from './Icons'
 import { linkTarget, NEW_TAB, siteHref } from './links'
-import { Logo } from './Logo'
+import { HomeHint, Logo } from './Logo'
 
 /**
  * The site footer in the club's chosen style (Figma "Footer / A · Brand columns",
@@ -87,8 +87,9 @@ export const SiteFooter = ({ club, base }: { club: ClubSite; base: string }) => 
 
   const brand = (
     <div className="sf-col sf-brand">
-      <a className="sf-logo" href={base || '/'} aria-label={`${club.name}, home`}>
+      <a className="sf-logo" href={base || '/'}>
         <Logo club={club} surface={dark ? 'brand' : 'page'} />
+        <HomeHint />
       </a>
       {f.about ? <p className="t-body-s sf-about">{f.about}</p> : null}
       {f.style === 'brandColumns' ? contact(false) : null}

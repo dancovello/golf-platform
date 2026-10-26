@@ -1,4 +1,4 @@
-import { expect, openReady, test } from './fixtures'
+import { expect, homeLink, openReady, test } from './fixtures'
 
 // Live preview: the editor sees their unsaved draft beside the form, while visitors (even
 // ones who add ?live=1 to the address) only ever see the published page. The test makes its
@@ -54,7 +54,7 @@ test('the Club Settings preview shows the home page and updates on save', async 
   await openReady(page, `/admin/collections/club-settings/${settingsID}`)
   await page.getByRole('button', { name: 'Live Preview' }).click()
   const preview = page.frameLocator('#live-preview-iframe')
-  await expect(preview.getByRole('link', { name: `${name}, home` }).first()).toBeVisible()
+  await expect(homeLink(preview, name).first()).toBeVisible()
   await expect(preview.getByText(changed)).toHaveCount(0)
 
   await page.getByRole('button', { name: 'Footer', exact: true }).click()
