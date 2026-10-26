@@ -27,7 +27,7 @@ GitHub → the repository → **Settings → Environments**.
 ## Required checks (Settings → Branches)
 
 - **`production`:** add `release-source` (a release must come from `main` or a `hotfix/…` branch) and `security-review`.
-- **`main`:** add `security-review`. It also needs an `ANTHROPIC_API_KEY` repository secret to run (`docs/operations/ai-security-review.md`).
+- **`main`:** add `security-review` (free Semgrep scan, no key needed: `docs/operations/security-review.md`).
 
 ## Approvals now count only after the latest push
 
