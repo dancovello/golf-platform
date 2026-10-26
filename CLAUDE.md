@@ -86,7 +86,7 @@ Node 24 and pnpm (via corepack: `corepack pnpm …` if `pnpm` isn't on PATH). Lo
 - **Database accounts:** the website uses the limited `golf_app` account (read/write data only). Only the release workflow uses the owner account.
 - **Backups:** `.github/workflows/backup.yml` runs nightly and before each release, encrypted with the public key in `ops/backup-recipient.txt`. Restore procedure: `docs/operations/restore-runbook.md`.
 - **Migrations:** never edit a merged migration; the `migration-guard` CI check blocks it. Data-deleting changes need Dan's `approved-destructive-migration` label.
-- **AI security review:** every PR into `main` gets the `security-review` check (`docs/operations/ai-security-review.md`). A HIGH finding blocks merging. Fix it; only Dan may dismiss one (the `security-finding-dismissed` label plus his written comment). Claude never adds that label or writes that comment.
+- **Security scan:** every PR into `main` gets the free `security-review` check (Semgrep Community Edition, no API key; `docs/operations/security-review.md`). An ERROR finding fails it. Fix it; only Dan may dismiss one (the `security-finding-dismissed` label plus his written comment). Claude never adds that label or writes that comment.
 - Decisions made after doc 04 are in `docs/architecture/decisions.md`.
 - **Security checks:** run in a separate chat with the prompt in `docs/operations/security-checks.md` (read-only; it writes a dated report).
 

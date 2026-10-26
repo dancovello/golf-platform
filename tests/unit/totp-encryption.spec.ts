@@ -35,6 +35,12 @@ describe('two-factor secret encryption', () => {
     expect(() => decryptSecret([prefix, iv, tag, flipped.toString('base64')].join(':'))).toThrow()
   })
 
+  it('refuses a shortened tamper-check value (security scan, 26 Oct)', () => {
+    const [prefix, iv, tag, data] = encryptSecret(SECRET).split(':')
+    const short = Buffer.from(tag, 'base64').subarray(0, 4).toString('base64')
+    expect(() => decryptSecret([prefix, iv, short, data].join(':'))).toThrow()
+  })
+
   it('refuses an unencrypted value instead of using it', () => {
     expect(() => decryptSecret(SECRET)).toThrow(/not encrypted/)
   })
