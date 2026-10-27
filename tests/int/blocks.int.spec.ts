@@ -179,6 +179,21 @@ describe('quote', () => {
   })
 })
 
+describe('course record', () => {
+  const record = { blockType: 'courseRecord', holderName: 'N', score: 64, year: 2019 }
+
+  it("refuses club B's photo", async () => {
+    const error = await save([{ ...record, style: 'split', photo: w.mediaB.id }]).catch(
+      (e: unknown) => e,
+    )
+    expect(errorPaths(error)).toContain('layout.0.photo')
+  })
+
+  it('saves without a photo', async () => {
+    await expect(save([{ ...record, style: 'board' }])).resolves.toBeTruthy()
+  })
+})
+
 describe('logo strip', () => {
   it("refuses club B's logo and unsafe websites", async () => {
     const error = await save([

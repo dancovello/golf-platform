@@ -664,6 +664,25 @@ for (const [slug, p] of Object.entries(palettes)) {
     },
   ])
 
+  const record = {
+    blockType: 'courseRecord',
+    holderName: 'James Whitfield',
+    score: 63,
+    underPar: 8,
+    year: 2019,
+    courseDetail: 'White tees · Par 71',
+    description:
+      'Set in the final round of the Club Championship: seven birdies, an eagle at the 14th and a single dropped shot.',
+  }
+  await page('course-record', 'Course record', [
+    { ...record, style: 'board', photo: cards[0].id },
+    { ...record, style: 'board' },
+    { ...record, style: 'card', photo: cards[0].id },
+    { ...record, style: 'card' },
+    { ...record, style: 'split', photo: cards[0].id },
+    { ...record, style: 'split' },
+  ])
+
   await page('pull-quote', 'Quotes', [
     {
       blockType: 'pullQuote',

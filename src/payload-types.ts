@@ -197,6 +197,7 @@ export interface Page {
         | HoleGridBlock
         | ScorecardBlock
         | CourseStatusBlock
+        | CourseRecordBlock
         | NewsFeedBlock
         | EventsFeedBlock
       )[]
@@ -1080,6 +1081,45 @@ export interface CourseStatusBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'courseStatus';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CourseRecordBlock".
+ */
+export interface CourseRecordBlock {
+  style: 'board' | 'card' | 'split';
+  /**
+   * Shows "Course record" if left empty.
+   */
+  eyebrow?: string | null;
+  holderName: string;
+  /**
+   * e.g. 63
+   */
+  score: number;
+  /**
+   * e.g. 8 shows "8 under par". Leave empty to hide.
+   */
+  underPar?: number | null;
+  /**
+   * e.g. 2019
+   */
+  year: number;
+  /**
+   * e.g. White tees · Par 71
+   */
+  courseDetail?: string | null;
+  /**
+   * Up to 160 characters.
+   */
+  description?: string | null;
+  /**
+   * Shown in all three styles. Without one, A drops the portrait, B narrows the card and C shows a brand-coloured panel.
+   */
+  photo?: (string | null) | Media;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'courseRecord';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2628,6 +2668,7 @@ export interface PagesSelect<T extends boolean = true> {
         holeGrid?: T | HoleGridBlockSelect<T>;
         scorecard?: T | ScorecardBlockSelect<T>;
         courseStatus?: T | CourseStatusBlockSelect<T>;
+        courseRecord?: T | CourseRecordBlockSelect<T>;
         newsFeed?: T | NewsFeedBlockSelect<T>;
         eventsFeed?: T | EventsFeedBlockSelect<T>;
       };
@@ -3111,6 +3152,23 @@ export interface CourseStatusBlockSelect<T extends boolean = true> {
         builtIn?: T;
         url?: T;
       };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CourseRecordBlock_select".
+ */
+export interface CourseRecordBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  holderName?: T;
+  score?: T;
+  underPar?: T;
+  year?: T;
+  courseDetail?: T;
+  description?: T;
+  photo?: T;
   id?: T;
   blockName?: T;
 }

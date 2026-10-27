@@ -15,6 +15,7 @@ import { membership } from './membership/config'
 import { holeGrid } from './holeGrid/config'
 import { scorecard } from './scorecard/config'
 import { courseStatus } from './courseStatus/config'
+import { courseRecord } from './courseRecord/config'
 import { newsFeed } from './newsFeed/config'
 import { eventsFeed } from './eventsFeed/config'
 import type { BlockDefinition, BlockRef } from './types'
@@ -38,6 +39,7 @@ export const blockDefinitions: BlockDefinition[] = [
   holeGrid,
   scorecard,
   courseStatus,
+  courseRecord,
   newsFeed,
   eventsFeed,
 ]
