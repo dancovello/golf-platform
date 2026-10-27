@@ -306,6 +306,12 @@ export const ROUTES: Manifest = {
       test: 'only the signed-in super-admin can see the review page',
     },
   ],
+  'src/app/(marketing)/marketing/dev/intro/page.tsx': [
+    {
+      file: 'tests/e2e/marketing-intro-lab.spec.ts',
+      test: 'only the signed-in super-admin can see the intro tuning page',
+    },
+  ],
   'src/app/(marketing)/marketing/dev/preview/[[...path]]/page.tsx': [
     {
       file: 'tests/e2e/marketing-chrome.spec.ts',
