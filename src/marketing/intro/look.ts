@@ -15,7 +15,7 @@ export type BallLook = {
   dimpleSharpness: number
   /** How dark the dimples' shadowed sides are (0 = no shadow). */
   dimpleShadow: number
-  /** Dimple size: 1 = neighbours touch; lower leaves a flat ring between them. */
+  /** Dimple size: 1 = each dimple touches its nearest neighbours; lower leaves a flat ring. */
   dimpleSize: number
   /** Dimple depth, as a multiple of the depth in the ball file. */
   dimpleDepth: number
@@ -51,7 +51,7 @@ export const DEFAULT_LOOK: BallLook = {
   dimpleIntensity: 1.1,
   dimpleSharpness: 27,
   dimpleShadow: 0.15,
-  dimpleSize: 0.88,
+  dimpleSize: 1,
   dimpleDepth: 1,
   reach: 0.34,
   glow: 0.39,
@@ -100,7 +100,7 @@ export const LOOK_CONTROLS: Control[] = [
     group: 'Dimples',
   },
   { key: 'dimpleShadow', label: 'Dimple shadow', min: 0, max: 1, step: 0.01, group: 'Dimples' },
-  { key: 'dimpleSize', label: 'Dimple size', min: 0.6, max: 1, step: 0.01, group: 'Dimples' },
+  { key: 'dimpleSize', label: 'Dimple size', min: 0.6, max: 1.2, step: 0.01, group: 'Dimples' },
   { key: 'dimpleDepth', label: 'Dimple depth', min: 0.3, max: 3, step: 0.05, group: 'Dimples' },
   { key: 'sizeDesktop', label: 'Size (desktop)', min: 0.3, max: 0.8, step: 0.01, group: 'Layout' },
   { key: 'sizeMobile', label: 'Size (phone)', min: 0.5, max: 1.4, step: 0.01, group: 'Layout' },
