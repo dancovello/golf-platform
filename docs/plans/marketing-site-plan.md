@@ -136,7 +136,7 @@ Updated 27 Oct 2026 from the new intro brief (a rim-lit ball that spins and fade
 - **Stage is the site green** (`--mk-surface-canvas`) throughout.
 - **Part 1:** a tuning page (`/dev/intro`, super-admin only) to set the light together. **Part 2:** the homepage intro, once the look is approved.
 
-- Dan's ball file (`src/marketing/intro/assets/golf-ball.source.glb`), served from our own site. Final compression is chosen in part 2.
+- **Round dimples from Dan's ball file** (27 Oct): the file's mesh drew its 362 dimples as hexagons, so `scripts/extract-dimples.ts` reads their exact layout, sizes and depth from it (`src/marketing/intro/assets/golf-ball.source.glb`) and the intro draws each one as a true round bowl. Visitors download a few KB of dimple positions instead of a mesh, so no compression or decoder is needed.
 - Loads after the page appears, so the hero never waits for it.
 - Plays once per visit and can be skipped. There's no intro at all when the visitor's device asks for reduced motion.
 - A simple fallback for devices without 3D graphics.

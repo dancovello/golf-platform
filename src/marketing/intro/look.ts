@@ -15,6 +15,10 @@ export type BallLook = {
   dimpleSharpness: number
   /** How dark the dimples' shadowed sides are (0 = no shadow). */
   dimpleShadow: number
+  /** Dimple size: 1 = neighbours touch; lower leaves a flat ring between them. */
+  dimpleSize: number
+  /** Dimple depth, as a multiple of the depth in the ball file. */
+  dimpleDepth: number
   /** How far down the ball the light reaches before it dissolves (0 = top edge only, 1 = all). */
   reach: number
   /** Soft halo behind the top of the ball (0 = none). */
@@ -40,22 +44,25 @@ export type BallLook = {
 }
 
 export const DEFAULT_LOOK: BallLook = {
-  lightElevation: 14,
-  rimIntensity: 1.1,
-  rimTightness: 5,
-  dimpleIntensity: 0.9,
-  dimpleSharpness: 70,
-  dimpleShadow: 0.35,
-  reach: 0.3,
-  glow: 0.35,
-  coolness: 0.6,
-  sizeDesktop: 0.53,
-  sizeMobile: 0.92,
+  // Tuned by Dan on /dev/intro, 27 Oct 2026.
+  lightElevation: 32,
+  rimIntensity: 3,
+  rimTightness: 6,
+  dimpleIntensity: 1.1,
+  dimpleSharpness: 27,
+  dimpleShadow: 0.15,
+  dimpleSize: 0.88,
+  dimpleDepth: 1,
+  reach: 0.34,
+  glow: 0.39,
+  coolness: 0.48,
+  sizeDesktop: 0.66,
+  sizeMobile: 0.93,
   top: 0.29,
   topMobile: 0.52,
-  tilt: 8,
-  idleSpeed: 30,
-  revealSpeedUp: 5,
+  tilt: 0,
+  idleSpeed: 23,
+  revealSpeedUp: 7,
   revealMs: 1000,
 }
 
@@ -71,7 +78,7 @@ type Control = {
 /** The sliders on the tuning page. */
 export const LOOK_CONTROLS: Control[] = [
   { key: 'lightElevation', label: 'Light height', min: 0, max: 80, step: 1, group: 'Light' },
-  { key: 'rimIntensity', label: 'Edge brightness', min: 0, max: 3, step: 0.05, group: 'Light' },
+  { key: 'rimIntensity', label: 'Edge brightness', min: 0, max: 6, step: 0.05, group: 'Light' },
   { key: 'rimTightness', label: 'Edge thinness', min: 1, max: 12, step: 0.5, group: 'Light' },
   { key: 'reach', label: 'Reach down the ball', min: 0, max: 1, step: 0.01, group: 'Light' },
   { key: 'glow', label: 'Halo', min: 0, max: 1, step: 0.01, group: 'Light' },
@@ -93,6 +100,8 @@ export const LOOK_CONTROLS: Control[] = [
     group: 'Dimples',
   },
   { key: 'dimpleShadow', label: 'Dimple shadow', min: 0, max: 1, step: 0.01, group: 'Dimples' },
+  { key: 'dimpleSize', label: 'Dimple size', min: 0.6, max: 1, step: 0.01, group: 'Dimples' },
+  { key: 'dimpleDepth', label: 'Dimple depth', min: 0.3, max: 3, step: 0.05, group: 'Dimples' },
   { key: 'sizeDesktop', label: 'Size (desktop)', min: 0.3, max: 0.8, step: 0.01, group: 'Layout' },
   { key: 'sizeMobile', label: 'Size (phone)', min: 0.5, max: 1.4, step: 0.01, group: 'Layout' },
   { key: 'top', label: 'Top edge (desktop)', min: 0.1, max: 0.6, step: 0.01, group: 'Layout' },
