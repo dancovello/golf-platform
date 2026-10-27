@@ -146,7 +146,9 @@ Updated 27 Oct 2026 from the new intro brief (a rim-lit ball that spins and fade
 ### Phase 8: Search engines and analytics (1 PR)
 
 - A unique title and description for every page, share images, `sitemap.xml`, `robots.txt` and the company details for search engines.
-- Vercel Analytics, which uses no cookies, so no consent banner (Q9). I'll check its cost on Pro before switching it on.
+- **Analytics: not Vercel Analytics** (27 Oct 2026). On Pro it has no free events and is charged per page view, and the only hard spending cap pauses the whole site. Dan wants no new monthly costs, so analytics will be Cloudflare Web Analytics (free, no cookies, so still no consent banner), switched on at go-live in phase 10 once the company domain exists. Its current terms are checked before then.
+- **Built:** `sitemap.xml` (published pages only), `robots.txt` pointing at it on production, canonical links, sharing tags and the company's details (name, address, email from `src/brand.ts`) on the home page. Staging and previews stay `noindex`.
+- **Not built, waiting on Dan:** a share image (the picture shown when a page is linked in a message). None is designed, so pages share as text only until there is one (open question Q13).
 
 ### Phase 9: Quality pass and launch gate (1–2 PRs, plus a walkthrough with you)
 
