@@ -1025,6 +1025,17 @@ export const buildDemoClub = async (payload: Payload) => {
       download: docs.champCard.id,
     },
     {
+      blockType: 'courseRecord',
+      style: 'card',
+      holderName: 'James Morrison',
+      score: 64,
+      underPar: 8,
+      year: 2019,
+      courseDetail: 'White tees · Par 72',
+      description:
+        'Eight birdies and an eagle at the 14th in the final round of the Club Championship.',
+    },
+    {
       blockType: 'documentList',
       style: 'cards',
       eyebrow: 'Before you play',
@@ -1107,6 +1118,16 @@ export const buildDemoClub = async (payload: Payload) => {
           'Members play a full programme of medals, Stablefords and knockouts from March to October, with winter foursomes on the Heathland. Sign-up sheets open three weeks ahead.',
         ),
       ),
+    },
+    {
+      blockType: 'courseRecord',
+      style: 'board',
+      holderName: 'James Morrison',
+      score: 64,
+      underPar: 8,
+      year: 2019,
+      courseDetail: 'White tees · Par 72',
+      description: 'Set in the final round of the Club Championship.',
     },
     {
       blockType: 'eventsFeed',
@@ -1700,6 +1721,17 @@ export const buildDemoClub = async (payload: Payload) => {
   ])
 
   await save('history', [
+    {
+      blockType: 'courseRecord',
+      style: 'split',
+      holderName: 'James Morrison',
+      score: 64,
+      underPar: 8,
+      year: 2019,
+      courseDetail: 'White tees · Par 72',
+      description:
+        'Eight birdies and an eagle at the 14th in the final round of the Club Championship.',
+    },
     {
       blockType: 'richText',
       style: 'contents',

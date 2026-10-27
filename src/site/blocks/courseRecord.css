@@ -1,0 +1,381 @@
+/* Course record. Figma page "Course Record". Roles only, no raw colours. */
+.cr-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.cr-numeral {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 120px;
+  font-weight: 300;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  font-variant-numeric: lining-nums;
+}
+.cr h2 {
+  margin: 0;
+}
+
+/* A · Honours board: brand band, padding 80/40, two hairlines 12px apart */
+.cr-board {
+  padding-top: var(--space-80);
+  padding-bottom: var(--space-80);
+}
+.cr-board-outer {
+  max-width: var(--size-container);
+  margin: 0 auto;
+  padding: var(--space-12);
+  border: 1px solid var(--color-border-on-inverse-subtle);
+}
+.cr-board-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-48);
+  padding: var(--space-48) 56px;
+  border: 1px solid var(--color-border-on-inverse-subtle);
+}
+.cr-portrait {
+  flex: none;
+  padding: 6px;
+  border: 1px solid var(--color-action-accent);
+  border-radius: var(--radius-full);
+}
+.cr-portrait-img {
+  display: block;
+  width: 112px;
+  height: 112px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+}
+.cr-board-score {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  text-align: center;
+  white-space: nowrap;
+}
+.cr-board-par,
+.cr-board-eyebrow .t-eyebrow {
+  color: var(--color-text-accent);
+}
+.cr-board-divider {
+  align-self: stretch;
+  flex: none;
+  width: 1px;
+  background: var(--color-border-on-inverse-subtle);
+}
+.cr-board-details {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: var(--space-12);
+  min-width: 0;
+}
+.cr-board-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+}
+.cr-board-rule {
+  flex: none;
+  width: 32px;
+  height: 1px;
+  background: var(--color-action-accent);
+}
+.cr-board-meta {
+  display: flex;
+  gap: var(--space-12);
+  color: var(--color-text-on-inverse-muted);
+}
+.cr-board-text {
+  max-width: 560px;
+  color: var(--color-text-on-inverse-muted);
+}
+
+/* B · Signed card: subtle band, padding 96/40, raised card 1080 (760 without a photo) */
+.cr-card-box {
+  display: flex;
+  max-width: 760px;
+  margin: 0 auto;
+  overflow: hidden;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+}
+.cr-card-box.has-photo {
+  max-width: 1080px;
+}
+.cr-card-photo {
+  display: block;
+  flex: none;
+  align-self: stretch;
+  width: 360px;
+  height: auto;
+  object-fit: cover;
+}
+.cr-card-body {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  min-width: 0;
+}
+.cr-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-16);
+  padding: 20px var(--space-32);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.cr-card-head p {
+  margin: 0;
+}
+.cr-card-eyebrow {
+  color: var(--color-text-brand);
+}
+.cr-card-detail {
+  color: var(--color-text-secondary);
+}
+.cr-card-main {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-40);
+  padding: var(--space-40) var(--space-32);
+}
+.cr-scorebox {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  width: 200px;
+  padding: var(--space-24) var(--space-16);
+  border: 1px solid var(--color-border-strong);
+  text-align: center;
+  white-space: nowrap;
+}
+.cr-label {
+  color: var(--color-text-secondary);
+}
+.cr-card-par {
+  color: var(--color-text-brand);
+}
+.cr-fields {
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0;
+}
+.cr-field {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-24);
+  padding: var(--space-16) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.cr-field:last-child {
+  border-bottom: 0;
+}
+.cr-field dt {
+  flex: none;
+  width: 72px;
+}
+.cr-field dd {
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0;
+}
+.cr-card-name {
+  font-family: var(--font-display);
+}
+.cr-card-notes {
+  align-self: flex-start;
+  color: var(--color-text-secondary);
+}
+
+/* C · Feature split: canvas, padding 96/40, 544x680 (4:5) photo or brand panel, 96 gap */
+.cr-split-grid {
+  display: flex;
+  align-items: stretch;
+}
+.cr-split-photo,
+.cr-split-panel {
+  flex: none;
+  width: 544px;
+  height: 680px;
+}
+.cr-split-photo {
+  display: block;
+  object-fit: cover;
+}
+.cr-split-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--space-8);
+  padding: var(--space-48);
+  background: var(--color-surface-brand);
+  color: var(--color-text-on-inverse);
+}
+.cr-split-content {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: var(--space-40);
+  justify-content: center;
+  min-width: 0;
+  padding-left: var(--space-96);
+}
+.cr-split-content > * {
+  margin: 0;
+}
+.cr-split-eyebrow {
+  color: var(--color-text-brand);
+}
+.cr-split-score {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-32);
+  white-space: nowrap;
+}
+.cr-split-numeral {
+  font-size: 200px;
+  line-height: 0.88;
+  letter-spacing: -0.02em;
+}
+.cr-split-panel .cr-split-numeral {
+  font-size: 200px;
+}
+.cr-split-par {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding-bottom: 28px;
+}
+.cr-split-panel .cr-split-par {
+  padding-bottom: 0;
+}
+.cr-split-topar {
+  color: var(--color-text-brand);
+}
+.cr-split-detail {
+  color: var(--color-text-secondary);
+  letter-spacing: 0.04em;
+}
+.cr-split-panel .cr-split-topar {
+  color: var(--color-text-accent);
+}
+.cr-split-panel .cr-split-detail {
+  color: var(--color-text-on-inverse-muted);
+}
+.cr-split-rule {
+  width: 100%;
+  height: 0;
+  border: 0;
+  border-top: 1px solid var(--color-border-subtle);
+}
+.cr-split-holder {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+.cr-split-year {
+  color: var(--color-text-secondary);
+}
+.cr-split-text {
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 1023px) {
+  .cr-board-inner {
+    padding: var(--space-40) var(--space-32);
+    gap: var(--space-32);
+  }
+  .cr-split-photo,
+  .cr-split-panel {
+    width: 400px;
+    height: 500px;
+  }
+  .cr-split-content {
+    padding-left: var(--space-48);
+  }
+  .cr-split-numeral,
+  .cr-split-panel .cr-split-numeral {
+    font-size: 140px;
+  }
+}
+
+@media (max-width: 767px) {
+  .cr-board {
+    padding-top: var(--space-56, 56px);
+    padding-bottom: var(--space-56, 56px);
+  }
+  .cr-board-inner {
+    flex-direction: column;
+    padding: var(--space-32) var(--space-24);
+    text-align: center;
+  }
+  .cr-board-divider {
+    align-self: center;
+    width: 32px;
+    height: 1px;
+    background: var(--color-action-accent);
+  }
+  .cr-board-details {
+    align-items: center;
+  }
+  .cr-board-eyebrow .cr-board-rule {
+    display: none;
+  }
+  .cr-board-meta {
+    justify-content: center;
+  }
+
+  .cr-card-box,
+  .cr-card-box.has-photo {
+    flex-direction: column;
+  }
+  .cr-card-photo {
+    width: 100%;
+    aspect-ratio: 3 / 2;
+  }
+  .cr-card-head {
+    padding: var(--space-16) var(--space-24);
+  }
+  .cr-card-main {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-24);
+    padding: var(--space-24);
+  }
+  .cr-scorebox {
+    width: 100%;
+  }
+
+  .cr-split-grid {
+    flex-direction: column;
+  }
+  .cr-split-photo,
+  .cr-split-panel {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
+  .cr-split-content {
+    gap: var(--space-24);
+    padding-left: 0;
+    padding-top: var(--space-24);
+  }
+  .cr-split-numeral,
+  .cr-split-panel .cr-split-numeral {
+    font-size: 120px;
+  }
+}

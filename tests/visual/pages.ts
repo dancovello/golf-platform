@@ -38,6 +38,7 @@ export const VISUAL_PAGES = [
   'holes',
   'scorecard',
   'course-status',
+  'course-record',
   'news-block',
   'events-block',
 ] as const
