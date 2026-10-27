@@ -3,6 +3,7 @@ import { headers } from 'next/headers'
 import React from 'react'
 
 import { BRAND } from '@/brand'
+import { marketingOrigin } from '@/marketing/seo'
 import { Footer } from '@/marketing/site/chrome/Footer'
 import { Nav } from '@/marketing/site/chrome/Nav'
 import { introGateScript } from '@/marketing/intro/gateScript'
@@ -18,7 +19,10 @@ import './marketing.css'
  * Whether search engines may index a page is decided there too (X-Robots-Tag).
  */
 export const metadata: Metadata = {
+  // Makes every address in the page's tags (canonical, sharing) absolute.
+  metadataBase: new URL(marketingOrigin()),
   title: { default: BRAND.name, template: `%s | ${BRAND.name}` },
+  openGraph: { siteName: BRAND.name, locale: 'en_GB', type: 'website' },
 }
 
 export default async function MarketingLayout({ children }: { children: React.ReactNode }) {
