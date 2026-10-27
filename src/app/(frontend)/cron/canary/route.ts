@@ -42,7 +42,12 @@ export async function GET(request: Request) {
     await report('Isolation canary: canary club B not found, so nothing was checked', 'error')
     return Response.json({ ok: false, reason: 'not set up' }, { status: 500 })
   }
-  const origin = process.env.ADMIN_URL || new URL(request.url).origin
+  // Only ever sign in at the admin's own configured address, never one taken from the request.
+  const origin = process.env.ADMIN_URL
+  if (!origin) {
+    await report('Isolation canary: ADMIN_URL is not set, so nothing was checked', 'error')
+    return Response.json({ ok: false, reason: 'not set up' }, { status: 500 })
+  }
   try {
     const leaks = await probeAsCanaryA({
       baseURL: origin,

@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 
 import { isSuperAdminWithCode } from '@/auth/fullyAuthenticated'
 import { buildDemoClub, DEMO_NAME } from '@/demo/demoClub'
+import { fromAnotherSite } from '@/security/sameOrigin'
 import { sitePreviewEnabled } from '@/site/preview'
 
 // Building the demo club makes a few dozen pictures, so it can take a minute or two.
@@ -21,10 +22,7 @@ const reply = (message: string, status = 200, extra: Record<string, unknown> = {
 export async function POST(request: Request) {
   if (!sitePreviewEnabled()) return reply('The demo club is only available on staging.', 404)
   // Only from the admin itself: a form on another site can't trigger it.
-  const origin = request.headers.get('origin')
-  if (origin && new URL(origin).host !== new URL(request.url).host) {
-    return reply('You are not allowed to do this.', 403)
-  }
+  if (fromAnotherSite(request)) return reply('You are not allowed to do this.', 403)
   const payload = await getPayload({ config })
   const { user } = await payload.auth({ headers: request.headers })
   if (!isSuperAdminWithCode(user)) {

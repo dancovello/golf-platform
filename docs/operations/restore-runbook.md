@@ -77,7 +77,11 @@ Do all of these against the **copy**, not production:
    INSERT INTO pages (title, slug) VALUES ('rule-check', 'rule-check');            -- page with no club
    ```
 3. **The app works against it:** ask Claude to run the tenant-isolation suite against the copy's connection string (it uses its own two test clubs and removes them afterwards). It must pass. *How Claude runs this safely against a copy is set up in step 3.4.*
-4. Write the result in `docs/operations/restore-drills.md`.
+4. **Real incident only: re-apply account changes made after the restore point.** A restore puts every account back exactly as it was at that moment. Anyone removed since then can sign in again, and passwords or two-factor codes that were reset since then work again. Before reopening the admin:
+   - list every editor removed, and every password or two-factor reset, between the restore point and now (from your notes, the "password changed" emails, and Sentry or Vercel logs);
+   - remove those accounts again, and send fresh password links (and reset two-factor) for the reset ones;
+   - if the restore was because of a suspected break-in, reset every account's password and two-factor, not only those.
+5. Write the result in `docs/operations/restore-drills.md`.
 
 ## 5. Recording a drill
 Add a row to `docs/operations/restore-drills.md`:
