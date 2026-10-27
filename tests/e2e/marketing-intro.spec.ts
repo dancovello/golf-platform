@@ -42,6 +42,24 @@ test('a first visit plays the intro, and the first scroll reveals the page', asy
   await context.close()
 })
 
+test('refreshing the homepage replays the intro, from the top', async ({ browser }) => {
+  const { context, page } = await freshVisitor(browser)
+  await page.goto(site())
+  await page.keyboard.press('Tab')
+  await expect(page.locator('.mk-intro')).toBeHidden()
+  await page.mouse.wheel(0, 500)
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
+
+  await page.reload()
+  await expect(page.locator('.mk-intro')).toBeVisible()
+  expect(await page.evaluate(() => window.scrollY)).toBe(0)
+  await page.keyboard.press('Tab')
+  await expect(page.locator('.mk-intro')).toBeHidden()
+  // Scrolling is back to normal afterwards.
+  expect(await page.evaluate(() => window.history.scrollRestoration)).toBe('auto')
+  await context.close()
+})
+
 test('any key, or the Scroll cue, reveals the page', async ({ browser }) => {
   const { context, page } = await freshVisitor(browser)
   await page.goto(site())
