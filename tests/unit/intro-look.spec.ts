@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { cubicBezier, easeEnter } from '@/marketing/intro/easing'
 import { DEFAULT_LOOK, LOOK_CONTROLS } from '@/marketing/intro/look'
+import { CONTENT_START, revealFrame } from '@/marketing/intro/reveal'
 
 describe('golf ball intro easing', () => {
   it('starts at 0 and ends at 1', () => {
@@ -39,5 +40,20 @@ describe('golf ball intro settings', () => {
       expect(value, control.key).toBeGreaterThanOrEqual(control.min)
       expect(value, control.key).toBeLessThanOrEqual(control.max)
     }
+  })
+})
+
+describe('golf ball intro reveal timing', () => {
+  it('starts at idle: ball showing, page hidden', () => {
+    expect(revealFrame(0, 7)).toEqual({ speed: 1, ball: 1, cue: 1, content: 0 })
+  })
+
+  it('ends with the ball gone, the spin at full speed and the page in place', () => {
+    expect(revealFrame(1, 7)).toEqual({ speed: 7, ball: 0, cue: 0, content: 1 })
+  })
+
+  it('brings the page in only from 60% of the way through', () => {
+    expect(revealFrame(CONTENT_START, 7).content).toBe(0)
+    expect(revealFrame(0.8, 7).content).toBeGreaterThan(0)
   })
 })

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
 import { BRAND } from '@/brand'
+import { HomeIntro } from '@/marketing/intro/HomeIntro'
 import { publishedMarketingPage } from '@/marketing/content'
 import { MarketingBlocks, SectionHeader } from '@/marketing/site/MarketingBlocks'
 
@@ -27,29 +28,37 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function MarketingPage({ params }: Props) {
   const path = (await params).path ?? []
   const page = await publishedMarketingPage(path)
+  // The golf ball intro (src/marketing/intro/HomeIntro.tsx) is on the homepage only.
+  const intro = path.length === 0 ? <HomeIntro /> : null
   if (page) {
     return (
-      <main id="main">
-        <MarketingBlocks blocks={page.layout ?? []} />
-      </main>
+      <>
+        {intro}
+        <main id="main">
+          <MarketingBlocks blocks={page.layout ?? []} />
+        </main>
+      </>
     )
   }
   if (path.length > 0) notFound()
   return (
-    <main id="main">
-      <section className="mk-section">
-        <div className="mk-container">
-          <SectionHeader
-            size="page"
-            block={{
-              eyebrow: null,
-              title: 'Your club is better than your website.',
-              subhead: `Our website is on its way. To talk to us now, email ${BRAND.email}.`,
-              align: 'left',
-            }}
-          />
-        </div>
-      </section>
-    </main>
+    <>
+      {intro}
+      <main id="main">
+        <section className="mk-section">
+          <div className="mk-container">
+            <SectionHeader
+              size="page"
+              block={{
+                eyebrow: null,
+                title: 'Your club is better than your website.',
+                subhead: `Our website is on its way. To talk to us now, email ${BRAND.email}.`,
+                align: 'left',
+              }}
+            />
+          </div>
+        </section>
+      </main>
+    </>
   )
 }

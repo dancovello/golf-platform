@@ -1,9 +1,12 @@
 import type { Metadata } from 'next'
+import { headers } from 'next/headers'
 import React from 'react'
 
 import { BRAND } from '@/brand'
 import { Footer } from '@/marketing/site/chrome/Footer'
 import { Nav } from '@/marketing/site/chrome/Nav'
+import { introGateScript } from '@/marketing/intro/gateScript'
+import { InlineScript } from '@/site/components/InlineScript'
 
 import { hankenGrotesk, newsreader } from './fonts'
 import './marketing.css'
@@ -18,9 +21,22 @@ export const metadata: Metadata = {
   title: { default: BRAND.name, template: `%s | ${BRAND.name}` },
 }
 
-export default function MarketingLayout({ children }: { children: React.ReactNode }) {
+export default async function MarketingLayout({ children }: { children: React.ReactNode }) {
+  // The homepage decides whether its golf ball intro plays before anything appears
+  // (src/marketing/intro/gateScript.ts). The proxy passes on the address the visitor asked for.
+  const isHome = (await headers()).get('x-pathname') === '/'
   return (
-    <html lang="en-GB" className={`${newsreader.variable} ${hankenGrotesk.variable}`}>
+    // suppressHydrationWarning: the intro script sets data-intro on <html> before React starts.
+    <html
+      lang="en-GB"
+      className={`${newsreader.variable} ${hankenGrotesk.variable}`}
+      suppressHydrationWarning
+    >
+      {isHome ? (
+        <head>
+          <InlineScript code={introGateScript} />
+        </head>
+      ) : null}
       <body className="mk">
         <a className="mk-skip" href="#main">
           Skip to content
