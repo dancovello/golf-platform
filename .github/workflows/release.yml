@@ -45,8 +45,10 @@ jobs:
     outputs:
       environment: ${{ steps.pick.outputs.environment }}
     steps:
-      # The repository is private again (decisions.md, 22 Oct): releases stop if it's ever public.
-      - name: The repository must be private
+      # Production releases stop while the repository is public (decisions.md, 22 and 27 Oct).
+      # Staging may release while public, as it did from 15 to 22 Oct.
+      - name: The repository must be private (production only)
+        if: github.ref_name == 'production'
         env:
           PRIVATE: ${{ github.event.repository.private }}
         run: |
