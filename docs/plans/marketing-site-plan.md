@@ -137,11 +137,10 @@ Updated 27 Oct 2026 from the new intro brief (a rim-lit ball that spins and fade
 - **Part 1:** a tuning page (`/dev/intro`, super-admin only) to set the light together. **Part 2:** the homepage intro, once the look is approved.
 
 - **Round dimples from Dan's ball file** (27 Oct): the file's mesh drew its 362 dimples as hexagons, so `scripts/extract-dimples.ts` reads their exact layout, sizes and depth from it (`src/marketing/intro/assets/golf-ball.source.glb`) and the intro draws each one as a true round bowl. Visitors download a few KB of dimple positions instead of a mesh, so no compression or decoder is needed.
-- Loads after the page appears, so the hero never waits for it.
-- Plays once per visit and can be skipped. There's no intro at all when the visitor's device asks for reduced motion.
-- A simple fallback for devices without 3D graphics.
-- A switch to compare bounce rates with and without it.
-- The 3D code loads on the home page only.
+- **Part 2, the homepage (27 Oct):** a tiny script in the homepage's `<head>` decides before anything appears whether the intro plays, so there's no flash either way. The first scroll, swipe, key press or tap starts the one-second reveal; the page is held still only for that second. It never traps a visitor: the page appears if the 3D code fails, if it hasn't started within 4 seconds, or if the browser slows the animation down.
+- No intro when the device asks for reduced motion, on a return visit in the same session, on links to a section further down (`/#…`), in browsers without 3D graphics, or when the visitor has asked to save data.
+- **Changed from the brief:** devices without 3D graphics get the page straight away rather than a still image of the ball (simpler, and they lose nothing). The switch to compare bounce rates moves to phase 8, with the analytics it needs.
+- The 3D code loads on the home page only, after the page appears.
 - **New dependencies:** `three` (and its type definitions).
 
 ### Phase 8: Search engines and analytics (1 PR)

@@ -185,6 +185,8 @@ export const createBallScene = async (
   initialLook: BallLook,
   background: string,
 ): Promise<BallScene> => {
+  // Without the page colour the ball's body would be drawn white: better no intro at all.
+  if (!background) throw new Error('Golf ball intro: no background colour given')
   const renderer = new WebGLRenderer({ canvas, antialias: true, alpha: true })
   renderer.setClearColor(0x000000, 0)
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))

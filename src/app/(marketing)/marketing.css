@@ -5100,9 +5100,12 @@ button.mk-button {
 
 /* ---- Golf ball intro: tuning page (/dev/intro) ---- */
 
-.mk-intro-lab {
+.mk-intro-lab,
+.mk-intro {
   --mk-intro-size: var(--mk-intro-size-desktop, 0.53);
   --mk-intro-top: var(--mk-intro-top-desktop, 0.29);
+}
+.mk-intro-lab {
   position: fixed;
   inset: 0;
   z-index: 200;
@@ -5113,7 +5116,8 @@ button.mk-button {
   touch-action: pan-x pinch-zoom;
 }
 @media (max-width: 767px) {
-  .mk-intro-lab {
+  .mk-intro-lab,
+  .mk-intro {
     --mk-intro-size: var(--mk-intro-size-mobile, 0.92);
     --mk-intro-top: var(--mk-intro-top-mobile, 0.52);
   }
@@ -5299,4 +5303,53 @@ button.mk-button {
 .mk-intro-hint {
   margin: 12px 0 0;
   color: var(--mk-text-tertiary);
+}
+
+/* ---- Golf ball intro: the homepage (src/marketing/intro/HomeIntro.tsx) ----
+   <html data-intro> is set before the page appears (gateScript.ts) when the intro will play:
+   "play" while the ball spins, "reveal" while the nav and page rise in. Without it, none of
+   this applies and the page shows as normal. */
+
+.mk-intro {
+  display: none;
+}
+html[data-intro] .mk-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: block;
+  overflow: clip;
+}
+/* The ball appears once its 3D code has loaded (HomeIntro sets opacity 1). */
+.mk-intro .mk-intro-ball {
+  opacity: 0;
+  transition: opacity var(--mk-intro-ball-fade, 600ms) ease-out;
+}
+.mk-intro .mk-intro-cue {
+  padding: 8px;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+.mk-intro .mk-intro-cue:focus-visible {
+  outline: 2px solid var(--mk-accent-dawn);
+  outline-offset: 2px;
+  border-radius: var(--mk-radius-control);
+}
+html[data-intro] .mk-nav,
+html[data-intro] #main,
+html[data-intro] .mk-footer {
+  opacity: 0;
+  transform: translateY(24px);
+}
+html[data-intro='reveal'] .mk-nav,
+html[data-intro='reveal'] #main,
+html[data-intro='reveal'] .mk-footer {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity var(--mk-intro-content-ms, 400ms) var(--mk-ease-enter),
+    transform var(--mk-intro-content-ms, 400ms) var(--mk-ease-enter);
 }
