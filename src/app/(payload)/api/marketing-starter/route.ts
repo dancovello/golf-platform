@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 
 import { isSuperAdminWithCode } from '@/auth/fullyAuthenticated'
 import { addStarterPages } from '@/marketing/starter/pages'
+import { fromAnotherSite } from '@/security/sameOrigin'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,10 +16,7 @@ const reply = (message: string, status = 200, extra: Record<string, unknown> = {
  * super-admin with their code entered, and only from the admin itself.
  */
 export async function POST(request: Request) {
-  const origin = request.headers.get('origin')
-  if (origin && new URL(origin).host !== new URL(request.url).host) {
-    return reply('You are not allowed to do this.', 403)
-  }
+  if (fromAnotherSite(request)) return reply('You are not allowed to do this.', 403)
   const payload = await getPayload({ config })
   const { user } = await payload.auth({ headers: request.headers })
   if (!isSuperAdminWithCode(user)) {

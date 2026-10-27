@@ -33,7 +33,7 @@ It runs inside the app, as a Vercel cron job, so it uses no GitHub Actions minut
 ## Switching it on (Dan; production, so needs your go-ahead)
 
 1. **Create the canary clubs** on production: `pnpm create-canary-clubs`, choosing the production database (the owner connection string) when it asks. Give canary A's editor an email inbox you control, at an address nobody could guess (for example a random alias such as `canary-7f3k9q@` your own domain) that you use nowhere else. Anyone who knows the address could keep the account locked out with wrong passwords, which stops the canary (audit CRON-4). It prints the password once.
-2. **In Vercel**, Production environment only: set `CANARY_EDITOR_EMAIL` and `CANARY_EDITOR_PASSWORD` (Sensitive). `CRON_SECRET` and `SENTRY_DSN` must already be set; the Sentry one is still on your pending list.
+2. **In Vercel**, Production environment only: set `CANARY_EDITOR_EMAIL` and `CANARY_EDITOR_PASSWORD` (Sensitive). `CRON_SECRET`, `ADMIN_URL` and `SENTRY_DSN` must already be set; the Sentry one is still on your pending list. Without `ADMIN_URL` the canary refuses to run (it only ever signs in at that address, never one taken from the request) and raises an alert.
 3. **Redeploy production** (a normal release). The hourly cron starts by itself.
 4. **Check the first run:** Vercel → project → Logs, filtered to `/cron/canary`. It should answer `{"ok":true,...}`.
 
