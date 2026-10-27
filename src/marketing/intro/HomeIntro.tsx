@@ -17,8 +17,11 @@ const clamp01 = (value: number) => Math.min(1, Math.max(0, value))
 
 /** Shows the page: takes the intro's marks off <html> (marketing.css then shows everything). */
 const endIntro = (html: HTMLElement) => {
+  // Back to the browser's normal handling (the gate script turns it off on a refresh).
+  if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'auto'
   html.removeAttribute('data-intro')
   html.removeAttribute('data-intro-started')
+  html.removeAttribute('data-intro-refresh')
   html.style.removeProperty('--mk-intro-content-ms')
 }
 
@@ -54,6 +57,9 @@ export const HomeIntro = () => {
       return
     }
     html.setAttribute('data-intro-started', '')
+    // The page was refreshed (set by the gate script): the browser puts it back where it was
+    // scrolled to, which the intro undoes (below) so it always starts from the top.
+    const refreshed = html.hasAttribute('data-intro-refresh')
     html.style.setProperty('--mk-intro-content-ms', `${(1 - CONTENT_START) * LOOK.revealMs}ms`)
     try {
       window.sessionStorage.setItem(INTRO_SEEN_KEY, '1')
@@ -123,8 +129,22 @@ export const HomeIntro = () => {
       reveal()
     }
     const onPointerDown = () => reveal()
+    // On a refresh the browser restores the old scroll position while the page loads, and a
+    // moment after it has loaded. That isn't the visitor scrolling: put the page back at the top.
+    let settleUntil = refreshed ? Infinity : 0
+    if (refreshed) {
+      const settle = () => {
+        settleUntil = performance.now() + 400
+      }
+      if (document.readyState === 'complete') settle()
+      else window.addEventListener('load', settle, { once: true })
+    }
     // Dragging the scroll bar can't be held back; treat it as the first scroll.
     const onScroll = () => {
+      if (performance.now() < settleUntil) {
+        window.scrollTo(0, 0)
+        return
+      }
       if (window.scrollY > 0) reveal()
     }
     const options = { passive: false, capture: true } as const
@@ -141,10 +161,14 @@ export const HomeIntro = () => {
       window.removeEventListener('scroll', onScroll)
     }
 
-    // The browser brought the visitor back part-way down the page: no intro.
+    // The browser brought the visitor back part-way down the page: no intro. (After a refresh
+    // the intro plays anyway, from the top.)
     if (window.scrollY > 0) {
-      finish()
-      return
+      if (!refreshed) {
+        finish()
+        return
+      }
+      window.scrollTo(0, 0)
     }
 
     const canvas = canvasRef.current
