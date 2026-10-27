@@ -132,6 +132,7 @@ export const RATE_LIMITS: Record<string, Protection> = {
       'App, shared database (HOMEPAGE_REQUEST_VISITOR_LIMIT, HOMEPAGE_REQUESTS_PER_HOUR, HOMEPAGE_REQUESTS_EMAILED_PER_DAY, WEBSITE_FORM_EMAILS, src/security/rateLimit.ts); Turnstile',
   },
   'src/app/(marketing)/marketing/dev/components/page.tsx': SUPER_ADMIN,
+  'src/app/(marketing)/marketing/dev/intro/page.tsx': SUPER_ADMIN,
   'src/app/(marketing)/marketing/dev/preview/[[...path]]/page.tsx': SUPER_ADMIN,
   // ---------- Endpoints beyond Payload's standard ones ----------
   'POST /api/users/invite': SUPER_ADMIN,
