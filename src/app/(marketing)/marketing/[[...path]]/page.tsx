@@ -59,7 +59,6 @@ export default async function MarketingPage({ params }: Props) {
           <MarketingBlocks blocks={page.layout ?? []} />
         </main>
       </>
-
     )
   }
   if (path.length > 0) notFound()
