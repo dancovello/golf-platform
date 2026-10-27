@@ -13,6 +13,12 @@ const freshVisitor = async (browser: Browser, options: BrowserContextOptions = {
 }
 const introState = (page: Page) =>
   page.evaluate(() => document.documentElement.getAttribute('data-intro'))
+// The intro only listens for keys, scrolls and clicks once the page has hydrated, which can
+// be after the browser's load event (slow machines, CI). HomeIntro marks <html
+// data-intro-started> in the same step that adds its listeners, so wait for that before
+// interacting: a key pressed earlier is simply lost and the intro never ends.
+const introListening = (page: Page) =>
+  expect(page.locator('html')).toHaveAttribute('data-intro-started', '')
 
 test('a first visit plays the intro, and the first scroll reveals the page', async ({
   browser,
@@ -20,6 +26,7 @@ test('a first visit plays the intro, and the first scroll reveals the page', asy
   const { context, page } = await freshVisitor(browser)
   await page.goto(site())
   await expect(page.locator('.mk-intro')).toBeVisible()
+  await introListening(page)
   await expect(page.locator('.mk-nav')).toHaveCSS('opacity', '0')
   await expect(page.locator('.mk-intro-ball')).toHaveCSS('opacity', '1')
 
@@ -45,6 +52,7 @@ test('a first visit plays the intro, and the first scroll reveals the page', asy
 test('refreshing the homepage replays the intro, from the top', async ({ browser }) => {
   const { context, page } = await freshVisitor(browser)
   await page.goto(site())
+  await introListening(page)
   await page.keyboard.press('Tab')
   await expect(page.locator('.mk-intro')).toBeHidden()
   await page.mouse.wheel(0, 500)
@@ -52,6 +60,8 @@ test('refreshing the homepage replays the intro, from the top', async ({ browser
 
   await page.reload()
   await expect(page.locator('.mk-intro')).toBeVisible()
+  // The intro puts the page back at the top as it starts, so check only once it has.
+  await introListening(page)
   expect(await page.evaluate(() => window.scrollY)).toBe(0)
   await page.keyboard.press('Tab')
   await expect(page.locator('.mk-intro')).toBeHidden()
@@ -64,12 +74,14 @@ test('any key, or the Scroll cue, reveals the page', async ({ browser }) => {
   const { context, page } = await freshVisitor(browser)
   await page.goto(site())
   await expect(page.locator('.mk-intro')).toBeVisible()
+  await introListening(page)
   await page.keyboard.press('Tab')
   await expect(page.locator('.mk-intro')).toBeHidden()
   await context.close()
 
   const second = await freshVisitor(browser)
   await second.page.goto(site())
+  await introListening(second.page)
   await second.page.getByRole('button', { name: 'Scroll to skip the intro' }).click()
   await expect(second.page.locator('.mk-intro')).toBeHidden()
   await expect(second.page.locator('.mk-nav')).toHaveCSS('opacity', '1')
