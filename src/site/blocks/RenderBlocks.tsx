@@ -18,6 +18,7 @@ import { Membership } from './Membership'
 import { HoleGrid } from './HoleGrid'
 import { Scorecard } from './Scorecard'
 import { CourseStatus } from './CourseStatus'
+import { CourseRecord } from './CourseRecord'
 import { NewsFeed } from '../news/NewsFeed'
 import { EventsFeed } from '../events/EventsFeed'
 import type { BlockContext } from './resolve'
@@ -40,6 +41,7 @@ import './membership.css'
 import './holes.css'
 import './scorecard.css'
 import './courseStatus.css'
+import './courseRecord.css'
 import '../components/buttons.css'
 // After buttons.css: the news styles refine the shared link buttons (same as on news pages).
 import '../news/news.css'
@@ -107,6 +109,8 @@ export const RenderBlocks = ({
         return <Scorecard key={block.id ?? i} block={block} ctx={ctx} />
       case 'courseStatus':
         return <CourseStatus key={block.id ?? i} block={block} ctx={ctx} club={club} base={base} />
+      case 'courseRecord':
+        return <CourseRecord key={block.id ?? i} block={block} ctx={ctx} />
       case 'newsFeed':
         return <NewsFeed key={block.id ?? i} block={block} club={club} base={base} />
       case 'eventsFeed':

@@ -57,6 +57,7 @@ import * as migration_20261022_091355_rate_limits from './20261022_091355_rate_l
 import * as migration_20261023_120000_app_role_limits from './20261023_120000_app_role_limits';
 import * as migration_20261024_095237_marketing_info_pages from './20261024_095237_marketing_info_pages';
 import * as migration_20261026_201248_marketing_feature_showcase from './20261026_201248_marketing_feature_showcase';
+import * as migration_20261027_191922_course_record_block from './20261027_191922_course_record_block';
 
 export const migrations = [
   {
@@ -352,6 +353,11 @@ export const migrations = [
   {
     up: migration_20261026_201248_marketing_feature_showcase.up,
     down: migration_20261026_201248_marketing_feature_showcase.down,
-    name: '20261026_201248_marketing_feature_showcase'
+    name: '20261026_201248_marketing_feature_showcase',
+  },
+  {
+    up: migration_20261027_191922_course_record_block.up,
+    down: migration_20261027_191922_course_record_block.down,
+    name: '20261027_191922_course_record_block'
   },
 ];
