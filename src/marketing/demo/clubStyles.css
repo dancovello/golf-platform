@@ -3,15 +3,20 @@
  * Importing the club's CSS files straight into marketing code makes the bundler share them
  * with club pages and reorder them there, which changed how club blocks look (PR #137).
  * Pulled in here, they're bundled into this file and club pages keep their own order.
+ *
+ * Keep these in the order the club pages load them (RenderBlocks.tsx, then the news, events and
+ * search files). Files shared by both sites are bundled once, so if this list disagrees with the
+ * club's order the bundler reorders them on club pages: the base .btn rules then load after the
+ * news ones and every News link button grows (block-regression, PR #198).
  */
 @import '../../theme/theme.css';
-@import '../../site/components/buttons.css';
 @import '../../site/components/states.css';
 @import '../../site/blocks/blocks.css';
 @import '../../site/blocks/hero.css';
-@import '../../site/blocks/courseStatus.css';
 @import '../../site/blocks/rateTable.css';
-@import '../../site/events/events.css';
+@import '../../site/blocks/courseStatus.css';
+@import '../../site/components/buttons.css';
 @import '../../site/news/news.css';
+@import '../../site/events/events.css';
 @import '../../site/search/panel.css';
 @import '../../site/search/search.css';
