@@ -615,3 +615,9 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **What it can't do:** it matches known patterns and doesn't understand club isolation. That stays with the required tenant-isolation suites, the access-rule guards and `migration-guard`, plus the independent review before launch. Details: `docs/operations/security-review.md`.
 - **About a minute** of CI time a run, against 5–12 for the AI review.
 
+
+## 2026-10-27: Staging releases while the repository is public
+
+- **Why:** the repository is public again until 1 Nov (Dan). The 22 Oct guard stopped every staging release from 24 Oct (#147 to #193), so staging stayed on the 23 Oct release.
+- **Change:** the "repository must be private" check now runs only for production releases. Staging releases run whether the repository is public or private, as they did from 15 to 22 Oct. Secrets stay in GitHub and Vercel and are masked in logs; gitleaks still scans every pull request.
+- **Production:** still stops while the repository is public. Production releases are on hold anyway until Dan reviews the marketing pages.
