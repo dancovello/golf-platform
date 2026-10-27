@@ -34,8 +34,10 @@
   color: var(--color-text-brand);
 }
 
-/* Link button (Figma Button / Link): accent underline, arrow nudges 4px on hover. */
-.news-link {
+/* Link button (Figma Button / Link): accent underline, arrow nudges 4px on hover.
+   Written as .btn.news-link so it beats the base .btn whichever stylesheet loads first: the
+   marketing site shares these files, and the bundler's order can differ from the club pages'. */
+.btn.news-link {
   display: inline-flex;
   align-items: center;
   gap: var(--space-12);
@@ -61,7 +63,7 @@
   transform: translateX(4px);
 }
 /* Hovering the link, or the card it belongs to, thickens the underline (2px, no layout shift). */
-.news-link {
+.btn.news-link {
   transition: box-shadow 200ms ease-out;
 }
 .news-link:hover,
@@ -577,7 +579,7 @@ a.pagination-step:hover .pagination-word {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .news-link,
+  .btn.news-link,
   .news-link svg,
   .news-all-arrow,
   .news-card-image img,
@@ -609,7 +611,7 @@ a.pagination-step:hover .pagination-word {
 
 /* ---------- Phones (doc 13: 24px gutter, rows bleed to the edge) ---------- */
 @media (max-width: 767px) {
-  .news-link {
+  .btn.news-link {
     gap: var(--space-8);
   }
   .news-link svg {
