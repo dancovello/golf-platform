@@ -15,8 +15,9 @@ Each has a safe default so building isn't blocked. The default is what ships unt
 | Q6 | **Neon plan.** The Trust page's "restore to any point in the last 7 days" needs the Launch plan (about £5–£20 a month) | Phase 6 (Trust, held) | Value from settings; not published until confirmed |
 | Q7 | **Changelog at launch?** | Phase 6 | Built, unpublished, kept out of nav and footer |
 | Q8 | **Product film** on Website builder: is there a video? | Phase 6 | Section left out (built page has none) |
-| Q9 | **Analytics.** Vercel Analytics only (no cookies)? | Phase 8 | Vercel Analytics only, so no consent banner. Cost on Pro checked first |
+| Q9 | **Analytics.** Vercel Analytics costs money on Pro (per page view) | Phase 10 | **Decided 27 Oct 2026:** Cloudflare Web Analytics (free, no cookies, no consent banner) at go-live. Terms checked first |
 | Q10 | **Founder Card:** photo, a first-person line under 60 words, phone or calendar link | Phase 4 | Placeholder initial; links from settings |
+| Q13 | **Share image.** The picture shown when a page is linked in a message or on social media. None is designed; one general image for the site, or one per page? | Phase 8 | Pages share as text only (title and description) |
 | N1 | **Company name and domain** | Phase 10 (go live) | "Brandname" and `hello@brandname.golf`, in one file |
 | N2 | **Docs 15 and 18** (golf ball; marketing review and claims) | Doc 18: claims register. Doc 15: phase 7 | Register seeded from the hand-off's list only |
 | N3 | **`golf_ball.glb` and `golf-ball-generator.py`** | Phase 7 | Ball file supplied 27 Oct 2026 (in `src/marketing/intro/assets/`). Generator script not needed so far |

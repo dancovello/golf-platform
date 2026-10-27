@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 
 import { BRAND } from '@/brand'
 import { publishedMarketingPage } from '@/marketing/content'
+import { jsonForScript, organizationJsonLd, pagePath } from '@/marketing/seo'
 import { MarketingBlocks, SectionHeader } from '@/marketing/site/MarketingBlocks'
 
 // Every page view gets a fresh one-time script code (src/security/csp.ts), which only works on
@@ -15,10 +16,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const page = await publishedMarketingPage((await params).path ?? [])
   if (!page) return {}
   const title = page.meta?.title || page.title
+  const description = page.meta?.description || undefined
+  const path = pagePath(page.slug)
   return {
     // The home page's title is the company name alone.
     title: page.slug === 'home' ? { absolute: title } : title,
-    description: page.meta?.description || undefined,
+    description,
+    alternates: { canonical: path },
+    // A page's own tags replace the layout's wholesale, so the shared ones are repeated here.
+    openGraph: {
+      title: page.slug === 'home' ? title : `${title} | ${BRAND.name}`,
+      description,
+      url: path,
+      siteName: BRAND.name,
+      locale: 'en_GB',
+      type: 'website',
+    },
+    twitter: { card: 'summary' },
   }
 }
 
@@ -30,6 +44,13 @@ export default async function MarketingPage({ params }: Props) {
   if (page) {
     return (
       <main id="main">
+        {page.slug === 'home' ? (
+          // The company's details for search engines: data only, so it needs no script code.
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: jsonForScript(organizationJsonLd()) }}
+          />
+        ) : null}
         <MarketingBlocks blocks={page.layout ?? []} />
       </main>
     )

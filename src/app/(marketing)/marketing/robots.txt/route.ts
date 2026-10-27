@@ -1,3 +1,5 @@
+import { robotsBody } from '@/marketing/seo'
+
 export const dynamic = 'force-dynamic'
 
 /**
@@ -5,11 +7,7 @@ export const dynamic = 'force-dynamic'
  * address keeps src/app/(frontend)/robots.txt). Search engines are welcome on production only.
  */
 export function GET() {
-  const body =
-    process.env.VERCEL_ENV === 'production'
-      ? 'User-agent: *\nAllow: /\n'
-      : 'User-agent: *\nDisallow: /\n'
-  return new Response(body, {
+  return new Response(robotsBody(process.env.VERCEL_ENV === 'production'), {
     headers: {
       'Content-Type': 'text/plain; charset=utf-8',
       'Cache-Control': 'public, max-age=3600',
