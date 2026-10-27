@@ -1800,6 +1800,7 @@ export interface MarketingPage {
         | MarketingDemoIntroBlock
         | MarketingBuilderHeroBlock
         | MarketingLiveDemoBlock
+        | MarketingFeatureShowcaseBlock
         | MarketingBookingDemoBlock
         | MarketingReviewedBlock
         | MarketingRoadmapBlock
@@ -2356,6 +2357,24 @@ export interface MarketingLiveDemoBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'mkLiveDemo';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingFeatureShowcaseBlock".
+ */
+export interface MarketingFeatureShowcaseBlock {
+  /**
+   * Two or four work best: they sit two to a row.
+   */
+  items: {
+    feature: 'courseStatus' | 'events' | 'search' | 'greenFees';
+    title: string;
+    body: string;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkFeatureShowcase';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3715,6 +3734,7 @@ export interface MarketingPagesSelect<T extends boolean = true> {
         mkDemoIntro?: T | MarketingDemoIntroBlockSelect<T>;
         mkBuilderHero?: T | MarketingBuilderHeroBlockSelect<T>;
         mkLiveDemo?: T | MarketingLiveDemoBlockSelect<T>;
+        mkFeatureShowcase?: T | MarketingFeatureShowcaseBlockSelect<T>;
         mkBookingDemo?: T | MarketingBookingDemoBlockSelect<T>;
         mkReviewed?: T | MarketingReviewedBlockSelect<T>;
         mkRoadmap?: T | MarketingRoadmapBlockSelect<T>;
@@ -4089,6 +4109,22 @@ export interface MarketingLiveDemoBlockSelect<T extends boolean = true> {
   details?:
     | T
     | {
+        title?: T;
+        body?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingFeatureShowcaseBlock_select".
+ */
+export interface MarketingFeatureShowcaseBlockSelect<T extends boolean = true> {
+  items?:
+    | T
+    | {
+        feature?: T;
         title?: T;
         body?: T;
         id?: T;

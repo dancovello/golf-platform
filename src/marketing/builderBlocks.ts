@@ -86,4 +86,49 @@ const liveDemo: Block = {
   ],
 }
 
-export const builderBlocks: Block[] = [builderHero, liveDemo]
+// Four of the club site's everyday features in one 2 × 2 grid (Dan, 26 Oct, after Linear's AI
+// page): each card zooms in on one piece of a demo club's site, with a title and a line under it.
+export const SHOWCASE_FEATURES = [
+  { label: 'Course report', value: 'courseStatus' },
+  { label: 'Events', value: 'events' },
+  { label: 'Site search', value: 'search' },
+  { label: 'Green fees', value: 'greenFees' },
+] as const
+
+const featureShowcase: Block = {
+  slug: 'mkFeatureShowcase',
+  dbName: 'mk_feature_showcase',
+  interfaceName: 'MarketingFeatureShowcaseBlock',
+  labels: { singular: 'Feature showcase', plural: 'Feature showcases' },
+  fields: [
+    {
+      name: 'items',
+      label: 'Features',
+      type: 'array',
+      minRows: 2,
+      maxRows: 4,
+      required: true,
+      admin: { description: 'Two or four work best: they sit two to a row.' },
+      fields: [
+        {
+          name: 'feature',
+          label: 'Shows',
+          type: 'select',
+          required: true,
+          options: SHOWCASE_FEATURES.map((f) => ({ ...f })),
+        },
+        { name: 'title', label: 'Title', type: 'text', required: true, maxLength: 40 },
+        {
+          name: 'body',
+          label: 'Text',
+          type: 'textarea',
+          required: true,
+          maxLength: 140,
+          validate: maxWords(22, true),
+        },
+      ],
+    },
+  ],
+}
+
+export const builderBlocks: Block[] = [builderHero, liveDemo, featureShowcase]

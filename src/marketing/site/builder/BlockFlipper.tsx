@@ -12,48 +12,74 @@ import {
 import { DEVICES, FLIPPER_STYLES } from '@/marketing/demo/flipper'
 
 import { IconButton } from '../controls/controls'
-import { Segmented } from '../controls/interactive'
 import { BrowserChrome } from '../parts'
 
-/** The window at full size (Figma 183:3059): 960 wide with a 540-tall viewport. */
-const WINDOW = { desktop: 960, tablet: 600, mobile: 320 }
-const VIEWPORT_HEIGHT = 540
+const LAPTOP = DEVICES.find((d) => d.id === 'desktop')!
+const PHONE = DEVICES.find((d) => d.id === 'mobile')!
+/** The laptop's screen is 16:9; the phone's is a 390 × 844 iPhone screen. */
+const LAPTOP_RATIO = 9 / 16
+const PHONE_HEIGHT = 844
+/** The phone's width as a share of the laptop window's: bigger on small screens, to stay legible. */
+const phoneShare = (room: number) => (room < 600 ? 0.36 : 0.26)
+/** Browser bar (40) + the phone hanging 24 below the window + air above. */
+const CHROME = 40
+const PHONE_DROP = 24
+/** The controls under the devices, with the gap above them. */
+const CONTROLS = 96
+const MAX_LAPTOP = 960
+
+type Size = { laptop: number; phone: number }
+
+/** The biggest pair that fits the room across and the screen's height (less the sticky nav). */
+const fit = (room: number, screenHeight: number): Size => {
+  const share = phoneShare(room)
+  // The phone overlaps the laptop's right edge by half its width.
+  const byWidth = room / (1 + share / 2)
+  const byHeight = (screenHeight - 96 - CONTROLS - 32 - CHROME - PHONE_DROP) / LAPTOP_RATIO
+  const laptop = Math.max(240, Math.floor(Math.min(MAX_LAPTOP, byWidth, byHeight)))
+  return { laptop, phone: Math.round(laptop * share) }
+}
 
 /**
- * Marketing/Block Flipper (183:2796): "Card stack of one block's variants (Hero A/B/C).
- * Arrows/swipe flip the stack; Device resizes the live block." Each variant is the real Hero
- * block in an embedded page at the device's real width (club blocks change layout with the
- * screen's width), scaled to fit the window. The block is a picture: hidden from screen
- * readers, which hear the label and the variant count instead.
+ * Marketing/Block Flipper (183:2796), reworked (Dan, 26 Oct): one hero variant at a time, shown
+ * on a laptop and a phone side by side, so the point is "it looks right on every screen".
+ * Arrows, keys or a swipe flip both together. Each screen is the real Hero block in an embedded
+ * page at that device's real width (club blocks change layout with the width), scaled to fit.
+ * The pair is sized to fit the screen. The blocks are pictures: hidden from screen readers,
+ * which hear the label and the variant count instead.
  */
 export const BlockFlipper = ({ address }: { address: string }) => {
   const [index, setIndex] = useState(0)
-  const [device, setDevice] = useState(0)
-  const [room, setRoom] = useState<number>(WINDOW.desktop)
+  const [size, setSize] = useState<Size>({ laptop: MAX_LAPTOP, phone: 250 })
   const stack = useRef<HTMLDivElement>(null)
   const swipe = useRef<number | null>(null)
 
   useLayoutEffect(() => {
     const box = stack.current
     if (!box) return
-    const fit = () => setRoom(box.clientWidth)
-    fit()
-    const observer = new ResizeObserver(fit)
+    const update = () => setSize(fit(box.clientWidth, window.innerHeight))
+    update()
+    const observer = new ResizeObserver(update)
     observer.observe(box)
-    return () => observer.disconnect()
+    window.addEventListener('resize', update)
+    return () => {
+      observer.disconnect()
+      window.removeEventListener('resize', update)
+    }
   }, [])
 
   const count = FLIPPER_STYLES.length
   const flip = (by: number) => setIndex((i) => (i + by + count) % count)
   const variant = FLIPPER_STYLES[index]
-  const screen = DEVICES[device]
-  const windowWidth = Math.min(WINDOW[screen.id], room)
-  const scale = windowWidth / screen.width
-  // Phones see a shorter window, in proportion.
-  const viewportHeight = Math.round(Math.min(VIEWPORT_HEIGHT, (windowWidth / WINDOW.desktop) * 900))
+  const laptopHeight = Math.round(size.laptop * LAPTOP_RATIO)
+  const laptopScale = size.laptop / LAPTOP.width
+  // The phone's screen, inside a 6px bezel.
+  const phoneScreen = size.phone - 12
+  const phoneScale = phoneScreen / PHONE.width
+  const phoneHeight = Math.round(PHONE_HEIGHT * phoneScale) + 12
+  const style = variant.label.replace('Hero · ', '')
 
   const onKey = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.target instanceof HTMLElement && event.target.closest('[role="radiogroup"]')) return
     if (event.key === 'ArrowLeft') flip(-1)
     else if (event.key === 'ArrowRight') flip(1)
     else return
@@ -76,43 +102,75 @@ export const BlockFlipper = ({ address }: { address: string }) => {
       aria-roledescription="carousel"
       aria-label="Hero block variants"
       onKeyDown={onKey}
+      data-fit-screen=""
     >
       <div
         className="mk-flipper-stack"
         ref={stack}
         style={
-          { '--window': `${windowWidth}px`, '--viewport': `${viewportHeight}px` } as CSSProperties
+          {
+            '--window': `${size.laptop}px`,
+            '--viewport': `${laptopHeight}px`,
+            '--phone': `${size.phone}px`,
+          } as CSSProperties
         }
         onPointerDown={onPointerDown}
         onPointerUp={onPointerUp}
         onPointerCancel={() => (swipe.current = null)}
       >
-        <span className="mk-flipper-card mk-flipper-card--2" aria-hidden="true" />
-        <span className="mk-flipper-card mk-flipper-card--1" aria-hidden="true" />
-        <figure
-          className="mk-flipper-window"
-          style={{ width: windowWidth }}
-          aria-label={`Demo club: the Hero block, ${variant.label.replace('Hero · ', '')} style, at ${screen.label.toLowerCase()} width`}
+        <div
+          className="mk-devices"
+          style={{
+            width: size.laptop + size.phone / 2,
+            height: CHROME + laptopHeight + PHONE_DROP,
+          }}
         >
-          <BrowserChrome address={address} />
-          <div className="mk-flipper-viewport" style={{ height: viewportHeight }}>
-            <iframe
-              key={`${variant.id}-${screen.id}`}
-              src={`/frame/hero/${variant.id}`}
-              title={`${variant.label}, ${screen.label}`}
-              aria-hidden="true"
-              tabIndex={-1}
-              loading="lazy"
-              style={{
-                width: screen.width,
-                height: Math.ceil(viewportHeight / scale),
-                transform: `scale(${scale})`,
-              }}
-            />
-          </div>
-        </figure>
+          <figure
+            className="mk-flipper-window"
+            style={{ width: size.laptop }}
+            aria-label={`Demo club: the Hero block, ${style} style, on a laptop`}
+          >
+            <BrowserChrome address={address} />
+            <div className="mk-flipper-viewport" style={{ height: laptopHeight }}>
+              <iframe
+                key={`${variant.id}-laptop`}
+                src={`/frame/hero/${variant.id}`}
+                title={`${variant.label}, on a laptop`}
+                aria-hidden="true"
+                tabIndex={-1}
+                loading="lazy"
+                style={{
+                  width: LAPTOP.width,
+                  height: Math.ceil(laptopHeight / laptopScale),
+                  transform: `scale(${laptopScale})`,
+                }}
+              />
+            </div>
+          </figure>
+          <figure
+            className="mk-phone"
+            style={{ width: size.phone, height: phoneHeight }}
+            aria-label={`Demo club: the same hero on a phone`}
+          >
+            <div className="mk-phone-screen">
+              <iframe
+                key={`${variant.id}-phone`}
+                src={`/frame/hero/${variant.id}`}
+                title={`${variant.label}, on a phone`}
+                aria-hidden="true"
+                tabIndex={-1}
+                loading="lazy"
+                style={{
+                  width: PHONE.width,
+                  height: PHONE_HEIGHT,
+                  transform: `scale(${phoneScale})`,
+                }}
+              />
+            </div>
+          </figure>
+        </div>
       </div>
-      <div className="mk-flipper-controls">
+      <div className="mk-flipper-controls" style={{ width: `min(${size.laptop}px, 100%)` }}>
         <div className="mk-flipper-variant">
           <IconButton icon="chevron-left" label="Previous variant" onClick={() => flip(-1)} />
           <IconButton icon="chevron-right" label="Next variant" onClick={() => flip(1)} />
@@ -123,11 +181,9 @@ export const BlockFlipper = ({ address }: { address: string }) => {
             </span>
           </p>
         </div>
-        <Segmented
-          label="Device width"
-          options={DEVICES.map((d) => d.label)}
-          onChange={setDevice}
-        />
+        <p className="mk-flipper-screens">
+          <strong>Right on every screen.</strong> Phones get their own layout, not a squashed page.
+        </p>
       </div>
     </div>
   )

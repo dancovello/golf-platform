@@ -23,7 +23,7 @@ Seeded 2026-10-21 from the hand-off's list. **Doc 18's rows are still to add** (
 | No setup fee (home proof line) | Home, Pricing | Pricing decision; not yet in the hand-off's list | ❓ Dan to confirm | — | Dan | Each price change |
 | Homepage rebuilt free in two working days | Home, Switching | Manual service, decided (hand-off §3); the date shown skips weekends and bank holidays (phase 5) | ✅ | Phase 5 form tests | Dan | — |
 | Tee-time booking is coming next | Home, nav | Bookings is out of scope for v1; shown with the Coming next clock | ✅ | Nav test checks the clock | Claude | Each release |
-| AI copies your pages, news, photos and PDFs | Home, Switching | Switching service decided (hand-off §3) | ✅ (service, not software) | — | Dan | — |
+| AI-assisted migration: AI copies your pages, news, photos and PDFs | Home, Switching | Switching service decided (hand-off §3). Worded as how *we* move a club across, never as an AI feature clubs get (Dan, 26 Oct) | ✅ (service, not software) | — | Dan | If the switching process changes |
 | Week moments: course status, news, green fees, hole guide are live blocks | Home | `courseStatus`, `newsFeed`, `rateTable`, `holeGrid` blocks exist and are tested | ✅ | Block integration tests | Claude | — |
 
 ## Researched proof stats
@@ -63,6 +63,10 @@ Retired, never use: the top-100 audit stat (26 of 93), and "0 of 4 providers pub
 | Photos are resized for you | Website builder | Image sizes on upload (`src/collections/Media.ts`) | ✅ | — | Claude | — |
 | Course status shows when it was last updated | Website builder | Course Status block shows the time (`src/site/blocks/CourseStatus.tsx`) | ✅ | — | Claude | — |
 | Anyone with access can post the course report | Website builder | Club editors can update Course Status | ✅ | Isolation tests | Claude | If roles are added |
+| Fixtures in date order, on every page that lists them | Website builder (feature showcase) | Upcoming events block lists the club's next published events (`src/blocks/eventsFeed/config.ts`) | ✅ | `tests/e2e/site-events.spec.ts` | Claude | If the events block changes |
+| Search answers "winter green fees" with the fees, then pages and documents | Website builder (feature showcase) | Fees answer card from the club's prices page (`src/search/answers.ts`), results by kind (`src/site/search/kinds.ts`) | ✅ | `tests/e2e/site-search.spec.ts` | Claude | If search changes |
+| Change a rate once, every page that shows it follows | Website builder (feature showcase), Home (week) | Rate tables read the club's one set of fees | ✅ (as the Week moments row) | — | Claude | — |
+| Looks right on a laptop and a phone; phones get their own layout | Website builder (intro) | Club blocks change layout with the screen's width; the demo shows the real hero at 1366 and 390 wide | ✅ | `tests/e2e/marketing-website-builder.spec.ts` | Claude | — |
 | The right access for each person | Website builder | Not built: badged Coming next | ⏳ (badged) | — | Dan | When roles ship |
 | Your new site links to the booking system you use today | Bookings | The "Book a tee time" button links to any address (Club Settings → header booking link) | ✅ | — | Claude | — |
 | Built-in booking is coming next (tee sheet, settings, facilities) | Bookings | Not built; every preview is labelled "Coming next · not live yet" | ⏳ (labelled) | `tests/e2e/marketing-bookings.spec.ts` checks the label | Dan | When booking ships |

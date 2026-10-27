@@ -30,7 +30,9 @@ export const DemoScaler = ({
       const scale = scaled ? width / designWidth : 1
       stage.style.width = scaled ? `${designWidth}px` : '100%'
       stage.style.transform = scaled ? `scale(${scale})` : 'none'
-      const natural = stage.offsetHeight
+      box.dataset.scaled = String(scaled)
+      // Unscaled, measure what's drawn, so CSS zoom on a phone (e.g. the Token Dial) counts.
+      const natural = scaled ? stage.offsetHeight : stage.getBoundingClientRect().height
       const shown = height ? Math.min(natural, height) : natural
       box.style.height = `${Math.round(shown * scale)}px`
     }

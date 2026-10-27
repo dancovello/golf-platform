@@ -56,6 +56,7 @@ import * as migration_20261021_215842_marketing_bookings_preview from './2026102
 import * as migration_20261022_091355_rate_limits from './20261022_091355_rate_limits';
 import * as migration_20261023_120000_app_role_limits from './20261023_120000_app_role_limits';
 import * as migration_20261024_095237_marketing_info_pages from './20261024_095237_marketing_info_pages';
+import * as migration_20261026_201248_marketing_feature_showcase from './20261026_201248_marketing_feature_showcase';
 
 export const migrations = [
   {
@@ -346,6 +347,11 @@ export const migrations = [
   {
     up: migration_20261024_095237_marketing_info_pages.up,
     down: migration_20261024_095237_marketing_info_pages.down,
-    name: '20261024_095237_marketing_info_pages'
+    name: '20261024_095237_marketing_info_pages',
+  },
+  {
+    up: migration_20261026_201248_marketing_feature_showcase.up,
+    down: migration_20261026_201248_marketing_feature_showcase.down,
+    name: '20261026_201248_marketing_feature_showcase'
   },
 ];
