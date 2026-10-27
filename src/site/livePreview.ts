@@ -20,7 +20,7 @@ const previewURL = async (req: PayloadRequest, tenant: unknown, path: string) =>
 }
 
 const pageURL = (req: PayloadRequest, tenant: unknown, slug: string | null) =>
-  previewURL(req, tenant, slug && slug !== 'home' ? `/${slug}` : '')
+  previewURL(req, tenant, slug && slug !== 'home' ? `/${encodeURIComponent(slug)}` : '')
 
 // The sizes match the picture check (tests/visual/pages.ts).
 const breakpoints = [

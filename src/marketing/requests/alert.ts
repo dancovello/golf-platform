@@ -28,7 +28,8 @@ export type RequestEmailResult = {
  * After a homepage request is saved: emails it to the company inbox (Company website →
  * Settings → Requests), then sends the club a plain confirmation with the promised date.
  * Plain text only, so nothing typed can become a link or markup. The confirmation leaves out
- * the website the club typed, so the form can't be used to send links to strangers. Each
+ * everything the visitor typed (the club name and the website), because it goes to an address
+ * nobody has checked: otherwise the form could be used to send strangers a link. Each
  * email that goes is stamped on the request; a failure is logged and the request is still in
  * the admin.
  *
@@ -116,7 +117,7 @@ export const sendHomepageRequestEmails = async (id: string): Promise<RequestEmai
       text: [
         'Hello,',
         '',
-        `Thanks for asking us to rebuild ${club}’s homepage. We’ll email it to you by ${due}.`,
+        `Thanks for asking us to rebuild your club’s homepage. We’ll email it to you by ${due}.`,
         '',
         'We build it from your current site. Nothing on your live site changes, and there’s nothing else you need to do.',
         '',
