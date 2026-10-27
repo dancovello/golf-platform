@@ -3,14 +3,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import type { BallScene } from './ballScene'
-import { easeEnter } from './easing'
 import { DEFAULT_LOOK, LOOK_CONTROLS, type BallLook } from './look'
+import { CONTENT_RISE_PX, revealFrame } from './reveal'
 
 const STORAGE_KEY = 'mk-intro-lab-look'
 const GROUPS = ['Light', 'Dimples', 'Layout', 'Motion'] as const
-// The page content arrives over the last 40% of the reveal (brief: "starting around 60%").
-const CONTENT_START = 0.6
-const CONTENT_RISE_PX = 24
 
 const loadSaved = (): BallLook => {
   try {
@@ -38,7 +35,7 @@ export const IntroLab = () => {
   const contentRef = useRef<HTMLDivElement>(null)
   const panelRef = useRef<HTMLElement>(null)
   const sceneRef = useRef<BallScene | null>(null)
-  const revealFrame = useRef(0)
+  const revealRequest = useRef(0)
 
   // Rendered only in the browser (IntroLabLoader), so saved values can be read straight away.
   const [look, setLook] = useState<BallLook>(loadSaved)
@@ -97,15 +94,13 @@ export const IntroLab = () => {
   }, [])
 
   const paint = useCallback((progress: number) => {
-    const eased = easeEnter(progress)
-    const { revealSpeedUp } = lookRef.current
-    sceneRef.current?.setSpeedMultiplier(1 + (revealSpeedUp - 1) * eased)
-    if (ballLayerRef.current) ballLayerRef.current.style.opacity = String(1 - eased)
-    if (cueRef.current) cueRef.current.style.opacity = String(1 - clamp01(progress * 4))
-    const content = easeEnter(clamp01((progress - CONTENT_START) / (1 - CONTENT_START)))
+    const frame = revealFrame(progress, lookRef.current.revealSpeedUp)
+    sceneRef.current?.setSpeedMultiplier(frame.speed)
+    if (ballLayerRef.current) ballLayerRef.current.style.opacity = String(frame.ball)
+    if (cueRef.current) cueRef.current.style.opacity = String(frame.cue)
     if (contentRef.current) {
-      contentRef.current.style.opacity = String(content)
-      contentRef.current.style.transform = `translateY(${(1 - content) * CONTENT_RISE_PX}px)`
+      contentRef.current.style.opacity = String(frame.content)
+      contentRef.current.style.transform = `translateY(${(1 - frame.content) * CONTENT_RISE_PX}px)`
     }
   }, [])
 
@@ -118,23 +113,23 @@ export const IntroLab = () => {
       const progress = clamp01((now - start) / lookRef.current.revealMs)
       paint(progress)
       if (progress < 1) {
-        revealFrame.current = requestAnimationFrame(step)
+        revealRequest.current = requestAnimationFrame(step)
       } else {
         phaseRef.current = 'done'
         setPhase('done')
       }
     }
-    revealFrame.current = requestAnimationFrame(step)
+    revealRequest.current = requestAnimationFrame(step)
   }, [paint])
 
   const reset = useCallback(() => {
-    cancelAnimationFrame(revealFrame.current)
+    cancelAnimationFrame(revealRequest.current)
     paint(0)
     phaseRef.current = 'idle'
     setPhase('idle')
   }, [paint])
 
-  useEffect(() => () => cancelAnimationFrame(revealFrame.current), [])
+  useEffect(() => () => cancelAnimationFrame(revealRequest.current), [])
 
   // Like the homepage: the first scroll, swipe or Down key over the stage starts the reveal.
   useEffect(() => {

@@ -45,6 +45,22 @@ const watchForLeaks = (page: Page, secrets: string[], echoed: Set<string>) => {
  * isolation suites then test the access rules themselves, not the cross-site check. Only the
  * API client gets it; a page can't override a browser's own Sec- headers.
  */
+/**
+ * Marks the homepage golf ball intro as already seen this session (src/marketing/intro), so it
+ * doesn't cover the page in tests about something else. The intro's own tests
+ * (marketing-intro.spec.ts) open a fresh browser without this.
+ */
+export const skipIntro = async (context: BrowserContext) => {
+  await context.addInitScript(() => {
+    try {
+      window.sessionStorage.setItem('mk-intro-seen', '1')
+    } catch {
+      // Some pages (about:blank) have no storage.
+    }
+  })
+  return context
+}
+
 export const asSameOrigin = (context: BrowserContext) => {
   type Call = (url: unknown, options?: { headers?: Record<string, string> }) => unknown
   const api = context.request as unknown as Record<string, Call>
@@ -73,7 +89,7 @@ type Fixtures = {
 
 export const test = base.extend<Fixtures>({
   context: async ({ context }, use) => {
-    await use(asSameOrigin(context))
+    await use(asSameOrigin(await skipIntro(context)))
   },
   world: async ({}, use) => {
     await use(loadWorld())
@@ -84,7 +100,7 @@ export const test = base.extend<Fixtures>({
   },
   editorPage: async ({ browser, world, echoed }, use) => {
     const context = asSameOrigin(
-      await browser.newContext({ storageState: `${STATE_DIR}/editorA.json` }),
+      await skipIntro(await browser.newContext({ storageState: `${STATE_DIR}/editorA.json` })),
     )
     const page = await context.newPage()
     const leaksSoFar = watchForLeaks(page, clubBSecrets(world), echoed)
@@ -94,7 +110,7 @@ export const test = base.extend<Fixtures>({
   },
   superAdminPage: async ({ browser }, use) => {
     const context = asSameOrigin(
-      await browser.newContext({ storageState: `${STATE_DIR}/superAdmin.json` }),
+      await skipIntro(await browser.newContext({ storageState: `${STATE_DIR}/superAdmin.json` })),
     )
     await use(await context.newPage())
     await context.close()
