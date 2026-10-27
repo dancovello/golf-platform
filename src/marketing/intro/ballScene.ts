@@ -119,10 +119,11 @@ const fragmentShader = /* glsl */ `
     float size = dimple.w * uSize;
     // How far from the centre, as a share of the dimple's size (1 = its edge).
     float along = atan(length(cross(d, centre)), dot(d, centre)) / size;
-    // Soften the edge over one pixel so it doesn't shimmer.
-    float inside = 1.0 - smoothstep(1.0 - fwidth(along), 1.0, along);
-    // A bowl's slope grows steadily from its middle to its edge.
-    float slope = 2.0 * uDepth * along / size * inside;
+    // A bowl's slope grows steadily from its middle, then rolls over a rounded rim to meet the
+    // surface smoothly. A sharp rim would catch the light as a thin, broken outline. The rim
+    // is never narrower than a pixel or two, so small dimples don't shimmer either.
+    float rim = max(EDGE_ROUNDING, 2.0 * fwidth(along));
+    float slope = 2.0 * uDepth * along / size * (1.0 - smoothstep(1.0 - rim, 1.0, along));
     vec3 towardCentre = centre - d * dot(d, centre);
     float distance = length(towardCentre);
     if (distance > 1e-6) towardCentre /= distance;
@@ -234,7 +235,13 @@ export const createBallScene = async (
   }
   // A smooth sphere: the dimples are drawn per pixel, so the shape only needs a round outline.
   const geometry = new SphereGeometry(1, 192, 128)
-  const material = new ShaderMaterial({ uniforms, vertexShader, fragmentShader })
+  const material = new ShaderMaterial({
+    // How much of each dimple's radius its rounded rim takes.
+    defines: { EDGE_ROUNDING: '0.22' },
+    uniforms,
+    vertexShader,
+    fragmentShader,
+  })
   const ball = new Mesh(geometry, material)
   const scene = new Scene()
   scene.add(ball)
