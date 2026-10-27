@@ -312,6 +312,8 @@ describe('emails', () => {
     expect(confirmation.replyTo).toBe('requests@company.example')
     expect(confirmation.text).toContain('by Thursday 22 October')
     expect(confirmation.text).not.toContain('ashgroveparkgc')
+    // Nothing the visitor typed reaches an address nobody has checked.
+    expect(confirmation.text).not.toContain('Ashgrove')
     expect(confirmation).not.toHaveProperty('html')
     const request = await w.payload.findByID({
       collection: 'homepage-requests',

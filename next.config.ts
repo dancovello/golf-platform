@@ -34,6 +34,9 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   // Don't announce which framework runs the site.
   poweredByHeader: false,
+  // The site doesn't use next/image, so switch off its resizer (/_next/image): otherwise it stays
+  // open to anyone and runs image processing on request.
+  images: { unoptimized: true },
   headers: async () => [{ source: '/:path*', headers: securityHeaders }],
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {

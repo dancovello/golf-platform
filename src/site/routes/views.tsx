@@ -169,8 +169,11 @@ export const PathView = async ({
     }
     const archive = await newsArchive(club.tenantID, {
       category: one(query.category),
-      q: one(query.q),
-      page: Number.parseInt(one(query.page) ?? '1', 10) || 1,
+      // Trimmed and bounded before the cached loader sees them, so odd addresses can't make the
+      // database or the data cache do unbounded work (the loader only uses the first 60
+      // characters anyway).
+      q: one(query.q)?.trim().slice(0, 60) || null,
+      page: Math.min(Math.max(Number.parseInt(one(query.page) ?? '1', 10) || 1, 1), 1000),
     })
     return (
       <ClubShell club={club} base={base} currentPath={`${base}/news`}>
