@@ -29,6 +29,8 @@
   --mk-accent-rose: #d97f78;
   --mk-signal-live: #7bd4a0;
   --mk-signal-live-wash: #7bd4a029;
+  --mk-signal-live-soft: #7bd4a012;
+  --mk-signal-live-edge: #7bd4a05c;
   /* Borders */
   --mk-border-hairline: #f3f1ea14;
   --mk-border-strong: #f3f1ea29;
@@ -44,6 +46,9 @@
   --mk-section-space: 64px;
   --mk-section-space-cta: 64px;
   --mk-header-gap: 32px;
+  /* The tallest an interactive component may be: the screen, less the sticky nav (64px) and a
+   * little air. Every demo, form and control panel fits inside it. */
+  --mk-fit-h: calc(100svh - 96px);
   /* Motion (interaction rules): never ease-in */
   --mk-ease-enter: cubic-bezier(0.23, 1, 0.32, 1);
   --mk-ease-move: cubic-bezier(0.77, 0, 0.175, 1);
@@ -1780,15 +1785,35 @@ button.mk-button {
   background: var(--color-surface-canvas);
   color: var(--color-text-primary);
 }
+/* Never taller than the screen (--mk-fit-h, less the browser bar). Frames that would be are
+ * narrowed below so the whole block shows; this only clips as a last resort. */
+.mk-demo-viewport {
+  max-height: calc(var(--mk-fit-h) - 42px);
+}
 /* A full-bleed hero fills the window on a club's site; in a frame it takes its designed height
- * (880px at the 1366px design width; Figma hero spec). */
+ * (880px at the 1366px design width; Figma hero spec), or a phone's when shown unscaled. */
 .mk-demo-stage .hero-full {
   min-height: 880px;
+}
+.mk-demo-viewport[data-scaled='false'] .hero-full {
+  min-height: 560px;
 }
 @media (max-width: 599px) {
   .mk-demo-stage .hero-full {
     min-height: 560px;
   }
+}
+/* The hole carousel's section is about 855px tall at 1366 wide: narrowed the same way. */
+.mk-fit-carousel {
+  width: 100%;
+  max-width: calc((var(--mk-fit-h) - 42px) * 1366 / 855);
+  margin-inline: auto;
+}
+/* A frame showing a scaled hero (880 × 1366) is narrowed until it fits the screen. */
+.mk-fit-hero {
+  width: 100%;
+  max-width: calc((var(--mk-fit-h) - 42px) * 1366 / 880);
+  margin-inline: auto;
 }
 
 /* ---- Marketing/Tenant Morph (176:2177): frame above, club chips below, 24px apart ---- */
@@ -1805,6 +1830,11 @@ button.mk-button {
 }
 .mk-morph-frames {
   width: 100%;
+}
+/* Pinned 88px from the top, with the chips (39px + 24px gap) and browser bar (42px) under the
+ * hero: the frame narrows so all of it fits on the screen. */
+.mk-morph[data-scroll-driven='true'] .mk-morph-frames {
+  max-width: calc((100svh - 88px - 16px - 63px - 42px) * 1366 / 880);
 }
 .mk-morph-frame[data-active='true'][data-fade='true'] {
   animation: mk-fade 300ms var(--mk-ease-enter);
@@ -2007,8 +2037,8 @@ button.mk-button {
   background: var(--mk-surface-raised);
 }
 .mk-compare-panel--good {
-  border-color: var(--mk-accent-dawn-edge);
-  background: var(--mk-accent-dawn-wash);
+  border-color: var(--mk-signal-live-edge);
+  background: var(--mk-signal-live-soft);
 }
 @media (min-width: 1024px) {
   .mk-compare-panel {
@@ -2023,7 +2053,7 @@ button.mk-button {
   color: var(--mk-text-tertiary);
 }
 .mk-compare-panel--good .mk-compare-label {
-  color: var(--mk-accent-dawn);
+  color: var(--mk-signal-live);
 }
 .mk-compare-title {
   margin: 0;
@@ -2062,7 +2092,7 @@ button.mk-button {
   background: var(--mk-text-tertiary);
 }
 .mk-compare-panel--good li::before {
-  background: var(--mk-accent-dawn);
+  background: var(--mk-signal-live);
 }
 .mk-footnotes {
   margin: 48px 0 0;
@@ -2083,7 +2113,8 @@ button.mk-button {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 24px;
     align-items: stretch;
-    min-height: 620px;
+    min-height: min(620px, var(--mk-fit-h));
+    max-height: var(--mk-fit-h);
     filter: drop-shadow(0 40px 60px rgb(0 0 0 / 50%));
   }
 }
@@ -2170,8 +2201,9 @@ button.mk-button {
 .mk-week-moments {
   display: flex;
   gap: 16px;
-  margin: 0 calc(-1 * var(--mk-gutter));
-  padding: 0 var(--mk-gutter) 4px;
+  /* Phones: the row scrolls inside the page margins, never to the screen's edge. */
+  margin: 0;
+  padding: 0 0 4px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   list-style: none;
@@ -2287,6 +2319,11 @@ button.mk-button {
 @media (min-width: 1024px) {
   .mk-week-hint {
     display: none;
+  }
+  /* Pinned in the middle of the screen while the visitor scrolls through the week. */
+  .mk-week[data-scroll-driven='true'] {
+    position: sticky;
+    top: max(88px, calc(50svh - 190px));
   }
   .mk-week-track {
     position: absolute;
@@ -3480,33 +3517,18 @@ button.mk-button {
   display: flex;
   justify-content: center;
   width: 100%;
-  padding-top: 32px;
   touch-action: pan-y;
 }
-.mk-flipper-card {
-  position: absolute;
-  left: 50%;
-  height: var(--viewport, 540px);
-  border: 1px solid var(--mk-border-strong);
-  border-radius: var(--mk-radius-window);
-  background: var(--mk-surface-elevated);
-  transform: translateX(-50%);
-  transition:
-    width 240ms var(--mk-ease-enter),
-    height 240ms var(--mk-ease-enter);
-}
-.mk-flipper-card--1 {
-  top: 16px;
-  width: min(calc(var(--window, 960px) * 0.94), 94%);
-  opacity: 0.65;
-}
-.mk-flipper-card--2 {
-  top: 0;
-  width: min(calc(var(--window, 960px) * 0.88), 88%);
-  opacity: 0.35;
+/* A laptop window with a phone overlapping its bottom-right corner (Dan, 26 Oct). Sizes come
+ * from BlockFlipper, which fits the pair to the screen. */
+.mk-devices {
+  position: relative;
+  max-width: 100%;
 }
 .mk-flipper-window {
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 0;
   max-width: 100%;
   margin: 0;
   overflow: hidden;
@@ -3514,7 +3536,34 @@ button.mk-button {
   border-radius: var(--mk-radius-window);
   background: var(--mk-surface-raised);
   box-shadow: 0 32px 96px rgb(0 0 0 / 50%);
-  transition: width 240ms var(--mk-ease-enter);
+}
+.mk-phone {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 6px;
+  border: 1px solid var(--mk-border-strong);
+  border-radius: calc(var(--phone, 250px) * 0.16);
+  background: #050f0b;
+  box-shadow:
+    0 24px 64px rgb(0 0 0 / 60%),
+    inset 0 0 0 1px rgb(243 241 234 / 6%);
+}
+.mk-phone-screen {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  border-radius: calc(var(--phone, 250px) * 0.13);
+  background: var(--mk-surface-raised);
+}
+.mk-phone-screen iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: 0;
+  transform-origin: 0 0;
+  pointer-events: none;
 }
 .mk-flipper-viewport {
   position: relative;
@@ -3528,19 +3577,23 @@ button.mk-button {
   transform-origin: 0 0;
   pointer-events: none;
 }
-@media (prefers-reduced-motion: reduce) {
-  .mk-flipper-card,
-  .mk-flipper-window {
-    transition: none;
-  }
-}
 .mk-flipper-controls {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  width: min(960px, 100%);
+}
+.mk-flipper-screens {
+  max-width: 340px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mk-text-tertiary);
+}
+.mk-flipper-screens strong {
+  font-weight: 500;
+  color: var(--mk-text-primary);
 }
 .mk-flipper-variant {
   display: flex;
@@ -3816,6 +3869,64 @@ button.mk-button {
   display: flex;
   flex-direction: column;
   gap: 24px;
+}
+/* Phones and tablets: the window and panel together fit the screen. The tee times are the
+ * part that gives, scrolling inside the window; the panel always shows in full. */
+@media (max-width: 1023px) {
+  .mk-tee-sim {
+    gap: 16px;
+    max-height: var(--mk-fit-h);
+  }
+  .mk-tee-sim-window {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 220px;
+  }
+  .mk-tee-sim-window .mk-tee-sheet {
+    flex: 1 1 auto;
+    min-height: 0;
+    gap: 14px;
+    padding: 20px;
+  }
+  .mk-tee-sim-window .mk-tee-sheet > *,
+  .mk-tee-sim-window > .mk-chrome {
+    flex-shrink: 0;
+  }
+  .mk-tee-sim-window .mk-tee-slots {
+    flex: 1 1 auto;
+    min-height: 64px;
+    overflow-y: auto;
+    gap: 8px;
+  }
+  .mk-tee-sim .mk-tee-date {
+    flex-basis: 64px;
+    padding: 8px 0;
+  }
+  .mk-tee-sim .mk-tee-date-num,
+  .mk-tee-sim .mk-tee-time {
+    font-size: 22px;
+  }
+  .mk-tee-sim .mk-tee-slot {
+    padding: 8px 12px;
+  }
+  .mk-tee-sim .mk-tee-slot[data-state='held'] {
+    padding: 7px 11px;
+  }
+  .mk-tee-sim .mk-tee-panel {
+    flex: none;
+    gap: 12px;
+    padding: 20px;
+  }
+  .mk-tee-sim .mk-tee-panel-title {
+    font-size: 22px;
+  }
+  .mk-tee-sim .mk-tee-count-num {
+    font-size: 36px;
+  }
+  .mk-tee-sim .mk-tee-summary > div {
+    padding-block: 8px;
+  }
 }
 @media (min-width: 1024px) {
   .mk-tee-sim {
@@ -4473,4 +4584,516 @@ button.mk-button {
   font-size: 14px;
   line-height: 1.5;
   color: var(--mk-text-secondary);
+}
+
+/* ---- Feature showcase (Dan, 26 Oct, after Linear's AI page): 2 × 2 cards, each zoomed in on
+ * one piece of a demo club's site that fades into the card ---- */
+
+.mk-showcase {
+  display: grid;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 768px) {
+  .mk-showcase {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+  }
+}
+.mk-showcase-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--mk-border-hairline);
+  border-radius: var(--mk-radius-panel);
+  background: var(--mk-surface-raised);
+}
+.mk-showcase-stage {
+  position: relative;
+  height: min(260px, calc(var(--mk-fit-h) / 2 - 110px));
+  min-height: 200px;
+  overflow: hidden;
+  background: radial-gradient(120% 90% at 20% 0%, rgb(123 212 160 / 9%), transparent 60%);
+}
+.mk-showcase-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 20px 24px 24px;
+  border-top: 1px solid var(--mk-border-hairline);
+}
+@media (min-width: 1024px) {
+  .mk-showcase-text {
+    padding: 24px 32px 28px;
+  }
+}
+
+/* The club's site, a little larger than life, cropped by the card and faded at the edges. */
+.mk-sc {
+  position: absolute;
+  top: 36px;
+  left: 40px;
+  width: min(460px, calc(100% - 40px));
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--color-text-primary);
+  mask-image: linear-gradient(to bottom, #000 45%, transparent 100%);
+}
+@media (max-width: 479px) {
+  .mk-sc {
+    top: 24px;
+    left: 20px;
+  }
+}
+.mk-sc p,
+.mk-sc dl,
+.mk-sc dd,
+.mk-sc ol,
+.mk-sc ul {
+  margin: 0;
+  padding: 0;
+}
+.mk-sc-panel,
+.mk-sc-search,
+.mk-sc-events li {
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 12px;
+  background: var(--color-surface-raised);
+  box-shadow: 0 24px 60px rgb(0 0 0 / 35%);
+}
+.mk-sc-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+}
+.mk-sc-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.mk-sc-title {
+  font-family: var(--font-display), serif;
+  font-size: 22px;
+  line-height: 1.2;
+}
+.mk-sc-when {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+.mk-sc-pill,
+.mk-sc-toast {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 8px;
+  padding: 5px 12px 5px 10px;
+  border-radius: 999px;
+  background: var(--color-surface-subtle);
+  font-size: 13px;
+}
+.mk-sc-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-status-open);
+}
+.mk-sc-rows > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-top: 1px solid var(--color-border-subtle);
+}
+.mk-sc-rows dt {
+  color: var(--color-text-secondary);
+}
+
+/* The one thing that changes: highlighted, its old value sliding out for the new one. */
+.mk-sc-changing {
+  position: relative;
+}
+.mk-sc-changing::after {
+  position: absolute;
+  inset: 2px -8px;
+  border-radius: 8px;
+  box-shadow: 0 0 0 2px var(--color-action-accent);
+  content: '';
+  opacity: 0;
+  animation: mk-sc-ring 6s var(--mk-ease-enter) infinite;
+}
+.mk-sc-swap {
+  display: inline-grid;
+  overflow: hidden;
+  height: 1.4em;
+  vertical-align: bottom;
+}
+.mk-sc-swap > span {
+  grid-area: 1 / 1;
+  text-align: right;
+  animation: mk-sc-out 6s var(--mk-ease-move) infinite;
+}
+.mk-sc-swap > span + span {
+  animation-name: mk-sc-in;
+}
+@keyframes mk-sc-ring {
+  0%,
+  35% {
+    opacity: 0;
+  }
+  45%,
+  80% {
+    opacity: 1;
+  }
+  95%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes mk-sc-out {
+  0%,
+  40% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  48%,
+  92% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes mk-sc-in {
+  0%,
+  40% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  48%,
+  92% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+.mk-sc-toast {
+  animation: mk-sc-ring 6s var(--mk-ease-enter) infinite;
+}
+
+/* Events */
+.mk-sc-events {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  list-style: none;
+}
+.mk-sc-events li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  box-shadow: none;
+}
+.mk-sc-events li.is-lifted {
+  border-color: var(--color-action-accent);
+  box-shadow: 0 20px 50px rgb(0 0 0 / 35%);
+  animation: mk-sc-lift 6s var(--mk-ease-enter) infinite;
+}
+.mk-sc-events li:not(.is-lifted) {
+  margin-inline: 10px;
+  opacity: 0.75;
+}
+@keyframes mk-sc-lift {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+.mk-sc-date {
+  display: flex;
+  flex: 0 0 48px;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 0;
+  border-radius: 8px;
+  background: var(--color-surface-brand);
+  font-size: 11px;
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: var(--ink-brand);
+}
+.mk-sc-date strong {
+  font-family: var(--font-display), serif;
+  font-size: 20px;
+  font-weight: 400;
+}
+.mk-sc-event {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+.mk-sc-event-title {
+  font-weight: 500;
+}
+.mk-sc-event-meta {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+.mk-sc-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-status-open) 18%, transparent);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* Site search */
+.mk-sc-search {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+}
+.mk-sc-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-action-accent);
+  border-radius: 8px;
+  color: var(--color-text-secondary);
+}
+.mk-sc-query {
+  color: var(--color-text-primary);
+}
+.mk-sc-caret {
+  display: inline-block;
+  width: 1px;
+  height: 1.1em;
+  margin-left: 1px;
+  vertical-align: text-bottom;
+  background: currentColor;
+  animation: mk-sc-blink 1s steps(1) infinite;
+}
+@keyframes mk-sc-blink {
+  50% {
+    opacity: 0;
+  }
+}
+.mk-sc-answer {
+  padding: 12px 14px 4px;
+  border-radius: 8px;
+  background: var(--color-surface-subtle);
+}
+.mk-sc-answer-eyebrow {
+  margin-bottom: 6px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-brand);
+}
+.mk-sc-results {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+}
+.mk-sc-results li {
+  display: flex;
+  gap: 10px;
+  padding: 8px 2px;
+  border-top: 1px solid var(--color-border-subtle);
+}
+.mk-sc-results span {
+  width: 72px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+/* Green fees */
+.mk-sc-table {
+  border-collapse: collapse;
+}
+.mk-sc-table th,
+.mk-sc-table td {
+  padding: 8px 0;
+  border-top: 1px solid var(--color-border-subtle);
+  font-weight: 400;
+  text-align: right;
+}
+.mk-sc-table th:first-child {
+  text-align: left;
+  color: var(--color-text-secondary);
+}
+.mk-sc-table thead th {
+  border-top: 0;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mk-sc *,
+  .mk-sc *::after {
+    animation: none !important;
+  }
+  /* Show the change as it ends up. */
+  .mk-sc-swap > span:first-child {
+    visibility: hidden;
+  }
+  .mk-sc-changing::after,
+  .mk-sc-toast {
+    opacity: 1;
+  }
+}
+
+.mk-calc-next-later {
+  display: none;
+}
+
+/* ---- Phones: every interactive component fits the screen (Dan, 26 Oct). Placed last so these
+ * win over each component's own rules. ---- */
+@media (max-width: 767px) {
+  /* Booking settings */
+  .mk-settings-demo {
+    gap: 16px;
+  }
+  .mk-settings-list,
+  .mk-settings-flow {
+    padding: 20px;
+  }
+  .mk-settings-list {
+    gap: 4px;
+  }
+  .mk-setting {
+    padding: 12px 0;
+  }
+  .mk-settings-flow {
+    gap: 14px;
+  }
+  .mk-flow-steps {
+    gap: 6px;
+  }
+  .mk-flow-step {
+    gap: 2px;
+    padding: 8px 12px;
+  }
+  .mk-flow-step-num {
+    font-size: 12px;
+  }
+  .mk-settings-flow-text {
+    font-size: 15px;
+  }
+
+  /* Facilities */
+  .mk-facilities {
+    gap: 16px;
+  }
+  .mk-facilities-media img {
+    min-height: 0;
+    height: 180px;
+  }
+  .mk-facilities-panel {
+    gap: 14px;
+    padding: 20px;
+  }
+  .mk-facilities-title {
+    font-size: 22px;
+  }
+  .mk-facilities-body {
+    font-size: 15px;
+  }
+  .mk-facilities-slots legend {
+    margin-bottom: 8px;
+  }
+
+  /* Your content comes with you */
+  .mk-moves-visual {
+    gap: 10px;
+  }
+  .mk-moves-body {
+    padding: 16px 20px;
+  }
+  .mk-moves-heading {
+    margin-bottom: 4px;
+  }
+  .mk-moves-body li {
+    padding: 8px 0;
+    font-size: 15px;
+  }
+  .mk-moves-connector {
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  /* Pricing calculator: Coming next rows shrink to their names on phones. */
+  .mk-calc-row--next .mk-calc-body,
+  .mk-calc-row--next .mk-calc-later {
+    display: none;
+  }
+  .mk-calc-next-later {
+    display: inline;
+  }
+  .mk .mk-calc {
+    gap: 14px;
+    padding: 20px;
+  }
+  .mk .mk-calc-build > .mk-calc-row,
+  .mk .mk-calc-next {
+    padding-bottom: 14px;
+  }
+  .mk .mk-calc-included {
+    gap: 6px;
+  }
+
+  /* Club colours: the club's page first, so the colour you pick shows on screen with it. */
+  .mk-dial {
+    gap: 12px;
+  }
+  .mk-dial > .mk-demo {
+    order: -1;
+  }
+  .mk-dial .mk-demo-stage .hero-full {
+    min-height: 320px;
+  }
+  /* A phone's hero, at three-quarters size, so the button whose colour changes stays in view. */
+  .mk-dial .mk-demo-viewport[data-scaled='false'] .mk-demo-stage {
+    zoom: 0.76;
+  }
+  .mk-dial-controls {
+    gap: 14px;
+    padding: 20px;
+  }
+  .mk-dial-swatches {
+    flex-wrap: nowrap;
+    gap: 10px;
+  }
+  .mk-dial-hex {
+    padding: 8px 12px;
+    font-size: 15px;
+  }
+  .mk-dial-note {
+    font-size: 14px;
+  }
+
+  /* The editor demo */
+  .mk-editor {
+    gap: 16px;
+    padding: 20px;
+  }
+  .mk-live-card .mk-demo-viewport {
+    max-height: 220px;
+  }
 }

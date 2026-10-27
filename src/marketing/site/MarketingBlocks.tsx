@@ -7,6 +7,7 @@ import { Photo } from '@/site/blocks/parts'
 import { DemoIntro } from './booking/BookingBlocks'
 import { BookingDemo } from './bookings/BookingsBlocks'
 import { BuilderHero, LiveDemo } from './builder/BuilderBlocks'
+import { FeatureShowcase } from './builder/FeatureShowcase'
 import { FounderCard } from './FounderCard'
 import { readMinutes, Reviewed, Roadmap } from './info/InfoBlocks'
 import { Compare, ContentMoves, HomeHero, ProofStats } from './home/HomeBlocks'
@@ -228,6 +229,8 @@ const drawBlock = (
       return <BuilderHero block={block} />
     case 'mkLiveDemo':
       return <LiveDemo block={block} />
+    case 'mkFeatureShowcase':
+      return <FeatureShowcase block={block} />
     case 'mkBookingDemo':
       return <BookingDemo block={block} />
     case 'mkReviewed':

@@ -22,6 +22,7 @@ export const DemoFrame = ({
   label,
   height,
   path = '',
+  className,
   children,
 }: {
   club: DemoClub
@@ -30,6 +31,8 @@ export const DemoFrame = ({
   /** What the demo shows, read out instead of the block, e.g. "Ashgrove Park's home page". */
   label: string
   height?: number
+  /** Extra classes on the frame, e.g. mk-fit-hero to narrow a hero frame to fit the screen. */
+  className?: string
   children: ReactNode
 }) => {
   const theme = {
@@ -37,7 +40,11 @@ export const DemoFrame = ({
     ...fontSetVariables(club.fontSet),
   } as CSSProperties
   return (
-    <figure className="mk-demo" aria-label={`Demo club: ${label}`} data-club={club.id}>
+    <figure
+      className={className ? `mk-demo ${className}` : 'mk-demo'}
+      aria-label={`Demo club: ${label}`}
+      data-club={club.id}
+    >
       <BrowserChrome address={`${club.domain}${path}`} />
       <DemoScaler height={height}>
         <div className="club-theme mk-demo-club" style={theme} inert aria-hidden="true">

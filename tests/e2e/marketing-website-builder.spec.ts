@@ -17,12 +17,13 @@ test('every Figma section in order, one H1, and no product film (Q8)', async ({ 
   await expect(page.getByRole('heading', { level: 2 })).toContainText([
     'Your colours, kept readable.',
     'Your course, hole by hole.',
-    'The course report, first thing.',
+    'Everything members look for.',
     'Sorted before you log in.',
     'See your club on it.',
   ])
   await expect(page.locator('video')).toHaveCount(0)
-  await expect(page.locator('.mk-details li')).toHaveCount(9)
+  await expect(page.locator('.mk-details li')).toHaveCount(6)
+  await expect(page.locator('.mk-showcase-card')).toHaveCount(4)
   const cards = page.locator('.mk-features--cards > li')
   await expect(cards).toHaveCount(8)
   await expect(page.locator('.mk-features--cards .mk-badge--coming-next')).toHaveCount(1)
@@ -33,31 +34,30 @@ test('every Figma section in order, one H1, and no product film (Q8)', async ({ 
   await expect(main).not.toContainText(/before (it|they) (goes live|save)/i)
 })
 
-test('Block Flipper: arrows and keys flip the hero, devices load real widths', async ({ page }) => {
+test('Block Flipper: a laptop and a phone flip together, at their real widths', async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto(site())
   const flipper = page.getByRole('group', { name: 'Hero block variants' })
-  const frame = flipper.locator('iframe')
-  await expect(frame).toHaveAttribute('src', '/frame/hero/heritage')
+  const laptop = flipper.locator('.mk-flipper-window iframe')
+  const phone = flipper.locator('.mk-phone iframe')
+  await expect(laptop).toHaveAttribute('src', '/frame/hero/heritage')
+  await expect(phone).toHaveAttribute('src', '/frame/hero/heritage')
   await expect(flipper.locator('.mk-flipper-label')).toContainText('Variant 1 of 3')
   await flipper.getByRole('button', { name: 'Next variant' }).click()
-  await expect(frame).toHaveAttribute('src', '/frame/hero/resort')
+  await expect(laptop).toHaveAttribute('src', '/frame/hero/resort')
+  await expect(phone).toHaveAttribute('src', '/frame/hero/resort')
   await expect(flipper.locator('.mk-flipper-name')).toHaveText('Hero · Resort')
   await page.keyboard.press('ArrowRight')
-  await expect(frame).toHaveAttribute('src', '/frame/hero/bookingLed')
+  await expect(laptop).toHaveAttribute('src', '/frame/hero/bookingLed')
   await flipper.getByRole('button', { name: 'Previous variant' }).click()
   await expect(flipper.locator('.mk-flipper-count')).toContainText('Variant 2 of 3')
-
-  const width = () => frame.evaluate((el) => (el as HTMLIFrameElement).style.width)
-  expect(await width()).toBe('1366px')
-  expect(Math.round((await flipper.locator('.mk-flipper-window').boundingBox())!.width)).toBe(960)
-  await flipper.getByRole('radio', { name: 'Tablet' }).click()
-  await expect.poll(width).toBe('768px')
-  await flipper.getByRole('radio', { name: 'Mobile' }).click()
-  await expect.poll(width).toBe('390px')
-  // The frame really lays the hero out as a phone: one column of buttons.
-  const inner = page.frameLocator('.mk-flipper iframe')
-  await expect(inner.locator('.hero')).toBeVisible()
+  // No device tabs any more (Dan, 26 Oct): both screens show at once, at their real widths.
+  await expect(flipper.getByRole('radio')).toHaveCount(0)
+  expect(await laptop.evaluate((el) => (el as HTMLIFrameElement).style.width)).toBe('1366px')
+  expect(await phone.evaluate((el) => (el as HTMLIFrameElement).style.width)).toBe('390px')
+  await expect(page.frameLocator('.mk-phone iframe').locator('.hero')).toBeVisible()
 })
 
 test('the hero frame: the real Hero block, inert, only for known styles', async ({ page }) => {
@@ -94,15 +94,30 @@ test('Token Dial: picking a colour re-skins the demo and explains the text colou
   expect(ratio).toBeGreaterThanOrEqual(4.5)
 })
 
-test('the course guide and course status demos show the real content', async ({ page }) => {
+test('the hole carousel moves on by itself, and the showcase shows four live features', async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto(site())
-  const guide = page.getByRole('figure', { name: /course guide/ })
+  const guide = page.getByRole('figure', { name: /course guide, hole by hole/ })
   await expect(guide).toContainText('Heather Gate')
   await expect(guide.locator('.mk-chrome-address')).toHaveText('ashgrovepark.golf/the-course')
-  const status = page.getByRole('figure', { name: /course report and news/ })
-  await expect(status).toContainText('Cut & rolled')
-  await expect(status).toContainText('Captain’s Day draw')
+  await guide.scrollIntoViewIfNeeded()
+  await page.mouse.move(0, 0)
+  const track = guide.locator('.hole-track')
+  await expect
+    .poll(() => track.evaluate((el) => el.scrollLeft), { timeout: 8000 })
+    .toBeGreaterThan(0)
+
+  const cards = page.locator('.mk-showcase-card')
+  await expect(cards.locator('h3')).toHaveText([
+    'The course report, first thing',
+    'Fixtures members can find',
+    'Search that answers',
+    'Change a fee once',
+  ])
+  await expect(cards.nth(0)).toContainText('Cut & rolled')
+  await expect(cards.nth(2).locator('.mk-sc-answer')).toContainText('£55')
 })
 
 test('phones: no sideways scroll, flipper fits the screen', async ({ page }) => {

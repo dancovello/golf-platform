@@ -82,7 +82,11 @@ export const CalculatorClient = ({
         </div>
         {comingNext.length ? (
           <div className="mk-calc-next">
-            <p className="mk-calc-next-heading">Coming next</p>
+            <p className="mk-calc-next-heading">
+              Coming next
+              {/* Phones show this once here, in place of each row's own line. */}
+              <span className="mk-calc-next-later"> · prices confirmed at launch</span>
+            </p>
             {comingNext.map((module) => (
               <div key={module.title} className="mk-calc-row mk-calc-row--next">
                 <div className="mk-calc-text">

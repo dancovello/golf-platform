@@ -4,6 +4,7 @@ import { fontSetVariables } from '@/app/(frontend)/fonts'
 import type { MarketingBuilderHeroBlock, MarketingLiveDemoBlock } from '@/payload-types'
 import { DEMO_CLUBS, demoClubSite, demoContext } from '@/marketing/demo/clubs'
 import { demoCourse } from '@/marketing/demo/course'
+import { AutoAdvance } from '@/marketing/demo/AutoAdvance'
 import { DemoFrame } from '@/marketing/demo/DemoFrame'
 import { FLIPPER_CLUB } from '@/marketing/demo/flipper'
 import { PREVIEWS } from '@/marketing/demo/previews'
@@ -62,29 +63,33 @@ const TokenDialDemo = () => (
   />
 )
 
-/** Course guide (197:6841): the real Hole Grid, style C, on the demo club's course page. */
+/**
+ * Course guide: the club's real hole carousel (Hole-by-hole style B), moving through the holes on
+ * its own (Dan, 26 Oct: "a nice visualisation of the hole by hole carousel").
+ */
 const CourseGuideDemo = () => (
   <div className="mk-guide-demo">
-    {/* A 632-tall viewport at 1200 wide: 719 at the block's 1366 design width. */}
-    <DemoFrame
-      club={ashgrove}
-      label={`${ashgrove.name}’s course guide`}
-      height={719}
-      path="/the-course"
-    >
-      <HoleGrid
-        block={
-          {
-            blockType: 'holeGrid',
-            style: 'guide',
-            course: 'demo-championship',
-            eyebrow: 'The Championship course',
-            heading: 'Hole by hole',
-          } as never
-        }
-        ctx={demoContext({ course: () => demoCourse() })}
-      />
-    </DemoFrame>
+    <AutoAdvance track=".hole-track">
+      <DemoFrame
+        club={ashgrove}
+        label={`${ashgrove.name}’s course guide, hole by hole`}
+        path="/the-course"
+        className="mk-fit-carousel"
+      >
+        <HoleGrid
+          block={
+            {
+              blockType: 'holeGrid',
+              style: 'carousel',
+              course: 'demo-championship',
+              eyebrow: 'The Championship course',
+              heading: 'Hole by hole',
+            } as never
+          }
+          ctx={demoContext({ course: () => demoCourse() })}
+        />
+      </DemoFrame>
+    </AutoAdvance>
   </div>
 )
 

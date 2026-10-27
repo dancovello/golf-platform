@@ -146,7 +146,7 @@ const home: StarterPage = {
       eyebrow: 'Switching',
       title: 'Your content\ncomes with you.',
       subhead:
-        'We copy the pages, news, photos and documents from your current site, then build the new one with you. You start from your club, not a blank page.',
+        'Our AI-assisted migration moves your pages, news, photos and documents across, then we build the new site with you. You start from your club, not a blank page.',
       align: 'left',
     },
     {
@@ -165,11 +165,11 @@ const home: StarterPage = {
         { label: 'News' },
         { label: 'Documents' },
       ],
-      chip: 'Copied across with AI',
+      chip: 'AI-assisted migration',
       steps: [
         {
-          title: 'We read your whole site',
-          body: 'AI copies your pages, news posts, photos and PDFs, so nobody has to retype a thing.',
+          title: 'AI reads your whole site',
+          body: 'It copies your pages, news posts, photos and PDFs across, so nobody has to retype a thing.',
         },
         {
           title: 'We rebuild it in blocks',
@@ -314,7 +314,7 @@ const switching: StarterPage = {
       eyebrow: 'Your content',
       title: 'Your content\ncomes with you.',
       subhead:
-        'We copy the pages, news, photos and documents from your current site, then build the new one with you. You start from your club, not a blank page.',
+        'Our AI-assisted migration moves your pages, news, photos and documents across, then we build the new site with you. You start from your club, not a blank page.',
       align: 'left',
     },
     {
@@ -333,11 +333,11 @@ const switching: StarterPage = {
         { label: 'News' },
         { label: 'Documents' },
       ],
-      chip: 'Copied across with AI',
+      chip: 'AI-assisted migration',
       steps: [
         {
-          title: 'We read your whole site',
-          body: 'AI copies your pages, news posts, photos and PDFs, so nobody has to retype a thing.',
+          title: 'AI reads your whole site',
+          body: 'It copies your pages, news posts, photos and PDFs across, so nobody has to retype a thing.',
         },
         {
           title: 'We rebuild it in blocks',
@@ -468,7 +468,7 @@ const websiteBuilder: StarterPage = {
       eyebrow: 'Website builder',
       title: 'Make it yours.\nIt’ll still look right.',
       subhead:
-        'Every block was designed to fit every other block. Change the layout, add your colours and photos, move things around. The design holds, so your site never looks thrown together.',
+        'Every block fits every other block, and every screen. Change the layout, add your colours and photos, move things around. It still looks right on a laptop or a phone.',
       primary: { label: 'Book a demo', href: '/book-a-demo' },
       secondary: { label: 'Get your free homepage', href: '/switching' },
     },
@@ -503,7 +503,7 @@ const websiteBuilder: StarterPage = {
       eyebrow: '02 · Course guide',
       title: 'Your course, hole by hole.',
       subhead:
-        'Yardages from every tee, stroke index and a line on how to play each hole. The pro keeps it up to date, not a developer.',
+        'Every hole with its photo, its par and the yardage from every tee. The pro keeps it up to date, not a developer.',
       align: 'left',
     },
     {
@@ -512,7 +512,7 @@ const websiteBuilder: StarterPage = {
       details: [
         {
           title: 'Every tee, every yardage',
-          body: 'Tee colours, par and stroke index sit together, the way a scorecard does.',
+          body: 'Each hole’s photo carries its par and yardages, so visitors see the hole and the numbers together.',
         },
         {
           title: 'Made for visitors',
@@ -526,27 +526,34 @@ const websiteBuilder: StarterPage = {
     },
     {
       blockType: 'mkSectionHeader',
-      eyebrow: '03 · Course status',
-      title: 'The course report, first thing.',
+      eyebrow: '03 · Kept current',
+      title: 'Everything members look for.',
       subhead:
-        'Post greens, tees and bunkers from the office. It sits on the homepage, where members look before they set off.',
+        'The course report, fixtures, fees and a search that finds them. Whoever’s on duty keeps them current, so members stop ringing the office.',
       align: 'left',
     },
     {
-      blockType: 'mkLiveDemo',
-      demo: 'courseStatus',
-      details: [
+      blockType: 'mkFeatureShowcase',
+      items: [
         {
-          title: 'Where members look',
-          body: 'The report sits on the homepage, where members look before they set off.',
+          feature: 'courseStatus',
+          title: 'The course report, first thing',
+          body: 'Greens, tees and bunkers, posted from the office and time-stamped, before the first tee time.',
         },
         {
-          title: 'Time-stamped',
-          body: 'Members see when it was last updated, so nobody wonders if it’s current.',
+          feature: 'events',
+          title: 'Fixtures members can find',
+          body: 'Competitions and socials in date order, on every page that lists them.',
         },
         {
-          title: 'Whoever’s on duty',
-          body: 'Anyone with access can post it. It doesn’t wait for one person.',
+          feature: 'search',
+          title: 'Search that answers',
+          body: 'Type “winter green fees” and get the fees, then the pages and documents behind them.',
+        },
+        {
+          feature: 'greenFees',
+          title: 'Change a fee once',
+          body: 'Update a rate in one place. Every page that shows it follows.',
         },
       ],
     },
