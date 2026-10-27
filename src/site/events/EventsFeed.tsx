@@ -3,12 +3,47 @@ import type { EventsFeedBlock } from '@/payload-types'
 import { Photo } from '../blocks/parts'
 import { ArrowRight } from '../components/Icons'
 import { linkTarget, siteHref } from '../components/links'
-import { featuredEvent, upcomingEvents } from '../events'
+import { featuredEvent, upcomingEvents, type SiteEvent } from '../events'
 import type { ClubSite } from '../loadClub'
 import { NewsCarousel } from '../news/NewsCarousel'
 import { bookingLabel, EventCard, eventDay, eventMeta, eventMonth, eventPrice } from './EventCard'
 
 // Styles (events.css) are loaded by RenderBlocks after the shared button styles.
+
+/** Events block B, Agenda: an intro beside the next few events as rows. */
+export const EventsAgenda = ({
+  eyebrow,
+  heading,
+  intro,
+  allHref,
+  events,
+  base,
+}: {
+  eyebrow: string
+  heading: string
+  intro?: string | null
+  allHref: string
+  events: SiteEvent[]
+  base: string
+}) => (
+  <section className="blk events-block events-agenda on-subtle">
+    <div className="blk-container events-agenda-layout">
+      <div className="events-agenda-intro">
+        <p className="t-eyebrow blk-eyebrow">{eyebrow}</p>
+        <h2 className="t-heading-l blk-heading">{heading}</h2>
+        {intro ? <p className="t-body-m events-agenda-text">{intro}</p> : null}
+        <a className="btn btn-outline t-label-button" href={allHref}>
+          See all events <ArrowRight />
+        </a>
+      </div>
+      <div className="events-rows">
+        {events.map((e) => (
+          <EventCard key={e.id} event={e} base={base} layout="row" />
+        ))}
+      </div>
+    </div>
+  </section>
+)
 
 /**
  * The Events block (doc 14 "Events — carousel block options"): A Card carousel (the next six,
@@ -102,23 +137,14 @@ export const EventsFeed = async ({
 
   if (style === 'agenda') {
     return (
-      <section className="blk events-block events-agenda on-subtle">
-        <div className="blk-container events-agenda-layout">
-          <div className="events-agenda-intro">
-            <p className="t-eyebrow blk-eyebrow">{eyebrow}</p>
-            <h2 className="t-heading-l blk-heading">{block.heading}</h2>
-            {block.intro ? <p className="t-body-m events-agenda-text">{block.intro}</p> : null}
-            <a className="btn btn-outline t-label-button" href={allHref}>
-              See all events <ArrowRight />
-            </a>
-          </div>
-          <div className="events-rows">
-            {events.map((e) => (
-              <EventCard key={e.id} event={e} base={base} layout="row" />
-            ))}
-          </div>
-        </div>
-      </section>
+      <EventsAgenda
+        eyebrow={eyebrow}
+        heading={block.heading}
+        intro={block.intro}
+        allHref={allHref}
+        events={events}
+        base={base}
+      />
     )
   }
 

@@ -666,3 +666,19 @@
     width: 100%;
   }
 }
+
+/* The marketing site's picture of the panel (PanelDemo): drawn in place, not over a page. */
+.sp-layer.is-demo {
+  position: relative;
+  inset: auto;
+  z-index: auto;
+}
+.sp-layer.is-demo .sp-panel {
+  position: relative;
+  top: auto;
+  left: auto;
+  width: 100%;
+  max-height: none;
+  transform: none;
+  animation: none;
+}

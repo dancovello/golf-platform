@@ -9,3 +9,9 @@
 @import '../../site/components/states.css';
 @import '../../site/blocks/blocks.css';
 @import '../../site/blocks/hero.css';
+@import '../../site/blocks/courseStatus.css';
+@import '../../site/blocks/rateTable.css';
+@import '../../site/events/events.css';
+@import '../../site/news/news.css';
+@import '../../site/search/panel.css';
+@import '../../site/search/search.css';
