@@ -6,3 +6,6 @@ pnpm-lock.yaml
 src/payload-types.ts
 src/migrations/
 src/app/(payload)/
+
+# Written by scripts/extract-dimples.ts
+src/marketing/intro/dimples.ts
