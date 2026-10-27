@@ -126,15 +126,23 @@ The hand-off's own open questions (Q2–Q10: VAT, second-course price, calendar,
    - The "works with" list of booking systems, as text only.
 3. **Trust** (built, not published), **Accessibility statement**, **privacy, cookies and terms** (your wording), **404** and **Changelog** (built, not published, and kept out of the nav).
 
-### Phase 7: Golf ball intro (1 PR)
+### Phase 7: Golf ball intro (2 PRs)
 
-- Your approved ball file, with its decoder hosted on our own site.
+Updated 27 Oct 2026 from the new intro brief (a rim-lit ball that spins and fades as the page arrives; the earlier fly-into-the-logo idea is dropped). Dan decided:
+
+- **Live 3D with plain `three`**, no React add-on. A pre-rendered video was ruled out: browsers shift video colours, so the ball's body wouldn't vanish into the page background, and dark video bands.
+- **One-shot reveal** on the first scroll, swipe or key press (about one second), not tied to scroll position.
+- **Once per session.**
+- **Stage is the site green** (`--mk-surface-canvas`) throughout.
+- **Part 1:** a tuning page (`/dev/intro`, super-admin only) to set the light together. **Part 2:** the homepage intro, once the look is approved.
+
+- Dan's ball file (`src/marketing/intro/assets/golf-ball.source.glb`), served from our own site. Final compression is chosen in part 2.
 - Loads after the page appears, so the hero never waits for it.
 - Plays once per visit and can be skipped. There's no intro at all when the visitor's device asks for reduced motion.
 - A simple fallback for devices without 3D graphics.
 - A switch to compare bounce rates with and without it.
 - The 3D code loads on the home page only.
-- **New dependencies:** `three` and `@react-three/fiber`.
+- **New dependencies:** `three` (and its type definitions).
 
 ### Phase 8: Search engines and analytics (1 PR)
 
@@ -167,6 +175,6 @@ Needs the company name and domain. Each item needs your go-ahead:
 
 ## 4. What's new, in one place
 
-- **New dependencies:** `three` and `@react-three/fiber` (phase 7), and `@vercel/analytics` (phase 8). Nothing else planned. Motion uses CSS, and the calendar uses its web address directly with no extra library.
+- **New dependencies:** `three` (phase 7), and `@vercel/analytics` (phase 8). Nothing else planned. Motion uses CSS, and the calendar uses its web address directly with no extra library.
 - **Migrations:** one in phase 1 (new collections and settings). Each will be reviewed. None deletes data.
 - **Paid:** only things that already need your go-ahead: the domain, the Neon plan, possibly Vercel Analytics above the included amount, and the calendar if Cal.com's free plan doesn't allow it. I'll check each before asking.

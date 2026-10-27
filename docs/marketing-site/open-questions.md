@@ -19,7 +19,7 @@ Each has a safe default so building isn't blocked. The default is what ships unt
 | Q10 | **Founder Card:** photo, a first-person line under 60 words, phone or calendar link | Phase 4 | Placeholder initial; links from settings |
 | N1 | **Company name and domain** | Phase 10 (go live) | "Brandname" and `hello@brandname.golf`, in one file |
 | N2 | **Docs 15 and 18** (golf ball; marketing review and claims) | Doc 18: claims register. Doc 15: phase 7 | Register seeded from the hand-off's list only |
-| N3 | **`golf_ball.glb` and `golf-ball-generator.py`** | Phase 7 | — |
+| N3 | **`golf_ball.glb` and `golf-ball-generator.py`** | Phase 7 | Ball file supplied 27 Oct 2026 (in `src/marketing/intro/assets/`). Generator script not needed so far |
 | N4 | **Company privacy policy, cookie notice and terms** wording | Phase 6 | Pages built as drafts with a [[placeholder]] line; they can't be published until it's replaced, and the footer hides their links until then |
 | N5 | **Image licences** for the hero, two-column and accessibility photos | Phase 4 | Clearly licensed stock or demo pictures, captioned as demo clubs |
 | N7 | **Old page addresses.** The Switching page and FAQ promise old page addresses forward to the new ones (softened for now: D8). Today the platform forwards a club's *extra domains* (e.g. without `www`), but not old page addresses like `/about-us.php`. Build page forwarding, or soften the copy? | Phase 5 (Switching) | Claim held back until decided |
