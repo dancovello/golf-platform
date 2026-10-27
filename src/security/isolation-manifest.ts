@@ -300,6 +300,12 @@ export const ROUTES: Manifest = {
       test: "a club's domain never shows the marketing site",
     },
   ],
+  'src/app/(marketing)/marketing/sitemap.xml/route.ts': [
+    {
+      file: 'tests/e2e/marketing-routing.spec.ts',
+      test: "a club's domain never shows the marketing site",
+    },
+  ],
   'src/app/(marketing)/marketing/dev/components/page.tsx': [
     {
       file: 'tests/e2e/marketing-controls.spec.ts',
