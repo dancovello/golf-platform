@@ -32,20 +32,6 @@ const DEBOUNCE_MS = 120
 
 export type PanelShortcut = { label: string; detail: string | null; href: string; newTab: boolean }
 
-/**
- * The marketing site's picture of this panel (the Website builder page): the panel drawn in
- * place rather than over a page, typing `query` by itself and answering from sample club data
- * instead of the club's search. Nothing else about it differs.
- */
-export type PanelDemo = {
-  query: string
-  quick: QuickAccess
-  results: PanelResults
-  /** False for visitors who prefer reduced motion: the query is shown typed already. Null
-   * until that's known: the panel stays as it opens, with nothing searched. */
-  animate: boolean | null
-}
-
 type Option = {
   id: string
   /** Identifies the row it belongs to (see row() below). */
@@ -107,7 +93,6 @@ export const SearchPanel = ({
   shortcuts,
   contact,
   phone,
-  demo,
 }: {
   base: string
   clubSlug: string
@@ -117,15 +102,14 @@ export const SearchPanel = ({
   /** The club's contact page, offered when there's room or nothing matched. */
   contact: PanelShortcut
   phone: string | null
-  demo?: PanelDemo
 }) => {
-  const [open, setOpen] = useState(Boolean(demo))
+  const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [fetched, setFetched] = useState<Fetched>({ state: 'idle' })
   const [active, setActive] = useState(-1)
   const [recent, setRecent] = useState<RecentSearch[]>([])
   const [announcement, setAnnouncement] = useState('')
-  const [quick, setQuick] = useState<QuickAccess | null>(demo?.quick ?? null)
+  const [quick, setQuick] = useState<QuickAccess | null>(null)
   const input = useRef<HTMLInputElement>(null)
   const panel = useRef<HTMLDivElement>(null)
   const returnFocus = useRef<HTMLElement | null>(null)
@@ -144,7 +128,6 @@ export const SearchPanel = ({
 
   // Opening: from the header buttons (an event) or "/" anywhere outside a text field.
   useEffect(() => {
-    if (demo) return
     const show = () => {
       returnFocus.current =
         document.activeElement instanceof HTMLElement ? document.activeElement : null
@@ -171,11 +154,11 @@ export const SearchPanel = ({
       window.removeEventListener(OPEN_SEARCH_EVENT, show)
       window.removeEventListener('keydown', onKey)
     }
-  }, [clubSlug, base, demo])
+  }, [clubSlug, base])
 
   // While open: focus the field and keep the page behind still.
   useEffect(() => {
-    if (!open || demo) return
+    if (!open) return
     input.current?.focus()
     input.current?.select()
     const previous = document.body.style.overflow
@@ -183,21 +166,12 @@ export const SearchPanel = ({
     return () => {
       document.body.style.overflow = previous
     }
-  }, [open, demo])
+  }, [open])
 
   // Searching as you type: from two characters, after a short pause, latest answer wins.
   const trimmed = query.trim()
   useEffect(() => {
     if (!open || trimmed.length < MIN_QUERY || searchWords(trimmed).length === 0) return
-    if (demo) {
-      // The sample answer arrives once the whole query is typed, as a real one would.
-      if (trimmed !== demo.query) return
-      const timer = window.setTimeout(
-        () => setFetched({ state: 'done', q: trimmed, results: demo.results }),
-        DEBOUNCE_MS,
-      )
-      return () => window.clearTimeout(timer)
-    }
     const controller = new AbortController()
     const timer = window.setTimeout(async () => {
       try {
@@ -228,26 +202,7 @@ export const SearchPanel = ({
       controller.abort()
       window.clearTimeout(timer)
     }
-  }, [open, trimmed, base, demo])
-
-  // Demo: type the query a letter at a time, hold the answer, clear it and start again.
-  useEffect(() => {
-    if (!demo || demo.animate === null) return
-    if (!demo.animate) {
-      const shown = setTimeout(() => setQuery(demo.query), 0)
-      return () => clearTimeout(shown)
-    }
-    let count = 0
-    let timer: ReturnType<typeof setTimeout>
-    const tick = () => {
-      count = count > demo.query.length + 40 ? 0 : count + 1
-      setQuery(demo.query.slice(0, Math.min(count, demo.query.length)))
-      if (count === 0) setFetched({ state: 'idle' })
-      timer = setTimeout(tick, count === 0 ? 900 : 90)
-    }
-    timer = setTimeout(tick, 900)
-    return () => clearTimeout(timer)
-  }, [demo])
+  }, [open, trimmed, base])
 
   const typing = trimmed.length >= MIN_QUERY && searchWords(trimmed).length > 0
   // Earlier results stay on screen, with the spinner, until the answer for these words arrives.
@@ -639,8 +594,8 @@ export const SearchPanel = ({
   const total = results?.total ?? 0
 
   return (
-    <div className={demo ? 'sp-layer is-demo' : 'sp-layer'}>
-      {demo ? null : <div className="sp-scrim" onClick={close} aria-hidden="true" />}
+    <div className="sp-layer">
+      <div className="sp-scrim" onClick={close} aria-hidden="true" />
       <div
         ref={panel}
         className="sp-panel"
