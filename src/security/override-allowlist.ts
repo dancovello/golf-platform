@@ -173,6 +173,36 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
     why: 'Helper inside buildDemoClub',
   },
 
+  // ---------- Club import (docs/operations/club-import.md) ----------
+  {
+    file: 'src/import/clubImport.ts',
+    fn: 'removeImportedClub',
+    uses: 4,
+    club: 'The club with the content file’s slug only; refuses if it has accounts or an accepted agreement',
+    why: 'Run only by the import-club script, which asks for the database and a typed confirmation; no request or signed-in user',
+  },
+  {
+    file: 'src/import/clubImport.ts',
+    fn: 'importClub',
+    uses: 2,
+    club: 'The club it has just created, and its own pages (IDs it created)',
+    why: 'As above: the import-club script only',
+  },
+  {
+    file: 'src/import/clubImport.ts',
+    fn: 'create',
+    uses: 1,
+    club: 'The imported club (tenant set on every record)',
+    why: 'Helper inside importClub',
+  },
+  {
+    file: 'src/import/clubImport.ts',
+    fn: 'one',
+    uses: 2,
+    club: 'The imported club’s own settings and course status (found by its tenant)',
+    why: 'Helper inside importClub',
+  },
+
   // ---------- Live isolation canary (hidden canary clubs only) ----------
   {
     file: 'src/canary/setup.ts',
