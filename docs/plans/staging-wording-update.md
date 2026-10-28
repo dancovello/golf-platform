@@ -1,6 +1,16 @@
 # Plan: update the saved marketing pages on staging to the new wording
 
-For Dan's approval, 28 Oct 2026. **Nothing here has been run.** Follows PRs #206 (wording Part A) and #210 (Part B).
+Approved by Dan (option B), 28 Oct 2026. Follows PRs #206 (wording Part A) and #210 (Part B). **The script is built (`pnpm update-marketing-wording`) and rehearsed on a throwaway local database; it has not been run on staging.**
+
+## How to run it (Dan)
+
+1. Merge #206, then #210, then the script PR, and let staging release.
+2. In the project folder, run `pnpm update-marketing-wording`.
+3. Paste the **staging** database connection string when asked (hidden; use the website's limited `golf_app` account, not the owner account), then type the word it asks for.
+4. Read the list. **Press Enter at the last question to stop (dry run, nothing written)**, or type `update` to make the changes.
+5. Send me the output if anything looks odd. Anything listed as "CHECK BY HAND" is edited in the admin.
+
+**Rehearsal result (local copy of the old pages):** 23 changes on 4 pages written; a hand-reworded line was left alone and listed; a published page with an unpublished edit (Trust) and the 3 draft legal pages were skipped; each updated page kept its old version and stayed published; the Week 1 to 4 block was removed from Switching; a second run changed nothing.
 
 ## The problem
 

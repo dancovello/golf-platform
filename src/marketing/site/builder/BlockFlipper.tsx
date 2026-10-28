@@ -77,7 +77,7 @@ export const BlockFlipper = ({ address }: { address: string }) => {
   const phoneScreen = size.phone - 12
   const phoneScale = phoneScreen / PHONE.width
   const phoneHeight = Math.round(PHONE_HEIGHT * phoneScale) + 12
-  const style = variant.label.replace('Hero · ', '')
+  const style = `${variant.label.replace('Hero · ', '')}, ${variant.headerLabel} header`
 
   const onKey = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'ArrowLeft') flip(-1)
@@ -177,7 +177,8 @@ export const BlockFlipper = ({ address }: { address: string }) => {
           <p className="mk-flipper-label" aria-live="polite">
             <span className="mk-flipper-name">{variant.label}</span>
             <span className="mk-flipper-count">
-              Variant {index + 1} of {count}. Swipe, or use the arrow keys
+              Variant {index + 1} of {count}, with the {variant.headerLabel} header. Swipe, or use
+              the arrow keys
             </span>
           </p>
         </div>
