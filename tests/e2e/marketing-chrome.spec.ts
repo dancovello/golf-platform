@@ -26,10 +26,8 @@ test('desktop nav: Figma labels, current page, Coming next clock, glass after sc
     'href',
     /\/admin$/,
   )
-  await expect(header.getByRole('link', { name: 'Free homepage' })).toHaveAttribute(
-    'href',
-    '/switching',
-  )
+  // The "Free homepage" button is gone (hand-off, 21 Oct); Switching is a nav link.
+  await expect(header.getByRole('link', { name: 'Free homepage' })).toHaveCount(0)
   await expect(header.getByRole('link', { name: 'Book a demo' }).first()).toHaveAttribute(
     'href',
     '/book-a-demo',

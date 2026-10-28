@@ -661,7 +661,7 @@ await w.payload.create({
       {
         blockType: 'mkCtaBand',
         title: 'See your club on it.',
-        subhead: 'We’ll rebuild your homepage in your colours and send it straight to you, free.',
+        subhead: 'Your demo includes your own club’s homepage, rebuilt on the platform.',
       },
     ],
   } as never,

@@ -2464,7 +2464,7 @@ export interface MarketingRoadmapBlock {
   blockType: 'mkRoadmap';
 }
 /**
- * Clubs asking for their free homepage (Switching page). Each one was promised it by the date shown.
+ * Clubs asking for a demo (Switching page). The date shown is the old two-working-days promise, to be removed.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "homepage-requests".

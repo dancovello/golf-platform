@@ -41,9 +41,9 @@ export const RequestHero = ({ block }: { block: MarketingRequestHeroBlock }) => 
       copy={{
         title: block.form?.title ?? 'Your club',
         intro: block.form?.intro,
-        button: block.form?.button ?? 'Rebuild my homepage',
+        button: block.form?.button ?? 'Book my demo',
         footnote: block.form?.footnote,
-        sentTitle: block.form?.sentTitle ?? 'On its way.',
+        sentTitle: block.form?.sentTitle ?? 'Thanks.',
       }}
       action={requestHomepage}
       initial={initialRequestState()}

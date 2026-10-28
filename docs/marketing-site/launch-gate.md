@@ -13,19 +13,16 @@ Prepared 28 Oct 2026 for the walkthrough with Dan (plan phase 9). The eleven ite
 | 7 | Mobile works for every page; intro respects reduced motion and once per session | ✅ | New `tests/e2e/marketing-quality.spec.ts` (every page at phone width: axe clean, no sideways scroll at 320 px, keyboard pass); intro tests in `tests/e2e/marketing-intro.spec.ts`. Speed check: `phase-9-quality-log.md` |
 | 8 | Privacy policy and cookie notice published | ❌ | They are drafts with placeholder wording until you supply it (N4). They cannot be published as they are |
 | 9 | Forms deliver to Dan end to end | ⚠️ | Requests are saved in the admin. Nothing is emailed to you until you set the requests address and add the company domain to Turnstile (N12). Needs a real send test on staging once those are set |
-| 10 | Pricing shown or hidden per Q11, with the setup fee stated wherever a price appears | ❌ | Q11 is not in the open-questions list yet, and the Pricing page still says "No setup fee" (see item 11) |
-| 11 | No "free homepage", "no setup fee" or fixed switching timeline anywhere | ❌ | **Found on main on 28 Oct, contradicting the 21 Oct evening decision.** Listed below |
+| 10 | Pricing shown or hidden per Q11, with the setup fee stated wherever a price appears | ⚠️ | Setup fee is now stated beside every price (28 Oct). Q11 itself (show prices or quote per club) is still undecided and is not in the open-questions list |
+| 11 | No "free homepage", "no setup fee" or fixed switching timeline anywhere | ⚠️ | Pages, buttons, nav and block defaults fixed on 28 Oct (PR #206) and guarded by `tests/unit/marketing-wording.spec.ts`. **Still open: the request form's success message and the two emails (Part B).** Pages already saved in a database keep their old text until edited (see below) |
 
-## Item 11 in detail: wording the 21 Oct evening decision removed, still in the code
+## Item 11 in detail
 
-All of these ship as the starting copy for the marketing pages. None is in a test, so nothing stops them going live.
+**Fixed on 28 Oct (PR #206, Part A of `wording-proposal-free-homepage.md`):** the second button, the nav button, every "no setup fee", "free" and "four weeks" line in the starter pages, the block defaults, the Week 1 to 4 cards, and the admin labels. A unit test fails if any of that wording returns.
 
-- **"Get your free homepage"** as the second button: `src/marketing/starter/pages.ts` (lines 28, 190, 276, 473, 620), the default in `src/marketing/blocks.ts:104`, `homeBlocks.ts:64` and `builderBlocks.ts:43`. Also the nav button "Free homepage" (`src/marketing/site/chrome/Nav.tsx:53`) and the Switching page eyebrow "Free homepage" and "Start with a free homepage".
-- **"No setup fee"**: home proof line (`pages.ts:29`), Pricing (`pages.ts:200, 207, 230`; `src/marketing/pricingBlocks.ts:67`).
-- **"Four weeks, start to finish"** and the "Week-by-week plan" block: `pages.ts:287, 357`; `src/marketing/switchingBlocks.ts:124`.
-- **"Rebuilt free in two working days"**: home proof line and Switching. This is also in the claims register as ✅, which disagrees with the hand-off's "never call it free".
-
-Why I have not changed it: this is the headline offer on four pages, and the replacement wording, and what happens to the "homepage request" form and its admin list, are your decisions. I will draft the replacement copy and a test that fails if any of these phrases come back, as soon as you say how the offer should read.
+**Not yet fixed:**
+- **The request form's success message and emails** (Part B): they still promise the example homepage "by {date}" and say "Your free homepage is on its way".
+- **Pages already saved in a database.** The starter pages only apply when a page is first added; existing pages are left alone. Staging (and production, once released) keep their old text until each page is edited in the admin, or a one-off update script is run. Running that against staging changes staging data, so it needs your go-ahead.
 
 ## Questions for Dan (all the ❓ rows, grouped)
 

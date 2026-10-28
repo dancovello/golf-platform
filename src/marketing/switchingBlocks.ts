@@ -15,7 +15,7 @@ const requestHero: Block = {
   slug: 'mkRequestHero',
   dbName: 'mk_request',
   interfaceName: 'MarketingRequestHeroBlock',
-  labels: { singular: 'Free homepage request', plural: 'Free homepage requests' },
+  labels: { singular: 'Demo request', plural: 'Demo requests' },
   fields: [
     { name: 'eyebrow', label: 'Eyebrow', type: 'text', maxLength: 40 },
     {
@@ -68,7 +68,7 @@ const requestHero: Block = {
           type: 'text',
           required: true,
           maxLength: 30,
-          defaultValue: 'Rebuild my homepage',
+          defaultValue: 'Book my demo',
         },
         {
           name: 'footnote',
@@ -83,7 +83,7 @@ const requestHero: Block = {
           type: 'text',
           required: true,
           maxLength: 40,
-          defaultValue: 'On its way.',
+          defaultValue: 'Thanks.',
         },
       ],
     },

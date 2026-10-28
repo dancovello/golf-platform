@@ -17,7 +17,7 @@ const home: StarterPage = {
   slug: 'home',
   title: 'Home',
   description:
-    'Golf club websites your team can update in minutes. See a demo club, then book a demo or get your homepage rebuilt free.',
+    'Golf club websites your team can update in minutes. See a demo club, then book a demo.',
   layout: [
     {
       blockType: 'mkHomeHero',
@@ -25,8 +25,9 @@ const home: StarterPage = {
       subhead:
         'A golf club website your team can update in minutes, and that still looks professional when they’re done. Tee-time booking is coming next.',
       primary: { label: 'Book a demo', href: '/book-a-demo' },
-      secondary: { label: 'Get your free homepage', href: '/switching' },
-      proofLine: '{price} a month · No setup fee · Your homepage rebuilt free in two working days',
+      secondary: { label: 'See how switching works', href: '/switching' },
+      proofLine:
+        '{price} a month · One-off setup fee agreed with your club · Your demo includes your club’s own homepage',
       note: 'Three demo clubs, one set of blocks.',
       noteStrong: 'Each still looks like its own club.',
     },
@@ -185,9 +186,9 @@ const home: StarterPage = {
     {
       blockType: 'mkCtaBand',
       title: 'See your club on it.',
-      subhead: 'We’ll rebuild your homepage in your colours and send it straight to you, free.',
+      subhead: 'Your demo includes your own club’s homepage, rebuilt on the platform.',
       primary: { label: 'Book a demo', href: '/book-a-demo' },
-      secondary: { label: 'Get your free homepage', href: '/switching' },
+      secondary: { label: 'See how switching works', href: '/switching' },
     },
   ],
 }
@@ -197,14 +198,14 @@ const pricing: StarterPage = {
   slug: 'pricing',
   title: 'Pricing',
   description:
-    'One price per club, with hosting, every live block and unlimited editors included. No setup fee.',
+    'One price per club, with hosting, every live block and unlimited editors included, plus a one-off setup fee agreed with your club.',
   layout: [
     {
       blockType: 'mkSectionHeader',
       eyebrow: 'Pricing',
       title: 'One club, one price.',
       subhead:
-        '{price} a month {vat} for your website, on a {term}-month term. No setup fee, and no charge per editor.',
+        '{price} a month {vat} for your website, on a {term}-month term, plus a one-off setup fee agreed with your club. No charge per editor.',
       align: 'center',
     },
     {
@@ -227,7 +228,7 @@ const pricing: StarterPage = {
         { text: 'We move your old site across' },
       ],
       footnote:
-        'Prices exclude VAT. No setup fee. {notice} days’ notice after the first {term} months.',
+        'Prices exclude VAT. Plus a one-off setup fee. {notice} days’ notice after the first {term} months.',
     },
     {
       blockType: 'mkFaq',
@@ -251,7 +252,7 @@ const pricing: StarterPage = {
         {
           question: 'What do you move across from our old site?',
           answer:
-            'Your public pages, news posts, PDFs and photos. We agree the exact list with you in week 1, before any work starts.',
+            'Your public pages, news posts, PDFs and photos. We agree the exact list with you before any work starts.',
         },
         {
           question: 'Is it GDPR compliant?',
@@ -273,7 +274,7 @@ const pricing: StarterPage = {
       title: 'One price your committee can sign off.',
       subhead: '{price} a month {vat}, everything included. See it working on your own club first.',
       primary: { label: 'Book a demo', href: '/book-a-demo' },
-      secondary: { label: 'Get your free homepage', href: '/switching' },
+      secondary: { label: 'See how switching works', href: '/switching' },
     },
   ],
 }
@@ -284,24 +285,24 @@ const switching: StarterPage = {
   slug: 'switching',
   title: 'Switching to us',
   description:
-    'Send us your club’s website and we’ll rebuild your homepage on our platform, free, within two working days. Then four weeks from first call to live site.',
+    'We set your club up on our platform for a one-off fee, agreed with you, and support you until your site is live.',
   layout: [
     {
       blockType: 'mkRequestHero',
-      eyebrow: 'Free homepage',
+      eyebrow: 'See it on your club',
       title: 'We’ll show you\nwhat we can do.',
       subhead:
-        'Tell us your club and your current website. We’ll rebuild your homepage on our platform and send it straight to you, free.',
+        'Tell us your club and your current website. In your demo, we’ll show you your own homepage on our platform.',
       points: [
         { text: 'Your logo, colours and photos, on our blocks' },
-        { text: 'In your inbox within two working days' },
-        { text: 'No call needed, and no commitment' },
+        { text: 'Shown to you in your demo' },
+        { text: 'No commitment until you decide to sign up' },
       ],
       form: {
         title: 'Your club',
-        button: 'Rebuild my homepage',
+        button: 'Book my demo',
         footnote: 'We build it from your current site. Nothing on your live site changes.',
-        sentTitle: 'On its way.',
+        sentTitle: 'Thanks.',
       },
     },
     {
@@ -354,34 +355,8 @@ const switching: StarterPage = {
       eyebrow: 'The switch',
       title: 'From first call to live site.',
       subhead:
-        'Four weeks, start to finish. We do the heavy lifting, and your committee signs off before anything goes live.',
+        'We set you up for a one-off fee, agreed with your club, and support you until the site is live. Your committee signs off before anything goes live.',
       align: 'left',
-    },
-    {
-      blockType: 'mkMigration',
-      weeks: [
-        {
-          label: 'Week 1',
-          title: 'Gather',
-          body: 'We copy your pages, news, photos and documents across, and agree the list with you.',
-        },
-        {
-          label: 'Week 2',
-          title: 'Shape',
-          body: 'We set up your colours, courses and tee sheet link, and build each page in blocks.',
-        },
-        {
-          label: 'Week 3',
-          title: 'Review',
-          body: 'Your committee clicks around a private preview. We change whatever you ask.',
-        },
-        {
-          label: 'Week 4',
-          title: 'Launch',
-          // Figma: "…and redirect your old page addresses." Held back until N7 is answered.
-          body: 'We switch the domain over and check every page straight after.',
-        },
-      ],
     },
     {
       blockType: 'mkFaq',
@@ -417,7 +392,7 @@ const switching: StarterPage = {
     {
       blockType: 'mkCtaBand',
       title: 'Ready when your committee is.',
-      subhead: 'Start with a free homepage, or talk it through with us first.',
+      subhead: 'See your own club on the platform, or talk it through with us first.',
       primary: { label: 'Book a demo', href: '/book-a-demo' },
       secondary: { label: 'See pricing', href: '/pricing' },
     },
@@ -470,7 +445,7 @@ const websiteBuilder: StarterPage = {
       subhead:
         'Every block fits every other block, and every screen. Change the layout, add your colours and photos, move things around. It still looks right on a laptop or a phone.',
       primary: { label: 'Book a demo', href: '/book-a-demo' },
-      secondary: { label: 'Get your free homepage', href: '/switching' },
+      secondary: { label: 'See how switching works', href: '/switching' },
     },
     {
       blockType: 'mkSectionHeader',
@@ -615,9 +590,9 @@ const websiteBuilder: StarterPage = {
     {
       blockType: 'mkCtaBand',
       title: 'See your club on it.',
-      subhead: 'We’ll rebuild your homepage in your colours and send it straight to you, free.',
+      subhead: 'Your demo includes your own club’s homepage, rebuilt on the platform.',
       primary: { label: 'Book a demo', href: '/book-a-demo' },
-      secondary: { label: 'Get your free homepage', href: '/switching' },
+      secondary: { label: 'See how switching works', href: '/switching' },
     },
   ],
 }
