@@ -362,7 +362,7 @@ Built from the Figma page "Marketing site" (170:28407): the variables, the CMS b
 
 - **Tokens:** every Figma marketing variable as `--mk-*`, including `accent-haze` (primary button hover) and `accent-peach` (Beta badge). Scoped to the marketing `<body class="mk">`; a test proves none reach a club site.
 - **Type:** the Figma text styles. Figma letter spacing is a percentage of the font size, so a 60px heading is −1.08px. Phones use Mobile Display (44/48) and Mobile Heading (32/36), with body text at 16px.
-- **Fonts:** Newsreader and Hanken Grotesk, self-hosted from Fontsource 5.3.0 (SIL Open Font License).
+- **Fonts:** Silka (Light, Regular, Medium, SemiBold) for headings and text, self-hosted as WOFF2 under the Hopp Studio licence. Replaced Newsreader and Hanken Grotesk on 28 Oct.
 - **Layout:** a 1200px container. Desktop sections are 128px apart, with 96px above a CTA band and 64px from header to content. Phones have 20px sides and 64px sections, and a page intro starts 40px down. **Tablet isn't designed**: 32px sides and 96px sections are derived.
 - **Blocks, with their fields from the Figma component descriptions** (second migration, `marketing_blocks_from_figma`, adds columns only):
   - **Section Header:** eyebrow, title (line breaks kept), body and alignment (left or centre). Page size for the first one, Section size elsewhere.
