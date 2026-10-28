@@ -19,6 +19,11 @@ const introState = (page: Page) =>
 // interacting: a key pressed earlier is simply lost and the intro never ends.
 const introListening = (page: Page) =>
   expect(page.locator('html')).toHaveAttribute('data-intro-started', '')
+// The reveal takes about a second, but CI draws the 3D ball in software while other browsers
+// run alongside, and 5 seconds was not always enough. This is only how long to wait, not how
+// long the intro takes.
+const introHidden = (page: Page) =>
+  expect(page.locator('.mk-intro')).toBeHidden({ timeout: 20_000 })
 
 test('a first visit plays the intro, and the first scroll reveals the page', async ({
   browser,
@@ -32,7 +37,7 @@ test('a first visit plays the intro, and the first scroll reveals the page', asy
 
   await page.mouse.move(400, 300)
   await page.mouse.wheel(0, 400)
-  await expect(page.locator('.mk-intro')).toBeHidden()
+  await introHidden(page)
   await expect(page.locator('.mk-nav')).toHaveCSS('opacity', '1')
   await expect(page.getByRole('heading', { level: 1 })).toBeInViewport()
   // The scroll that started the reveal didn't move the page...
@@ -45,7 +50,7 @@ test('a first visit plays the intro, and the first scroll reveals the page', asy
   await page.goto(site('/pricing'))
   await page.goto(site())
   expect(await introState(page)).toBeNull()
-  await expect(page.locator('.mk-intro')).toBeHidden()
+  await introHidden(page)
   await context.close()
 })
 
@@ -62,7 +67,7 @@ test('the logo sits just above the ball and is part of the intro', async ({ brow
   // It is inside the ball's layer, so it fades out with the ball, and goes with the intro.
   await expect(page.locator('.mk-intro-ball .mk-intro-mark')).toHaveCount(1)
   await page.keyboard.press('Tab')
-  await expect(page.locator('.mk-intro')).toBeHidden()
+  await introHidden(page)
   await context.close()
 })
 
@@ -71,7 +76,7 @@ test('refreshing the homepage replays the intro, from the top', async ({ browser
   await page.goto(site())
   await introListening(page)
   await page.keyboard.press('Tab')
-  await expect(page.locator('.mk-intro')).toBeHidden()
+  await introHidden(page)
   await page.mouse.wheel(0, 500)
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
 
@@ -81,7 +86,7 @@ test('refreshing the homepage replays the intro, from the top', async ({ browser
   await introListening(page)
   expect(await page.evaluate(() => window.scrollY)).toBe(0)
   await page.keyboard.press('Tab')
-  await expect(page.locator('.mk-intro')).toBeHidden()
+  await introHidden(page)
   // Scrolling is back to normal afterwards.
   expect(await page.evaluate(() => window.history.scrollRestoration)).toBe('auto')
   await context.close()
@@ -93,14 +98,14 @@ test('any key, or the Scroll cue, reveals the page', async ({ browser }) => {
   await expect(page.locator('.mk-intro')).toBeVisible()
   await introListening(page)
   await page.keyboard.press('Tab')
-  await expect(page.locator('.mk-intro')).toBeHidden()
+  await introHidden(page)
   await context.close()
 
   const second = await freshVisitor(browser)
   await second.page.goto(site())
   await introListening(second.page)
   await second.page.getByRole('button', { name: 'Scroll to skip the intro' }).click()
-  await expect(second.page.locator('.mk-intro')).toBeHidden()
+  await introHidden(second.page)
   await expect(second.page.locator('.mk-nav')).toHaveCSS('opacity', '1')
   await second.context.close()
 })
@@ -109,7 +114,7 @@ test('no intro when the device asks for reduced motion', async ({ browser }) => 
   const { context, page } = await freshVisitor(browser, { reducedMotion: 'reduce' })
   await page.goto(site())
   expect(await introState(page)).toBeNull()
-  await expect(page.locator('.mk-intro')).toBeHidden()
+  await introHidden(page)
   await expect(page.locator('.mk-nav')).toHaveCSS('opacity', '1')
   await context.close()
 })
