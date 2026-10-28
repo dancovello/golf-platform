@@ -47,7 +47,7 @@ const FACILITIES: Omit<Facility, 'picture'>[] = [
     button: 'Book a treatment',
   },
 ]
-const PICTURES = ['heath-dawn', 'links-evening', 'pine-morning']
+const PICTURES = ['heathland', 'links', 'lakeside']
 
 /** One Coming next booking preview, optionally with the label saying it isn't live. */
 export const BookingDemo = ({ block }: { block: MarketingBookingDemoBlock }) => {
@@ -69,7 +69,7 @@ export const BookingDemo = ({ block }: { block: MarketingBookingDemoBlock }) => 
         <FacilitiesCarousel
           facilities={FACILITIES.map((f, i) => ({
             ...f,
-            picture: demoPicture(PICTURES[i], 1400, 960)?.url ?? '',
+            picture: demoPicture(PICTURES[i])?.url ?? '',
           }))}
         />
       ) : null}

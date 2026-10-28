@@ -63,7 +63,8 @@ test('Block Flipper: a laptop and a phone flip together, at their real widths', 
 test('the hero frame: the real Hero block, inert, only for known styles', async ({ page }) => {
   const ok = await page.goto(site('/frame/hero/resort'))
   expect(ok?.status()).toBe(200)
-  await expect(page.locator('main.club-theme')).toHaveAttribute('inert', '')
+  await expect(page.locator('.club-theme')).toHaveAttribute('inert', '')
+  await expect(page.locator('.sh')).toBeVisible()
   await expect(page.locator('.hero')).toBeVisible()
   expect((await page.goto(site('/frame/hero/nonsense')))?.status()).toBe(404)
 })
