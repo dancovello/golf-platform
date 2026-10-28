@@ -81,7 +81,7 @@ export const MarketingSettings: GlobalConfig = {
       type: 'group',
       admin: {
         description:
-          'Where requests from the website are emailed. Without an address they are still saved under Homepage requests.',
+          'Where requests from the website are emailed. Without an address they are still saved under Demo requests.',
       },
       fields: [
         {

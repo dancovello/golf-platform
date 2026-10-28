@@ -12,14 +12,13 @@ const asSent: { update: FieldAccess } = { update: () => false }
 // The super-admin alone reads them, marks them sent and deletes them.
 export const HomepageRequests: CollectionConfig = {
   slug: 'homepage-requests',
-  labels: { singular: 'Homepage request', plural: 'Homepage requests' },
+  labels: { singular: 'Demo request', plural: 'Demo requests' },
   lockDocuments: false,
   admin: {
     group: MARKETING_GROUP,
     useAsTitle: 'clubName',
-    defaultColumns: ['clubName', 'website', 'status', 'dueBy', 'createdAt'],
-    description:
-      'Clubs asking for a demo (Switching page). The date shown is the old two-working-days promise, to be removed.',
+    defaultColumns: ['clubName', 'website', 'status', 'createdAt'],
+    description: 'Clubs asking for a demo (Switching page).',
     hidden: hiddenFromEditors,
   },
   access: {
@@ -47,13 +46,15 @@ export const HomepageRequests: CollectionConfig = {
         },
         {
           name: 'dueBy',
-          label: 'Promised by',
+          label: 'Date promised (old offer)',
           type: 'date',
-          required: true,
+          required: false,
           access: asSent,
           admin: {
             date: { pickerAppearance: 'dayOnly', displayFormat: 'EEEE d MMMM yyyy' },
-            description: 'Two UK working days after the request, as the form told them.',
+            description:
+              'Set only on requests made before 28 Oct 2026, when the form promised a date. Nothing is promised now.',
+            condition: (_data, siblingData) => Boolean(siblingData?.dueBy),
           },
         },
       ],

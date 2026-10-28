@@ -31,7 +31,7 @@ const ORDER: (keyof RequestValues)[] = ['clubName', 'website', 'email']
 const fieldID = (field: keyof RequestValues) => `mk-request-${field}`
 
 /**
- * Marketing/Homepage Request Form (265:8785): Default, then Submitted with the promised date.
+ * Marketing/Homepage Request Form (265:8785): Default, then Submitted (no date promised).
  * Works without JavaScript too (the form posts and the page comes back with the result).
  */
 export const RequestForm = ({ copy, action, initial, turnstileSiteKey }: Props) => {
@@ -39,7 +39,7 @@ export const RequestForm = ({ copy, action, initial, turnstileSiteKey }: Props) 
   return (
     <div className="mk-request" aria-busy={pending || undefined}>
       {state.sent ? (
-        <Sent title={copy.sentTitle} email={state.sent.email} dueBy={state.sent.dueBy} />
+        <Sent title={copy.sentTitle} email={state.sent.email} />
       ) : (
         // A new key after each send: React clears a form once its action finishes, so the
         // fields are drawn again from what was sent.
@@ -157,7 +157,7 @@ const RequestFields = ({
   )
 }
 
-const Sent = ({ title, email, dueBy }: { title: string; email: string; dueBy: string }) => {
+const Sent = ({ title, email }: { title: string; email: string }) => {
   const headingRef = useRef<HTMLHeadingElement>(null)
   useEffect(() => headingRef.current?.focus(), [])
   return (
@@ -169,8 +169,7 @@ const Sent = ({ title, email, dueBy }: { title: string; email: string; dueBy: st
         {title}
       </h2>
       <p className="mk-request-sent-body">
-        We’ll email your homepage on the new site to <strong>{email}</strong> by{' '}
-        <strong>{dueBy}</strong>.
+        We’ll be in touch. We’ll email <strong>{email}</strong> to arrange your demo.
       </p>
     </div>
   )

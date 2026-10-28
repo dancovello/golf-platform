@@ -7,7 +7,6 @@ import { verifyTurnstile } from '@/site/contact/turnstile'
 
 import type { RequestState } from './state'
 import { EMPTY_REQUEST, cleanWebsite, requestFromForm, validateRequest } from './validate'
-import { dueDate, formatDueDate } from './workingDays'
 
 /** The form's signed time check is scoped to this form, so a club form's token won't do. */
 export const REQUEST_FORM_SCOPE = 'marketing-homepage-request'
@@ -45,7 +44,7 @@ export const initialRequestState = (now = Date.now()): RequestState => ({
  * - Cloudflare's "are you a person?" check, when switched on;
  * - at most 5 sends per visitor in 10 minutes (`visitorAllowed`, from the page's request);
  * - at most HOURLY_LIMIT requests an hour, counted in one step (no overshoot).
- * Bots caught by the first two see the normal "on its way" screen, so they learn nothing.
+ * Bots caught by the first two see the normal "thanks" screen, so they learn nothing.
  * `onSaved` gets the new request's ID (the action emails it after answering the visitor).
  */
 export const submitHomepageRequest = async (
@@ -57,7 +56,6 @@ export const submitHomepageRequest = async (
 ): Promise<RequestState> => {
   const attempt = prev.attempt + 1
   const values = requestFromForm(form)
-  const due = dueDate(now)
   let nextToken = newRequestToken(now.getTime())
   const keep = (extra: Partial<RequestState>): RequestState => ({
     attempt,
@@ -68,8 +66,7 @@ export const submitHomepageRequest = async (
     sent: null,
     ...extra,
   })
-  const sent = () =>
-    keep({ values: EMPTY_REQUEST, sent: { email: values.email.trim(), dueBy: formatDueDate(due) } })
+  const sent = () => keep({ values: EMPTY_REQUEST, sent: { email: values.email.trim() } })
 
   const honeypot = form.get('website')
   if (typeof honeypot === 'string' && honeypot.trim()) return sent()
@@ -112,7 +109,6 @@ export const submitHomepageRequest = async (
       clubName: values.clubName.trim(),
       website: cleanWebsite(values.website) ?? values.website.trim(),
       email: values.email.trim(),
-      dueBy: due.toISOString(),
     },
     overrideAccess: true,
   })

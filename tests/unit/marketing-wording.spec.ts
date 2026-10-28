@@ -14,17 +14,14 @@ const BANNED = [
   /four weeks/i,
   /send it straight to you/i,
   /\bweek [1-4]\b/i,
+  // The request form and its emails promised a date; none is promised now.
+  /promised by/i,
+  /on its way/i,
 ]
-
-// The request form's messages and emails still carry the old promise; they change in the
-// follow-up that rewrites the form (docs/marketing-site/wording-proposal-free-homepage.md, Part B).
-// Remove this exception when that lands.
-const NOT_YET = ['src/marketing/requests']
 
 const sourceFiles = (dir: string): string[] =>
   readdirSync(dir).flatMap((name) => {
     const path = join(dir, name)
-    if (NOT_YET.some((skip) => path.endsWith(skip))) return []
     if (statSync(path).isDirectory()) return sourceFiles(path)
     return /\.(ts|tsx)$/.test(name) ? [path] : []
   })

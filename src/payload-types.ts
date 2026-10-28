@@ -2464,7 +2464,7 @@ export interface MarketingRoadmapBlock {
   blockType: 'mkRoadmap';
 }
 /**
- * Clubs asking for a demo (Switching page). The date shown is the old two-working-days promise, to be removed.
+ * Clubs asking for a demo (Switching page).
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "homepage-requests".
@@ -2473,9 +2473,9 @@ export interface HomepageRequest {
   id: string;
   status: 'new' | 'sent' | 'closed';
   /**
-   * Two UK working days after the request, as the form told them.
+   * Set only on requests made before 28 Oct 2026, when the form promised a date. Nothing is promised now.
    */
-  dueBy: string;
+  dueBy?: string | null;
   clubName: string;
   website: string;
   email: string;
@@ -4406,7 +4406,7 @@ export interface MarketingSetting {
     secondCoursePrice?: number | null;
   };
   /**
-   * Where requests from the website are emailed. Without an address they are still saved under Homepage requests.
+   * Where requests from the website are emailed. Without an address they are still saved under Demo requests.
    */
   requests?: {
     /**
