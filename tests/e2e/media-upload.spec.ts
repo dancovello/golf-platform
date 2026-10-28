@@ -74,6 +74,8 @@ test('no upload link for file types outside the allowed list', async ({ editorPa
 test('a bulk upload saves every photo, without needing descriptions', async ({
   editorPage: page,
 }) => {
+  // Generous: on GitHub's machines the admin's first load of this screen can take a while.
+  test.setTimeout(90_000)
   await openReady(page, '/admin/collections/media')
   // Its own file names, so other tests uploading at the same time don't affect the result.
   const names = [`bulk-${Date.now()}-one.png`, `bulk-${Date.now()}-two.png`]

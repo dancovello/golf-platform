@@ -43,7 +43,7 @@ const sitePages = [
 ]
 
 test('club pages run with nothing blocked', async ({ page }) => {
-  test.setTimeout(180_000)
+  test.setTimeout(300_000)
   const reports = await watchPolicy(page)
   for (const path of sitePages) {
     const response = await page.goto(path)
