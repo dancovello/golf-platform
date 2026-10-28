@@ -23,6 +23,8 @@ const sourceFiles = (dir: string): string[] =>
   readdirSync(dir).flatMap((name) => {
     const path = join(dir, name)
     if (statSync(path).isDirectory()) return sourceFiles(path)
+    // The update tool has to name the old text to find it in saved pages.
+    if (name === 'wordingUpdate.ts') return []
     return /\.(ts|tsx)$/.test(name) ? [path] : []
   })
 
