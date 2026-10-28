@@ -64,7 +64,7 @@ const pricing: Block = {
       maxLength: 200,
       validate: noTypedPrices,
       defaultValue:
-        'Prices exclude VAT. No setup fee. {notice} days’ notice after the first {term} months.',
+        'Prices exclude VAT. Plus a one-off setup fee. {notice} days’ notice after the first {term} months.',
       admin: { description: TOKEN_HELP },
     },
   ],

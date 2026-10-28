@@ -40,7 +40,7 @@ const builderHero: Block = {
     button(
       'secondary',
       'Second button (optional)',
-      { label: 'Get your free homepage', href: '/switching' },
+      { label: 'See how switching works', href: '/switching' },
       'Leave the text empty to show only the main button.',
     ),
   ],

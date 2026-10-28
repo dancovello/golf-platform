@@ -6,7 +6,7 @@ import { MARKETING_GROUP, hiddenFromEditors } from '../access'
 /** What the prospect sent stays exactly as sent. */
 const asSent: { update: FieldAccess } = { update: () => false }
 
-// Platform-level (src/tenancy.ts): a golf club asking for its free homepage on the company
+// Platform-level (src/tenancy.ts): a golf club asking for a demo on the company
 // website (Switching page). Only the website's form creates them, as trusted server code
 // (src/marketing/requests/submit.ts), so nobody can add one through the admin or the API.
 // The super-admin alone reads them, marks them sent and deletes them.
@@ -19,7 +19,7 @@ export const HomepageRequests: CollectionConfig = {
     useAsTitle: 'clubName',
     defaultColumns: ['clubName', 'website', 'status', 'dueBy', 'createdAt'],
     description:
-      'Clubs asking for their free homepage (Switching page). Each one was promised it by the date shown.',
+      'Clubs asking for a demo (Switching page). The date shown is the old two-working-days promise, to be removed.',
     hidden: hiddenFromEditors,
   },
   access: {

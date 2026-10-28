@@ -48,14 +48,6 @@ export const Nav = async () => {
           <span className="mk-nav-desktop-only">
             <MarketingButton label="Club log in" href={logIn} variant="ghost" arrow={false} />
           </span>
-          <span className="mk-nav-desktop-only">
-            <MarketingButton
-              label="Free homepage"
-              href="/switching"
-              variant="ghost"
-              arrow={false}
-            />
-          </span>
           <span className="mk-nav-book">
             <MarketingButton label="Book a demo" href="/book-a-demo" variant="primary" />
           </span>

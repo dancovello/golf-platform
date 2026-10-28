@@ -12,7 +12,7 @@ test('every number on the page comes from the settings', async ({ page }) => {
   await page.goto(site())
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('One club, one price.')
   await expect(page.locator('.mk-header-body').first()).toHaveText(
-    '£149 a month + VAT for your website, on a 12-month term. No setup fee, and no charge per editor.',
+    '£149 a month + VAT for your website, on a 12-month term, plus a one-off setup fee agreed with your club. No charge per editor.',
   )
   await expect(page.locator('.mk-calc-terms')).toHaveText(
     'Billed monthly · 12-month minimum, then rolling',
@@ -20,7 +20,7 @@ test('every number on the page comes from the settings', async ({ page }) => {
   await expect(page.locator('.mk-calc-price')).toContainText('£149')
   await expect(page.locator('.mk-calc-price')).toContainText('/ month + VAT')
   await expect(page.locator('.mk-calc-footnote')).toHaveText(
-    'Prices exclude VAT. No setup fee. 90 days’ notice after the first 12 months.',
+    'Prices exclude VAT. Plus a one-off setup fee. 90 days’ notice after the first 12 months.',
   )
   await expect(page.locator('.mk-cta-body')).toHaveText(
     '£149 a month + VAT, everything included. See it working on your own club first.',
