@@ -1,77 +1,108 @@
 'use client'
 
-import { type ReactNode, useEffect, useLayoutEffect, useRef, useSyncExternalStore } from 'react'
+import { type ReactNode, useEffect, useRef, useState } from 'react'
 
-import type { PanelDemo } from '@/site/search/SearchPanel'
-import { SearchPanel } from '@/site/search/SearchPanel'
-
-const PHONE_WIDTH = 375
+const QUERY = 'winter green fees'
 
 /**
- * Lays a real club component out at the width it is designed for and shrinks it to fit its
- * card, so the card shows the component as a visitor sees it, not a cut-down version. On phones
- * the club's own components switch to their phone layout, so they're laid out at phone width.
+ * Search: starts empty, with the club's quick links, then types a question and shows the answer,
+ * then clears and starts again. Everyone sees the answer at once if they prefer reduced motion.
+ * Decorative: its card is hidden from screen readers.
  */
-export const StageFit = ({ width, children }: { width: number; children: ReactNode }) => {
-  const outer = useRef<HTMLDivElement>(null)
-  const inner = useRef<HTMLDivElement>(null)
-  useLayoutEffect(() => {
-    const box = outer.current
-    const stage = inner.current
-    if (!box || !stage) return
-    const fit = () => {
-      const laidOut = window.matchMedia('(max-width: 767px)').matches ? PHONE_WIDTH : width
-      stage.style.width = `${laidOut}px`
-      stage.style.transform = `scale(${box.clientWidth / laidOut})`
+export const SearchIllustration = () => {
+  const [typed, setTyped] = useState(QUERY.length)
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    let count = 0
+    let timer: ReturnType<typeof setTimeout>
+    const tick = () => {
+      // Empty for a moment, a letter every 90ms, then the answer holds for about four seconds.
+      count = count > QUERY.length + 44 ? 0 : count + 1
+      setTyped(Math.min(count, QUERY.length))
+      timer = setTimeout(tick, count === 0 ? 1400 : 90)
     }
-    fit()
-    const observer = new ResizeObserver(fit)
-    observer.observe(box)
-    window.addEventListener('resize', fit)
-    return () => {
-      observer.disconnect()
-      window.removeEventListener('resize', fit)
-    }
-  }, [width])
+    timer = setTimeout(tick, 600)
+    return () => clearTimeout(timer)
+  }, [])
+  const answered = typed === QUERY.length
   return (
-    <div ref={outer} className="mk-stage-fit">
-      <div ref={inner} className="mk-stage-fit-inner" style={{ width }}>
-        {children}
+    <div
+      className="mk-li-panel mk-li-search"
+      data-state={answered ? 'answer' : typed ? 'typing' : 'empty'}
+    >
+      <div className="mk-li-field">
+        <svg
+          viewBox="0 0 20 20"
+          width="15"
+          height="15"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.7"
+        >
+          <circle cx="9" cy="9" r="6" />
+          <path d="m14 14 4 4" strokeLinecap="round" />
+        </svg>
+        <span className="mk-li-typed">
+          {typed ? (
+            QUERY.slice(0, typed)
+          ) : (
+            <span className="mk-li-placeholder">Search Ashgrove Park</span>
+          )}
+          <i className="mk-li-caret" />
+        </span>
+        <kbd>esc</kbd>
       </div>
+      {answered ? (
+        <div className="mk-li-found">
+          <div className="mk-li-answer">
+            <p className="mk-li-eyebrow">Top answer</p>
+            <p className="mk-li-answer-title">Green fees</p>
+            <div className="mk-li-facts">
+              <p>
+                <strong>£55</strong>
+                <span>Winter · 18 holes · Mon–Thu</span>
+              </p>
+              <p>
+                <strong>£70</strong>
+                <span>Winter · 18 holes · Fri–Sun</span>
+              </p>
+            </div>
+          </div>
+          <ul className="mk-li-results">
+            <li>
+              <span>Visitors &amp; green fees</span>
+              <em>Page</em>
+            </li>
+            <li>
+              <span>Winter rules</span>
+              <em>Document</em>
+            </li>
+          </ul>
+        </div>
+      ) : (
+        <ul className="mk-li-results mk-li-quick">
+          <li>
+            <span>Course status</span>
+            <em>Open · updated 06:12</em>
+          </li>
+          <li>
+            <span>Green fees</span>
+            <em>From £20</em>
+          </li>
+          <li>
+            <span>Opening hours</span>
+            <em>Open today</em>
+          </li>
+        </ul>
+      )}
     </div>
   )
 }
 
-/** The club's real header search, drawn in place and typing a question by itself. */
-export const DemoSearch = ({
-  demo,
-  ...props
-}: {
-  demo: Omit<PanelDemo, 'animate'>
-  base: string
-  clubSlug: string
-  clubName: string
-  shortcuts: Parameters<typeof SearchPanel>[0]['shortcuts']
-  contact: Parameters<typeof SearchPanel>[0]['contact']
-  phone: string | null
-}) => {
-  // Null on the server and until the page knows: the panel stays as it opens, nothing searched.
-  const animate = useSyncExternalStore(
-    (onChange) => {
-      const query = window.matchMedia('(prefers-reduced-motion: reduce)')
-      query.addEventListener('change', onChange)
-      return () => query.removeEventListener('change', onChange)
-    },
-    () => !window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-    () => null,
-  )
-  return <SearchPanel {...props} demo={{ ...demo, animate }} />
-}
-
 /**
- * Spotlight: while the showcase is in the middle of the screen, the rest of the page fades back
- * and blurs (marketing.css does the fading from this attribute), so the cards stand out. One
- * card hovered or focused lifts further. Off for visitors who prefer reduced motion.
+ * Spotlight: while the cards are in the middle of the screen, the rest of the page fades back and
+ * blurs (marketing.css does the fading from this attribute), so they stand out. Off for visitors
+ * who prefer reduced motion.
  */
 export const Spotlight = ({ children }: { children: ReactNode }) => {
   const list = useRef<HTMLDivElement>(null)
