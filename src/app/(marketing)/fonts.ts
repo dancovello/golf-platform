@@ -1,20 +1,23 @@
-// The marketing site's two fonts (hand-off §8). The files live in ./font-files (latin subset,
-// from Fontsource 5.3.0, SIL Open Font License: see the .LICENSE.txt files). Served from our own
-// domain; builds never need to reach Google. Preloaded: every marketing page uses both.
+// The marketing site's font (Silka, by Hopp Studio's licence: see font-files/silka.LICENSE.txt).
+// One family for headings and text. The files live in ./font-files (WOFF2, the smallest web
+// format). Served from our own domain; builds never need to reach Google. Preloaded: every
+// marketing page uses it. Two variables keep the existing --mk-font-display / --mk-font-text names.
+// next/font reads these options at build time, so they must be written out literally.
 import localFont from 'next/font/local'
 
-export const newsreader = localFont({
-  src: [{ path: './font-files/newsreader-latin-400-normal.woff2', weight: '400', style: 'normal' }],
+export const silkaDisplay = localFont({
+  src: [{ path: './font-files/silka-regular.woff2', weight: '400', style: 'normal' }],
   variable: '--mk-font-display',
   display: 'swap',
-  fallback: ['Georgia', 'serif'],
+  fallback: ['system-ui', 'sans-serif'],
 })
 
-export const hankenGrotesk = localFont({
+export const silka = localFont({
   src: [
-    { path: './font-files/hanken-grotesk-latin-400-normal.woff2', weight: '400', style: 'normal' },
-    { path: './font-files/hanken-grotesk-latin-500-normal.woff2', weight: '500', style: 'normal' },
-    { path: './font-files/hanken-grotesk-latin-600-normal.woff2', weight: '600', style: 'normal' },
+    { path: './font-files/silka-light.woff2', weight: '300', style: 'normal' },
+    { path: './font-files/silka-regular.woff2', weight: '400', style: 'normal' },
+    { path: './font-files/silka-medium.woff2', weight: '500', style: 'normal' },
+    { path: './font-files/silka-semibold.woff2', weight: '600', style: 'normal' },
   ],
   variable: '--mk-font-text',
   display: 'swap',
