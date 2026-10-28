@@ -3,10 +3,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import type { BallScene } from './ballScene'
+import { IntroMark } from './IntroMark'
 import { DEFAULT_LOOK, LOOK_CONTROLS, type BallLook } from './look'
+import { DEFAULT_MARK, INTRO_MARK_KINDS, type IntroMark as Mark } from './mark'
 import { CONTENT_RISE_PX, revealFrame } from './reveal'
 
 const STORAGE_KEY = 'mk-intro-lab-look'
+const MARK_STORAGE_KEY = 'mk-intro-lab-mark'
 const GROUPS = ['Light', 'Dimples', 'Layout', 'Motion'] as const
 
 const loadSaved = (): BallLook => {
@@ -17,6 +20,16 @@ const loadSaved = (): BallLook => {
     // Storage blocked or unreadable: start from the defaults.
   }
   return DEFAULT_LOOK
+}
+
+const loadSavedMark = (): Mark => {
+  try {
+    const saved = window.localStorage.getItem(MARK_STORAGE_KEY)
+    if (saved) return { ...DEFAULT_MARK, ...(JSON.parse(saved) as Partial<Mark>) }
+  } catch {
+    // Storage blocked or unreadable: start from the defaults.
+  }
+  return DEFAULT_MARK
 }
 
 const clamp01 = (value: number) => Math.min(1, Math.max(0, value))
@@ -40,6 +53,7 @@ export const IntroLab = () => {
   // Rendered only in the browser (IntroLabLoader), so saved values can be read straight away.
   const [look, setLook] = useState<BallLook>(loadSaved)
   const lookRef = useRef(look)
+  const [mark, setMark] = useState<Mark>(loadSavedMark)
   const [status, setStatus] = useState<'loading' | 'ready' | 'failed'>('loading')
   const [phase, setPhase] = useState<'idle' | 'revealing' | 'done'>('idle')
   const phaseRef = useRef(phase)
@@ -65,8 +79,19 @@ export const IntroLab = () => {
       stage.style.setProperty('--mk-intro-size-mobile', String(look.sizeMobile))
       stage.style.setProperty('--mk-intro-top-desktop', String(look.top))
       stage.style.setProperty('--mk-intro-top-mobile', String(look.topMobile))
+      stage.style.setProperty('--mk-intro-gap', `${look.markGap}px`)
+      stage.style.setProperty('--mk-intro-logo-h-desktop', `${look.logoHeight}px`)
+      stage.style.setProperty('--mk-intro-logo-h-mobile', `${look.logoHeightMobile}px`)
     }
   }, [look])
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(MARK_STORAGE_KEY, JSON.stringify(mark))
+    } catch {
+      // Not saved; the choice still works.
+    }
+  }, [mark])
 
   // Start the 3D scene once the page is showing. three loads only now.
   useEffect(() => {
@@ -166,11 +191,11 @@ export const IntroLab = () => {
 
   const copySettings = async () => {
     try {
-      await navigator.clipboard.writeText(JSON.stringify(look, null, 2))
+      await navigator.clipboard.writeText(JSON.stringify({ ...look, mark }, null, 2))
       setCopied(true)
       window.setTimeout(() => setCopied(false), 2000)
     } catch {
-      window.prompt('Copy these settings:', JSON.stringify(look))
+      window.prompt('Copy these settings:', JSON.stringify({ ...look, mark }))
     }
   }
 
@@ -190,6 +215,7 @@ export const IntroLab = () => {
       <div className="mk-intro-ball" ref={ballLayerRef} aria-hidden="true">
         <div className="mk-intro-glow" />
         <canvas className="mk-intro-canvas" ref={canvasRef} />
+        <IntroMark mark={mark} />
       </div>
 
       <div className="mk-intro-cue" ref={cueRef} aria-hidden="true">
@@ -239,11 +265,44 @@ export const IntroLab = () => {
               <button
                 type="button"
                 className="mk-intro-button mk-intro-button--quiet"
-                onClick={() => setLook(DEFAULT_LOOK)}
+                onClick={() => {
+                  setLook(DEFAULT_LOOK)
+                  setMark(DEFAULT_MARK)
+                }}
               >
                 Reset
               </button>
             </div>
+            <fieldset className="mk-intro-group">
+              <legend className="mk-intro-group-name">Above the ball</legend>
+              <div className="mk-intro-choices" role="radiogroup" aria-label="Above the ball">
+                {INTRO_MARK_KINDS.map(({ kind, label }) => (
+                  <label key={kind} className="mk-intro-choice">
+                    <input
+                      type="radio"
+                      name="mk-intro-mark-kind"
+                      checked={mark.kind === kind}
+                      onChange={() => setMark((current) => ({ ...current, kind }))}
+                    />
+                    {label}
+                  </label>
+                ))}
+              </div>
+              {mark.kind === 'message' ? (
+                <div className="mk-intro-control">
+                  <label htmlFor="mk-intro-message">Message (line breaks are kept)</label>
+                  <textarea
+                    id="mk-intro-message"
+                    className="mk-intro-textarea"
+                    rows={3}
+                    value={mark.message}
+                    onChange={(event) =>
+                      setMark((current) => ({ ...current, message: event.target.value }))
+                    }
+                  />
+                </div>
+              ) : null}
+            </fieldset>
             {GROUPS.map((group) => (
               <fieldset key={group} className="mk-intro-group">
                 <legend className="mk-intro-group-name">{group}</legend>

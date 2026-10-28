@@ -49,6 +49,23 @@ test('a first visit plays the intro, and the first scroll reveals the page', asy
   await context.close()
 })
 
+test('the logo sits just above the ball and is part of the intro', async ({ browser }) => {
+  const { context, page } = await freshVisitor(browser)
+  await page.goto(site())
+  const mark = page.locator('.mk-intro .mk-intro-mark')
+  await expect(mark).toBeVisible()
+  // Its bottom edge is above the ball's top edge (46% down the screen, Dan's setting).
+  const box = (await mark.boundingBox())!
+  const height = page.viewportSize()!.height
+  expect(box.y + box.height).toBeLessThanOrEqual(height * 0.46)
+  expect(box.y).toBeGreaterThanOrEqual(0)
+  // It is inside the ball's layer, so it fades out with the ball, and goes with the intro.
+  await expect(page.locator('.mk-intro-ball .mk-intro-mark')).toHaveCount(1)
+  await page.keyboard.press('Tab')
+  await expect(page.locator('.mk-intro')).toBeHidden()
+  await context.close()
+})
+
 test('refreshing the homepage replays the intro, from the top', async ({ browser }) => {
   const { context, page } = await freshVisitor(browser)
   await page.goto(site())
