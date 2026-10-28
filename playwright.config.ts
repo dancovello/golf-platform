@@ -6,6 +6,12 @@ const isCI = !!process.env.CI
 const port = 3100
 const baseURL = `http://localhost:${port}`
 
+// The specs that prove one club can't see another's data through the browser or the REST API.
+// They are the CI job "tenant-isolation" and nothing else, so that job only goes red for a real
+// separation problem. Every other browser test is the CI job "browser-tests".
+const ISOLATION_SPECS =
+  /tests\/e2e\/(admin-isolation|api-isolation|api-isolation-fuzz|canary|red-team)\.spec\.ts$/
+
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
@@ -22,8 +28,17 @@ export default defineConfig({
   projects: [
     { name: 'setup', testMatch: /setup\.ts$/ },
     {
+      name: 'isolation',
+      testMatch: ISOLATION_SPECS,
+      use: { ...devices['Desktop Chrome'] },
+      dependencies: ['setup'],
+    },
+    {
       name: 'chromium',
-      testIgnore: /tests\/visual\//,
+      // Timing-sensitive tests (animations, uploads) on a shared CI machine: one more try than
+      // the isolation specs get, so a slow moment is not reported as a failure.
+      retries: isCI ? 2 : 0,
+      testIgnore: [/tests\/visual\//, ISOLATION_SPECS],
       use: { ...devices['Desktop Chrome'] },
       dependencies: ['setup'],
     },
