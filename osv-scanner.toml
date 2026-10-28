@@ -10,3 +10,7 @@ reason = "braces: no fixed release. Reached only via build-time tooling (sass ->
 id = "GHSA-67mh-4wv8-2f99"
 ignoreUntil = 2026-11-10
 reason = "esbuild 0.18 dev-server issue. Only pulled in by drizzle-kit (migration generator, developer machines only), which never starts esbuild's dev server."
+[[IgnoredVulns]]
+id = "GHSA-gcqx-w48m-w2h4"
+ignoreUntil = 2026-11-10
+reason = "deepmerge 4.3.1 prototype poisoning in mergeObject(): no fixed release. Pulled in by Payload core, which only merges its own configuration built from our code, never user input. Review again on expiry."
