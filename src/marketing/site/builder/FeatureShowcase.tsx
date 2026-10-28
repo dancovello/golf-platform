@@ -1,136 +1,216 @@
-import type { CSSProperties, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 
-import { fontSetVariables } from '@/app/(frontend)/fonts'
-import { DEMO_CLUBS, demoClubSite, demoContext } from '@/marketing/demo/clubs'
-import {
-  SEARCH_CONTACT,
-  SEARCH_QUERY,
-  SEARCH_QUICK,
-  SEARCH_RESULTS,
-  SEARCH_SHORTCUTS,
-  SHOWCASE_EVENTS,
-  showcaseRates,
-  showcaseStatus,
-} from '@/marketing/demo/showcase'
 import type { MarketingFeatureShowcaseBlock } from '@/payload-types'
-import { CourseStatus } from '@/site/blocks/CourseStatus'
-import { RateTable } from '@/site/blocks/RateTable'
-import { EventsAgenda } from '@/site/events/EventsFeed'
-import { brandCSSVariables } from '@/theme/colour'
 
-import { DemoSearch, Spotlight, StageFit } from './ShowcaseClient'
+import { SearchIllustration, Spotlight } from './ShowcaseClient'
 
 type Feature = MarketingFeatureShowcaseBlock['items'][number]['feature']
 
-const club = DEMO_CLUBS[0]
-const site = demoClubSite(club)
+const Dot = ({ tone = 'live' }: { tone?: 'live' | 'warn' }) => (
+  <i className={`mk-li-dot is-${tone}`} />
+)
 
-/** Two versions of the same real component, one fading into the other: the change a club makes. */
-const Change = ({ before, after }: { before: ReactNode; after: ReactNode }) => (
-  <div className="mk-change">
-    <div className="mk-change-before">{before}</div>
-    <div className="mk-change-after">{after}</div>
+/** Course report: the club's status rows, with the trolley rule changing as the duty manager posts. */
+const CourseStatus = () => (
+  <>
+    <div className="mk-li-panel">
+      <header className="mk-li-bar">
+        <span className="mk-li-title">Course status</span>
+        <span className="mk-li-pill">
+          <Dot />
+          Course open
+        </span>
+      </header>
+      <p className="mk-li-sub">Updated 06:12 · by the duty manager</p>
+      <dl className="mk-li-rows">
+        <div>
+          <dt>Greens</dt>
+          <dd>
+            <Dot />
+            Cut &amp; rolled
+          </dd>
+        </div>
+        <div>
+          <dt>Tees</dt>
+          <dd>
+            <Dot />
+            Main tees in play
+          </dd>
+        </div>
+        <div className="is-focus">
+          <dt>Trolleys</dt>
+          <dd>
+            <span className="mk-li-swap">
+              <span>
+                <Dot />
+                Allowed
+              </span>
+              <span>
+                <Dot tone="warn" />
+                Paths only
+              </span>
+            </span>
+          </dd>
+        </div>
+        <div>
+          <dt>Bunkers</dt>
+          <dd>
+            <Dot />
+            Raked, playable
+          </dd>
+        </div>
+      </dl>
+    </div>
+    <p className="mk-li-toast is-late">
+      <Dot />
+      Shown on your homepage
+    </p>
+  </>
+)
+
+const EVENTS = [
+  {
+    day: 'Sat',
+    date: '12',
+    month: 'Jun',
+    tag: 'Competition',
+    title: 'Captain’s Day',
+    meta: '08:00 · First tee',
+    price: '£45',
+  },
+  {
+    day: 'Sun',
+    date: '20',
+    month: 'Jun',
+    tag: 'Competition',
+    title: 'Mixed Greensomes',
+    meta: '13:30 · First tee',
+    price: '£30',
+  },
+  {
+    day: 'Fri',
+    date: '25',
+    month: 'Jun',
+    tag: 'Social',
+    title: 'Summer Supper',
+    meta: '19:00 · Clubhouse',
+    price: '£28',
+  },
+]
+
+/** Events: the next fixtures as the club lists them, the first one in focus. */
+const Events = () => (
+  <div className="mk-li-panel">
+    <header className="mk-li-bar">
+      <span className="mk-li-title">What’s on</span>
+      <span className="mk-li-link">All events →</span>
+    </header>
+    <ol className="mk-li-events">
+      {EVENTS.map((e, i) => (
+        <li key={e.title} className={i === 0 ? 'is-focus' : undefined}>
+          <span className="mk-li-date">
+            <small>{e.day}</small>
+            <strong>{e.date}</strong>
+            <small>{e.month}</small>
+          </span>
+          <span className="mk-li-event">
+            <em>{e.tag}</em>
+            <span>{e.title}</span>
+            <small>{e.meta}</small>
+          </span>
+          {i === 0 ? (
+            <span className="mk-li-book">Book · {e.price}</span>
+          ) : (
+            <span className="mk-li-price">{e.price}</span>
+          )}
+        </li>
+      ))}
+    </ol>
   </div>
 )
 
-/** The club's real Course status block (Widget style), the trolley rule changing. */
-const courseStatus = (trolleys: 'allowed' | 'paths') => (
-  <CourseStatus
-    block={
-      {
-        blockType: 'courseStatus',
-        style: 'widget',
-        eyebrow: 'Today on the course',
-        heading: 'Course status',
-        intro: 'Posted by the duty manager, and shown on the homepage.',
-      } as never
-    }
-    ctx={demoContext({ courseStatus: showcaseStatus(trolleys) })}
-    club={site}
-    base=""
-  />
+/** Green fees: one rate changes, and a note says it went everywhere it shows. */
+const GreenFees = () => (
+  <>
+    <div className="mk-li-panel">
+      <header className="mk-li-bar">
+        <span className="mk-li-title">Green fees</span>
+        <span className="mk-li-pill is-quiet">Winter 2026/27</span>
+      </header>
+      <table className="mk-li-table">
+        <thead>
+          <tr>
+            <th />
+            <th>Mon–Thu</th>
+            <th>Fri–Sun &amp; BH</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>18 holes</th>
+            <td className="is-focus">
+              <span className="mk-li-swap is-number">
+                <span>£60</span>
+                <span>£55</span>
+              </span>
+            </td>
+            <td>£70</td>
+          </tr>
+          <tr>
+            <th>Twilight</th>
+            <td>£35</td>
+            <td>£40</td>
+          </tr>
+          <tr>
+            <th>Junior</th>
+            <td>£20</td>
+            <td>£25</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p className="mk-li-toast is-late">
+      <Dot />
+      Saved · every page that shows it is updated
+    </p>
+  </>
 )
 
-/** The club's real Events block (Agenda style): its Event cards as rows, with date and place. */
-const events = (
-  <EventsAgenda
-    eyebrow="What’s on"
-    heading="Competitions and socials"
-    intro="Fixtures in date order, from the club's events."
-    allHref="#"
-    events={SHOWCASE_EVENTS}
-    base=""
-  />
-)
-
-/** The club's real Rate table block, one weekday rate changing. */
-const rates = (weekday: string) => (
-  <RateTable
-    block={showcaseRates(weekday)}
-    ctx={demoContext()}
-    club={site}
-    base=""
-    pageUpdatedAt={null}
-  />
-)
-
-/** The club's real header search, empty at first, then answering a typed question. */
-const search = (
-  <DemoSearch
-    base=""
-    clubSlug={site.slug}
-    clubName={club.name}
-    shortcuts={SEARCH_SHORTCUTS}
-    contact={SEARCH_CONTACT}
-    phone={null}
-    demo={{ query: SEARCH_QUERY, quick: SEARCH_QUICK, results: SEARCH_RESULTS }}
-  />
-)
-
-/** How wide each real component is laid out before it is shrunk into its card. */
-const VISUALS: Record<Feature, { width: number; node: ReactNode }> = {
-  courseStatus: {
-    width: 900,
-    node: <Change before={courseStatus('allowed')} after={courseStatus('paths')} />,
-  },
-  events: { width: 1000, node: events },
-  search: { width: 960, node: search },
-  greenFees: { width: 900, node: <Change before={rates('£60')} after={rates('£55')} /> },
+const VISUALS: Record<Feature, () => ReactNode> = {
+  courseStatus: CourseStatus,
+  events: Events,
+  search: SearchIllustration,
+  greenFees: GreenFees,
 }
 
 /**
- * Feature showcase (Dan, 26 Oct, after Linear's AI page; reworked 27 Oct): up to four everyday
- * features in a 2 × 2 grid. Each card shows the club site's own component, not a lookalike: the
- * real Course status, Event cards, Rate table and header search, in the demo club's colours,
- * with one small change happening. The pictures are inert and hidden from screen readers: each
- * card's title and text carry the meaning. While the grid is on screen the rest of the page
- * fades back (Spotlight).
+ * Feature showcase (Dan, 26 Oct, after Linear's AI page; restyled 28 Oct after looking at it
+ * closely): up to four everyday features in a hairline grid. Each cell is a simplified, dark
+ * picture of the club site's feature, cropped and faded into the page, with one thing in focus
+ * and one small change on a loop; the title and a line of text sit underneath. The words and
+ * fields in each picture are the ones the club site has. The pictures are hidden from screen
+ * readers: the cell's title and text carry the meaning. While the grid is mid-screen the rest of
+ * the page fades back (Spotlight).
  */
-export const FeatureShowcase = ({ block }: { block: MarketingFeatureShowcaseBlock }) => {
-  const theme = {
-    ...brandCSSVariables(club.brand),
-    ...fontSetVariables(club.fontSet),
-  } as CSSProperties
-  return (
-    <Spotlight>
-      <ul className="mk-showcase" data-count={block.items.length}>
-        {block.items.map((item, i) => {
-          const visual = VISUALS[item.feature]
-          return (
-            <li key={item.id ?? i} className="mk-showcase-card">
-              <div className="mk-showcase-stage" aria-hidden="true">
-                <div className={`club-theme mk-sc mk-sc--${item.feature}`} style={theme} inert>
-                  <StageFit width={visual.width}>{visual.node}</StageFit>
-                </div>
+export const FeatureShowcase = ({ block }: { block: MarketingFeatureShowcaseBlock }) => (
+  <Spotlight>
+    <ul className="mk-showcase" data-count={block.items.length}>
+      {block.items.map((item, i) => {
+        const Visual = VISUALS[item.feature]
+        return (
+          <li key={item.id ?? i} className="mk-showcase-card">
+            <div className="mk-showcase-stage" aria-hidden="true">
+              <div className={`mk-li mk-li--${item.feature}`}>
+                <Visual />
               </div>
-              <div className="mk-showcase-text">
-                <h3 className="mk-detail-title">{item.title}</h3>
-                <p className="mk-detail-body">{item.body}</p>
-              </div>
-            </li>
-          )
-        })}
-      </ul>
-    </Spotlight>
-  )
-}
+            </div>
+            <div className="mk-showcase-text">
+              <h3 className="mk-detail-title">{item.title}</h3>
+              <p className="mk-detail-body">{item.body}</p>
+            </div>
+          </li>
+        )
+      })}
+    </ul>
+  </Spotlight>
+)
