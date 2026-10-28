@@ -6,7 +6,7 @@ How we build a new club's site from their current website, so they see a finishe
 
 ## What you get
 
-- The club built on your own computer: pages, menu, footer, branding, courses, people, documents, news, events and course status
+- The club built on your own computer, then on staging so it's in the Payload admin: pages, menu, footer, branding, courses, people, documents, news, events and course status
 - `REVIEW.md`: what was found, where it went, conflicts in their own content, and gaps
 - `SUGGESTIONS.md`: a list for the club of what to add next and what was improved
 
@@ -85,6 +85,23 @@ Things the first run caught:
 - Price tables with no button fall back to "Book a tee time"
 - Hole guides with no hole photos: use the carousel style, not the guide style
 
-### 6. Suggestions for the club
+### 6. Put it on staging (so it's in the Payload admin)
+
+Every imported club goes on staging once Dan has reviewed it locally, so it appears in the admin's club list. Staging is private (behind the Vercel login). Still, don't show a prospective club's site to anyone else until the club agrees.
+
+Dan runs this in his own terminal, because it needs staging's settings:
+
+```bash
+corepack pnpm import-club /Users/testuser/Golf/golf-platform/club-imports/<club>
+```
+
+1. **Database:** paste staging's `DATABASE_URL` (Vercel → golf-platform → Settings → Environment Variables, staging), then type the confirmation word it shows.
+2. **Photo storage:** it asks for `MEDIA_S3_ENDPOINT`, `MEDIA_S3_BUCKET`, `MEDIA_PUBLIC_URL`, `MEDIA_S3_ACCESS_KEY_ID` and `MEDIA_S3_SECRET_ACCESS_KEY` from the same staging list.
+
+Every answer is hidden and only kept for that run. If Vercel won't show a value (it's marked "Sensitive"), get the database address from Neon (staging branch → Connect), and make a new R2 API token for the staging bucket in Cloudflare.
+
+The club then shows in the admin's club list, and at `/preview/<club>` on staging within 5 minutes. Never run this against production without Dan's explicit approval.
+
+### 7. Suggestions for the club
 
 Write `SUGGESTIONS.md`: what to fix or confirm first, what to add next (features they're not using yet), and what the new site already improves.
