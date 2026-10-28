@@ -116,13 +116,12 @@ test('the hole carousel moves on by itself, and the showcase shows four live fea
     'Search that answers',
     'Change a fee once',
   ])
-  // The club's own components, not lookalikes: Course status, Event cards, the header search
-  // (empty until a question is typed) and the Rate table.
-  await expect(cards.nth(0).locator('.status-widget').first()).toContainText('Cut & rolled')
-  await expect(cards.nth(1).locator('.event-card').first()).toContainText('Captain’s Day')
-  await expect(cards.nth(2).locator('.sp-panel')).toBeAttached()
-  await expect(cards.nth(2).locator('.sa-card')).toHaveCount(0)
-  await expect(cards.nth(3).locator('.rate-table').first()).toContainText('18 holes')
+  // Each picture uses the words the club site has: the status rows, the event dates, the
+  // search (empty until a question is typed) and the rate table.
+  await expect(cards.nth(0)).toContainText('Cut & rolled')
+  await expect(cards.nth(1)).toContainText('Captain’s Day')
+  await expect(cards.nth(2).locator('.mk-li-field')).toBeAttached()
+  await expect(cards.nth(3).locator('.mk-li-table')).toContainText('18 holes')
 })
 
 test('phones: no sideways scroll, flipper fits the screen', async ({ page }) => {

@@ -33,6 +33,12 @@ export type BallLook = {
   top: number
   /** Top edge of the ball as a share of the screen height, on phones. */
   topMobile: number
+  /** Gap between the logo or message and the top of the ball, in pixels. */
+  markGap: number
+  /** Height of the logo (and so its overall size), in pixels, on wide screens. */
+  logoHeight: number
+  /** Height of the logo, in pixels, on phones. */
+  logoHeightMobile: number
   /** Tilt of the spin axis, in degrees. */
   tilt: number
   /** Idle spin, in degrees a second. */
@@ -60,6 +66,9 @@ export const DEFAULT_LOOK: BallLook = {
   sizeMobile: 0.93,
   top: 0.46,
   topMobile: 0.57,
+  markGap: 32,
+  logoHeight: 56,
+  logoHeightMobile: 44,
   tilt: 0,
   idleSpeed: 26,
   revealSpeedUp: 7,
@@ -111,6 +120,23 @@ export const LOOK_CONTROLS: Control[] = [
     min: 0.1,
     max: 0.8,
     step: 0.01,
+    group: 'Layout',
+  },
+  { key: 'markGap', label: 'Logo gap above ball (px)', min: 0, max: 160, step: 1, group: 'Layout' },
+  {
+    key: 'logoHeight',
+    label: 'Logo size (desktop, px)',
+    min: 20,
+    max: 200,
+    step: 1,
+    group: 'Layout',
+  },
+  {
+    key: 'logoHeightMobile',
+    label: 'Logo size (phone, px)',
+    min: 20,
+    max: 140,
+    step: 1,
     group: 'Layout',
   },
   { key: 'tilt', label: 'Axis tilt', min: 0, max: 30, step: 1, group: 'Motion' },
