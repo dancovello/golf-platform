@@ -9,8 +9,6 @@ import {
   WEBSITE_FORM_EMAILS,
 } from '@/security/rateLimit'
 
-import { formatDueDate } from './workingDays'
-
 /** Keeps typed text out of email headers: one line, no angle brackets or quotes. */
 const headerSafe = (value: string, max = 80) =>
   value
@@ -26,7 +24,7 @@ export type RequestEmailResult = {
 
 /**
  * After a homepage request is saved: emails it to the company inbox (Company website →
- * Settings → Requests), then sends the club a plain confirmation with the promised date.
+ * Settings → Requests), then sends the club a plain confirmation (no date promised).
  * Plain text only, so nothing typed can become a link or markup. The confirmation leaves out
  * everything the visitor typed (the club name and the website), because it goes to an address
  * nobody has checked: otherwise the form could be used to send strangers a link. Each
@@ -60,7 +58,6 @@ export const sendHomepageRequestEmails = async (id: string): Promise<RequestEmai
   })
   const inbox = settings.requests?.inbox?.trim() || null
   const from = `${headerSafe(BRAND.name, 60)} <${payload.email.defaultFromAddress}>`
-  const due = formatDueDate(new Date(request.dueBy))
   const club = headerSafe(request.clubName)
   const result: RequestEmailResult = { alert: 'no-inbox', confirmation: 'failed' }
 
@@ -73,16 +70,15 @@ export const sendHomepageRequestEmails = async (id: string): Promise<RequestEmai
         from,
         to: inbox,
         replyTo: request.email,
-        subject: `Homepage request: ${club} (due ${due})`,
+        subject: `Demo request: ${club}`,
         text: [
-          'A club has asked for its free homepage (Switching page).',
+          'A club has asked for a demo (Switching page).',
           '',
           `Club: ${request.clubName}`,
           `Current website: ${request.website}`,
           `Email: ${request.email}`,
-          `Promised by: ${due}`,
           '',
-          'Reply to this email to answer them directly. The request is also in the admin under Company website → Homepage requests.',
+          'Reply to this email to answer them directly. The request is also in the admin under Company website → Demo requests.',
         ].join('\n'),
       })
       result.alert = 'sent'
@@ -113,13 +109,13 @@ export const sendHomepageRequestEmails = async (id: string): Promise<RequestEmai
       from,
       to: request.email,
       ...(inbox ? { replyTo: inbox } : {}),
-      subject: 'Your free homepage is on its way',
+      subject: 'Your demo request',
       text: [
         'Hello,',
         '',
-        `Thanks for asking us to rebuild your club’s homepage. We’ll email it to you by ${due}.`,
+        'Thanks for asking for a demo. We’ll be in touch by email to arrange a time.',
         '',
-        'We build it from your current site. Nothing on your live site changes, and there’s nothing else you need to do.',
+        'In the demo we’ll show you your own club’s homepage on our platform, built from your current site. Nothing on your live site changes, and there’s nothing else you need to do.',
         '',
         'If you didn’t ask for this, you can ignore this email.',
         '',

@@ -26,6 +26,7 @@
     "reset-two-factor": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/reset-two-factor.ts",
     "clean-photo-details": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/clean-photo-details.ts",
     "create-canary-clubs": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/create-canary-clubs.ts",
+    "update-marketing-wording": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/update-marketing-wording.ts",
     "measure-speed": "node scripts/measure-speed.ts"
   },
   "dependencies": {

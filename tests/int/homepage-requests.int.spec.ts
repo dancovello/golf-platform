@@ -76,19 +76,17 @@ beforeAll(async () => {
 beforeEach(clear)
 
 describe('asking for a demo', () => {
-  it('saves the request and promises it two UK working days later', async () => {
+  it('saves the request and promises no date', async () => {
     const result = await send(form())
-    expect(result.sent).toEqual({
-      email: 'secretary@ashgrove.example',
-      dueBy: 'Thursday 22 October',
-    })
+    expect(result.sent).toEqual({ email: 'secretary@ashgrove.example' })
     expect(result.values.clubName).toBe('')
     const [request] = await saved()
     expect(request.clubName).toBe('Ashgrove Park Golf Club')
     // The address is tidied: "https://" added, as the form accepts it without.
     expect(request.website).toBe('https://ashgroveparkgc.co.uk')
     expect(request.status).toBe('new')
-    expect(request.dueBy.slice(0, 10)).toBe('2026-10-22')
+    // The old two-working-days date is no longer promised or saved.
+    expect(request.dueBy).toBeFalsy()
   })
 
   it('sends mistakes back with the typed values kept', async () => {
@@ -304,13 +302,14 @@ describe('emails', () => {
     const [alert, confirmation] = sendEmail.mock.calls.map((c) => c[0] as Record<string, string>)
     expect(alert.to).toBe('requests@company.example')
     expect(alert.replyTo).toBe('secretary@ashgrove.example')
-    expect(alert.subject).toBe(
-      'Homepage request: Ashgrove Park Golf Club (due Thursday 22 October)',
-    )
+    expect(alert.subject).toBe('Demo request: Ashgrove Park Golf Club')
+    expect(alert.text).not.toMatch(/promised|free|due/i)
     expect(alert.text).toContain('Current website: https://ashgroveparkgc.co.uk')
     expect(confirmation.to).toBe('secretary@ashgrove.example')
     expect(confirmation.replyTo).toBe('requests@company.example')
-    expect(confirmation.text).toContain('by Thursday 22 October')
+    expect(confirmation.subject).toBe('Your demo request')
+    expect(confirmation.text).toContain('arrange a time')
+    expect(confirmation.text).not.toMatch(/free|by (Monday|Tuesday|Wednesday|Thursday|Friday)/i)
     expect(confirmation.text).not.toContain('ashgroveparkgc')
     // Nothing the visitor typed reaches an address nobody has checked.
     expect(confirmation.text).not.toContain('Ashgrove')

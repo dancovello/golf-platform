@@ -31,7 +31,9 @@ test('the page has every Figma section, in order, with one H1', async ({ page })
   await expect(page.locator('main')).not.toContainText(/redirect/i)
 })
 
-test('asking for a demo: mistakes are explained, then it promises a date', async ({ page }) => {
+test('asking for a demo: mistakes are explained, then it says we will be in touch', async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto(site())
   const form = page.locator('.mk-request')
@@ -51,8 +53,10 @@ test('asking for a demo: mistakes are explained, then it promises a date', async
   const sent = form.getByRole('status')
   await expect(sent.getByRole('heading', { name: 'Thanks.' })).toBeFocused()
   await expect(sent).toContainText(
-    /We’ll email your homepage on the new site to secretary@ashgrove\.example by (Monday|Tuesday|Wednesday|Thursday|Friday) \d{1,2} [A-Z][a-z]+\./,
+    'We’ll be in touch. We’ll email secretary@ashgrove.example to arrange your demo.',
   )
+  // No date is promised.
+  await expect(sent).not.toContainText(/by (Monday|Tuesday|Wednesday|Thursday|Friday)/)
 })
 
 test('desktop matches Figma: copy beside a 520px form', async ({ page }) => {

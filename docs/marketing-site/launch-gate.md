@@ -14,14 +14,15 @@ Prepared 28 Oct 2026 for the walkthrough with Dan (plan phase 9). The eleven ite
 | 8 | Privacy policy and cookie notice published | ❌ | They are drafts with placeholder wording until you supply it (N4). They cannot be published as they are |
 | 9 | Forms deliver to Dan end to end | ⚠️ | Requests are saved in the admin. Nothing is emailed to you until you set the requests address and add the company domain to Turnstile (N12). Needs a real send test on staging once those are set |
 | 10 | Pricing shown or hidden per Q11, with the setup fee stated wherever a price appears | ⚠️ | Setup fee is now stated beside every price (28 Oct). Q11 itself (show prices or quote per club) is still undecided and is not in the open-questions list |
-| 11 | No "free homepage", "no setup fee" or fixed switching timeline anywhere | ⚠️ | Pages, buttons, nav and block defaults fixed on 28 Oct (PR #206) and guarded by `tests/unit/marketing-wording.spec.ts`. **Still open: the request form's success message and the two emails (Part B).** Pages already saved in a database keep their old text until edited (see below) |
+| 11 | No "free homepage", "no setup fee" or fixed switching timeline anywhere | ⚠️ | Pages, buttons, nav, block defaults, the request form's message and both emails fixed on 28 Oct (PRs #206 and Part B), guarded by `tests/unit/marketing-wording.spec.ts`. **Still open: pages already saved in a database keep their old text until edited** (see below) |
 
 ## Item 11 in detail
 
 **Fixed on 28 Oct (PR #206, Part A of `wording-proposal-free-homepage.md`):** the second button, the nav button, every "no setup fee", "free" and "four weeks" line in the starter pages, the block defaults, the Week 1 to 4 cards, and the admin labels. A unit test fails if any of that wording returns.
 
+**Also fixed (Part B, 28 Oct):** the form's success message and the two emails no longer promise a date or call anything free.
+
 **Not yet fixed:**
-- **The request form's success message and emails** (Part B): they still promise the example homepage "by {date}" and say "Your free homepage is on its way".
 - **Pages already saved in a database.** The starter pages only apply when a page is first added; existing pages are left alone. Staging (and production, once released) keep their old text until each page is edited in the admin, or a one-off update script is run. Running that against staging changes staging data, so it needs your go-ahead.
 
 ## Questions for Dan (all the ❓ rows, grouped)
