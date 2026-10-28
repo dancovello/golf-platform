@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { cubicBezier, easeEnter } from '@/marketing/intro/easing'
 import { DEFAULT_LOOK, LOOK_CONTROLS } from '@/marketing/intro/look'
+import { DEFAULT_MARK, INTRO_MARK_KINDS } from '@/marketing/intro/mark'
 import { CONTENT_START, revealFrame } from '@/marketing/intro/reveal'
 
 describe('golf ball intro easing', () => {
@@ -55,5 +56,15 @@ describe('golf ball intro reveal timing', () => {
   it('brings the page in only from 60% of the way through', () => {
     expect(revealFrame(CONTENT_START, 7).content).toBe(0)
     expect(revealFrame(0.8, 7).content).toBeGreaterThan(0)
+  })
+})
+
+describe('golf ball intro logo and message', () => {
+  it('uses one of the choices the tuning page offers', () => {
+    expect(INTRO_MARK_KINDS.map((choice) => choice.kind)).toContain(DEFAULT_MARK.kind)
+  })
+
+  it('has a message ready for when Message is chosen', () => {
+    expect(DEFAULT_MARK.message.trim().length).toBeGreaterThan(0)
   })
 })
