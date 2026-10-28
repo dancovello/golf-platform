@@ -6,7 +6,10 @@
 import localFont from 'next/font/local'
 
 export const silkaDisplay = localFont({
-  src: [{ path: './font-files/silka-regular.woff2', weight: '400', style: 'normal' }],
+  src: [
+    { path: './font-files/silka-regular.woff2', weight: '400', style: 'normal' },
+    { path: './font-files/silka-medium.woff2', weight: '500', style: 'normal' },
+  ],
   variable: '--mk-font-display',
   display: 'swap',
   fallback: ['system-ui', 'sans-serif'],

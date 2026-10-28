@@ -1,0 +1,38 @@
+/*
+ * The block flipper's frames: a demo club's header above one hero block, filling the frame.
+ * Only the demo needs this. A real club's hero is followed by more blocks, so on a phone the
+ * Resort hero's photo keeps its 4:3 shape there; in the demo it grows to fill the screen.
+ */
+.frame {
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+}
+.frame > main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.frame .hero-full {
+  flex: 1;
+}
+
+@media (max-width: 1023px) {
+  .frame .hero-resort {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+  }
+  .frame .hero-resort-figure {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding-bottom: var(--space-24);
+  }
+  .frame .hero-resort-frame {
+    flex: 1;
+    min-height: 240px;
+    aspect-ratio: auto;
+  }
+}

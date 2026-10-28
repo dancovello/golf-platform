@@ -1,17 +1,18 @@
-import { sceneSVG, type SceneOptions } from '@/demo/sceneSVG'
 import type { SiteMedia } from '@/site/blocks/media'
 import type { BlockContext, ResolvedLink, SiteCourseStatus } from '@/site/blocks/resolve'
-import type { ClubSite } from '@/site/loadClub'
+import type { ClubSite, HeaderStyle, MenuItem } from '@/site/loadClub'
 import { siteToday } from '@/site/today'
 import { type Brand, DEFAULT_BRAND } from '@/theme/colour'
 import type { FontSetID } from '@/theme/fontSets'
 import type { Page } from '@/payload-types'
 
+import { DEMO_PHOTOS, isDemoPhotoKey } from './photos'
+
 /**
  * The marketing site's three demo clubs (Figma Marketing/Tenant Morph, 176:2177). Fictional,
  * always labelled "Demo club", and never in the database (decision B, 2026-10-21): their content
- * lives here and is drawn by the real club block components. Pictures are drawn in code
- * (src/demo/sceneSVG.ts), not photos.
+ * lives here and is drawn by the real club block components. Pictures are real
+ * golf course photos (./photos.ts).
  */
 export type DemoClubID = 'heritage' | 'coastal' | 'bookingLed'
 
@@ -69,7 +70,7 @@ export const DEMO_CLUBS: DemoClub[] = [
     fontSet: 'heritage',
     hero: hero(
       'heritage',
-      'heath-dawn',
+      'heathland',
       'Demo club  ·  Heathland course',
       'The quiet grandeur of heathland golf',
       'Explore the courses',
@@ -86,7 +87,7 @@ export const DEMO_CLUBS: DemoClub[] = [
     fontSet: 'heritage',
     hero: hero(
       'resort',
-      'links-evening',
+      'links',
       'Demo club  ·  Resort golf',
       'Thirty-six holes, one unhurried escape',
       'Book a tee time',
@@ -103,7 +104,7 @@ export const DEMO_CLUBS: DemoClub[] = [
     fontSet: 'heritage',
     hero: hero(
       'bookingLed',
-      'pine-morning',
+      'lakeside',
       'Demo club  ·  Visitors welcome',
       'Your morning on the Championship course',
       null,
@@ -112,26 +113,19 @@ export const DEMO_CLUBS: DemoClub[] = [
   },
 ]
 
-const SCENES: Record<string, SceneOptions> = {
-  'heath-dawn': { sky: 'dawn', land: 'heath', seed: 2 },
-  'links-evening': { sky: 'evening', land: 'links', seed: 3 },
-  'pine-morning': { sky: 'morning', land: 'pine', seed: 4 },
-  'autumn-noon': { sky: 'noon', land: 'autumn', seed: 6 },
-}
-
-/** A demo picture as SiteMedia: the drawing inline (no file, no request). */
-export const demoPicture = (key: string, width = 2400, height = 1350): SiteMedia | null => {
-  const options = SCENES[key]
-  if (!options) return null
-  const svg = sceneSVG(width, height, options)
+/** A demo picture as SiteMedia: a resized photo, with sizes for srcset. */
+export const demoPicture = (key: string): SiteMedia | null => {
+  if (!isDemoPhotoKey(key)) return null
+  const photo = DEMO_PHOTOS[key]
+  const largest = photo.sizes[photo.sizes.length - 1]
   return {
-    url: `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`,
-    alt: '',
-    mimeType: 'image/svg+xml',
-    width,
-    height,
-    srcSet: null,
-    position: '50% 60%',
+    url: largest.src,
+    alt: photo.alt,
+    mimeType: 'image/webp',
+    width: largest.width,
+    height: largest.height,
+    srcSet: photo.sizes.map((size) => `${size.src} ${size.width}w`).join(', '),
+    position: photo.position,
     shading: { '--photo-shade': '30%' } as SiteMedia['shading'],
   }
 }
@@ -172,8 +166,25 @@ export const demoContext = (overrides: Partial<BlockContext> = {}): BlockContext
   ...overrides,
 })
 
-/** The ClubSite a club block needs, for a demo club: its name, colours, fonts and booking. */
-export const demoClubSite = (club: DemoClub): ClubSite =>
+const demoLink = (label: string): MenuItem => ({
+  label,
+  link: { kind: 'url', href: '#' },
+  overview: null,
+  image: null,
+  children: [],
+  columns: null,
+})
+
+/** A typical club menu, for the header in a demo. Every link goes nowhere. */
+const DEMO_MENU: MenuItem[] = ['The course', 'Visitors', 'Membership', 'News', 'Contact'].map(
+  demoLink,
+)
+
+/**
+ * The ClubSite a club block needs, for a demo club: its name, colours, fonts and booking. With
+ * `headerStyle`, its header too (the block flipper draws the real header above the hero).
+ */
+export const demoClubSite = (club: DemoClub, headerStyle: HeaderStyle = 'classic'): ClubSite =>
   ({
     tenantID: `demo-${club.id}`,
     slug: `demo-${club.id}`,
@@ -184,11 +195,11 @@ export const demoClubSite = (club: DemoClub): ClubSite =>
     logoOnLight: null,
     logoOnDark: null,
     header: {
-      style: 'a',
+      style: headerStyle,
       booking: { label: 'Book a tee time', link: { kind: 'url', href: '#' } },
-      phone: null,
-      dropdown: 'simple',
-      menu: [],
+      phone: '01234 567890',
+      dropdown: 'panel',
+      menu: DEMO_MENU,
     },
     location: { latitude: null, longitude: null, mapLabel: null, what3words: null },
     announcement: null,

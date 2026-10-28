@@ -3,7 +3,7 @@ import type { SiteCourse } from '@/site/blocks/resolve'
 
 import { demoPicture } from './clubs'
 
-const PICTURES = ['heath-dawn', 'pine-morning', 'autumn-noon', 'links-evening']
+const PICTURES = ['heathland', 'lakeside', 'parkland', 'links']
 
 /**
  * The demo club's Championship course, for the course guide demo (Website builder, 197:6841):
@@ -23,7 +23,7 @@ export const demoCourse = (): SiteCourse => ({
     par,
     strokeIndex,
     yards: [white, yellow, red],
-    image: demoPicture(PICTURES[i % PICTURES.length], 1200, 800),
+    image: demoPicture(PICTURES[i % PICTURES.length]),
     tip: HOLE_TIPS[i % HOLE_TIPS.length],
   })),
 })
