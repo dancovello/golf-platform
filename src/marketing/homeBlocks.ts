@@ -61,7 +61,7 @@ const homeHero: Block = {
       validate: maxWords(30),
     },
     button('primary', 'Main button', { label: 'Book a demo', href: '/book-a-demo' }),
-    button('secondary', 'Second button', { label: 'Get your free homepage', href: '/switching' }),
+    button('secondary', 'Second button', { label: 'See how switching works', href: '/switching' }),
     {
       name: 'proofLine',
       label: 'Proof line (small, under the buttons)',

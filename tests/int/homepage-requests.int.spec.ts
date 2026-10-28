@@ -75,7 +75,7 @@ beforeAll(async () => {
 })
 beforeEach(clear)
 
-describe('asking for a free homepage', () => {
+describe('asking for a demo', () => {
   it('saves the request and promises it two UK working days later', async () => {
     const result = await send(form())
     expect(result.sent).toEqual({
