@@ -4884,6 +4884,7 @@ html[data-mk-spotlight='on'] .mk-section:not(:has(.mk-showcase)) {
 .mk-intro {
   --mk-intro-size: var(--mk-intro-size-desktop, 0.53);
   --mk-intro-top: var(--mk-intro-top-desktop, 0.29);
+  --mk-intro-logo-h: var(--mk-intro-logo-h-desktop, 56px);
 }
 .mk-intro-lab {
   position: fixed;
@@ -4900,6 +4901,7 @@ html[data-mk-spotlight='on'] .mk-section:not(:has(.mk-showcase)) {
   .mk-intro {
     --mk-intro-size: var(--mk-intro-size-mobile, 0.92);
     --mk-intro-top: var(--mk-intro-top-mobile, 0.52);
+    --mk-intro-logo-h: var(--mk-intro-logo-h-mobile, 44px);
   }
 }
 .mk-intro-content {
@@ -5132,4 +5134,66 @@ html[data-intro='reveal'] .mk-footer {
   transition:
     opacity var(--mk-intro-content-ms, 400ms) var(--mk-ease-enter),
     transform var(--mk-intro-content-ms, 400ms) var(--mk-ease-enter);
+}
+
+/* ---- Golf ball intro: the logo or message above the ball (IntroMark.tsx) ----
+   Sits in the ball's layer, so it appears and fades out with the ball. Its bottom edge is
+   --mk-intro-gap above the ball's top edge (the same --mk-intro-top the ball is placed by). */
+
+.mk-intro-mark {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc((1 - var(--mk-intro-top)) * 100% + var(--mk-intro-gap, 32px));
+  display: flex;
+  justify-content: center;
+  padding: 0 var(--mk-gutter);
+  color: var(--mk-text-primary);
+  text-align: center;
+  pointer-events: none;
+}
+.mk-intro-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--mk-intro-logo-h) * 0.25);
+  font-size: calc(var(--mk-intro-logo-h) * 0.7);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.mk-intro-logo img {
+  display: block;
+  width: var(--mk-intro-logo-h);
+  height: var(--mk-intro-logo-h);
+}
+.mk-intro-message {
+  max-width: 18ch;
+  color: var(--mk-text-primary);
+  text-wrap: balance;
+}
+.mk-intro-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin-bottom: 8px;
+}
+.mk-intro-choice {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+.mk-intro-choice input {
+  accent-color: var(--mk-accent-dawn);
+}
+.mk-intro-textarea {
+  grid-column: 1 / -1;
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--mk-border-strong);
+  border-radius: var(--mk-radius-control);
+  background: var(--mk-surface-elevated);
+  color: var(--mk-text-primary);
+  font: inherit;
+  resize: vertical;
 }
