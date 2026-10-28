@@ -9,7 +9,7 @@ import { Nav } from '@/marketing/site/chrome/Nav'
 import { introGateScript } from '@/marketing/intro/gateScript'
 import { InlineScript } from '@/site/components/InlineScript'
 
-import { hankenGrotesk, newsreader } from './fonts'
+import { silka, silkaDisplay } from './fonts'
 import './marketing.css'
 
 /**
@@ -33,7 +33,7 @@ export default async function MarketingLayout({ children }: { children: React.Re
     // suppressHydrationWarning: the intro script sets data-intro on <html> before React starts.
     <html
       lang="en-GB"
-      className={`${newsreader.variable} ${hankenGrotesk.variable}`}
+      className={`${silkaDisplay.variable} ${silka.variable}`}
       suppressHydrationWarning
     >
       {isHome ? (
