@@ -1313,6 +1313,19 @@ button.mk-button {
   color: var(--mk-text-primary);
   cursor: pointer;
 }
+/* Very small screens (a 320px window, or 400% zoom): Silka is wider than the old font, so the
+   bar gives back 12px of padding to keep the logo, the demo button and the menu on one line. */
+@media (max-width: 359px) {
+  .mk-nav-bar {
+    padding: 0 12px 0 16px;
+  }
+  .mk-nav-actions {
+    gap: 4px;
+  }
+  .mk-nav-actions .mk-button {
+    padding-inline: 12px;
+  }
+}
 @media (min-width: 1024px) {
   .mk-nav {
     border-bottom-color: transparent;
@@ -5180,9 +5193,19 @@ html[data-mk-spotlight='on'] .mk-section:not(:has(.mk-showcase)) {
   .mk-calc-next-later {
     display: inline;
   }
+  /* Silka wraps the calculator's text onto more lines than the old font did, so the padding is a
+     little tighter and the footnote a size smaller: it has to fit one phone screen
+     (tests/e2e/marketing-fit.spec.ts). */
   .mk .mk-calc {
     gap: 14px;
-    padding: 20px;
+    padding: 16px;
+  }
+  .mk .mk-calc-top {
+    padding-bottom: 14px;
+  }
+  .mk .mk-calc-footnote {
+    font-size: 13px;
+    line-height: 1.45;
   }
   .mk .mk-calc-build > .mk-calc-row,
   .mk .mk-calc-next {
