@@ -31,7 +31,7 @@ test('marketing pages use the marketing colours and fonts', async ({ page }) => 
     const style = await bodyStyle(page)
     expect(style.background, path).toBe('rgb(9, 26, 19)')
     expect(style.canvas, path).toBe('#091a13')
-    expect(style.headingFont.toLowerCase(), path).toContain('newsreader')
+    expect(style.headingFont.toLowerCase(), path).toContain('silka')
   }
 })
 
@@ -39,7 +39,7 @@ test("the marketing look never reaches a club's site", async ({ page }) => {
   await page.goto('http://club-a.localhost:3100/')
   const style = await bodyStyle(page)
   expect(style.canvas).toBe('')
-  expect(style.headingFont.toLowerCase()).not.toContain('newsreader')
+  expect(style.headingFont.toLowerCase()).not.toContain('silka')
   expect(await page.locator('body.mk').count()).toBe(0)
 })
 
