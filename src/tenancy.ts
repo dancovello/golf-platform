@@ -24,7 +24,13 @@ export const clubOwnedCollections = {
 } as const
 
 /** Platform-level collections, scoped by their own access rules instead of the plugin. */
-export const platformCollections = ['users', 'tenants'] as const
+export const platformCollections = [
+  'users',
+  'tenants',
+  'marketing-pages',
+  'marketing-media',
+  'homepage-requests',
+] as const
 
 export type ClubOwnedSlug = keyof typeof clubOwnedCollections
 

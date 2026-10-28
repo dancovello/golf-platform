@@ -210,7 +210,7 @@ Dan approved site search from the Figma page "Search (v2)" (2026-10-19), with th
 - **Not a Payload collection, and not the Payload search plugin.** The index is two plain database tables (`search_entries`, `search_state`) that only the website's own server code reads. The admin and the API can't reach them at all, and every query names one club first. No new dependency. The tenant-isolation suite checks club A's searches never return club B's content, and the reverse.
 - **Kept fresh without slowing editors down.** Saving or deleting a page, article, event, team member, document, course or photo adds one to that club's change count, inside the same save. The next search for that club rebuilds its index first (about 0.05 seconds for the demo club), then searches are instant until something changes again.
 - **Postgres full-text search** (English word endings, "golfing" finds "golf"), each word may be the start of a longer one as you type, and `pg_trgm` for spelling mistakes ("twilite" finds "Twilight" in titles) and "Did you mean" (from words in the club's own content). `pg_trgm` is added by the migration; it's a standard extension Neon supports.
-- **Rate limit:** 120 searches a minute per visitor, counted per server instance. A Cloudflare rate-limiting rule in front of the site adds the edge limit doc 04 asks for once clubs are on their own domains (step 4).
+- **Rate limit:** 120 searches a minute per visitor. *Updated 22 Oct: counted in the database shared by every server, with a Vercel Firewall rule as the edge layer (club sites don't go through Cloudflare). See `docs/operations/rate-limits.md`.*
 
 ## 2026-10-19 — Site search (parts 2–4: results page, header panel, answers)
 
@@ -291,3 +291,333 @@ Recorded afterwards from PRs #106, #108, #109 and #112–#116.
 - **The super-admin** sees the same for the club picked in the club selector, plus every club's setup progress.
 - Every query names the club; the editor's page is checked for club B data in the browser tests.
 - **Still to do from the review:** a Club Settings preview (refresh on save), a page-tree view, and previews for News and Events.
+
+## 2026-10-21: Club Settings preview (plan part E, second item)
+
+- **Club Settings have the same live preview as pages** (the eye button): the club's home page beside the form, with Phone, Tablet and Desktop sizes. It **reloads each time the settings are saved** (Dan chose refresh-on-save over drafts, 2026-10-20). Settings have no drafts, so the preview shows what visitors see straight after saving.
+- Uses the same preview address and rules as pages (`/preview/<club>?live=1` on the admin's own address), so on production it works only for that club's signed-in editors and the super-admin.
+
+## 2026-10-21: Page tree (plan part E, third item)
+
+- **Above the Pages list, the club's pages as a tree** (`src/admin/PageTree.tsx`): each page under its parent page, in the order drop-downs use (home first, then position number, then A–Z), with its address and status: Published; Published, with unpublished changes; or Draft (visitors can't see it). Pages left out of drop-downs are marked. It can be folded away.
+- **Read-only.** Pages are moved by opening them and changing "Parent page" (drag-and-drop ordering in Payload is still experimental).
+- Built only from the club's own pages; a parent that isn't one of them puts the page at the top level. The super-admin sees it for the club picked in the club selector.
+
+## 2026-10-21: News and Events previews (plan part E, last item)
+
+- **News and Events get the live preview** (the eye button), reloaded on each save. News and events have a Draft/Published status rather than page-style drafts, so there's nothing to autosave.
+- **News:** the article as visitors will see it, at its own address. **Events:** events have no page of their own, so the preview is the Events page with the event being edited shown first.
+- **Drafts show only to that club's signed-in editors and the super-admin** inside the preview (`?live=1`, the same rule as pages). Visitors adding `?live=1` still see only published articles and upcoming published events. The event to show comes from the address only if it's a proper record ID, and only from the club's own events.
+- The preview needs the article's address or the event's ID, so it appears once the item has been saved once.
+
+## 2026-10-21: Content security policy
+
+Approved by Dan, 2026-10-21 (doc 04 §8; "not yet" in the 16 October security headers entry).
+
+- **Every page view gets a fresh one-time code** (`src/proxy.ts`, `src/security/csp.ts`). Only scripts carrying it run, plus the scripts those load (`'strict-dynamic'`): Cloudflare Turnstile, and Google Analytics after cookie consent. Next.js stamps the code on its own scripts; the header-fit script reads it (`src/site/components/InlineScript.tsx`). A code or policy sent by a visitor is discarded.
+- **Allowed:** pictures and video from the site and the club photo domain; frames for OpenStreetMap, Turnstile and the admin's live preview; connections to the site, Turnstile and Google Analytics; fonts from the site only; forms only to the site; no plugins. The admin may also upload straight to storage. **Inline styles stay allowed**: club colours are set on elements, and a code can't cover style attributes.
+- **Club sites (own domains and `/preview`): enforced. The admin: report-only** until a clean week of reports, then enforced by setting `ADMIN_ENFORCED` in `src/security/csp.ts` (review due 2026-10-28).
+- **Reports** of anything blocked go to `/csp-report`: the server log, and Sentry once set up. Only the page path and the blocked item's origin are kept, at most 60 a minute per server instance.
+- **Vercel's toolbar** is allowed on staging and previews only, never on production (Dan).
+- **Gravatar turned off in the admin** (`admin.avatar: 'default'`). The policy found that Payload loaded each account's picture from Gravatar, sending a code made from the editor's email address to a third party on every admin page.
+- **Tests:** `tests/e2e/security-policy.spec.ts` (every club page type, search, map, analytics after consent, the main admin screens, codes unique per view, forged codes ignored) and `tests/unit/csp.spec.ts`. Turnstile isn't in the automated tests (no keys there); it was checked by hand with Cloudflare's test keys.
+
+## 2026-10-21: Marketing site (plan approved)
+
+Approved by Dan, 2026-10-21. Plan: `docs/plans/marketing-site-plan.md`. Brief: `docs/marketing-site/HANDOFF.md`.
+
+- **Runs inside the platform** (hand-off Q1): the same Next.js and Payload app, in its own route group, edited in Payload by the super-admin only. Same CI gates as everything else.
+- **Live demos use sample content written in code**, fed into the real club block components with each demo club's colours and fonts. No demo clubs in the production database, and nothing a visitor can change. The "edit and live" demo changes the block in the visitor's browser only.
+- **Addresses:** the marketing site on the company domain (and `www.`); the admin on its own address (`app.` on the company domain), so the public pages and editors' logins never share an address. On staging, the marketing site is the staging address's home page, with the admin at `/admin` as now.
+- **One home for the company name**, email and domain: a single file in the code, used by the marketing site, the privacy policy and the agreement (today's "Clubhouse" placeholder moves there). Prices and other stated values live in Payload (`marketingSettings`).
+- **Homepage and demo requests are kept for 12 months** after the last contact, then deleted by the nightly clean-up job.
+- **The committee summary (A4 PDF) is removed.** Not built.
+- **Bookings stays out of scope for v1:** the marketing Bookings page is an in-page preview with made-up times, labelled Coming next.
+
+## 2026-10-21: Marketing site addresses (plan phase 1.1)
+
+- **`MARKETING_HOSTS`** lists the company website's addresses, main one first (e.g. `brandname.golf,www.brandname.golf`). The others forward to the main one. Not a secret. Empty until the company domain exists.
+- **On the company domain:** only the marketing site. The admin, API, previews, `/health` and club pages don't exist there (404), and a club can never be given one of these addresses.
+- **On the platform's own address** (the admin's address, staging, previews, local): the admin, API, previews and platform services stay as they are; every other path is the marketing site. Once `MARKETING_HOSTS` is set, those paths forward to the company domain, so the admin's address never shows public pages. Until then (staging, previews) they're shown in place.
+- **A club's domain never reaches the marketing site.** Its every path is that club's.
+- **Search engines:** the marketing site may be indexed only on the company domain on production (`X-Robots-Tag: noindex` everywhere else, plus a "stay away" `robots.txt`).
+- **Pages are rendered for each visit**, like club sites, because the one-time script code needs it (the hand-off said "static by default"). Content can still be cached behind the page.
+- **Content security policy:** the marketing site gets its own, enforced, without the club-only extras (map, Google Analytics, Turnstile). Each comes back only when a marketing page needs it.
+- **The company name, email and domain live in `src/brand.ts`.** The club privacy policy now names the provider from there ("Brandname" until the name is chosen; it said "Clubhouse"), so its "last updated" date moved to 21 October.
+
+## 2026-10-21: Marketing site content (plan phase 1.2)
+
+- **Three new things in Payload, under "Company website" in the sidebar, for the super-admin only:** Pages (`marketing-pages`), Photos (`marketing-media`) and Settings (`marketing-settings`). Club editors can't read, change or see them, in the admin or the API. They're platform-level in `src/tenancy.ts`, with no club.
+- **Pages** have drafts (saved as you type) and a flat address each (`home` is `/`). Only published versions reach visitors (`src/marketing/content.ts`).
+- **Sections** are the five marketing blocks: Section header, Text, Photo, Feature cards and Call to action band. Word limits from the Figma block rules are enforced: headlines 8 words, subheads 30. No size, font or colour choices. The band's buttons are always "Book a demo" and "Get your free homepage". Feature cards say "Coming next" for anything not live.
+- **Photos need a description** (unlike club photos). They're stored under `marketing-media/` in the same bucket. The nightly clean-up only looks in the club folders, so it never removes these.
+- **Settings** hold the stated values: price (£149), VAT wording ("+ VAT"), minimum term (12 months), notice (90 days), optional second-course price, optional restore window, and the Founder Card. An empty optional value means its claim isn't shown.
+- **Every settings screen must define its own access**, now checked by `tests/unit/access-guard.spec.ts` (the first global). Document locking stays off for it.
+- **Moved to phase 5:** the homepage and demo request collections, so their fields match the Figma forms when those are built.
+- **Live preview** for marketing pages comes in phase 2, with the styled blocks.
+
+## 2026-10-21: Marketing site look (plan phase 1.3), built from Figma
+
+Built from the Figma page "Marketing site" (170:28407): the variables, the CMS blocks section (210:7925), the block rules (212:8319), the interaction rules (220:8582) and the mobile frames (273:8954, 274:9185, 297:9754). Checked side by side with Figma at 1440 and 390 wide, and the key measurements are pinned in `tests/e2e/marketing-look.spec.ts`.
+
+- **Tokens:** every Figma marketing variable as `--mk-*`, including `accent-haze` (primary button hover) and `accent-peach` (Beta badge). Scoped to the marketing `<body class="mk">`; a test proves none reach a club site.
+- **Type:** the Figma text styles. Figma letter spacing is a percentage of the font size, so a 60px heading is −1.08px. Phones use Mobile Display (44/48) and Mobile Heading (32/36), with body text at 16px.
+- **Fonts:** Newsreader and Hanken Grotesk, self-hosted from Fontsource 5.3.0 (SIL Open Font License).
+- **Layout:** a 1200px container. Desktop sections are 128px apart, with 96px above a CTA band and 64px from header to content. Phones have 20px sides and 64px sections, and a page intro starts 40px down. **Tablet isn't designed**: 32px sides and 96px sections are derived.
+- **Blocks, with their fields from the Figma component descriptions** (second migration, `marketing_blocks_from_figma`, adds columns only):
+  - **Section Header:** eyebrow, title (line breaks kept), body and alignment (left or centre). Page size for the first one, Section size elsewhere.
+  - **CTA Band:** title and body, plus editable buttons that default to "Book a demo" (`/book-a-demo`) and "Get your free homepage" (`/switching`). Links must be a page on the site or a safe web address. Centred on desktop; left-aligned with full-width 44px buttons on phones.
+  - **Media:** Plain or Window frame. Window has the Browser Chrome bar with an editable address. Width comes from the layout (720px, or 480px for portrait), with an optional caption.
+  - **Rich Text:** 40px above H2, 32px above H3, 20px between paragraphs, the Figma bullet, and a dawn-ruled quote.
+  - **Features:** Rows (the default: hairline above, icon beside text, two columns) or Cards (boxed, 24px apart; 2 a row, 3 for 3 or 6, two rows of two for 4, four a row for 8). An icon from the shared set, optional link, and the "Coming next" Availability Badge (text and icon).
+- **Buttons:** Marketing/Button primary and secondary, with hover (haze or hover surface, arrow nudges 3px), press (0.97) and focus (dawn ring) states. The arrow is hidden on phones, as in the mobile frames.
+- **Icons:** the club sites' icons from the same Figma set are reused. Lock, calendar, players, flag and sun are the Figma SVG files, drawn in the current colour.
+- **404 (not designed):** a Section Header and a CTA Band in plain words, as the hand-off says.
+
+## 2026-10-21: Error messages always reach the person
+
+- **Found while building the marketing blocks:** Payload shows an error's message only when the error has a name, and takes the name from the class name. The production build can shorten that to nothing. Unrelated code changes did exactly that, so messages like "Passwords must be at least 12 characters." became "An unknown error occurred."
+- **Fix:** `publicError()` in `src/errors.ts` creates the same error with its name set. All 11 places that made one directly now use it.
+- **Test:** `tests/unit/public-errors.spec.ts` checks the message survives, and fails if any code creates an `APIError` directly again.
+
+## 2026-10-21: Marketing controls (plan phase 2.1)
+
+Built from the Figma "Marketing · Controls" section (219:8340) and its neighbours. Each component's Figma description sets its behaviour.
+
+- **Button:** adds Ghost (nav-level, secondary text) and Disabled (40%). A link when it has an address, otherwise a real button.
+- **Nav Link, Text Link** (the underline draws in from the left; visited links keep their colour) and **Icon Button** (always labelled; 36px to see, 44px to tap; pressed 0.95).
+- **Switch:** `role="switch"`; the knob springs and stretches when pressed; 44px hit area.
+- **Pill Tabs:** a tablist where the active pill slides; arrow keys, Home and End.
+- **Segmented control, Tenant Chips:** radio groups with arrow keys. The tenant swatch is the club's colour.
+- **Filter Chips, Time Slots:** native radios. Taken slots are disabled and struck through, not just greyed.
+- **Field:** the error is tied to the input (`aria-describedby`), with a rose border and message.
+- **FAQ Item:** a disclosure button with `aria-expanded`; opens over 180ms, instantly with reduced motion.
+- **New token:** `accent-rose` #d97f78 (errors).
+- **One change from Figma for accessibility:** the selected Tenant Chip's style label uses secondary text, because tertiary fails 4.5:1 there (open-questions D1).
+- **Review page:** `/dev/components` shows every control live. It's for the super-admin signed in with their code, on the platform's own address only, and returns a 404 everywhere else.
+
+## 2026-10-21: Marketing nav, footer, founder card and live preview (plan phase 2.2)
+
+- **Nav** from Figma Marketing/Nav (175:1875) and Nav Mobile (272:8990):
+  - The links are the component's labels: Website builder · Tee times (with the Coming next clock; goes to `/bookings`) · Switching · Pricing · Trust. The hand-off's "expected" list differed; it also says to take labels from the component.
+  - The actions are Club log in (to `ADMIN_URL/admin`), Free homepage (`/switching`) and Book a demo.
+  - Transparent at the top; glass with a hairline after 8px of scroll.
+  - On phones, the menu is a full-height sheet: focus stays inside it, and Esc closes it.
+  - **The Search button is left out**: there's no marketing site search for it to open (open question N9).
+- **Footer** from Footer (175:1876) and Footer Mobile (272:8991): the site map in three columns plus the legal links. The status dot is left out until real monitoring feeds it (hand-off §7). Contact is the company email.
+- **Proof Stat** (264:8700): a component for the home page's researched stats (phase 4).
+- **Founder Card** (264:8707; stacked under 600px, 272:9022):
+  - Text and links come from the marketing settings. The defaults are the Figma wording; the migration only sets those defaults.
+  - Without a calendar link, "Book a call" goes to the Book a demo page. Without a phone number, "Call" isn't shown.
+  - Your initial shows until a photo is added.
+- **Phone buttons are 36px tall**, as in the mobile nav and cards. Only the CTA band's phone buttons are 44px (mobile CTA frame).
+- **Live preview:** marketing pages have the admin's preview panel. It shows the latest draft at `/dev/preview/…`, on the platform's own address, for the signed-in super-admin only.
+
+## 2026-10-21: Live demo engine and Tenant Morph (plan phase 3)
+
+- **Demo clubs** (Figma Marketing/Tenant Morph, 176:2177):
+  - Ashgrove Park (Heritage, `ashgrovepark.golf`) and Kingsmere (Booking-led, `kingsmere.golf`) use the default palette.
+  - Carreg Bay Links (Coastal, `carregbay.golf`) uses the Figma "Demo · Coastal links" palette.
+  - All three use the Heritage font set. Their content lives in `src/marketing/demo/clubs.ts`, never in the database (decision B).
+- **Real blocks, not pictures:**
+  - `DemoFrame` is the Browser Chrome bar plus the actual club block component (e.g. `Hero`), given sample content through the same `BlockContext` the club sites use.
+  - On desktop the block is laid out at the club template's 1366px design width and scaled to the frame; on phones it shows the club's own phone layout.
+  - The club's colours and fonts are set on the frame only. Tests prove they don't reach the page around it.
+- **Accessibility:** the club block inside a frame is a picture of a club site, so it's `inert` (no keyboard stops) and hidden from screen readers. The frame's label ("Demo club: Ashgrove Park's home page") is read instead.
+- **Pictures** are the demo club's illustrations, drawn in code (`src/demo/sceneSVG.ts`). The Figma hero photos aren't used because their licences aren't confirmed (hand-off §11).
+- **The Booking-led demo shows the club's booking button**, which works today, not Figma's tee-time search bar, which is coming next (hand-off §6: "shows no unbuilt booking feature").
+- **Tenant Morph:**
+  - On desktop the hero switches club as you scroll past (about a viewport each).
+  - With reduced motion or on phones it stays on Ashgrove Park until a chip is chosen.
+  - The chips work by keyboard and keep focus when the club changes.
+
+## 2026-10-21: Marketing home page (plan phase 4)
+
+Built from Figma "Home — Desktop" (176:2178) and "Home — Mobile" (273:8954). Each section is a bespoke marketing block, editable in the CMS (hand-off §5). One migration adds their tables only.
+
+- **Home hero:** headline, body, two buttons and a proof line, with the Tenant Morph below.
+  - The proof line's price comes from the settings (`{price}`), and the editor refuses typed prices.
+  - On phones the morph shows no browser bar, as in the mobile frame.
+- **Proof stats and Good vs poor:** the researched stats, with the hand-off's exact sources, and the two panels with footnotes.
+- **Edit and live:** the real Hero block, laid out about 900px wide and scaled into the card.
+  - Visitors can type the headline and eyebrow and flip the switch, and the hero follows. Nothing is saved.
+  - Figma calls it a static pair; the hand-off asks for it to be interactive.
+- **A week at the club:**
+  - Four moments with previews of live blocks, in the demo club's style.
+  - On desktop they go upcoming → active → past as you scroll; phones get a swipeable row that keyboard users can scroll; reduced motion shows the final state.
+  - The previews are pictures of blocks, so they're inert and hidden from screen readers; the moment's title and text say what they show.
+- **Your content comes with you:** the example is shown on the demo club's address and labelled "Demo club".
+- **Founder card:** full width, from the settings.
+- **Starter content:**
+  - "Add the Figma pages (as drafts)", above Company website → Pages, adds the home page from the Figma copy (`src/marketing/starter/pages.ts`).
+  - It never touches a page whose address is already used.
+  - It's for the super-admin with their code entered, from the admin only.
+- **Differences from Figma** are listed as D2–D5 in `docs/marketing-site/open-questions.md`.
+
+## 2026-10-21: Marketing Pricing page (plan phase 5.1)
+
+Built from Figma "Pricing — Desktop" (185:3821) and "Pricing — Mobile" (274:9185). Logged here with phase 5.2; the page itself is in PR #138.
+
+- **Every number comes from Settings.** Copy uses `{price}`, `{vat}`, `{term}` and `{notice}`, in Section Header and CTA band bodies and in the calculator. The editor refuses a typed price.
+- **The calculator** prices the website only. Modules that aren't live (tee-time bookings, members area, facilities booking) are dimmed rows with the Coming next badge and "Price confirmed at launch". The second course appears only once its price is set (Q3).
+- **Phones:** one calculator card, price first. Centred headers go left on phones on every page, as in all of Figma's phone frames.
+- **Questions** sit in their own section, with a compact header beside them on desktop.
+
+## 2026-10-21: Switching page and the free homepage form (plan phase 5.2)
+
+Built from Figma "Switching — Desktop" (186:6494) and "Switching — Mobile" (300:9636).
+
+- **The Homepage Request Form** (club name, current website, email) saves to **Company website → Homepage requests**, which only the super-admin can see. Nobody can create one through the admin or the API; only the form can.
+- **Spam protection**, the same as the club Contact form:
+  - a hidden spam trap;
+  - a signed time check, made only after the fields are checked, so a person who presses the button at once is told what to fill in;
+  - Cloudflare's "are you a person?" check (Turnstile), made for this form only;
+  - at most 20 requests an hour.
+  The marketing site's security policy now allows Turnstile.
+- **"We'll send your homepage by {date}":** two UK working days, skipping weekends and England & Wales bank holidays. The bank holidays are a saved copy of the GOV.UK list (to the end of 2028). A test fails a year before it runs out.
+- **Emails:**
+  - The request goes to the inbox set in Company website → Settings → Requests, with replies going to the club.
+  - The club gets a plain confirmation with the date. It leaves out the website they typed, so the form can't be used to send links to strangers.
+  - Without an inbox set, the request is still saved.
+- **Kept 12 months after the last contact** (decision F): the nightly clean-up deletes requests untouched for 12 months.
+- **The example under the form** is the demo club's real homepage hero, in place of Figma's deprecated URL Reskin (hand-off §6).
+- **Old page addresses (N7):** Figma's "redirect your old page addresses" lines are softened until N7 is answered.
+
+## 2026-10-21: Book a demo page (plan phase 5.3)
+
+Built from Figma "Book a demo — Desktop" (187:7336) and "Book a demo — Mobile" (275:9525).
+
+- **Until a calendar is connected (Q4), the page offers email.** The booking panel says "Pick a time by email" with a button that opens an email to the company address. This is the plan's agreed fallback.
+- **The Demo Booking component is built** (Details → Pick a time → Booked) and on the review page (`/dev/components`) with sample times. Nothing is booked there. It shows only weekdays with free times; arrow keys move through the days; the times are radios. Connecting a calendar means giving it real free times and a way to book. "Add to calendar" and "Reschedule" wait for the calendar, which provides both.
+- **Never says how long the call lasts** (hand-off §6); a test checks the page.
+- **No CTA band**: the page is the call to action. The founder card has the page's own line, and has no "Book a call" button that would only reload this page.
+
+## 2026-10-21: Website builder page (plan phase 6.1)
+
+Built from Figma "Website builder — Desktop" (183:3008). Figma has no phone frame for it; phones use the same patterns as the other pages.
+
+- **Block Flipper:** the real Hero block in its three styles (Heritage, Resort, Booking-led) for one demo club, flipped with the arrows, the arrow keys or a swipe.
+  - Club blocks change layout with the screen's width, not their box's, so Tablet and Mobile show the hero in a small embedded page (`/frame/hero/<style>`) that really is 768 or 390 wide, scaled to fit.
+  - That page has its own bare layout (no marketing nav), is never indexed, and nothing in it can be focused.
+- **Token Dial:** picking a colour re-skins the Booking-led demo club's hero using the club sites' own colour rules (`src/theme/colour.ts`).
+  - The readout says what the product really does: the colour is never changed, and the text on it uses whichever of the club's light and dark text colours reads at WCAG AA.
+  - Figma's "#F2E28C → #7A6A12, deepened" doesn't happen in the product, so it isn't shown (Q5, D12).
+- **Course guide:** the real Hole Grid (style C) with the demo club's Championship course card, the same numbers as the staging demo club (now shared in `src/demo/courseCard.ts`).
+- **Course status:** the course report and a news post, drawn by the same preview cards as the home page's "A week at the club".
+- **Built in:** eight feature cards. Two of Figma's were reworded and one replaced so every card is true today (D13, D14).
+- **No product film** (Q8).
+
+## 2026-10-21: Bookings page, a Coming next preview (plan phase 6.2)
+
+Built from Figma "Bookings — Desktop" (184:3614). Booking is out of scope for v1, so the page is a labelled preview: "Coming next · designs from our build. Not live yet. Prices and times are examples."
+
+- **Tee Sheet Simulator:** pick an open slot and it's held for ten minutes with a live countdown; confirm and it turns Full; release and it frees up. Full, members-only and competition slots can't be held. Nothing is booked. Screen readers hear "held", "booked" and "released", not every second of the countdown.
+- **Club Settings Panel:** the card guarantee adds or removes the Card details step and unlocks the no-show fee. The copy is in the future tense ("will be settings your club controls").
+- **Facilities Carousel:** range, simulators and spa, with tabs or a swipe. Its booking button says facility booking is coming next.
+- **The tee sheet and date chips are drawn in the demo club's colours and fonts**, like the club components they preview. They're marketing code, not club blocks, because the club booking blocks aren't built yet.
+- **Left out:** the Works With strip (deprecated in Figma; it may only name providers a live club links to, and there are none yet).
+
+## 2026-10-22: Safety checks that catch a cross-club leak (job 2)
+
+All of these run in the `tenant-isolation` CI job and block merging.
+
+- **Access-skip allowlist** (`src/security/override-allowlist.ts`): every place server code skips Payload's access rules, with the club it's limited to and why. That includes Local API calls that leave `overrideAccess` out, which Payload treats as a skip. A new one fails the build until it's listed. Review: `docs/security/override-review.md`.
+- **Raw SQL** must use Drizzle's `sql` tag, never text joined together (`tests/unit/raw-sql.spec.ts`).
+- **Every collection in the running config** has reviewed access, including the ones Payload and plugins add (`tests/int/config-access.int.spec.ts`). Payload's `payload-migrations` collection allows everything, so it must never get a web address.
+- **Isolation manifest** (`src/security/isolation-manifest.ts`): every collection, non-standard endpoint, web route and server action names the test that proves isolation for it. Adding a route, endpoint or collection without one fails the build.
+- **New isolation tests:** page history and drafts, the job queue, photo file addresses, paste-from-URL (off), switching off two-factor, and platform files (health, robots.txt).
+
+## 2026-10-22: Rate limits shared across servers (job 4)
+
+- **Search and the security-report address counted in each server's memory**, so the real limit grew with the number of Vercel servers. They now count in one database table, `rate_limits` (reviewed migration `20261022_091355_rate_limits`), with a single upsert per request (`src/security/rateLimit.ts`).
+- **No IP addresses are stored:** the key is an HMAC (with `PAYLOAD_SECRET`) of the address and the date, so it changes daily. The nightly clean-up deletes counts over a day old.
+- **The edge layer is Vercel Firewall**, not Cloudflare (club sites point straight at Vercel, decided 20 Oct). Dan adds the rules in `docs/operations/rate-limits.md`. `TRUSTED_PROXY` stays unset.
+- **The contact form's per-club limit is unchanged:** it already counts saved enquiries in the database.
+- **Inventory:** `src/security/rateLimitInventory.ts`; a test fails if a route, endpoint or server action has no entry.
+
+
+## 2026-10-22: The repository goes back to private (job 6)
+
+- **History:** private from 10 Oct (above), made **public on 15 Oct** so GitHub Actions minutes were free, and now **private again** (Dan, after the 21 Oct grilling). It was public for about a week. Nothing secret was in it: gitleaks scans every pull request, and secrets live in Vercel and GitHub.
+- **CI minutes:** about 7,400 a month at today's pace, against GitHub Pro's 3,000 for private repositories. CI now skips the slow checks for docs-only pull requests, and runs the browser checks on drafts only once they're marked ready. That gives an estimated 5,750 a month. Merging the small checks into fewer jobs (as PR #65 proposed) and skipping browser checks on merges to `main` would bring it to about 3,200; both need Dan's OK (`docs/operations/ci-minutes.md`).
+- **Guard:** the release workflow's first step fails if the repository is public, so staging and production releases stop until it's private again.
+
+## 2026-10-22: AI security review on every pull request (job 7)
+
+- **Anthropic's `claude-code-security-review` action** runs on every non-draft pull request into `main`, pinned to commit `0c6a49f`, with Claude Opus 5.5 and a project brief that puts tenant isolation first (`.github/security-review/`).
+- **A HIGH finding fails the required `security-review` check.** So does a review that fails to run: the action alone would report zero findings then. Only Dan can dismiss a finding, with the `security-finding-dismissed` label plus a comment of his starting "Security finding dismissed:".
+- **Cost:** about $1 a review and 5–12 CI minutes, so roughly $150 and 750–1,800 minutes a month at October's pace. The model is one line to change (Sonnet 5.5 halves the cost). Details were in `docs/operations/ai-security-review.md`, now `docs/operations/security-review.md`.
+- **Secret:** `ANTHROPIC_API_KEY` in GitHub Actions secrets only.
+- **Replaced on 26 Oct**, see below. The key was never added, so it never ran.
+
+
+## 2026-10-22: Club editors sign in with a password; super-admins keep two-factor (job 3)
+
+**Supersedes** "Two-factor login is required for every account" (2026-10-11, step 2 decisions and devops review). Dan decided this after the 21 Oct grilling, so editors aren't put off by an authenticator app and can use "Forgot password?". **Must be checked by Dan's devops contact before it merges** (it reverses something he approved).
+
+- **Super-admins:** two-factor exactly as before. Without their code they reach nothing but their own account. Without two-factor set up, the admin sends them to the set-up screen, and they can't switch it off.
+- **Club editors:** a password is enough. Editors who already set two-factor up keep it and still need their code; they may switch it off. How it's done: `docs/plans/password-only-editors-spike.md`.
+- **Compensating controls:**
+  - passwords of 12+ characters;
+  - locked for 10 minutes after 5 wrong attempts (unchanged);
+  - **editor sessions end 8 hours after login**: each login token lasts an hour and is renewed while the admin is open, but not after 8 hours (`src/auth/sessionLimit.ts`);
+  - **an email to the account whenever its password is set or changed**, where email is set up.
+- **"Forgot password?"** turns on where `RESEND_API_KEY` and `ADMIN_URL` are both set (unchanged code). It answers the same whether or not the address has an account. At most one email per account every 15 minutes.
+- **Isolation:** the whole isolation suite (integration and browser) now runs with password-only editors, because that's the new normal. Tests also prove that a super-admin with a password but no code reaches nothing, and that escalation attempts still fail.
+- **Data processing agreement:** Schedule 2's security wording now describes this. Version `2026-10-22-draft`, so clubs accept again. The club privacy policy doesn't mention two-factor, so it's unchanged.
+- **Invite and reset emails** no longer tell editors they'll need an authenticator app.
+
+## 2026-10-22: Club sites' data is cached, cleared when a club publishes (job 5)
+
+- **The data behind club pages is cached in Next.js's data cache** (`unstable_cache`, `src/site/cache.ts`). The pages themselves are still made per view, because each needs a fresh one-time code for the security policy. Why not `'use cache'`: `docs/plans/club-data-cache-spike.md`.
+- **Never across clubs:**
+  - every cached loader takes the club's ID first, and the ID is in its key and its only tag;
+  - the two address lookups (slug and web address to club) are keyed by the address;
+  - drafts and the live preview never use the cache.
+
+  Tests: `tests/int/cache-isolation.int.spec.ts` (part of the isolation suite) and `tests/e2e/site-cache.spec.ts`. The isolation manifest lists every cached loader.
+- **Cleared at once** for one club when anything it owns is saved or deleted (`src/site/cacheHooks.ts`). Anything that depends on today's date is kept at most 5 minutes, and everything at most an hour, which covers changes made around the website (scripts, restores).
+- **Emergency switch:** `SITE_DATA_CACHE=off`.
+
+## 2026-10-22: Stronger isolation testing, red team, live canary (job 9)
+
+- **Randomised isolation tests:** random reads and writes as each role (both editors, anonymous, super-admin) across every club-owned collection. After every step they check that nothing read belongs to another club and nothing of the other club changed. 500 steps on every change (database layer, plus 500 random REST requests). 10,000 nightly (`.github/workflows/isolation-nightly.yml`, about 2 minutes, which opens an issue on failure). Seeded and replayable.
+- **Red team, session 1** (`docs/security/red-team-1.md`): 14 kinds of attempt, each a test; none got across.
+- **Live canary** (`docs/operations/canary.md`): two hidden clubs on production, which can never be given a web address. An hourly Vercel cron signs in as canary A's editor over the real web address and tries to reach canary B; any success raises a Sentry alert. **Built, but switching it on is Dan's call** (it creates production data).
+- **Row-level security in Postgres: not now** (`docs/plans/postgres-row-level-security-spike.md`).
+- **Browser tests** always start a fresh server with an empty data cache.
+
+## 2026-10-22: Website functions run in London
+
+- **`vercel.json` sets `"regions": ["lhr1"]`** (London), for production, staging and previews. Until now they ran in Vercel's default, Washington, D.C., while the database is in London (Neon, `aws-eu-west-2`). Every database query crossed the Atlantic, and club pages make 16–30 queries a view (`docs/operations/performance.md`).
+- **Nothing else depended on the old region** (checked 22 Oct):
+  - Cron: the nightly clean-up's time is in UTC, wherever it runs.
+  - Sentry: sends to its EU (Germany) region.
+  - Resend: sends from Ireland (`eu-west-1`).
+  - Photo storage: Cloudflare R2, Western Europe.
+- **Answers** the question left open in "2026-10-15 — Data processing agreement in the admin" ("before the first real club") and marketing open question N6.
+- **Still to do, with Dan's go-ahead:** the agreement's sub-processor table (`src/agreement/text.ts`, Schedule 3) still says Vercel is "USA (Washington, D.C.), or London if the hosting region is changed". Changing that wording needs a new `AGREEMENT_VERSION`, so every club accepts it again. While the agreement is a draft with no clubs, it can wait for the solicitor's review. The club privacy policy doesn't name regions, so it needs no change.
+- **"Stored in London"** (marketing Trust page) is still held: photos, documents and backups are in Western Europe, not the UK (claims register).
+
+## 2026-10-24: Homepage Request Form gets the Contact form's limits
+
+Dan asked for the public forms audit's fixes on the company website's Homepage Request Form too (the audit said they applied to it once built).
+
+- **5 sends per visitor in 10 minutes**, checked in the app (a server action runs from any page address).
+- **20 requests an hour**, now counted in one step, so a burst can't overshoot.
+- **Emails:** at most 10 requests emailed a day. Every email from the public forms (Contact alerts, request alerts and confirmations) now comes out of one shared allowance of 70 a day (`WEBSITE_FORM_EMAILS`), keeping 30 of Resend's 100 free daily emails for password resets and invitations. Past either limit the request is saved, with its "sent" dates blank.
+- **Email addresses** use Payload's own rule, shared with the Contact form (`src/email/address.ts`).
+
+## 2026-10-26: the security check is free (Semgrep), not the paid AI review
+
+- **Dan, 26 Oct:** no paid API for this. The `security-review` check now runs **Semgrep Community Edition** (free, open source, no account or key), pinned to 1.180.0, with Semgrep's free TypeScript, JavaScript, Node, React, Next.js and security-audit rules. It replaces the 22 Oct AI review (about $150 a month), which never ran because its key was never added.
+- **Same check name and the same rules for Dan:** only what the pull request adds counts; an ERROR finding fails the check; a scan that fails to run fails the check; only Dan can dismiss a finding (label plus written comment, after the latest push).
+- **What it can't do:** it matches known patterns and doesn't understand club isolation. That stays with the required tenant-isolation suites, the access-rule guards and `migration-guard`, plus the independent review before launch. Details: `docs/operations/security-review.md`.
+- **About a minute** of CI time a run, against 5–12 for the AI review.
+
+
+## 2026-10-27: Staging releases while the repository is public
+
+- **Why:** the repository is public again until 1 Nov (Dan). The 22 Oct guard stopped every staging release from 24 Oct (#147 to #193), so staging stayed on the 23 Oct release.
+- **Change:** the "repository must be private" check now runs only for production releases. Staging releases run whether the repository is public or private, as they did from 15 to 22 Oct. Secrets stay in GitHub and Vercel and are masked in logs; gitleaks still scans every pull request.
+- **Production:** still stops while the repository is public. Production releases are on hold anyway until Dan reviews the marketing pages.

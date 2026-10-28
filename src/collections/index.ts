@@ -13,6 +13,9 @@ import { Pages } from './Pages'
 import { Staff } from './Staff'
 import { Tenants } from './Tenants'
 import { Users } from './Users'
+import { HomepageRequests } from '../marketing/collections/HomepageRequests'
+import { MarketingMedia } from '../marketing/collections/MarketingMedia'
+import { MarketingPages } from '../marketing/collections/MarketingPages'
 
 // Every collection must be listed here. tests/unit/access-guard.spec.ts checks that each
 // one defines its own create, read, update and delete access functions, and
@@ -33,4 +36,8 @@ export const collections: CollectionConfig[] = [
   Users,
   AgreementAcceptances,
   Tenants,
+  // The company website (super-admin only).
+  MarketingPages,
+  MarketingMedia,
+  HomepageRequests,
 ]

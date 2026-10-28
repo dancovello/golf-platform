@@ -16,17 +16,25 @@ import {
   resetEmailHTML,
   resetEmailSubject,
 } from '../accounts/resetEmail'
+import { isFullyAuthenticated, isSuperAdminWithCode } from '../auth/fullyAuthenticated'
 import { resetTwoFactorEndpoint } from '../auth/resetTwoFactor'
+import {
+  emailPasswordChange,
+  emailPasswordReset,
+  endLongEditorSessions,
+  notePasswordChange,
+} from '../auth/sessionLimit'
 import { publicError } from '../errors'
 
 export const MIN_PASSWORD_LENGTH = 12
 
 const read: Access = ({ req: { user } }): boolean | Where => {
   if (!user) return false
-  // Password accepted but two-factor code not entered yet: own account only. Payload re-reads
+  // Not fully signed in (a super-admin, or an editor with two-factor, whose code isn't entered
+  // yet): own account only. Payload re-reads
   // the logged-in account on every admin page, and without this nobody could reach the code
   // screen. Everything else stays refused until the code is entered.
-  if ((user as { _strategy?: string })._strategy !== 'totp') return { id: { equals: user.id } }
+  if (!isFullyAuthenticated(user)) return { id: { equals: user.id } }
   if (isSuperAdmin(user)) return true
   const tenantID = editorTenantID(user)
   if (tenantID === null) return { id: { equals: user.id } }
@@ -130,6 +138,9 @@ export const Users: CollectionConfig = {
   auth: {
     // Locks the account for 10 minutes after 5 wrong passwords.
     maxLoginAttempts: 5,
+    // Each login token lasts an hour and is renewed while the admin is open. Editors' sessions
+    // stop being renewed 8 hours after login (src/auth/sessionLimit.ts).
+    tokenExpiration: 60 * 60,
     lockTime: 10 * 60 * 1000,
     // The link's lifetime isn't set here: a setting here would also shorten the platform's
     // 72-hour "set your password" links. Payload's default for emailed links is one hour.
@@ -146,9 +157,11 @@ export const Users: CollectionConfig = {
   custom: { totp: { disableAccessWrapper: { read: true } } },
   endpoints: [inviteEndpoint, passwordLinkEndpoint, resetTwoFactorEndpoint],
   hooks: {
-    beforeOperation: [passwordOperationRules],
+    beforeOperation: [passwordOperationRules, endLongEditorSessions],
     beforeValidate: [enforcePasswordLength],
-    beforeChange: [enforceAccountCreationRules],
+    beforeChange: [enforceAccountCreationRules, notePasswordChange],
+    afterChange: [emailPasswordChange],
+    afterOperation: [emailPasswordReset],
     // The multi-tenant plugin reads a user's clubs from a `tenants` list. We store exactly one
     // club in `tenant` (enforced by the database) and present it in the plugin's shape.
     afterRead: [
@@ -160,6 +173,14 @@ export const Users: CollectionConfig = {
     ],
   },
   fields: [
+    {
+      // Payload's own sign-in email field, with one rule added: only a super-admin (code
+      // entered) can change it. An editor changing it could take over their account for good,
+      // with password resets and warnings going to the new address (docs/security/audit-auth.md, A1).
+      name: 'email',
+      type: 'email',
+      access: { update: ({ req: { user } }) => isSuperAdminWithCode(user) },
+    },
     {
       // Super-admin buttons on a club editor's page: new password link, reset two-factor.
       name: 'accountActions',

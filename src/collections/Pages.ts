@@ -68,6 +68,8 @@ export const Pages: CollectionConfig = {
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'parent', '_status', 'updatedAt'],
     livePreview: pageLivePreview,
+    // The club's pages as a tree, above the list (src/admin/PageTree.tsx).
+    components: { beforeListTable: ['/admin/PageTree#PageTree'] },
   },
   // Drafts, saved automatically as you type so the live preview keeps up. Visitors only see
   // the published version (src/site/published.ts). The history keeps the last 50 versions.
@@ -77,8 +79,8 @@ export const Pages: CollectionConfig = {
     read: loggedIn,
     update: loggedIn,
     delete: loggedIn,
-    // The multi-tenant plugin scopes `read` but not the version history, so this does:
-    // editors see only their own club's drafts and old versions.
+    // Editors see only their own club's drafts and old versions. The multi-tenant plugin
+    // (3.90.2) also limits version history to the club; this rule says so on its own too.
     readVersions: ({ req: { user } }) => {
       if (isSuperAdmin(user)) return true
       const tenant = editorTenantID(user)

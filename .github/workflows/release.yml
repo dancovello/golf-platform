@@ -45,6 +45,17 @@ jobs:
     outputs:
       environment: ${{ steps.pick.outputs.environment }}
     steps:
+      # Production releases stop while the repository is public (decisions.md, 22 and 27 Oct).
+      # Staging may release while public, as it did from 15 to 22 Oct.
+      - name: The repository must be private (production only)
+        if: github.ref_name == 'production'
+        env:
+          PRIVATE: ${{ github.event.repository.private }}
+        run: |
+          if [ "$PRIVATE" != "true" ]; then
+            echo "::error::The repository is public. Make it private (GitHub → Settings → General → Danger Zone) before releasing."
+            exit 1
+          fi
       - id: pick
         run: |
           if [ "${GITHUB_REF_NAME}" = "production" ]; then env=production; else env=staging; fi
@@ -61,6 +72,9 @@ jobs:
 
   dry-run:
     needs: target
+    # Production keys live only in a GitHub environment that only these branches can use
+    # (migrations audit, finding 1; docs/operations/github-environments.md).
+    environment: ${{ needs.target.outputs.environment == 'production' && 'release-production' || 'release-staging' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     services:
@@ -78,7 +92,6 @@ jobs:
           --health-timeout 5s
           --health-retries 10
     env:
-      TARGET_DATABASE_URL: ${{ needs.target.outputs.environment == 'production' && secrets.PRODUCTION_DATABASE_URL_DIRECT || secrets.STAGING_DATABASE_URL_DIRECT }}
       DRY_RUN_URL: postgres://postgres:postgres@localhost:5432/dry_run
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -87,8 +100,12 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: pnpm
+      # The owner connection string is given only to the two steps that need it, never to
+      # `pnpm install` (whose packages' install scripts would otherwise see it).
       - run: pnpm install --frozen-lockfile
       - name: Install a Postgres client matching the database
+        env:
+          TARGET_DATABASE_URL: ${{ needs.target.outputs.environment == 'production' && secrets.PRODUCTION_DATABASE_URL_DIRECT || secrets.STAGING_DATABASE_URL_DIRECT }}
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-common > /dev/null
           sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y > /dev/null
@@ -97,6 +114,8 @@ jobs:
           echo "PG_BIN=/usr/lib/postgresql/${major}/bin" >> "$GITHUB_ENV"
       # Only the structure, plus the list of changes already applied. No club data is copied.
       - name: Copy the database's structure into a throwaway database
+        env:
+          TARGET_DATABASE_URL: ${{ needs.target.outputs.environment == 'production' && secrets.PRODUCTION_DATABASE_URL_DIRECT || secrets.STAGING_DATABASE_URL_DIRECT }}
         run: scripts/copy-database-structure.sh "$TARGET_DATABASE_URL" "$DRY_RUN_URL"
       - name: Apply the new database changes to the copy
         env:
@@ -114,6 +133,9 @@ jobs:
 
   migrate:
     needs: [target, backup, dry-run]
+    # Production keys live only in a GitHub environment that only these branches can use
+    # (migrations audit, finding 1; docs/operations/github-environments.md).
+    environment: ${{ needs.target.outputs.environment == 'production' && 'release-production' || 'release-staging' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -139,6 +161,9 @@ jobs:
 
   deploy:
     needs: [target, migrate]
+    # Production keys live only in a GitHub environment that only these branches can use
+    # (migrations audit, finding 1; docs/operations/github-environments.md).
+    environment: ${{ needs.target.outputs.environment == 'production' && 'release-production' || 'release-staging' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
@@ -156,7 +181,8 @@ jobs:
         run: |
           set -euo pipefail
           if [ "$ENVIRONMENT" = "production" ]; then target=production; else target=staging; fi
-          url=$(npx --yes "$VERCEL_CLI" deploy --yes --target="$target" --token="$VERCEL_TOKEN")
+          # The CLI reads VERCEL_TOKEN from the environment, so it isn't put on the command line.
+          url=$(npx --yes "$VERCEL_CLI" deploy --yes --target="$target")
           echo "url=${url}" >> "$GITHUB_OUTPUT"
           echo "Deployed ${ENVIRONMENT}: ${url}" >> "$GITHUB_STEP_SUMMARY"
       - name: Check the new deployment is healthy

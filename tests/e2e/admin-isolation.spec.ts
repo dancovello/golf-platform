@@ -20,7 +20,8 @@ test.describe("club A's editor", () => {
 
   test("the pages list shows only club A's page", async ({ editorPage: page, world }) => {
     await page.goto('/admin/collections/pages')
-    await expect(page.getByRole('link', { name: world.pageA.title })).toBeVisible()
+    // In the list table (the page tree above it links to the same page).
+    await expect(page.locator('table').getByRole('link', { name: world.pageA.title })).toBeVisible()
     await expect(page.getByText(world.pageB.title)).toHaveCount(0)
   })
 

@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
-import { hostProblem, isPlatformHost, normaliseHost } from '@/site/hosts'
+import {
+  hostProblem,
+  isMarketingHost,
+  isPlatformHost,
+  marketingHosts,
+  normaliseHost,
+} from '@/site/hosts'
 
 describe('club web addresses (build step 4)', () => {
   it('tidies what people type into a bare address', () => {
@@ -25,5 +31,27 @@ describe('club web addresses (build step 4)', () => {
       expect(hostProblem(bad), bad).not.toBeNull()
     }
     expect(hostProblem('golf-platform.vercel.app')).toContain('platform itself')
+  })
+
+  it("knows the company website's addresses, main one first", () => {
+    const value = ' https://Brandname.golf/ , www.brandname.golf,, not an address '
+    expect(marketingHosts(value)).toEqual(['brandname.golf', 'www.brandname.golf'])
+    expect(marketingHosts('')).toEqual([])
+    expect(marketingHosts(undefined)).toEqual([])
+    expect(isMarketingHost('www.brandname.golf', value)).toBe(true)
+    expect(isMarketingHost('www.club.co.uk', value)).toBe(false)
+    expect(isMarketingHost('brandname.golf', undefined)).toBe(false)
+  })
+
+  it("a club can never have the company website's address", () => {
+    const before = process.env.MARKETING_HOSTS
+    process.env.MARKETING_HOSTS = 'brandname.golf,www.brandname.golf'
+    try {
+      expect(hostProblem('www.brandname.golf')).toContain("company's own website")
+      expect(hostProblem('www.club.co.uk')).toBeNull()
+    } finally {
+      if (before === undefined) delete process.env.MARKETING_HOSTS
+      else process.env.MARKETING_HOSTS = before
+    }
   })
 })

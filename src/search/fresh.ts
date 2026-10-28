@@ -15,6 +15,11 @@ const database = (payload: Payload) => (payload.db as unknown as { drizzle: Tran
 
 type StateRow = { changes: number; built_changes: number; version: number }
 
+/** Rebuilds already running on this server, by club and change count: searches that arrive
+ * together after an edit share one rebuild instead of each doing their own (search audit,
+ * finding 4). A rebuild for an older count is never shared with a search that needs a newer one. */
+const running = new Map<string, Promise<void>>()
+
 /** Rebuilds a club's index if anything changed since it was built (see ./hooks.ts). Returns
  * whether it did. */
 export const ensureFreshIndex = async (payload: Payload, tenantID: string): Promise<boolean> => {
@@ -25,13 +30,22 @@ export const ensureFreshIndex = async (payload: Payload, tenantID: string): Prom
   if (state && state.built_changes === state.changes && state.version === SEARCH_INDEX_VERSION) {
     return false
   }
-  await rebuildIndex(payload, tenantID, state?.changes ?? 0)
+  const changes = state?.changes ?? 0
+  const key = `${tenantID}:${changes}`
+  let rebuild = running.get(key)
+  if (!rebuild) {
+    rebuild = rebuildIndex(payload, tenantID, changes).finally(() => running.delete(key))
+    running.set(key, rebuild)
+  }
+  await rebuild
   return true
 }
 
 /**
  * Replaces a club's index with a fresh one. `changes` is the change count it was read at: if
  * something is saved while this runs, the count moves on and the next search rebuilds again.
+ * Never writes over an index built at the same or a later count, so a slow rebuild can't put
+ * back a page that was unpublished meanwhile (search audit, finding 5).
  */
 export const rebuildIndex = async (payload: Payload, tenantID: string, changes: number) => {
   const entries = await buildClubEntries(payload, tenantID)
@@ -40,6 +54,13 @@ export const rebuildIndex = async (payload: Payload, tenantID: string, changes: 
     await tx.execute(
       sql`SELECT pg_advisory_xact_lock(hashtextextended(${`search:${tenantID}`}, 0))`,
     )
+    const { rows } = await tx.execute(
+      sql`SELECT built_changes, version FROM search_state WHERE tenant_id = ${tenantID}`,
+    )
+    const current = rows[0] as Pick<StateRow, 'built_changes' | 'version'> | undefined
+    if (current && current.version === SEARCH_INDEX_VERSION && current.built_changes >= changes) {
+      return
+    }
     await tx.execute(sql`DELETE FROM search_entries WHERE tenant_id = ${tenantID}`)
     for (let i = 0; i < entries.length; i += 200) {
       const rows = entries.slice(i, i + 200).map(

@@ -89,6 +89,7 @@ export const inviteEditor = async (
       tenant,
     },
     context: allowAccountCreation,
+    overrideAccess: true,
     req,
   })
   return createPasswordLink(payload, { userID: created.id, serverURL, req, kind: 'invite' })

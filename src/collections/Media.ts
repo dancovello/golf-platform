@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { clubContentCreate, loggedIn } from '../access/roles'
+import { cleanOriginal } from '../media/cleanOriginal'
 import { measureUpload } from '../media/measure'
 import { randomServerUploadName } from '../media/uploadGuards'
 import { uploadFolder } from '../media/folders'
@@ -32,6 +33,8 @@ export const Media: CollectionConfig = {
     group: 'Club information',
     useAsTitle: 'filename',
     defaultColumns: ['filename', 'alt', 'updatedAt'],
+    description:
+      'Photos are cleaned of hidden details (like where they were taken) when you upload them. Videos are not: before uploading a video, turn off location in your phone’s camera settings.',
   },
   access: { create: clubContentCreate, read: loggedIn, update: loggedIn, delete: loggedIn },
   hooks: {
@@ -46,6 +49,8 @@ export const Media: CollectionConfig = {
     // A file name only has to be unique inside its own random folder. A site-wide unique name
     // would rename club A's "hero.jpg" to "hero-1.jpg" if club B had one, hinting club B exists.
     filenameCompoundIndex: ['filename', 'prefix'],
+    // The original is re-saved without the phone's hidden details (src/media/cleanOriginal.ts).
+    resizeOptions: cleanOriginal,
     // Copies of every photo at set widths, so phones don't download the full-size file and big
     // high-resolution screens get a sharp one (3200 covers a full-width photo on a 1600px-wide
     // retina screen). WebP, never larger than the original. Quality 88 with sharp colour edges:

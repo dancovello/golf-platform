@@ -24,3 +24,14 @@ test("the super-admin sees every club's setup progress", async ({
   await expect(clubs.getByRole('link', { name: world.clubB.name })).toBeVisible()
   await expect(clubs).toContainText('of 6 done')
 })
+
+test("the Pages list shows club A's pages as a tree, and nothing of club B", async ({
+  editorPage: page,
+  world,
+}) => {
+  await openReady(page, '/admin/collections/pages')
+  const tree = page.locator('details', { hasText: 'Your pages, as they sit on the site' })
+  await expect(tree).toBeVisible()
+  await expect(tree.getByRole('link', { name: world.pageA.title })).toBeVisible()
+  await expect(tree).not.toContainText(world.pageB.title)
+})

@@ -10,16 +10,22 @@ import { fileURLToPath } from 'url'
 
 import { isSuperAdmin } from './access/roles'
 import { guardTenantSelection } from './admin/guardTenantSelection'
+import { superAdminTwoFactor } from './auth/superAdminTwoFactor'
 import { encryptTotpSecrets } from './auth/totpSecretEncryption'
 import { emailAdapter } from './email/adapter'
 import { collections } from './collections'
+import { globals } from './globals'
 import { usersAccess } from './collections/Users'
 import { DOCUMENT_TYPES } from './collections/Documents'
 import { MEDIA_TYPES } from './collections/Media'
+import { MARKETING_MEDIA_TYPES } from './marketing/collections/MarketingMedia'
 import { guardBrowserUploads } from './media/uploadGuards'
 import { mediaStorageSettings } from './media/storage'
+import { trustedOrigins } from './auth/trustedOrigins'
 import { jobs } from './privacy/jobs'
 import { addSearchTables } from './search/schema'
+import { addRateLimitTable } from './security/rateLimitSchema'
+import { withCacheClearing } from './site/cacheHooks'
 import { clubOwnedCollections } from './tenancy'
 
 const media = mediaStorageSettings()
@@ -40,9 +46,16 @@ if (!/^[0-9a-f]{64}$/i.test(process.env.TOTP_ENCRYPTION_KEY ?? '')) {
   throw new Error('TOTP_ENCRYPTION_KEY must be 64 hex characters (openssl rand -hex 32)')
 }
 
+/** The one answer to a refused sign-in, whatever the reason. */
+const SIGN_IN_REFUSED =
+  'The email or password is incorrect, or there have been too many attempts. If you are sure they are right, wait 10 minutes and try again.'
+
 export default buildConfig({
   admin: {
     user: 'users',
+    // Payload's built-in account icon, not Gravatar: Gravatar would receive a code made from
+    // each editor's email address on every admin page (found by the security policy, 2026-10-21).
+    avatar: 'default',
     components: {
       // The club home screen: setup checklist, new messages, everyday jobs, course status.
       beforeDashboard: ['/admin/ClubHome#ClubHome'],
@@ -58,7 +71,9 @@ export default buildConfig({
     },
   },
   // Copied so Payload adding its own collections at startup never changes our list.
-  collections: [...collections],
+  // Each club's cached site data is cleared when its content changes (src/site/cacheHooks.ts).
+  collections: withCacheClearing([...collections]),
+  globals: [...globals],
   editor: lexicalEditor(),
   // Background jobs (decided stack: Payload Jobs Queue). Only the nightly clean-up so far.
   jobs,
@@ -69,6 +84,20 @@ export default buildConfig({
     disable: true,
   },
   secret: requireEnv('PAYLOAD_SECRET'),
+  // The login cookie counts only on requests from the admin's own addresses (sign-in audit, A5).
+  csrf: trustedOrigins(),
+  i18n: {
+    translations: {
+      en: {
+        // A locked account answers exactly like a wrong password or an address with no account,
+        // so the lockout doesn't tell a stranger which emails have accounts (sign-in audit, A4).
+        error: {
+          emailOrPasswordIncorrect: SIGN_IN_REFUSED,
+          userLocked: SIGN_IN_REFUSED,
+        },
+      },
+    },
+  },
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
@@ -84,8 +113,8 @@ export default buildConfig({
     idType: 'uuid',
     migrationDir: path.resolve(dirname, 'migrations'),
     // The site search index: two plain tables only the website's server code reads
-    // (src/search/schema.ts).
-    afterSchemaInit: [addSearchTables],
+    // (src/search/schema.ts). And the shared rate-limit counts (src/security/rateLimit.ts).
+    afterSchemaInit: [addSearchTables, addRateLimitTable],
     // Search's spelling tolerance needs pg_trgm. Migrations add it everywhere else (the
     // website's own account can't); locally, schema auto-sync needs it first.
     extensions: process.env.NODE_ENV === 'development' ? ['pg_trgm'] : [],
@@ -130,6 +159,11 @@ export default buildConfig({
           disablePayloadAccessControl: true,
           generateFileURL: ({ filename, prefix }) => `${media.publicURL}/${prefix}/${filename}`,
         },
+        'marketing-media': {
+          prefix: 'marketing-media',
+          disablePayloadAccessControl: true,
+          generateFileURL: ({ filename, prefix }) => `${media.publicURL}/${prefix}/${filename}`,
+        },
         documents: {
           prefix: 'documents',
           disablePayloadAccessControl: true,
@@ -140,16 +174,19 @@ export default buildConfig({
     // Must come after s3Storage, whose signed-link endpoint it wraps.
     guardBrowserUploads('/storage-s3-generate-signed-url', {
       media: MEDIA_TYPES,
+      'marketing-media': MARKETING_MEDIA_TYPES,
       documents: DOCUMENT_TYPES,
     }),
     // Keeps the club list from loading before the two-factor code is entered.
     guardTenantSelection,
-    // Two-factor login, required for every account (docs/architecture/decisions.md).
-    // Must come after the plugins that add collections: it wraps every access rule so nothing
-    // is reachable until the code has been entered (or, for new accounts, set up).
+    // Two-factor login. Required for super-admins; optional for club editors, who may sign in
+    // with a password only (decisions.md, 22 Oct). Must come after the plugins that add
+    // collections: it wraps every access rule, so anyone who has set two-factor up gets nothing
+    // until their code is entered. `forceSetup` would force set-up on everyone, so it's off and
+    // superAdminTwoFactor (below) enforces it for super-admins.
     payloadTotp({
       collection: 'users',
-      forceSetup: true,
+      forceSetup: false,
       totp: { issuer: 'Golf Platform' },
       // In a dark admin theme the QR code was drawn light-on-dark with no white border, which
       // many authenticator apps can't scan. Always draw it dark-on-white.
@@ -157,5 +194,7 @@ export default buildConfig({
     }),
     // Must come after payloadTotp, which adds the secret field it encrypts.
     encryptTotpSecrets('users'),
+    // Must come after payloadTotp: super-admins need their code for everything.
+    superAdminTwoFactor,
   ],
 })

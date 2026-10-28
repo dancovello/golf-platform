@@ -53,4 +53,26 @@ describe('the Contact form’s rules', () => {
     expect(validateContact({ ...v, phone: '+44 (0)1932 704500' }, rules)).toEqual({})
     expect(validateContact({ ...v, phone: 'call me' }, rules).phone).toMatch(/numbers only/)
   })
+
+  it('refuses email addresses that could not be saved or could add reply addresses', () => {
+    const v = { ...EMPTY_VALUES, name: 'A', message: 'Hi' }
+    const bad = [
+      'a,b@example.com',
+      'a@example.com, b@example.com',
+      '<a@example.com>',
+      'A <a@example.com>',
+      '"a"@example.com',
+      'a@example.com\nBcc: b@example.com',
+      'a\r\n@example.com',
+      'josé@example.com',
+      'a_b@sub_d.example.com',
+      'a..b@example.com',
+    ]
+    for (const email of bad) {
+      expect(validateContact({ ...v, email }, rules).email, email).toMatch(/like name@example/)
+    }
+    for (const email of ['a@example.com', 'first.last+club@mail.example.co.uk']) {
+      expect(validateContact({ ...v, email }, rules), email).toEqual({})
+    }
+  })
 })

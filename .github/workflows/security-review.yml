@@ -1,0 +1,94 @@
+# Security scan on every pull request (docs/operations/security-review.md). Free: Semgrep
+# Community Edition, open source, no account, no API key, no paid service. It looks for known
+# insecure code patterns (TypeScript, Node, React, Next.js and general security-audit rules) in what the pull request
+# changes. Any ERROR-level finding fails this check, unless Dan dismisses it in writing
+# (label + comment, see the doc). It replaced the paid AI review on 26 Oct 2026.
+name: Security review
+
+on:
+  pull_request:
+    # Into production too, for hotfix branches (a release from main was already scanned on its
+    # way into main): migrations audit, finding 2.
+    branches: [main, production]
+    # labeled/unlabeled: re-check when Dan adds or removes security-finding-dismissed.
+    types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
+
+permissions:
+  contents: read
+  # To read Dan's dismissal label and comment, and when the latest push was
+  # (scripts/check-approval.ts).
+  pull-requests: read
+  actions: read
+  issues: read
+
+concurrency:
+  group: security-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  security-review:
+    # Not on drafts: it runs when the pull request is marked ready, then on every push.
+    if: ${{ !github.event.pull_request.draft && (github.event.pull_request.base.ref == 'main' || github.event.pull_request.head.ref != 'main') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          # Full history, so the scan can compare against the base branch.
+          fetch-depth: 0
+
+      # Node 24 runs the dismissal check (scripts/check-approval.ts).
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+
+      # Pinned to a release over two weeks old. pipx comes with GitHub's Ubuntu machines.
+      - name: Install Semgrep (free, open source)
+        run: pipx install semgrep==1.180.0
+
+      # Only findings this pull request adds count (--baseline-commit), so a new rule upstream
+      # never blocks an unrelated change. Migrations are scanned too (migrations audit, 3).
+      # --metrics=off: nothing about the code is sent anywhere; the rules are downloaded.
+      - name: Scan the changes
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          semgrep scan --metrics=off --disable-version-check \
+            --config p/typescript --config p/javascript --config p/nodejs \
+            --config p/react --config p/nextjs --config p/security-audit \
+            --exclude docs --exclude tests --exclude .claude \
+            --baseline-commit "$BASE_SHA" \
+            --json --output semgrep-results.json
+
+      - name: Pass or fail (ERROR findings fail unless Dan dismissed them)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          OWNER: ${{ github.repository_owner }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          f=semgrep-results.json
+          # No real result is never a pass: a broken scan must not look like a clean one.
+          if [ ! -s "$f" ] || ! jq -e 'has("results")' "$f" > /dev/null; then
+            echo "::error::The security scan didn't produce a result (see the scan step's log)."
+            exit 1
+          fi
+          blocking=$(jq '[.results[] | select(.extra.severity == "ERROR")] | length' "$f")
+          total=$(jq '.results | length' "$f")
+          echo "Findings: ${total} (blocking: ${blocking})" | tee -a "$GITHUB_STEP_SUMMARY"
+          # Each finding is shown on the changed line in the pull request, and in the summary.
+          jq -r '.results[] | "::\(if .extra.severity == "ERROR" then "error" else "warning" end) file=\(.path),line=\(.start.line)::\(.check_id | split(".") | last): \(.extra.message | gsub("\n"; " "))"' "$f"
+          jq -r '.results[] | "- \(.extra.severity) \(.check_id | split(".") | last) in \(.path):\(.start.line): \(.extra.message | gsub("\n"; " "))"' "$f" >> "$GITHUB_STEP_SUMMARY"
+          [ "$blocking" -eq 0 ] && exit 0
+          # Dismissed only with Dan's label AND a written reason from the repository owner, both
+          # given after the latest push (migrations audit, finding 2): one dismissal never
+          # covers code pushed later.
+          dismissed=$(node scripts/check-approval.ts security-finding-dismissed "Security finding dismissed:")
+          if [ "$dismissed" = "true" ]; then
+            echo "Blocking finding(s) dismissed by ${OWNER} since the latest push." | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          echo "::error::${blocking} blocking security finding(s). Fix them, or see docs/operations/security-review.md to dismiss a false positive with a written reason."
+          exit 1

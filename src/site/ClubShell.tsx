@@ -65,7 +65,10 @@ export const ClubShell = ({
         {children}
       </main>
       <SiteFooter club={club} base={base} />
-      {club.privacy.gaMeasurementId ? (
+      {/* Never on a preview (base "/preview/<club>"): previews share the admin's address, so
+          an outside script there would run with the viewer's admin access (headers audit,
+          finding 1). Previews aren't real visits, so nothing is lost. */}
+      {club.privacy.gaMeasurementId && base === '' ? (
         <CookieConsent
           gaID={club.privacy.gaMeasurementId}
           storageKey={`cookie-consent:${club.slug}`}

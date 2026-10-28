@@ -4,13 +4,14 @@ import type { ClubSite } from '../loadClub'
 import { BookButton } from './BookButton'
 import { DesktopNav } from './DesktopNav'
 import { fitHeaderScript } from './headerFit'
+import { InlineScript } from './InlineScript'
 import { HeaderScroll } from './HeaderScroll'
 import { SearchPanel } from '../search/SearchPanel'
 import { SearchTrigger } from '../search/SearchTrigger'
 import { Phone } from './Icons'
 import { isExternal, siteHref } from './links'
 import { quickLinks } from './quickLinks'
-import { Logo } from './Logo'
+import { HomeHint, Logo } from './Logo'
 import { MobileMenu } from './MobileMenu'
 
 /**
@@ -56,8 +57,9 @@ export const SiteHeader = ({
 
   const mobile = (
     <div className="sh-mobile">
-      <a className="sh-logo-link" href={home} aria-label={`${club.name}, home`}>
+      <a className="sh-logo-link" href={home}>
         {logo(true)}
+        <HomeHint />
       </a>
       <div className="sh-mobile-actions">
         {/* Tablets only: phones search from the menu, as in Figma "Header / Mobile". */}
@@ -102,8 +104,9 @@ export const SiteHeader = ({
               ) : null}
               <div className="sh-main">
                 <div className="sh-container sh-row">
-                  <a className="sh-logo-link" href={home} aria-label={`${club.name}, home`}>
+                  <a className="sh-logo-link" href={home}>
                     <Logo club={club} />
+                    <HomeHint />
                   </a>
                   <div className="sh-cell-end">
                     {nav}
@@ -116,8 +119,9 @@ export const SiteHeader = ({
           ) : style === 'transparent' ? (
             <div className="sh-main">
               <div className="sh-container sh-row">
-                <a className="sh-logo-link" href={home} aria-label={`${club.name}, home`}>
+                <a className="sh-logo-link" href={home}>
                   {logo(false)}
+                  <HomeHint />
                 </a>
                 {nav}
                 <div className="sh-actions">
@@ -130,8 +134,9 @@ export const SiteHeader = ({
             <div className="sh-main">
               <div className="sh-container sh-row">
                 <div className="sh-appbar-left">
-                  <a className="sh-logo-link" href={home} aria-label={`${club.name}, home`}>
+                  <a className="sh-logo-link" href={home}>
                     <Logo club={club} compact />
+                    <HomeHint />
                   </a>
                   {nav}
                 </div>
@@ -145,7 +150,8 @@ export const SiteHeader = ({
         </div>
         {mobile}
       </HeaderScroll>
-      <script dangerouslySetInnerHTML={{ __html: fitHeaderScript(HEADER_ID) }} />
+      {/* Runs before the header is drawn, so the full menu never flashes up when it won't fit. */}
+      <InlineScript code={fitHeaderScript(HEADER_ID)} />
       <SearchPanel
         base={base}
         clubSlug={club.slug}

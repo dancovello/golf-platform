@@ -7,6 +7,7 @@ import {
 
 import { isSuperAdmin, loggedIn, superAdminOnly } from '../access/roles'
 import { clubHasAccepted } from '../agreement/acceptance'
+import { clubSettingsLivePreview } from '../site/livePreview'
 import { privacyRichText } from '../blocks/richText/lexical'
 import { isSafeURL, linkField } from '../fields/link'
 import { isGAMeasurementID } from '../site/privacy/policy'
@@ -120,7 +121,12 @@ export const ClubSettings: CollectionConfig = {
   slug: 'club-settings',
   labels: { singular: 'Club Settings', plural: 'Club Settings' },
   lockDocuments: false,
-  admin: { group: 'Settings', useAsTitle: 'clubName' },
+  admin: {
+    group: 'Settings',
+    useAsTitle: 'clubName',
+    // The eye button: the club's home page beside the form, refreshed on each save.
+    livePreview: clubSettingsLivePreview,
+  },
   // Created and removed with the club by the super-admin; editors only update their own.
   access: { create: superAdminOnly, read: loggedIn, update: loggedIn, delete: superAdminOnly },
   hooks: { beforeValidate: [requireAgreement, checkSameClub] },

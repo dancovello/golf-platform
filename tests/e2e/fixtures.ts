@@ -1,4 +1,10 @@
-import { test as base, expect, type Page } from '@playwright/test'
+import {
+  test as base,
+  type BrowserContext,
+  expect,
+  type FrameLocator,
+  type Page,
+} from '@playwright/test'
 
 import { clubBSecrets, loadWorld, STATE_DIR, type World } from './world'
 
@@ -32,6 +38,43 @@ const watchForLeaks = (page: Page, secrets: string[], echoed: Set<string>) => {
   }
 }
 
+/**
+ * Payload accepts the login cookie only on requests from the admin's own address (sign-in
+ * audit, A5). Browsers say so with Sec-Fetch-Site on every request. The tests' direct API calls
+ * (page.request, used the way a stolen cookie would be) don't, so they add it here: the
+ * isolation suites then test the access rules themselves, not the cross-site check. Only the
+ * API client gets it; a page can't override a browser's own Sec- headers.
+ */
+/**
+ * Marks the homepage golf ball intro as already seen this session (src/marketing/intro), so it
+ * doesn't cover the page in tests about something else. The intro's own tests
+ * (marketing-intro.spec.ts) open a fresh browser without this.
+ */
+export const skipIntro = async (context: BrowserContext) => {
+  await context.addInitScript(() => {
+    try {
+      window.sessionStorage.setItem('mk-intro-seen', '1')
+    } catch {
+      // Some pages (about:blank) have no storage.
+    }
+  })
+  return context
+}
+
+export const asSameOrigin = (context: BrowserContext) => {
+  type Call = (url: unknown, options?: { headers?: Record<string, string> }) => unknown
+  const api = context.request as unknown as Record<string, Call>
+  for (const method of ['fetch', 'get', 'post', 'put', 'patch', 'delete', 'head']) {
+    const original = api[method]!.bind(api)
+    api[method] = (url, options = {}) =>
+      original(url, {
+        ...options,
+        headers: { 'Sec-Fetch-Site': 'same-origin', ...options.headers },
+      })
+  }
+  return context
+}
+
 type Fixtures = {
   world: World
   /**
@@ -45,6 +88,9 @@ type Fixtures = {
 }
 
 export const test = base.extend<Fixtures>({
+  context: async ({ context }, use) => {
+    await use(asSameOrigin(await skipIntro(context)))
+  },
   world: async ({}, use) => {
     await use(loadWorld())
   },
@@ -53,7 +99,9 @@ export const test = base.extend<Fixtures>({
     await use(new Set())
   },
   editorPage: async ({ browser, world, echoed }, use) => {
-    const context = await browser.newContext({ storageState: `${STATE_DIR}/editorA.json` })
+    const context = asSameOrigin(
+      await skipIntro(await browser.newContext({ storageState: `${STATE_DIR}/editorA.json` })),
+    )
     const page = await context.newPage()
     const leaksSoFar = watchForLeaks(page, clubBSecrets(world), echoed)
     await use(page)
@@ -61,7 +109,9 @@ export const test = base.extend<Fixtures>({
     await context.close()
   },
   superAdminPage: async ({ browser }, use) => {
-    const context = await browser.newContext({ storageState: `${STATE_DIR}/superAdmin.json` })
+    const context = asSameOrigin(
+      await skipIntro(await browser.newContext({ storageState: `${STATE_DIR}/superAdmin.json` })),
+    )
     await use(await context.newPage())
     await context.close()
   },
@@ -76,5 +126,14 @@ export const openReady = async (page: Page, url: string) => {
   await page.goto(url)
   await page.waitForLoadState('networkidle')
 }
+
+/**
+ * The club's logo link home. Its name is what the logo shows (its alt text, or the club name
+ * and strapline) followed by ", home".
+ */
+export const homeLink = (scope: Page | FrameLocator, clubName: string) =>
+  scope.getByRole('link', {
+    name: new RegExp(`^${clubName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?: .*)?, home$`),
+  })
 
 export { expect }

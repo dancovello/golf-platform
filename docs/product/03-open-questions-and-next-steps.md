@@ -29,10 +29,10 @@ Production was last released on 2026-10-11. From now on releases to production h
 
 ## Still open: Dan to decide
 
-- **Platform name.** "Clubhouse" is a placeholder (`PLATFORM_NAME` in `src/site/privacy/policy.ts`). Needed before the platform's own domain, the sending email address and the legal agreement can be finalised.
+- **Platform name.** "Brandname" is a placeholder, in one file: `src/brand.ts` (name, email, domain). Needed before the platform's own domain, the sending email address and the legal agreement can be finalised.
 - **Pricing and tier boundaries.** Which features or services need the paid tier, and the prices. Needed before club #1 signs.
 - **Legal wording.** The data processing agreement (`src/agreement/text.ts`) has square brackets for the provider's legal name, company number, address, contact email and liability clause, and needs a solicitor. The privacy policy needs a data-protection adviser's review. Dan is finalising these (2026-10-20).
-- **Suppliers' own data terms.** Confirm the data processing terms of Vercel, Neon, Cloudflare, GitHub and Resend are accepted, and decide whether to move Vercel's function region to London.
+- **Suppliers' own data terms.** Confirm the data processing terms of Vercel, Neon, Cloudflare, GitHub and Resend are accepted, Vercel's function region moved to London on 22 Oct (`vercel.json`); the agreement's sub-processor table still needs updating to match (needs a new agreement version).
 - **The devops friend's scope.** What he owns (infrastructure, monitoring, restore drills, periodic security review) versus what stays automated. Dan is checking with him (2026-10-20), starting with the first restore drill.
 - **Security audit budget.** A paid penetration test before the first cohort of paying clubs.
 - **Booking providers.** Clubs use IntelligentGolf, BRS Golf, ClubV1/HowDidiDo and GolfGenius. Today every club gets a "Book a tee time" button that links to its own system. Decide whether any provider gets a proper embed.

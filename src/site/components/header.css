@@ -92,6 +92,14 @@
 .sh[data-scrolled='true'] .sh-logo-over {
   display: none;
 }
+.sh-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 .sh-wordmark {
   display: inline-flex;
   flex-direction: column;

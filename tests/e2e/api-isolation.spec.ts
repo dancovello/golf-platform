@@ -58,6 +58,11 @@ test.describe("REST API as club A's editor", () => {
       '/api/tenants',
       '/api/users/me',
       '/api/tenants/populate-tenant-options',
+      '/api/pages/versions?limit=100',
+      '/api/payload-preferences',
+      '/api/media?limit=100',
+      '/api/documents?limit=100',
+      '/api/access',
     ]) {
       const body = await (await editorPage.request.get(path)).text()
       const leaked = clubBSecrets(world).filter((secret) => body.includes(secret))
@@ -81,6 +86,62 @@ test.describe("REST API as club A's editor", () => {
     expect(pageB.title).toBe(world.pageB.title)
   })
 
+  test("club B's page history answers like history that doesn't exist", async ({
+    editorPage,
+    superAdminPage,
+    world,
+  }) => {
+    const versions = await (
+      await superAdminPage.request.get(
+        `/api/pages/versions?where[parent][equals]=${world.pageB.id}&limit=1`,
+      )
+    ).json()
+    const versionB = versions.docs[0]?.id
+    expect(versionB, 'club B’s page should have a version to look for').toBeTruthy()
+    const real = await editorPage.request.get(`/api/pages/versions/${versionB}`)
+    const madeUp = await editorPage.request.get(`/api/pages/versions/${MADE_UP_ID}`)
+    expect({ status: real.status(), body: await real.json() }).toEqual({
+      status: madeUp.status(),
+      body: await madeUp.json(),
+    })
+    const restore = await editorPage.request.post(`/api/pages/versions/${versionB}`)
+    expect(restore.status()).toBeGreaterThanOrEqual(400)
+  })
+
+  test('cannot read or run the background job queue', async ({ editorPage }) => {
+    expect((await editorPage.request.get('/api/payload-jobs')).status()).toBe(403)
+    for (const path of ['/api/payload-jobs/run', '/api/payload-jobs/handle-schedules']) {
+      const res = await editorPage.request.get(path)
+      expect({ path, status: res.status() >= 400 }).toEqual({ path, status: true })
+    }
+  })
+
+  test('switching off two-factor does nothing for an account without it', async ({
+    editorPage,
+  }) => {
+    const res = await editorPage.request.post('/api/remove-totp', { data: { token: '000000' } })
+    expect((await res.json()).ok).toBe(false)
+  })
+
+  test("club B's photo file isn't served through the API", async ({ editorPage, world }) => {
+    const { filename, prefix } = world.mediaB
+    const real = await editorPage.request.get(
+      `/api/media/file/${encodeURIComponent(filename)}?prefix=${encodeURIComponent(prefix)}`,
+    )
+    const madeUp = await editorPage.request.get(
+      `/api/media/file/made-up.png?prefix=${encodeURIComponent(prefix)}`,
+    )
+    expect(real.status()).toBeGreaterThanOrEqual(400)
+    expect(real.status()).toBe(madeUp.status())
+  })
+
+  test('pasting a photo from a web address is switched off', async ({ editorPage }) => {
+    const res = await editorPage.request.get(
+      '/api/media/paste-url?src=https%3A%2F%2Fexample.com%2Fa.png',
+    )
+    expect(res.status()).toBeGreaterThanOrEqual(400)
+  })
+
   test('cannot make itself super-admin or move club', async ({ editorPage, world }) => {
     await editorPage.request.patch(`/api/users/${world.editorA.id}`, {
       data: { role: 'super-admin', tenant: world.clubB.id },
@@ -89,6 +150,19 @@ test.describe("REST API as club A's editor", () => {
     expect(me.user.role).toBe('editor')
     expect(me.user.tenant).toBe(world.clubA.id)
   })
+})
+
+test('platform files hold no club data', async ({ request, editorPage, world }) => {
+  const clubData = [world.clubA.name, world.clubA.id, ...clubBSecrets(world)]
+  for (const path of ['/health', '/robots.txt']) {
+    for (const r of [request, editorPage.request]) {
+      const body = await (await r.get(path)).text()
+      expect({ path, leaked: clubData.filter((s) => body.includes(s)) }).toEqual({
+        path,
+        leaked: [],
+      })
+    }
+  }
 })
 
 test.describe('REST API with no login', () => {

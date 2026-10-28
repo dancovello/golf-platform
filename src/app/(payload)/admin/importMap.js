@@ -14,6 +14,7 @@ import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { HeadingFeatureClient as HeadingFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ParagraphFeatureClient as ParagraphFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
+import { PageTree as PageTree_f69340de5c85a3dab9d018e0d508238b } from '../../../admin/PageTree'
 import { AssignTenantFieldTrigger as AssignTenantFieldTrigger_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
 import { DescriptionCell as DescriptionCell_77efe8da5abd468dfbd244797c4797b0 } from '../../../admin/DescriptionCell'
 import { AgreementNotice as AgreementNotice_0c59deaf7e3e73247a9db3722360189d } from '../../../admin/AgreementNotice'
@@ -28,12 +29,14 @@ import { InviteEditorButton as InviteEditorButton_ed6924b166afdc0cc951a5635a759e
 import { AgreementText as AgreementText_ccfb96bd008288f196e6336a2e0a5cfe } from '../../../admin/AgreementText'
 import { WatchTenantCollection as WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
 import { DemoClubPanel as DemoClubPanel_d501804340c10bdbd462804989163cd4 } from '../../../admin/DemoClubPanel'
+import { FounderNote as FounderNote_e706a6810c986a3f9100476d0cd6244f } from '../../../marketing/admin/FounderNote'
+import { StarterPagesButton as StarterPagesButton_7261b7f671ff25f31d3eb62061bfb267 } from '../../../marketing/admin/StarterPagesButton'
 import { GlobalViewRedirect as GlobalViewRedirect_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
 import { ClubHome as ClubHome_d5994150e51c48090be4b9072de8e30f } from '../../../admin/ClubHome'
 import { TenantSelector as TenantSelector_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
 import { TenantSelectionAfterTwoFactor as TenantSelectionAfterTwoFactor_81c53e0ef025a5e59bab11a3e58579bd } from '../../../admin/TenantSelectionAfterTwoFactor'
 import { S3ClientUploadHandler as S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24 } from '@payloadcms/storage-s3/client'
-import { TOTPProvider as TOTPProvider_4eaf6cb33cfb75be01716613e3c9a512 } from 'payload-totp/rsc'
+import { SuperAdminTwoFactorProvider as SuperAdminTwoFactorProvider_2552afe2d4ec8dc58deb5f0f61b6a22b } from '../../../admin/SuperAdminTwoFactorProvider'
 import { TOTPSetup as TOTPSetup_4eaf6cb33cfb75be01716613e3c9a512 } from 'payload-totp/rsc'
 import { TOTPVerify as TOTPVerify_4eaf6cb33cfb75be01716613e3c9a512 } from 'payload-totp/rsc'
 import { InviteEditorView as InviteEditorView_81c4e00104ce61dd8de9811588af1e2c } from '../../../admin/InviteEditorView'
@@ -57,6 +60,7 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#HeadingFeatureClient": HeadingFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#ParagraphFeatureClient": ParagraphFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  "/admin/PageTree#PageTree": PageTree_f69340de5c85a3dab9d018e0d508238b,
   "@payloadcms/plugin-multi-tenant/client#AssignTenantFieldTrigger": AssignTenantFieldTrigger_1d0591e3cf4f332c83a86da13a0de59a,
   "/admin/DescriptionCell#DescriptionCell": DescriptionCell_77efe8da5abd468dfbd244797c4797b0,
   "/admin/AgreementNotice#AgreementNotice": AgreementNotice_0c59deaf7e3e73247a9db3722360189d,
@@ -71,12 +75,14 @@ export const importMap = {
   "/admin/AgreementText#AgreementText": AgreementText_ccfb96bd008288f196e6336a2e0a5cfe,
   "@payloadcms/plugin-multi-tenant/client#WatchTenantCollection": WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a,
   "/admin/DemoClubPanel#DemoClubPanel": DemoClubPanel_d501804340c10bdbd462804989163cd4,
+  "/marketing/admin/FounderNote#FounderNote": FounderNote_e706a6810c986a3f9100476d0cd6244f,
+  "/marketing/admin/StarterPagesButton#StarterPagesButton": StarterPagesButton_7261b7f671ff25f31d3eb62061bfb267,
   "@payloadcms/plugin-multi-tenant/rsc#GlobalViewRedirect": GlobalViewRedirect_d6d5f193a167989e2ee7d14202901e62,
   "/admin/ClubHome#ClubHome": ClubHome_d5994150e51c48090be4b9072de8e30f,
   "@payloadcms/plugin-multi-tenant/rsc#TenantSelector": TenantSelector_d6d5f193a167989e2ee7d14202901e62,
   "/admin/TenantSelectionAfterTwoFactor#TenantSelectionAfterTwoFactor": TenantSelectionAfterTwoFactor_81c53e0ef025a5e59bab11a3e58579bd,
   "@payloadcms/storage-s3/client#S3ClientUploadHandler": S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24,
-  "payload-totp/rsc#TOTPProvider": TOTPProvider_4eaf6cb33cfb75be01716613e3c9a512,
+  "/admin/SuperAdminTwoFactorProvider#SuperAdminTwoFactorProvider": SuperAdminTwoFactorProvider_2552afe2d4ec8dc58deb5f0f61b6a22b,
   "payload-totp/rsc#TOTPSetup": TOTPSetup_4eaf6cb33cfb75be01716613e3c9a512,
   "payload-totp/rsc#TOTPVerify": TOTPVerify_4eaf6cb33cfb75be01716613e3c9a512,
   "/admin/InviteEditorView#InviteEditorView": InviteEditorView_81c4e00104ce61dd8de9811588af1e2c,

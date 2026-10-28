@@ -44,6 +44,20 @@ import * as migration_20261020_092237_media_tone from './20261020_092237_media_t
 import * as migration_20261020_112739_menu_sections from './20261020_112739_menu_sections';
 import * as migration_20261020_164723_club_domains from './20261020_164723_club_domains';
 import * as migration_20261020_212250_privacy_cleanup from './20261020_212250_privacy_cleanup';
+import * as migration_20261021_154303_marketing_content from './20261021_154303_marketing_content';
+import * as migration_20261021_160708_marketing_blocks_from_figma from './20261021_160708_marketing_blocks_from_figma';
+import * as migration_20261021_163953_marketing_founder_card from './20261021_163953_marketing_founder_card';
+import * as migration_20261021_170032_marketing_home_blocks from './20261021_170032_marketing_home_blocks';
+import * as migration_20261021_171424_marketing_pricing_blocks from './20261021_171424_marketing_pricing_blocks';
+import * as migration_20261021_173753_marketing_switching from './20261021_173753_marketing_switching';
+import * as migration_20261021_175055_marketing_book_demo from './20261021_175055_marketing_book_demo';
+import * as migration_20261021_214128_marketing_website_builder from './20261021_214128_marketing_website_builder';
+import * as migration_20261021_215842_marketing_bookings_preview from './20261021_215842_marketing_bookings_preview';
+import * as migration_20261022_091355_rate_limits from './20261022_091355_rate_limits';
+import * as migration_20261023_120000_app_role_limits from './20261023_120000_app_role_limits';
+import * as migration_20261024_095237_marketing_info_pages from './20261024_095237_marketing_info_pages';
+import * as migration_20261026_201248_marketing_feature_showcase from './20261026_201248_marketing_feature_showcase';
+import * as migration_20261027_191922_course_record_block from './20261027_191922_course_record_block';
 
 export const migrations = [
   {
@@ -274,6 +288,76 @@ export const migrations = [
   {
     up: migration_20261020_212250_privacy_cleanup.up,
     down: migration_20261020_212250_privacy_cleanup.down,
-    name: '20261020_212250_privacy_cleanup'
+    name: '20261020_212250_privacy_cleanup',
+  },
+  {
+    up: migration_20261021_154303_marketing_content.up,
+    down: migration_20261021_154303_marketing_content.down,
+    name: '20261021_154303_marketing_content',
+  },
+  {
+    up: migration_20261021_160708_marketing_blocks_from_figma.up,
+    down: migration_20261021_160708_marketing_blocks_from_figma.down,
+    name: '20261021_160708_marketing_blocks_from_figma',
+  },
+  {
+    up: migration_20261021_163953_marketing_founder_card.up,
+    down: migration_20261021_163953_marketing_founder_card.down,
+    name: '20261021_163953_marketing_founder_card',
+  },
+  {
+    up: migration_20261021_170032_marketing_home_blocks.up,
+    down: migration_20261021_170032_marketing_home_blocks.down,
+    name: '20261021_170032_marketing_home_blocks',
+  },
+  {
+    up: migration_20261021_171424_marketing_pricing_blocks.up,
+    down: migration_20261021_171424_marketing_pricing_blocks.down,
+    name: '20261021_171424_marketing_pricing_blocks',
+  },
+  {
+    up: migration_20261021_173753_marketing_switching.up,
+    down: migration_20261021_173753_marketing_switching.down,
+    name: '20261021_173753_marketing_switching',
+  },
+  {
+    up: migration_20261021_175055_marketing_book_demo.up,
+    down: migration_20261021_175055_marketing_book_demo.down,
+    name: '20261021_175055_marketing_book_demo',
+  },
+  {
+    up: migration_20261021_214128_marketing_website_builder.up,
+    down: migration_20261021_214128_marketing_website_builder.down,
+    name: '20261021_214128_marketing_website_builder',
+  },
+  {
+    up: migration_20261021_215842_marketing_bookings_preview.up,
+    down: migration_20261021_215842_marketing_bookings_preview.down,
+    name: '20261021_215842_marketing_bookings_preview',
+  },
+  {
+    up: migration_20261022_091355_rate_limits.up,
+    down: migration_20261022_091355_rate_limits.down,
+    name: '20261022_091355_rate_limits',
+  },
+  {
+    up: migration_20261023_120000_app_role_limits.up,
+    down: migration_20261023_120000_app_role_limits.down,
+    name: '20261023_120000_app_role_limits',
+  },
+  {
+    up: migration_20261024_095237_marketing_info_pages.up,
+    down: migration_20261024_095237_marketing_info_pages.down,
+    name: '20261024_095237_marketing_info_pages',
+  },
+  {
+    up: migration_20261026_201248_marketing_feature_showcase.up,
+    down: migration_20261026_201248_marketing_feature_showcase.down,
+    name: '20261026_201248_marketing_feature_showcase',
+  },
+  {
+    up: migration_20261027_191922_course_record_block.up,
+    down: migration_20261027_191922_course_record_block.down,
+    name: '20261027_191922_course_record_block'
   },
 ];

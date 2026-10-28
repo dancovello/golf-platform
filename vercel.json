@@ -1,5 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "regions": ["lhr1"],
   "git": {
     "deploymentEnabled": {
       "main": false,
@@ -10,6 +11,10 @@
     {
       "path": "/cron/clean-up",
       "schedule": "30 3 * * *"
+    },
+    {
+      "path": "/cron/canary",
+      "schedule": "0 * * * *"
     }
   ]
 }

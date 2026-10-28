@@ -1,3 +1,4 @@
+import { EMAIL_ADDRESS } from '@/email/address'
 import {
   asksForDateAndPeople,
   type EnquiryPurpose,
@@ -56,7 +57,7 @@ export const EMPTY_VALUES: ContactValues = {
   newsletter: false,
 }
 
-const EMAIL = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)*\.[a-z]{2,}$/i
+const EMAIL = EMAIL_ADDRESS
 const PHONE = /^\+?[0-9 ()-]{7,20}$/
 const DATE = /^\d{4}-\d{2}-\d{2}$/
 

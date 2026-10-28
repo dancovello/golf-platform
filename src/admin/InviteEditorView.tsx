@@ -2,7 +2,7 @@ import { DefaultTemplate } from '@payloadcms/next/templates'
 import { Gutter } from '@payloadcms/ui'
 import type { AdminViewServerProps } from 'payload'
 
-import { isSuperAdmin } from '../access/roles'
+import { isSuperAdminWithCode } from '../auth/fullyAuthenticated'
 
 import { InviteEditorForm } from './InviteEditorForm'
 
@@ -13,8 +13,7 @@ export const InviteEditorView = async ({
   searchParams,
 }: AdminViewServerProps) => {
   const { req } = initPageResult
-  const user = req.user as (typeof req.user & { _strategy?: string }) | null
-  const allowed = Boolean(user && isSuperAdmin(user) && user._strategy === 'totp')
+  const allowed = isSuperAdminWithCode(req.user)
 
   const clubs = allowed
     ? (
@@ -24,7 +23,7 @@ export const InviteEditorView = async ({
           sort: 'name',
           depth: 0,
           overrideAccess: false,
-          user,
+          user: req.user,
         })
       ).docs.map((club) => ({ id: club.id, name: club.name }))
     : []

@@ -4,7 +4,8 @@ import Link from 'next/link'
 import type { ServerProps } from 'payload'
 import type { CSSProperties, ReactNode } from 'react'
 
-import { editorTenantID, isSuperAdmin } from '../access/roles'
+import { editorTenantID } from '../access/roles'
+import { isFullyAuthenticated, isSuperAdminWithCode } from '../auth/fullyAuthenticated'
 
 import { allClubsProgress, clubHomeData, type ClubHomeData } from './clubSetup'
 
@@ -135,8 +136,10 @@ const ClubCards = ({ data }: { data: ClubHomeData }) => {
 }
 
 export const ClubHome = async ({ payload, user }: ServerProps) => {
-  if (!user) return null
-  const superAdmin = isSuperAdmin(user)
+  // Reads with access rules off, so it checks the code itself rather than relying on the
+  // admin's two-factor redirect (docs/security/audit-auth.md, A3).
+  if (!isFullyAuthenticated(user)) return null
+  const superAdmin = isSuperAdminWithCode(user)
   const tenantID = superAdmin
     ? (getTenantFromCookie(await headers(), 'text') as string | null)
     : editorTenantID(user)

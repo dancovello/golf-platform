@@ -2,6 +2,7 @@ import config from '@payload-config'
 import { getPayload } from 'payload'
 
 import { enquiryPurposeLabel } from '@/collections/enquiryPurposes'
+import { allowRequest, CONTACT_CLUB_LIMIT } from '@/security/rateLimit'
 
 import { isExternal, siteHref } from '../components/links'
 import { loadClubBySlug } from '../loadClub'
@@ -66,7 +67,8 @@ const summary = (
  * - a hidden "website" box only bots fill in;
  * - the signed time check (formToken.ts): too quick to be a person, or long expired;
  * - Cloudflare's "are you a person?" check, when switched on (turnstile.ts);
- * - at most HOURLY_LIMIT messages per club per hour.
+ * - at most 5 sends per visitor in 10 minutes (`visitorAllowed`, from the page's request);
+ * - at most HOURLY_LIMIT messages per club per hour, counted in one step (no overshoot).
  * Bots caught by the first two are shown the normal "sent" screen, so they learn nothing.
  * Returns null for a club that doesn't exist. `onSaved` gets the new enquiry's ID (the page
  * emails the club with it, after replying to the visitor).
@@ -79,6 +81,7 @@ export const submitEnquiry = async (
   form: FormData,
   now = new Date(),
   onSaved?: (enquiryID: string) => void,
+  { visitorAllowed }: { visitorAllowed?: () => Promise<boolean> } = {},
 ): Promise<ContactState | null> => {
   const club = await loadClubBySlug(typeof clubRef === 'string' ? clubRef : clubRef.slug)
   if (!club) return null
@@ -124,7 +127,15 @@ export const submitEnquiry = async (
   if (person === 'failed') return keep({ formError: NOT_CHECKED })
   if (person === 'unavailable') return keep({ formError: CHECK_UNAVAILABLE })
 
+  if (visitorAllowed && !(await visitorAllowed())) return keep({ formError: BUSY })
+
   const payload = await getPayload({ config })
+  // Counted and checked in one database step, so messages sent at the same moment can't all
+  // see room for one more (public forms audit, finding 3).
+  const db = (payload.db as unknown as { drizzle: Parameters<typeof allowRequest>[0] }).drizzle
+  if (!(await allowRequest(db, CONTACT_CLUB_LIMIT, `club:${club.tenantID}`, now))) {
+    return keep({ formError: BUSY })
+  }
   const { totalDocs: lastHour } = await payload.count({
     collection: 'enquiries',
     where: {

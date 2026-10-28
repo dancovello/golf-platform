@@ -35,7 +35,8 @@ export const LogoStrip = ({ block, ctx }: { block: LogoStripBlock; ctx: BlockCon
         className="ls-logo"
         role={hidden ? undefined : 'img'}
         aria-label={hidden ? undefined : p.name}
-        style={{ '--logo': `url("${p.logo}")` } as CSSProperties}
+        // JSON.stringify quotes and escapes the address, so it can't end the CSS string early.
+        style={{ '--logo': `url(${JSON.stringify(p.logo)})` } as CSSProperties}
       />
     ) : (
       <span className="ls-wordmark t-label-s">{p.name}</span>

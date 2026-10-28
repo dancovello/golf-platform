@@ -5,6 +5,9 @@
 import { mkdirSync, writeFileSync } from 'node:fs'
 
 import { allowAccountCreation } from '@/access/accountCreation'
+import { createSuperAdmin } from '@/accounts/createSuperAdmin'
+import { PLACEHOLDER } from '@/marketing/collections/MarketingPages'
+import { STARTER_PAGES, starterPageData } from '@/marketing/starter/pages'
 
 import { pdfFile, photoFile } from '../shared/media'
 import { rt } from '../shared/richText'
@@ -314,6 +317,12 @@ const extraEditor = async (email: string, enrol: boolean) => {
   return { id: user.id, email }
 }
 const editorNotSetUp = await extraEditor('editor-not-set-up@example.com', false)
+// A super-admin who hasn't set two-factor up: must do so before anything else (22 Oct).
+const superAdminNotSetUp = await (async () => {
+  const email = 'super-not-set-up@example.com'
+  const created = await createSuperAdmin(w.payload, { email, password: PASSWORD })
+  return { id: created.id, email }
+})()
 const editorToReset = await extraEditor('editor-to-reset@example.com', true)
 // One account per login test: Payload saves a login by writing back the whole account record,
 // so two tests logging in as the same account at the same moment can log each other out.
@@ -414,7 +423,11 @@ for (const style of ['classic', 'transparent', 'appBar'] as const) {
 // cookie banner never sits over what other tests click.
 const cookieClub = await w.payload.create({
   collection: 'tenants',
-  data: { name: 'Test Club Cookies', slug: 'test-club-cookies' },
+  data: {
+    name: 'Test Club Cookies',
+    slug: 'test-club-cookies',
+    domains: [{ hostname: 'club-cookies.localhost' }],
+  },
 })
 const { docs: cookieSettings } = await w.payload.find({
   collection: 'club-settings',
@@ -520,6 +533,152 @@ await w.payload.create({
 })
 
 mkdirSync('tests/e2e/.state', { recursive: true })
+// The company website (tests/e2e/marketing-content.spec.ts): one published page, one draft.
+await w.payload.create({
+  collection: 'marketing-pages',
+  data: {
+    _status: 'published',
+    title: 'E2E pricing',
+    slug: 'e2e-pricing',
+    meta: { description: 'One price for your club, shown in full.' },
+    layout: [
+      { blockType: 'mkSectionHeader', eyebrow: 'Pricing', title: 'One clear price' },
+      {
+        blockType: 'mkRichText',
+        content: rt.doc(rt.p('Marketing-only sentence for the browser tests.')),
+      },
+      { blockType: 'mkCtaBand', title: 'See it on your club' },
+    ],
+  } as never,
+})
+await w.payload.create({
+  collection: 'marketing-pages',
+  draft: true,
+  data: {
+    _status: 'draft',
+    title: 'E2E draft',
+    slug: 'e2e-draft',
+    layout: [{ blockType: 'mkSectionHeader', title: 'Not published yet' }],
+  } as never,
+})
+
+// Every marketing block and variant on one page, for the Figma comparison
+// (tests/e2e/marketing-look.spec.ts).
+const marketingPhoto = await w.payload.create({
+  collection: 'marketing-media',
+  data: { alt: 'Demo club: a heathland fairway at dawn' },
+  file: await photoFile('demo-fairway.jpg', 2400, 1350),
+})
+await w.payload.create({
+  collection: 'marketing-pages',
+  data: {
+    _status: 'published',
+    title: 'E2E blocks',
+    slug: 'e2e-blocks',
+    layout: [
+      {
+        blockType: 'mkSectionHeader',
+        eyebrow: 'Eyebrow',
+        title: 'A heading that says one thing well.',
+        subhead: 'One or two sentences that back the heading up. Keep it under thirty words.',
+      },
+      {
+        blockType: 'mkRichText',
+        content: rt.doc(
+          rt.h2('Our commitment'),
+          rt.p('A paragraph of body text, set in the reading width.'),
+          rt.p('A second paragraph with ', rt.urlLink('a link', 'https://example.com'), '.'),
+          rt.h3('What we test'),
+          rt.ul('Keyboard access to every control', 'Colour contrast of text and controls'),
+          rt.quote('A quote, set large with a dawn rule.'),
+        ),
+      },
+      {
+        blockType: 'mkSectionHeader',
+        eyebrow: 'Features',
+        title: 'Rows by default.',
+        align: 'center',
+      },
+      {
+        blockType: 'mkFeatureCards',
+        cards: [
+          {
+            icon: 'check',
+            title: 'Rows have no box',
+            body: 'A hairline above, icon beside the text.',
+          },
+          {
+            icon: 'calendar',
+            title: 'Two columns',
+            body: 'Rows sit in a two-column list.',
+            availability: 'coming-next',
+          },
+        ],
+      },
+      {
+        blockType: 'mkFeatureCards',
+        style: 'cards',
+        cards: [
+          {
+            icon: 'lock',
+            title: 'Cards link somewhere',
+            body: 'Only then is it a card.',
+            linkLabel: 'Read more',
+            linkHref: '/e2e-pricing',
+          },
+          {
+            icon: 'players',
+            title: 'Equal widths',
+            body: 'Rows of two or three.',
+            linkLabel: 'Read more',
+            linkHref: '/e2e-pricing',
+          },
+          {
+            icon: 'flag',
+            title: 'Badges show status',
+            body: 'Text and icon, never colour alone.',
+            availability: 'coming-next',
+            linkLabel: 'Read more',
+            linkHref: '/e2e-pricing',
+          },
+        ],
+      },
+      { blockType: 'mkSectionHeader', title: 'Photos.' },
+      {
+        blockType: 'mkMedia',
+        image: marketingPhoto.id,
+        ratio: '16:9',
+        frame: 'plain',
+        caption: 'Caption. Optional, one line.',
+      },
+      {
+        blockType: 'mkMedia',
+        image: marketingPhoto.id,
+        ratio: '3:2',
+        frame: 'window',
+        windowAddress: 'ashgrovepark.golf',
+      },
+      {
+        blockType: 'mkCtaBand',
+        title: 'See your club on it.',
+        subhead: 'We’ll rebuild your homepage in your colours and send it straight to you, free.',
+      },
+    ],
+  } as never,
+})
+
+// The marketing pages from the Figma copy, published (tests/e2e/marketing-*.spec.ts). The
+// legal pages keep their placeholder wording, so they stay drafts (marketing-info.spec.ts).
+for (const starter of STARTER_PAGES) {
+  const data = starterPageData(starter, new Date('2026-10-14T12:00:00Z'))
+  const draft = PLACEHOLDER.test(JSON.stringify(data.layout))
+  await w.payload.create({
+    collection: 'marketing-pages',
+    draft,
+    data: { _status: draft ? 'draft' : 'published', ...data } as never,
+  })
+}
+
 writeFileSync(
   'tests/e2e/.state/world.json',
   JSON.stringify({
@@ -541,6 +700,7 @@ writeFileSync(
       url: w.mediaB.url,
     },
     editorNotSetUp,
+    superAdminNotSetUp,
     editorToReset,
     editorLoginOnly,
     editorTypesCode,

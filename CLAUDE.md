@@ -28,6 +28,7 @@ These decisions are already made. Build on them. Do not propose alternatives unl
 - `docs/product/02-content-model-and-block-library.md` is the content model and block library
 - `docs/product/03-open-questions-and-next-steps.md` lists open decisions. Flag them and never silently decide them
 - `docs/design/` holds the brand colour contract (08), block design direction (05), per-block Figma build specs (07, 09–11) and the mobile spec (13). Figma file key: `GXzYibwnWKKyTeUkwRn8Of`
+- **Marketing site** (the company's own site, not a club site): `docs/marketing-site/HANDOFF.md` is the brief, `docs/marketing-site/19-marketing-tone-of-voice.md` the voice rules, `docs/plans/marketing-site-plan.md` the approved plan. Every factual claim needs a row in `docs/marketing-site/claims-register.md` before it ships; open questions live in `docs/marketing-site/open-questions.md`
 - `docs/design/06-design-skill-stack.md` lists which skills to use for which job. Use one skill per job
 - `docs/product/12-booking-and-accounts-design-brief.md` and section 4 of `docs/product/14-content-templates-and-booking-extensions.md` are **out of scope for v1**. News, events and contact templates in doc 14 are in scope
 - `docs/product/01-research-club-list.md` is background research only. Don't read it unless asked
@@ -58,6 +59,7 @@ Member login, the booking portal, and billing/payments. They are documented for 
 ## How to work with Dan
 - **Plan first.** Propose a small plan, wait for approval, then implement only what was agreed.
 - Keep changes small. One branch per change. No direct commits to `main`.
+- Open pull requests as **drafts** while still pushing to them, and mark them ready for review when done: the browser checks only run on ready pull requests (`docs/operations/ci-minutes.md`).
 - End every change with this summary:
   > **What changed:** … · **Why it's safe:** … · **Checks run:** typecheck ✅/❌, lint ✅/❌, tests ✅/❌, tenant isolation ✅/❌ · **New dependencies:** none / list · **Migration:** none / reviewed · **Preview:** link · **Risks / open questions:** …
 - If something needs a human expert (security, production infrastructure), say so plainly.
@@ -84,6 +86,7 @@ Node 24 and pnpm (via corepack: `corepack pnpm …` if `pnpm` isn't on PATH). Lo
 - **Database accounts:** the website uses the limited `golf_app` account (read/write data only). Only the release workflow uses the owner account.
 - **Backups:** `.github/workflows/backup.yml` runs nightly and before each release, encrypted with the public key in `ops/backup-recipient.txt`. Restore procedure: `docs/operations/restore-runbook.md`.
 - **Migrations:** never edit a merged migration; the `migration-guard` CI check blocks it. Data-deleting changes need Dan's `approved-destructive-migration` label.
+- **Security scan:** every PR into `main` gets the free `security-review` check (Semgrep Community Edition, no API key; `docs/operations/security-review.md`). An ERROR finding fails it. Fix it; only Dan may dismiss one (the `security-finding-dismissed` label plus his written comment). Claude never adds that label or writes that comment.
 - Decisions made after doc 04 are in `docs/architecture/decisions.md`.
 - **Security checks:** run in a separate chat with the prompt in `docs/operations/security-checks.md` (read-only; it writes a dated report).
 
