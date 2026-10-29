@@ -48,11 +48,16 @@ const jumpTo = (id: string) => (e: React.MouseEvent) => {
 /** Idle and Errors states, then Sent (Figma "Contact · Idle / Errors / Sent"). */
 export const ContactForm = (props: Props) => {
   const [state, formAction, pending] = useActionState(props.action, props.initial)
-  if (state.sent) return <Sent sent={state.sent} againHref={props.againHref} />
+  if (state.sent)
+    return (
+      <div className="cf-panel">
+        <Sent sent={state.sent} againHref={props.againHref} />
+      </div>
+    )
   // A new key after each send: React clears a form once its action finishes, so the fields
   // are drawn again from what was sent.
   return (
-    <>
+    <div className="cf-panel">
       <FormBody
         key={state.attempt}
         {...props}
@@ -71,9 +76,19 @@ export const ContactForm = (props: Props) => {
           restartKey={state.formError ? state.attempt : null}
         />
       ) : null}
-    </>
+    </div>
   )
 }
+
+/** A numbered step heading: "01 What's it about?". The number is decoration only. */
+const Step = ({ n, children }: { n: string; children: React.ReactNode }) => (
+  <>
+    <span className="cf-step-n" aria-hidden="true">
+      {n}
+    </span>
+    {children}
+  </>
+)
 
 const FORM_ID = 'contact-form'
 
@@ -127,16 +142,17 @@ const FormBody = ({
     label: string,
     required: boolean,
     control: (common: Record<string, unknown>) => React.ReactNode,
+    labelContent?: React.ReactNode,
   ) => {
     const error = errors[name]
     const id = fieldID(name)
     const helpID = `${id}-help`
     return (
       <div className={`cf-field${error ? ' is-error' : ''}`}>
-        <div className="cf-label-row t-label-s">
-          <label htmlFor={id}>{label}</label>
-          <span className="cf-hint">{required ? 'Required' : 'Optional'}</span>
-        </div>
+        <label htmlFor={id} className={labelContent ? 'cf-step' : 'cf-label t-body-s'}>
+          {labelContent ?? label}
+          {required ? null : <span className="cf-optional"> (optional)</span>}
+        </label>
         {control({
           id,
           name,
@@ -152,8 +168,8 @@ const FormBody = ({
           </p>
         ) : name === 'message' ? (
           <p className="cf-help t-body-s" id={helpID} aria-live="polite">
-            {messageLength.toLocaleString('en-GB')} / {MESSAGE_MAX.toLocaleString('en-GB')}{' '}
-            characters
+            {messageLength.toLocaleString('en-GB')} / {MESSAGE_MAX.toLocaleString('en-GB')}
+            <span className="cf-sr"> characters</span>
           </p>
         ) : null}
       </div>
@@ -227,11 +243,13 @@ const FormBody = ({
         </label>
       </div>
 
-      <fieldset className="cf-topic">
-        <legend className="t-label-s">What’s it about?</legend>
-        <div className="cf-topics">
+      <fieldset className="cf-section cf-topic">
+        <legend className="cf-step">
+          <Step n="01">What’s it about?</Step>
+        </legend>
+        <div className="cf-tiles">
           {ENQUIRY_PURPOSES.map((p) => (
-            <label key={p.value} className="cf-pill t-label-s">
+            <label key={p.value} className="cf-tile t-body-s">
               <input
                 type="radio"
                 name="purpose"
@@ -239,61 +257,76 @@ const FormBody = ({
                 checked={purpose === p.value}
                 onChange={() => setPurpose(p.value)}
               />
-              <span>{p.label}</span>
+              <span className="cf-tile-face">
+                <span>{p.label}</span>
+                <Check size={16} />
+              </span>
             </label>
           ))}
         </div>
       </fieldset>
 
-      <div className="cf-row">
+      <div className="cf-section">
+        <h2 className="cf-step">
+          <Step n="02">Your details</Step>
+        </h2>
         {field('name', 'Full name', true, input('name', { autoComplete: 'name', maxLength: 100 }))}
-        {field(
-          'email',
-          'Email address',
-          true,
-          input('email', { type: 'email', autoComplete: 'email', inputMode: 'email' }),
-        )}
-      </div>
-      <div className="cf-row">
-        {field(
-          'phone',
-          'Phone',
-          false,
-          input('phone', { type: 'tel', autoComplete: 'tel', maxLength: 20 }),
-        )}
-        {purpose === 'membership'
-          ? field('membershipType', 'Membership type', true, membership)
-          : null}
-        {asksForDateAndPeople(purpose)
-          ? field(
+        <div className="cf-row">
+          {field(
+            'email',
+            'Email address',
+            true,
+            input('email', { type: 'email', autoComplete: 'email', inputMode: 'email' }),
+          )}
+          {field(
+            'phone',
+            'Phone',
+            false,
+            input('phone', { type: 'tel', autoComplete: 'tel', maxLength: 20 }),
+          )}
+        </div>
+        {/* The questions that only some topics ask, together in one shaded box. */}
+        {purpose === 'membership' ? (
+          <div className="cf-extra">
+            {field('membershipType', 'Membership type', true, membership)}
+          </div>
+        ) : null}
+        {asksForDateAndPeople(purpose) ? (
+          <div className="cf-extra">
+            {field(
               'preferredDate',
               isEvent ? 'Event date' : 'Date you’d like to play',
               false,
               input('preferredDate', { type: 'date', min: today }),
-            )
-          : null}
+            )}
+            {field(
+              'groupSize',
+              isEvent ? 'Number of guests' : 'Number of players',
+              false,
+              input('groupSize', { inputMode: 'numeric', maxLength: 3 }),
+            )}
+          </div>
+        ) : null}
       </div>
-      {asksForDateAndPeople(purpose) ? (
-        <div className="cf-row">
-          {field(
-            'groupSize',
-            isEvent ? 'Number of guests' : 'Number of players',
-            false,
-            input('groupSize', { inputMode: 'numeric', maxLength: 3 }),
-          )}
-          <div aria-hidden="true" />
-        </div>
-      ) : null}
-      {field('message', 'Your message', true, (common) => (
-        <textarea
-          className="cf-input cf-textarea t-body-m"
-          rows={5}
-          maxLength={MESSAGE_MAX}
-          defaultValue={v.message}
-          onChange={(e) => setMessageLength(e.currentTarget.value.length)}
-          {...common}
-        />
-      ))}
+
+      <div className="cf-section">
+        {field(
+          'message',
+          'Your message',
+          true,
+          (common) => (
+            <textarea
+              className="cf-input cf-textarea t-body-m"
+              rows={5}
+              maxLength={MESSAGE_MAX}
+              defaultValue={v.message}
+              onChange={(e) => setMessageLength(e.currentTarget.value.length)}
+              {...common}
+            />
+          ),
+          <Step n="03">Your message</Step>,
+        )}
+      </div>
 
       {offerNewsletter ? (
         <label className="cf-consent t-body-s">
@@ -303,6 +336,7 @@ const FormBody = ({
       ) : null}
 
       <div className="cf-submit">
+        <p className="t-body-s cf-note">Protected by a spam check. We never share your details.</p>
         <button
           className="btn btn-accent t-label-button"
           type="submit"
@@ -317,7 +351,6 @@ const FormBody = ({
           {pending ? 'Sending…' : 'Send message'}
           <ArrowRight />
         </button>
-        <p className="t-label-s cf-note">Protected by a spam check. We never share your details.</p>
       </div>
     </form>
   )
