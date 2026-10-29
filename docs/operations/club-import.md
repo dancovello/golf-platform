@@ -6,7 +6,7 @@ How we build a new club's site from their current website, so they see a finishe
 
 ## What you get
 
-- The club built on your own computer, then on staging so it's in the Payload admin: pages, menu, footer, branding, courses, people, documents, news, events and course status
+- The club built straight onto staging, so it's in the Payload admin: pages, menu, footer, branding, courses, people, documents, news, events and course status
 - `REVIEW.md`: what was found, where it went, conflicts in their own content, and gaps
 - `SUGGESTIONS.md`: a list for the club of what to add next and what was improved
 
@@ -54,29 +54,46 @@ Create `club-imports/<club>/site.ts` (see Cottrell's as the example). It's plain
 
 Write photo descriptions that say only what the photo shows. Documents must be PDF or Word `.docx`; convert old `.doc` files with `textutil -convert docx`. Uploads are limited to 50 MB.
 
-### 4. Import it on your own computer
+### 4. One-time setup: staging's settings file
 
-```bash
-docker exec golf-platform-postgres-1 psql -U postgres -c "CREATE DATABASE golf_<club>"
+The import needs staging's database address and photo storage keys. They live in one private file in Dan's home folder, **outside the project**, so they can never be committed: `~/.golf-platform/staging-import.env`.
+
+```
+DATABASE_URL=
+MEDIA_S3_ENDPOINT=
+MEDIA_S3_BUCKET=
+MEDIA_PUBLIC_URL=
+MEDIA_S3_ACCESS_KEY_ID=
+MEDIA_S3_SECRET_ACCESS_KEY=
 ```
 
-```bash
-DATABASE_URL=postgres://postgres:postgres@127.0.0.1:54329/golf_<club> pnpm migrate
-```
+Vercel marks all of these "Sensitive", so they can't be read there. Get them from where they came from:
+
+| Setting | Where |
+|---|---|
+| `DATABASE_URL` | Neon → the **staging** project (not `golf-production`; its only branch is called "production", Neon's default name) → **Connect** → copy the connection string |
+| `MEDIA_S3_BUCKET` | `golf-platform-media-staging` |
+| `MEDIA_S3_ENDPOINT` | Cloudflare → R2 → `golf-platform-media-staging` → Settings → **S3 API**, without the bucket name on the end |
+| `MEDIA_PUBLIC_URL` | Same page → **Public Development URL** (ends `.r2.dev`) |
+| `MEDIA_S3_ACCESS_KEY_ID` and `MEDIA_S3_SECRET_ACCESS_KEY` | Cloudflare → R2 → **Manage API tokens** → create a token with Object Read & Write on `golf-platform-media-staging` only. The secret is shown once |
+
+Only update the file if one of these changes (a token deleted, the database password reset).
+
+### 5. Build it on staging
 
 ```bash
-pnpm import-club club-imports/<club>
+pnpm import-club-staging club-imports/<club>
 ```
 
-It asks for the database (paste the `golf_<club>` address) and a confirmation word. Running it again replaces the club completely. It refuses to touch a club that has editor accounts or an accepted agreement.
+It shows staging's database name and server and asks you to type `staging`. It refuses to touch a club that has editor accounts or an accepted agreement. Never point it at production without Dan's explicit approval.
 
-Running it anywhere but your own computer needs Dan's explicit approval.
+**Import once.** After that, Dan changes photos and wording in the staging admin. Running the import again for the same club replaces the whole club, so any edits made in the admin would be lost.
 
-### 5. Check every page
+Staging is private (behind the Vercel login). Still, don't show a prospective club's site to anyone outside the company until the club agrees.
 
-Start the site with `SITE_PREVIEW=on` against that database and open `/preview/<club>`. Check every page at desktop and phone size.
+### 6. Check every page
 
-After a re-import, the site can show the old version for up to 5 minutes, because the club's address lookup is cached. Restart the preview, or delete `.next/dev/cache/fetch-cache`.
+Open `/preview/<club>` on staging (signed in to Vercel) and check every page at desktop and phone size. A new club can take up to 5 minutes to appear there, because club address lookups are cached.
 
 Things the first run caught:
 - Buttons that link back to the page they're on
@@ -85,22 +102,7 @@ Things the first run caught:
 - Price tables with no button fall back to "Book a tee time"
 - Hole guides with no hole photos: use the carousel style, not the guide style
 
-### 6. Put it on staging (so it's in the Payload admin)
-
-Every imported club goes on staging once Dan has reviewed it locally, so it appears in the admin's club list. Staging is private (behind the Vercel login). Still, don't show a prospective club's site to anyone else until the club agrees.
-
-Dan runs this in his own terminal, because it needs staging's settings:
-
-```bash
-corepack pnpm import-club /Users/testuser/Golf/golf-platform/club-imports/<club>
-```
-
-1. **Database:** paste staging's `DATABASE_URL` (Vercel → golf-platform → Settings → Environment Variables, staging), then type the confirmation word it shows.
-2. **Photo storage:** it asks for `MEDIA_S3_ENDPOINT`, `MEDIA_S3_BUCKET`, `MEDIA_PUBLIC_URL`, `MEDIA_S3_ACCESS_KEY_ID` and `MEDIA_S3_SECRET_ACCESS_KEY` from the same staging list.
-
-Every answer is hidden and only kept for that run. If Vercel won't show a value (it's marked "Sensitive"), get the database address from Neon (staging branch → Connect), and make a new R2 API token for the staging bucket in Cloudflare.
-
-The club then shows in the admin's club list, and at `/preview/<club>` on staging within 5 minutes. Never run this against production without Dan's explicit approval.
+Building locally first is still possible (`pnpm import-club club-imports/<club>` against a local database, with `SITE_PREVIEW=on`) for trying out a content file without touching staging.
 
 ### 7. Suggestions for the club
 
