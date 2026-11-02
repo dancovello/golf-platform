@@ -39,6 +39,27 @@ test('the scorecard tee picker updates the figures and the address', async ({ pa
   )
 })
 
+// Holes with no photo draw no empty photo box, and the text uses the room instead.
+test('holes without a photo have no empty photo box', async ({ page }) => {
+  await page.goto(url)
+  await expect(page.locator('.hole-card')).toHaveCount(9)
+  await expect(page.locator('.hole-card-image, .hole-row-image')).toHaveCount(0)
+
+  await page.setViewportSize({ width: 1440, height: 900 })
+  const row = page.locator('.hole-row').first()
+  const rowBox = await row.boundingBox()
+  const copyBox = await row.locator('.hole-row-copy').boundingBox()
+  // The copy starts at the row's left edge, where the photo would have been.
+  expect(Math.abs((copyBox?.x ?? 0) - (rowBox?.x ?? 99))).toBeLessThan(2)
+
+  await page.locator('.hole-card').first().click()
+  const body = page.getByRole('dialog', { name: 'Hole 1' }).locator('.hole-dialog-body')
+  const text = await body.locator('.hole-dialog-text').boundingBox()
+  const dialog = await body.boundingBox()
+  // The details fill the pop-up rather than leaving the right half empty.
+  expect((text?.width ?? 0) / (dialog?.width ?? 1)).toBeGreaterThan(0.7)
+})
+
 test('the scorecard shows the ladies’ card and the women’s rating when the club gives them', async ({
   page,
 }) => {
