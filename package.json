@@ -43,7 +43,7 @@
     "@payloadcms/translations": "3.92.1",
     "@payloadcms/ui": "3.92.1",
     "@sentry/nextjs": "11.8.0",
-    "cross-env": "7.0.3",
+    "cross-env": "10.1.0",
     "graphql": "16.14.2",
     "next": "16.4.3",
     "payload": "3.92.1",
