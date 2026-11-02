@@ -621,3 +621,15 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Why:** the repository is public again until 1 Nov (Dan). The 22 Oct guard stopped every staging release from 24 Oct (#147 to #193), so staging stayed on the 23 Oct release.
 - **Change:** the "repository must be private" check now runs only for production releases. Staging releases run whether the repository is public or private, as they did from 15 to 22 Oct. Secrets stay in GitHub and Vercel and are masked in logs; gitleaks still scans every pull request.
 - **Production:** still stops while the repository is public. Production releases are on hold anyway until Dan reviews the marketing pages.
+
+
+## 2026-11-02: Public prospect demos at /demo/<club>-<ending>
+
+- **Dan, 2 Nov:** clubs should be able to see a demo (a homepage or a full site) from a link in an email, with no account.
+- **Where:** the company's own domain (and the platform's own address), at `/demo/<short name>-<random ending>`. The ending is 8 random characters, so other clubs' demos can't be guessed.
+- **How long:** 30 days. The page strip reads "Demo - expires in X days". After that the link says it has expired. Nothing is deleted, and the date can be extended.
+- **Rules:** never indexed (page and header), no sitemap entry, contact form sends nothing, no editor accounts, no web address, never the canary clubs.
+- **Going live:** switch the demo off (clears the link), then add the club's web address. The live site is indexable on its own domain, since demo pages and live pages are different routes. This is a go-live checklist step (`docs/operations/prospect-demos.md`).
+- **The `/preview/…` rule is unchanged:** it still exists on staging only.
+- **Still to build:** a "promote" tool that copies an approved club from staging to production, keeping edits (the second PR). Until then, demos exist only where the club was built.
+

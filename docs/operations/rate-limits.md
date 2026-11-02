@@ -13,7 +13,7 @@ Every public endpoint has a limit, at two layers (doc 04 §8): **the app** and *
 
 ## Every endpoint and its limit
 
-**Search** (club domain and staging preview: `/search`, `/search/suggest`)
+**Search** (club domain, staging preview and prospect demos: `/search`, `/search/suggest`)
 - 120 a minute per visitor, results page and panel together.
 - Enforced in the app (shared database) and by Vercel Firewall rule 1.
 - At the limit, the panel gets a 429 ("busy") and the results page asks the visitor to wait.

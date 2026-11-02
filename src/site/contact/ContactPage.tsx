@@ -25,11 +25,14 @@ export const ContactPage = ({
   base,
   settings,
   about,
+  demo = false,
 }: {
   club: ClubSite
   base: string
   settings: ContactSettings
   about: string | null
+  /** A prospect demo (src/site/demo.ts): the form is replaced by a note and sends nothing. */
+  demo?: boolean
 }) => {
   const phone = club.header.phone
   const email = club.footer.email
@@ -70,22 +73,32 @@ export const ContactPage = ({
           <p className="t-body-l ct-intro">{settings.intro}</p>
         </header>
         <div className="ct-columns">
-          <ContactForm
-            action={sendEnquiry.bind(null, club.slug)}
-            initial={{
-              attempt: 0,
-              token: issueFormToken(club.tenantID),
-              values: { ...EMPTY_VALUES, purpose: isEnquiryPurpose(about) ? about : 'general' },
-              errors: {},
-              formError: null,
-              sent: null,
-            }}
-            membershipTypes={settings.membershipTypes}
-            today={ukToday(new Date())}
-            offerNewsletter={Boolean(club.privacy.newsletterProvider)}
-            againHref={`${base}/contact`}
-            turnstileSiteKey={turnstileSiteKey()}
-          />
+          {demo ? (
+            <div className="ct-card ct-note">
+              <h2 className="t-body-m">This is a demo</h2>
+              <p className="t-body-s">
+                Messages can’t be sent from a demo. Once the site is live, this is where visitors
+                will write to the club.
+              </p>
+            </div>
+          ) : (
+            <ContactForm
+              action={sendEnquiry.bind(null, club.slug)}
+              initial={{
+                attempt: 0,
+                token: issueFormToken(club.tenantID),
+                values: { ...EMPTY_VALUES, purpose: isEnquiryPurpose(about) ? about : 'general' },
+                errors: {},
+                formError: null,
+                sent: null,
+              }}
+              membershipTypes={settings.membershipTypes}
+              today={ukToday(new Date())}
+              offerNewsletter={Boolean(club.privacy.newsletterProvider)}
+              againHref={`${base}/contact`}
+              turnstileSiteKey={turnstileSiteKey()}
+            />
+          )}
           <aside className="ct-aside" aria-label="Other ways to reach us">
             {details.length > 0 ? (
               <div className="ct-card ct-reception">

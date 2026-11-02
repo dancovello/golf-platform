@@ -679,6 +679,22 @@ for (const starter of STARTER_PAGES) {
   })
 }
 
+// Prospect demos (src/site/demo.ts), for tests/e2e/prospect-demo.spec.ts: one live, one whose
+// 30 days have run out. Neither has an editor or a web address.
+const demoLive = await w.payload.create({
+  collection: 'tenants',
+  data: { name: 'Test Demo Club', slug: 'test-demo-club', demoEnabled: true },
+})
+const demoExpired = await w.payload.create({
+  collection: 'tenants',
+  data: {
+    name: 'Test Demo Expired',
+    slug: 'test-demo-expired',
+    demoEnabled: true,
+    demoExpiresAt: new Date(Date.now() - 86_400_000).toISOString(),
+  },
+})
+
 writeFileSync(
   'tests/e2e/.state/world.json',
   JSON.stringify({
@@ -706,6 +722,11 @@ writeFileSync(
     editorTypesCode,
     editorWrongCode,
     editorLinkTarget,
+    demoLive: { name: demoLive.name, address: `${demoLive.slug}-${demoLive.demoToken}` },
+    demoExpired: {
+      name: demoExpired.name,
+      address: `${demoExpired.slug}-${demoExpired.demoToken}`,
+    },
   }),
 )
 process.exit(0)

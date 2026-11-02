@@ -226,6 +226,18 @@ export interface Tenant {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Shows this club at a public link anyone can open, for 30 days, hidden from search engines. Turn it OFF when the club goes live (then add its web address).
+   */
+  demoEnabled?: boolean | null;
+  /**
+   * Made for you when the demo is switched on. The link is /demo/<short name>-<this>.
+   */
+  demoToken?: string | null;
+  /**
+   * 30 days after the demo was switched on. Change it to extend or end it early.
+   */
+  demoExpiresAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -3759,6 +3771,9 @@ export interface TenantsSelect<T extends boolean = true> {
         hostname?: T;
         id?: T;
       };
+  demoEnabled?: T;
+  demoToken?: T;
+  demoExpiresAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }

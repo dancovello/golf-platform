@@ -79,6 +79,10 @@ export const RATE_LIMITS: Record<string, Protection> = {
   'src/app/(frontend)/preview/[club]/[...path]/page.tsx': PAGE,
   'src/app/(frontend)/preview/[club]/search/page.tsx': SEARCH,
   'src/app/(frontend)/preview/[club]/search/suggest/route.ts': SEARCH,
+  'src/app/(frontend)/demo/[club]/page.tsx': PAGE,
+  'src/app/(frontend)/demo/[club]/[...path]/page.tsx': PAGE,
+  'src/app/(frontend)/demo/[club]/search/page.tsx': SEARCH,
+  'src/app/(frontend)/demo/[club]/search/suggest/route.ts': SEARCH,
   'src/site/contact/actions.ts': {
     who: 'anyone',
     limit:

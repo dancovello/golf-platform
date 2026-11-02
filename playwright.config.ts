@@ -10,7 +10,7 @@ const baseURL = `http://localhost:${port}`
 // They are the CI job "tenant-isolation" and nothing else, so that job only goes red for a real
 // separation problem. Every other browser test is the CI job "browser-tests".
 const ISOLATION_SPECS =
-  /tests\/e2e\/(admin-isolation|api-isolation|api-isolation-fuzz|canary|red-team)\.spec\.ts$/
+  /tests\/e2e\/(admin-isolation|api-isolation|api-isolation-fuzz|canary|prospect-demo|red-team)\.spec\.ts$/
 
 export default defineConfig({
   testDir: './tests/e2e',

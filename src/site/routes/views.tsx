@@ -127,6 +127,7 @@ export const PathView = async ({
           base={base}
           settings={await loadContactSettings(club.tenantID)}
           about={one(query.about)}
+          demo={site.demo !== null}
         />
       </ClubShell>
     )

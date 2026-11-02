@@ -40,3 +40,27 @@ export const enforceAccountCreationRules: CollectionBeforeChangeHook = ({
   }
   throw refuse('Accounts can only be created by a platform administrator.')
 }
+
+/**
+ * A prospect demo (src/site/demo.ts) has no editor accounts: the club isn't live yet. Runs on
+ * every create or change, whatever created the account, so an editor can't be placed in a demo
+ * club by any route. Turn the demo off first (going live).
+ */
+export const noAccountsInDemoClubs: CollectionBeforeChangeHook = async ({ data, req }) => {
+  const tenant = data?.tenant
+  if (data?.role !== 'editor' || tenant === undefined || tenant === null) return data
+  const id = typeof tenant === 'object' ? (tenant as { id?: unknown }).id : tenant
+  if (typeof id !== 'string' && typeof id !== 'number') return data
+  const club = await req.payload.findByID({
+    collection: 'tenants',
+    id,
+    depth: 0,
+    select: { demoEnabled: true },
+    overrideAccess: true,
+    req,
+  })
+  if (club?.demoEnabled) {
+    throw refuse('A demo club can’t have editor accounts. Turn the demo off first.')
+  }
+  return data
+}

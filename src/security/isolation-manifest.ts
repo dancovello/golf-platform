@@ -232,6 +232,35 @@ export const ROUTES: Manifest = {
       test: 'club A’s panel never shows club B’s page',
     },
   ],
+  // Prospect demos (public, no login): one club per link
+  'src/app/(frontend)/demo/[club]/page.tsx': [
+    {
+      file: 'tests/e2e/prospect-demo.spec.ts',
+      test: 'a demo link shows that club, with a "Demo - expires in 30 days" strip, and nothing of club B',
+    },
+    {
+      file: 'tests/e2e/prospect-demo.spec.ts',
+      test: 'a guessed or wrong demo link is "not found", and says nothing about the club',
+    },
+  ],
+  'src/app/(frontend)/demo/[club]/[...path]/page.tsx': [
+    {
+      file: 'tests/e2e/prospect-demo.spec.ts',
+      test: 'the contact form on a demo is replaced by a note and sends nothing',
+    },
+  ],
+  'src/app/(frontend)/demo/[club]/search/page.tsx': [
+    {
+      file: 'tests/e2e/prospect-demo.spec.ts',
+      test: "search on a demo finds that club's pages and never club B's",
+    },
+  ],
+  'src/app/(frontend)/demo/[club]/search/suggest/route.ts': [
+    {
+      file: 'tests/e2e/prospect-demo.spec.ts',
+      test: "search on a demo finds that club's pages and never club B's",
+    },
+  ],
   // Platform services
   'src/app/(frontend)/accounts-by-administrator/page.tsx': [
     { file: ADMIN, test: 'the "create first user" address shows an explanation, not a form' },
