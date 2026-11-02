@@ -12353,13 +12353,6 @@
           "notNull": true,
           "default": "'social'"
         },
-        "no_start_time": {
-          "name": "no_start_time",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "default": false
-        },
         "venue": {
           "name": "venue",
           "type": "varchar",
@@ -13022,6 +13015,18 @@
           "type": "numeric",
           "primaryKey": false,
           "notNull": false
+        },
+        "rating_women": {
+          "name": "rating_women",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "slope_women": {
+          "name": "slope_women",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {
@@ -13113,6 +13118,18 @@
         },
         "stroke_index": {
           "name": "stroke_index",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ladies_par": {
+          "name": "ladies_par",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ladies_stroke_index": {
+          "name": "ladies_stroke_index",
           "type": "numeric",
           "primaryKey": false,
           "notNull": false
@@ -30405,6 +30422,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "d6f5d2ff-252a-4a70-85fa-86a7457a1d2c",
+  "id": "4aea3456-3a00-40c1-a19e-3f0dabb2357b",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

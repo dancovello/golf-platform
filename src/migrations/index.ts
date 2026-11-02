@@ -60,7 +60,8 @@ import * as migration_20261026_201248_marketing_feature_showcase from './2026102
 import * as migration_20261027_191922_course_record_block from './20261027_191922_course_record_block';
 import * as migration_20261028_143227_marketing_wording_defaults from './20261028_143227_marketing_wording_defaults';
 import * as migration_20261028_164147_request_due_date_optional from './20261028_164147_request_due_date_optional';
-import * as migration_20261102_135644_events_no_start_time from './20261102_135644_events_no_start_time';
+import * as migration_20261102_135003_ladies_scorecard from './20261102_135003_ladies_scorecard';
+import * as migration_20261102_194637_events_no_start_time from './20261102_194637_events_no_start_time';
 
 export const migrations = [
   {
@@ -374,8 +375,13 @@ export const migrations = [
     name: '20261028_164147_request_due_date_optional',
   },
   {
-    up: migration_20261102_135644_events_no_start_time.up,
-    down: migration_20261102_135644_events_no_start_time.down,
-    name: '20261102_135644_events_no_start_time'
+    up: migration_20261102_135003_ladies_scorecard.up,
+    down: migration_20261102_135003_ladies_scorecard.down,
+    name: '20261102_135003_ladies_scorecard',
+  },
+  {
+    up: migration_20261102_194637_events_no_start_time.up,
+    down: migration_20261102_194637_events_no_start_time.down,
+    name: '20261102_194637_events_no_start_time'
   },
 ];

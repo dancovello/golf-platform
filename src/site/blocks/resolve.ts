@@ -105,6 +105,9 @@ export type SiteTee = {
   name: string
   rating: number | null
   slope: number | null
+  /** Women's rating and slope, when the club gives them. */
+  ratingWomen: number | null
+  slopeWomen: number | null
 }
 
 export type SiteHole = {
@@ -112,6 +115,9 @@ export type SiteHole = {
   name: string | null
   par: number
   strokeIndex: number | null
+  /** Only when the ladies' card differs. */
+  ladiesPar: number | null
+  ladiesStrokeIndex: number | null
   /** Yards from each of the course's tees, in the same order as `tees` (null if not set). */
   yards: (number | null)[]
   image: SiteMedia | null
@@ -148,6 +154,8 @@ const loadClubCourses = async (
         name: TEE_COLOURS.find((c) => c.value === t.colour)?.label ?? t.colour,
         rating: t.rating ?? null,
         slope: t.slope ?? null,
+        ratingWomen: t.ratingWomen ?? null,
+        slopeWomen: t.slopeWomen ?? null,
       }))
       const holes: SiteHole[] = (d.holes ?? []).map((h, i) => {
         const image = photos.get(idOf(h.image) ?? '') ?? null
@@ -156,6 +164,8 @@ const loadClubCourses = async (
           name: h.name?.trim() || null,
           par: h.par,
           strokeIndex: h.strokeIndex ?? null,
+          ladiesPar: h.ladiesPar ?? null,
+          ladiesStrokeIndex: h.ladiesStrokeIndex ?? null,
           yards: tees.map((t) => h[yardsField(t.colour)] ?? null),
           image: image?.mimeType.startsWith('image/') ? image : null,
           tip: h.tip?.trim() || null,

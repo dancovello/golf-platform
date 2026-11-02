@@ -628,3 +628,10 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Change:** a "No set start time" tick on an event (one migration adding a column that defaults to off). Only the date is shown on event cards, the featured panel, search and the quick answers. A saved event is stored at the start of its UK day.
 - **Stays up all day:** a normal event leaves the website once it has started; one with no set time stays until its day ends (UK time), in the events feed, the archive and site search. It is listed first on its day.
 - **Wording:** just the date (for example "Sat 14 Jun"), not "All day", because an open day is not necessarily all day.
+
+## 2026-11-02: Ladies' figures on the scorecard
+
+- **Why:** the first real club (Cottrell) showed that UK scorecards carry a women's course rating and slope per tee, a ladies' stroke index, and sometimes a different ladies' par. A tee held one rating and slope, and a hole one stroke index.
+- **Change:** four optional course fields: women's rating and slope on each tee, ladies' par and ladies' stroke index on each hole. The existing rating and slope are now labelled "(men)". One migration that only adds empty columns.
+- **Kept simple:** ladies' par is one figure per hole ("only if different"), not a par for every tee colour. Par only differs on the ladies' tees in practice. Nothing shows unless the club fills it in, so existing scorecards look the same.
+- **Wording:** "Ladies'" on the public scorecard (what UK clubs print); "women" for the ratings (the handicap system's term).

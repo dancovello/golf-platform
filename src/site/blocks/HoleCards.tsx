@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react'
 
 import { Close } from '../components/Icons'
-import { mainYards, pad2, TeeYards } from './holeParts'
+import { holeFigures, mainYards, pad2, TeeYards } from './holeParts'
 import { Photo } from './parts'
 import type { SiteHole, SiteTee } from './resolve'
 import { SwipeRow } from './SwipeRow'
@@ -89,10 +89,7 @@ export const HoleCards = ({
             <div className="hole-dialog-text">
               <p className="t-data-label hole-number">Hole No. {pad2(open.number)}</p>
               <h3 className="t-heading-l">{open.name ?? `Hole ${open.number}`}</h3>
-              <p className="t-label-s hole-par">
-                Par {open.par}
-                {open.strokeIndex ? ` · SI ${open.strokeIndex}` : ''}
-              </p>
+              <p className="t-label-s hole-par">{holeFigures(open)}</p>
               {open.tip ? <p className="t-body-m hole-tip">{open.tip}</p> : null}
               <TeeYards hole={open} tees={tees} />
             </div>

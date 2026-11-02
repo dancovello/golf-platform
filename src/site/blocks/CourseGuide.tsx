@@ -3,7 +3,7 @@
 import { useState } from 'react'
 
 import { ArrowRight } from '../components/Icons'
-import { pad2, TeeYards } from './holeParts'
+import { holeFigures, pad2, TeeYards } from './holeParts'
 import { Photo } from './parts'
 import type { SiteHole, SiteTee } from './resolve'
 
@@ -77,10 +77,7 @@ export const CourseGuide = ({
               <h3 className="hole-row-title">
                 <span className="t-data-serif hole-number">{pad2(hole.number)}</span>
                 <span className="t-heading-m">{hole.name ?? `Hole ${hole.number}`}</span>
-                <span className="t-label-s hole-par">
-                  Par {hole.par}
-                  {hole.strokeIndex ? ` · SI ${hole.strokeIndex}` : ''}
-                </span>
+                <span className="t-label-s hole-par">{holeFigures(hole)}</span>
               </h3>
               {hole.tip ? <p className="t-body-m hole-tip">{hole.tip}</p> : null}
             </div>
