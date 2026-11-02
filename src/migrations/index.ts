@@ -60,6 +60,7 @@ import * as migration_20261026_201248_marketing_feature_showcase from './2026102
 import * as migration_20261027_191922_course_record_block from './20261027_191922_course_record_block';
 import * as migration_20261028_143227_marketing_wording_defaults from './20261028_143227_marketing_wording_defaults';
 import * as migration_20261028_164147_request_due_date_optional from './20261028_164147_request_due_date_optional';
+import * as migration_20261102_135003_ladies_scorecard from './20261102_135003_ladies_scorecard';
 
 export const migrations = [
   {
@@ -370,6 +371,11 @@ export const migrations = [
   {
     up: migration_20261028_164147_request_due_date_optional.up,
     down: migration_20261028_164147_request_due_date_optional.down,
-    name: '20261028_164147_request_due_date_optional'
+    name: '20261028_164147_request_due_date_optional',
+  },
+  {
+    up: migration_20261102_135003_ladies_scorecard.up,
+    down: migration_20261102_135003_ladies_scorecard.down,
+    name: '20261102_135003_ladies_scorecard'
   },
 ];

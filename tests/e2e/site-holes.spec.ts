@@ -8,7 +8,7 @@ test('a hole card opens its details, and Esc closes them', async ({ page }) => {
   await page.locator('.hole-card').first().click()
   const details = page.getByRole('dialog', { name: 'Hole 1' })
   await expect(details).toBeVisible()
-  await expect(details.getByText('Par 4 · SI 1')).toBeVisible()
+  await expect(details.getByText('Par 4 · SI 1 · Ladies’ SI 9')).toBeVisible()
   await expect(details.getByText('White')).toBeVisible()
   await page.keyboard.press('Escape')
   await expect(details).toBeHidden()
@@ -58,4 +58,27 @@ test('holes without a photo have no empty photo box', async ({ page }) => {
   const dialog = await body.boundingBox()
   // The details fill the pop-up rather than leaving the right half empty.
   expect((text?.width ?? 0) / (dialog?.width ?? 1)).toBeGreaterThan(0.7)
+})
+
+test('the scorecard shows the ladies’ card and the women’s rating when the club gives them', async ({
+  page,
+}) => {
+  await page.goto(url)
+  const strip = page.locator('.sc-strip')
+  // Ladies' par is the men's par unless set; hole 3 is a par 5 for the ladies (9 x 4 + 1 = 37).
+  const par = strip.getByRole('row', { name: /^Ladies’ par/ })
+  await expect(par.locator('td').nth(2)).toHaveText('5')
+  await expect(par.locator('td').last()).toHaveText('37')
+  await expect(
+    strip
+      .getByRole('row', { name: /^Ladies’ SI/ })
+      .locator('td')
+      .first(),
+  ).toHaveText('9')
+  // The men's and women's figures sit side by side, and follow the chosen tee.
+  await expect(page.getByText('Course rating (men)')).toBeVisible()
+  await expect(page.getByText('75.3')).toBeVisible()
+  await page.getByRole('button', { name: 'Yellow tees' }).click()
+  await expect(page.getByText('Course rating (women)')).toBeHidden()
+  await expect(page.getByText('75.3')).toBeHidden()
 })

@@ -240,14 +240,17 @@ export const buildDemoClub = async (payload: Payload) => {
   const championship = await create<{ id: ID }>('courses', {
     name: 'The Championship course',
     tees: [
-      { colour: 'white', rating: 74.1, slope: 138 },
-      { colour: 'yellow', rating: 72.3, slope: 131 },
-      { colour: 'red', rating: 75.2, slope: 134 },
+      { colour: 'white', rating: 74.1, slope: 138, ratingWomen: 79.6, slopeWomen: 145 },
+      { colour: 'yellow', rating: 72.3, slope: 131, ratingWomen: 77.5, slopeWomen: 139 },
+      { colour: 'red', rating: 75.2, slope: 134, ratingWomen: 80.1, slopeWomen: 139 },
     ],
     holes: holeCard.map(([name, par, strokeIndex, yardsWhite, yardsYellow, yardsRed], i) => ({
       name,
       par,
       strokeIndex,
+      // The ladies' card: its own stroke index, and one hole that plays a shot longer.
+      ladiesStrokeIndex: (strokeIndex % 18) + 1,
+      ladiesPar: i === holeCard.findIndex((h) => h[1] === 4) ? 5 : undefined,
       yardsWhite,
       yardsYellow,
       yardsRed,
