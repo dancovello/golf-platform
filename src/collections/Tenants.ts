@@ -1,12 +1,15 @@
 import type {
   CollectionBeforeChangeHook,
+  CollectionBeforeDeleteHook,
   CollectionBeforeValidateHook,
   CollectionConfig,
 } from 'payload'
 import { ValidationError } from 'payload'
 
 import { editorTenantID, isSuperAdmin, superAdminOnly } from '../access/roles'
+import { publicError } from '../errors'
 import { SLUG, slugify } from '../fields/slug'
+import { clubOwnedCollections, type ClubOwnedSlug } from '../tenancy'
 import { demoExpiry, newDemoToken } from '../site/demo'
 import { hostProblem, normaliseHost } from '../site/hosts'
 import { DEFAULT_BRAND } from '../theme/colour'
@@ -100,6 +103,32 @@ const manageDemo: CollectionBeforeChangeHook = ({ data, originalDoc }) => {
   return data
 }
 
+/** Deleting a club deletes everything it owns, but only if it is an empty shell as far as real
+ * people go: editor accounts and accepted agreements are real records, so a club that has
+ * either is refused (remove them first, deliberately). The database itself refuses to delete
+ * a club that still owns anything, so without this the Delete button just fails. The club's
+ * collections come from src/tenancy.ts, the list the isolation suite also uses, so a new one
+ * can't be forgotten. Runs in the same transaction: if any step fails, nothing is removed. */
+const deleteClubWithContent: CollectionBeforeDeleteHook = async ({ id, req }) => {
+  const { payload } = req
+  const own = { tenant: { equals: id } }
+  for (const collection of ['users', 'agreement-acceptances'] as const) {
+    const { totalDocs } = await payload.count({ collection, where: own, overrideAccess: true, req })
+    if (totalDocs > 0) {
+      throw publicError(
+        'This club has editor accounts or an accepted agreement, so it can’t be deleted here. Remove those first.',
+        400,
+        undefined,
+        true,
+      )
+    }
+  }
+  const owned = Object.keys(clubOwnedCollections).filter((c) => c !== 'agreement-acceptances')
+  for (const collection of owned as ClubOwnedSlug[]) {
+    await payload.delete({ collection, where: own, overrideAccess: true, req })
+  }
+}
+
 export const Tenants: CollectionConfig = {
   slug: 'tenants',
   labels: { singular: 'Club', plural: 'Clubs' },
@@ -125,6 +154,7 @@ export const Tenants: CollectionConfig = {
   },
   hooks: {
     beforeValidate: [defaultSlug, tidyDomains, canaryClubsHaveNoAddress, demoClubsAreNotLive],
+    beforeDelete: [deleteClubWithContent],
     beforeChange: [manageDemo],
     // Every club gets its Club Settings and Course status records straight away (one each).
     afterChange: [
