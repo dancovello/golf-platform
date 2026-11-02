@@ -30,7 +30,7 @@ How we show a club its new website before it has signed up: a public link anyone
 3. The link is `/demo/<short name>-<ending>`. Open it yourself first and check it on desktop and phone.
 4. Email the link. Only people with it can find it.
 
-> Until the staging-to-production "promote" tool exists, a demo can only be made on the environment where the club is built. Don't build a club straight onto production without Dan's approval.
+> A demo only exists where the club was built. To make one on production, build the club there with `pnpm import-club-production club-imports/<club> demo` (`docs/operations/club-import.md`, step 5b). That needs Dan's explicit approval each time. There is no staging-to-production copy tool: the content file is the master copy.
 
 ## Going live: checklist
 

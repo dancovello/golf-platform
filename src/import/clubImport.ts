@@ -3,6 +3,7 @@ import { basename, extname, resolve } from 'node:path'
 import type { Payload } from 'payload'
 
 import { rt } from '../demo/richText'
+import { demoBase } from '../site/demo'
 
 /**
  * Builds a club from a content file written for it (docs/operations/club-import.md).
@@ -107,6 +108,9 @@ class Refs {
   }
 }
 
+/** Thrown when production already has the club: nothing was changed, so nothing needs cleaning up. */
+export class ExistingClubError extends Error {}
+
 /** Removes the club with this slug and everything in it. False if there was none. */
 export const removeImportedClub = async (payload: Payload, slug: string) => {
   const { docs } = await payload.find({
@@ -139,8 +143,21 @@ export const importClub = async (
   content: ClubContent,
   folder: string,
   log: (message: string) => void = () => {},
+  options: { onlyIfNew?: boolean; demo?: boolean } = {},
 ) => {
-  await removeImportedClub(payload, content.slug)
+  if (options.onlyIfNew) {
+    // Production: never replace a club that is already there, whoever has edited it.
+    const { totalDocs } = await payload.count({
+      collection: 'tenants',
+      where: { slug: { equals: content.slug } },
+      overrideAccess: true,
+    })
+    if (totalDocs > 0) {
+      throw new ExistingClubError(`The club "${content.slug}" is already in this database.`)
+    }
+  } else {
+    await removeImportedClub(payload, content.slug)
+  }
   const club = await payload.create({
     collection: 'tenants',
     data: { name: content.name, slug: content.slug },
@@ -251,5 +268,20 @@ export const importClub = async (
   for (const event of content.events ?? []) await create('events', event)
   log(`${content.news?.length ?? 0} news stories, ${content.events?.length ?? 0} events`)
 
-  return { slug: content.slug, pages: content.pages.length }
+  let demo: { address: string; expiresAt: string } | null = null
+  if (options.demo) {
+    // Switching the demo on makes the link ending and the 30-day expiry (src/collections/Tenants.ts).
+    const shown = await payload.update({
+      collection: 'tenants',
+      id: tenant,
+      data: { demoEnabled: true },
+      overrideAccess: true,
+    })
+    demo = {
+      address: demoBase(content.slug, shown.demoToken as string),
+      expiresAt: shown.demoExpiresAt as string,
+    }
+  }
+
+  return { slug: content.slug, pages: content.pages.length, demo }
 }
