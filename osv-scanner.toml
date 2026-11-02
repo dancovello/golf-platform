@@ -2,11 +2,6 @@
 # When ignoreUntil passes, the scan fails again until someone reviews it.
 
 [[IgnoredVulns]]
-id = "GHSA-vfj7-8cjw-p6xm"
-ignoreUntil = 2026-11-10
-reason = "braces: no fixed release. Reached only via build-time tooling (sass -> chokidar, vite) with patterns from our own code, never user input."
-
-[[IgnoredVulns]]
 id = "GHSA-67mh-4wv8-2f99"
 ignoreUntil = 2026-11-10
 reason = "esbuild 0.18 dev-server issue. Only pulled in by drizzle-kit (migration generator, developer machines only), which never starts esbuild's dev server."
@@ -14,3 +9,13 @@ reason = "esbuild 0.18 dev-server issue. Only pulled in by drizzle-kit (migratio
 id = "GHSA-gcqx-w48m-w2h4"
 ignoreUntil = 2026-11-10
 reason = "deepmerge 4.3.1 prototype poisoning in mergeObject(): no fixed release. Pulled in by Payload core, which only merges its own configuration built from our code, never user input. Review again on expiry."
+
+[[IgnoredVulns]]
+id = "GHSA-3g3m-2fjr-6pw4"
+ignoreUntil = 2026-11-16
+reason = "glob 13.0.6 AbortSignal bypass (medium). Fix is glob 14, a new major. Only used at build time by the Sentry bundler plugin with paths from our own code, never user input. Review again on expiry."
+
+[[IgnoredVulns]]
+id = "GHSA-g3hv-75wg-m249"
+ignoreUntil = 2026-11-16
+reason = "minimatch 3.1.5 and 10.2.6 denial of service via crafted patterns (medium). Fix is minimatch 11, a new major. Only used by ESLint and typescript-eslint on developer machines and CI, with patterns from our own config, never user input. Review again on expiry."
