@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
 import { BRAND } from '@/brand'
+import { logoFrom, mediaUrl } from '@/marketing/branding'
+import { marketingSettings } from '@/marketing/settings'
 import { HomeIntro } from '@/marketing/intro/HomeIntro'
 import { publishedMarketingPage } from '@/marketing/content'
 import { jsonForScript, organizationJsonLd, pagePath } from '@/marketing/seo'
@@ -17,7 +19,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const page = await publishedMarketingPage((await params).path ?? [])
   if (!page) return {}
   const title = page.meta?.title || page.title
-  const description = page.meta?.description || undefined
+  const settings = await marketingSettings()
+  const description = page.meta?.description || settings.site?.description || undefined
+  const shareImage = mediaUrl(settings.site?.shareImage, 'w1600')
   const path = pagePath(page.slug)
   return {
     // The home page's title is the company name alone.
@@ -32,8 +36,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       siteName: BRAND.name,
       locale: 'en_GB',
       type: 'website',
+      images: shareImage ? [shareImage] : undefined,
     },
-    twitter: { card: 'summary' },
+    twitter: { card: shareImage ? 'summary_large_image' : 'summary', images: shareImage },
   }
 }
 
@@ -43,7 +48,10 @@ export default async function MarketingPage({ params }: Props) {
   const path = (await params).path ?? []
   const page = await publishedMarketingPage(path)
   // The golf ball intro (src/marketing/intro/HomeIntro.tsx) is on the homepage only.
-  const intro = path.length === 0 ? <HomeIntro /> : null
+  const intro =
+    path.length === 0 ? (
+      <HomeIntro logo={logoFrom((await marketingSettings()).branding?.logo)} />
+    ) : null
   if (page) {
     return (
       <>

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import type { BallScene } from './ballScene'
+import { BRAND } from '@/brand'
 import { IntroMark } from './IntroMark'
 import { DEFAULT_LOOK, LOOK_CONTROLS, type BallLook } from './look'
 import { DEFAULT_MARK, INTRO_MARK_KINDS, type IntroMark as Mark } from './mark'
@@ -202,7 +203,7 @@ export const IntroLab = () => {
   return (
     <div className="mk-intro-lab" ref={stageRef}>
       <div className="mk-intro-content" ref={contentRef} aria-hidden="true">
-        <p className="mk-intro-content-nav">Brandname</p>
+        <p className="mk-intro-content-nav">{BRAND.name}</p>
         <p className="mk-display-xl mk-intro-content-title">
           Your club is better than your website.
         </p>
