@@ -621,3 +621,10 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Why:** the repository is public again until 1 Nov (Dan). The 22 Oct guard stopped every staging release from 24 Oct (#147 to #193), so staging stayed on the 23 Oct release.
 - **Change:** the "repository must be private" check now runs only for production releases. Staging releases run whether the repository is public or private, as they did from 15 to 22 Oct. Secrets stay in GitHub and Vercel and are masked in logs; gitleaks still scans every pull request.
 - **Production:** still stops while the repository is public. Production releases are on hold anyway until Dan reviews the marketing pages.
+
+## 2026-11-02: Ladies' figures on the scorecard
+
+- **Why:** the first real club (Cottrell) showed that UK scorecards carry a women's course rating and slope per tee, a ladies' stroke index, and sometimes a different ladies' par. A tee held one rating and slope, and a hole one stroke index.
+- **Change:** four optional course fields: women's rating and slope on each tee, ladies' par and ladies' stroke index on each hole. The existing rating and slope are now labelled "(men)". One migration that only adds empty columns.
+- **Kept simple:** ladies' par is one figure per hole ("only if different"), not a par for every tee colour. Par only differs on the ladies' tees in practice. Nothing shows unless the club fills it in, so existing scorecards look the same.
+- **Wording:** "Ladies'" on the public scorecard (what UK clubs print); "women" for the ratings (the handicap system's term).

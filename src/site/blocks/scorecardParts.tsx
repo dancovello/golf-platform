@@ -23,6 +23,11 @@ export const halves = (holes: SiteHole[]) =>
       ]
     : [{ label: 'Holes', total: 'Total', holes }]
 
+/** The ladies' card differs from the men's, so the scorecard shows extra rows for it. */
+export const hasLadiesPar = (holes: SiteHole[]) => holes.some((h) => h.ladiesPar != null)
+export const hasLadiesSI = (holes: SiteHole[]) => holes.some((h) => h.ladiesStrokeIndex != null)
+export const ladiesPar = (h: SiteHole) => h.ladiesPar ?? h.par
+
 /** The figures band: par, length (one tee or each), course rating and slope. */
 export const Summary = ({
   course,
@@ -36,6 +41,9 @@ export const Summary = ({
   ratingTee: SiteTee | undefined
 }) => {
   const par = sum(course.holes, (h) => h.par)
+  const men = ratingTee?.rating != null || ratingTee?.slope != null
+  const women = ratingTee?.ratingWomen != null || ratingTee?.slopeWomen != null
+  const both = men && women
   const lengthOf = (t: SiteTee) => sum(course.holes, (h) => h.yards[course.tees.indexOf(t)] ?? null)
   return (
     <dl className="sc-summary">
@@ -51,14 +59,26 @@ export const Summary = ({
       ))}
       {ratingTee?.rating != null ? (
         <div>
-          <dt className="t-data-label">Course rating</dt>
+          <dt className="t-data-label">{both ? 'Course rating (men)' : 'Course rating'}</dt>
           <dd className="t-data-serif">{ratingTee.rating.toFixed(1)}</dd>
         </div>
       ) : null}
       {ratingTee?.slope != null ? (
         <div>
-          <dt className="t-data-label">Slope</dt>
+          <dt className="t-data-label">{both ? 'Slope (men)' : 'Slope'}</dt>
           <dd className="t-data-serif">{ratingTee.slope}</dd>
+        </div>
+      ) : null}
+      {ratingTee?.ratingWomen != null ? (
+        <div>
+          <dt className="t-data-label">{men ? 'Course rating (women)' : 'Course rating'}</dt>
+          <dd className="t-data-serif">{ratingTee.ratingWomen.toFixed(1)}</dd>
+        </div>
+      ) : null}
+      {ratingTee?.slopeWomen != null ? (
+        <div>
+          <dt className="t-data-label">{men ? 'Slope (women)' : 'Slope'}</dt>
+          <dd className="t-data-serif">{ratingTee.slopeWomen}</dd>
         </div>
       ) : null}
     </dl>
