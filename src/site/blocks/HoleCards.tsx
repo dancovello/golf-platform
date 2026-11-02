@@ -33,16 +33,18 @@ export const HoleCards = ({
       <button
         key={hole.number}
         type="button"
-        className="hole-card"
+        className={`hole-card${hole.image ? '' : ' is-no-photo'}`}
         aria-haspopup="dialog"
         onClick={() => {
           setOpen(hole)
           dialog.current?.showModal()
         }}
       >
-        <div className="hole-card-image">
-          {hole.image ? <Photo image={hole.image} sizes={SIZES} alt="" /> : null}
-        </div>
+        {hole.image ? (
+          <div className="hole-card-image">
+            <Photo image={hole.image} sizes={SIZES} alt="" />
+          </div>
+        ) : null}
         <div className="hole-card-info">
           <div className="hole-card-title">
             <span className="t-data-label hole-number">Hole No. {pad2(hole.number)}</span>
@@ -80,7 +82,7 @@ export const HoleCards = ({
         }}
       >
         {open ? (
-          <div className="hole-dialog-body">
+          <div className={`hole-dialog-body${open.image ? '' : ' is-no-photo'}`}>
             {open.image ? (
               <div className="hole-dialog-image">
                 <Photo image={open.image} sizes="(max-width: 767px) 100vw, 480px" alt="" />

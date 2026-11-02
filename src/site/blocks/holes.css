@@ -162,6 +162,10 @@
   gap: var(--space-40);
   padding: var(--space-40);
 }
+/* No photo: the details fill the whole pop-up instead of leaving half of it empty. */
+.hole-dialog-body.is-no-photo {
+  grid-template-columns: minmax(0, 1fr);
+}
 .hole-dialog-image {
   aspect-ratio: 3 / 2;
   overflow: hidden;
@@ -307,6 +311,10 @@
   border-bottom: 1px solid var(--color-border-subtle);
   scroll-margin-top: calc(var(--size-nav-clearance) + var(--space-24));
 }
+/* No photo: the copy takes the photo's place, and the yards stay on the right. */
+.hole-row.is-no-photo {
+  grid-template-columns: minmax(0, 1fr) 180px;
+}
 .hole-row-image {
   aspect-ratio: 3 / 2;
   overflow: hidden;
@@ -339,6 +347,12 @@
   }
   .hole-row .hole-tees {
     grid-column: 2;
+  }
+  .hole-row.is-no-photo {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .hole-row.is-no-photo .hole-tees {
+    grid-column: 1;
   }
 }
 
