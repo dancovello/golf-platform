@@ -2,6 +2,10 @@
  * Builds a club from its content file (docs/operations/club-import.md).
  *
  *   pnpm import-club-staging <folder>   straight onto staging, using ~/.golf-platform/staging-import.env
+ *   pnpm import-club-production <folder> [demo]   a NEW club onto production, using
+ *                                       ~/.golf-platform/production-import.env; never replaces
+ *                                       a club that is already there; "demo" also switches
+ *                                       on its public demo link (docs/operations/prospect-demos.md)
  *   pnpm import-club <folder>           asks which database (and its photo storage)
  *
  * (`payload run` drops any argument starting with "--", so staging is the word "staging",
@@ -23,8 +27,13 @@ import { pathToFileURL } from 'node:url'
 import { ask, chooseDatabase, connect, fail } from './lib/prompts'
 
 const LOCAL_HOSTS = ['localhost', '127.0.0.1', '::1']
-/** Outside the project, in your home folder, so it can never be committed. */
-const STAGING_FILE = resolve(homedir(), '.golf-platform', 'staging-import.env')
+/** Outside the project, in your home folder, so they can never be committed. */
+const SETTINGS_FOLDER = resolve(homedir(), '.golf-platform')
+const SETTINGS_FILE = {
+  staging: 'staging-import.env',
+  production: 'production-import.env',
+} as const
+type Target = keyof typeof SETTINGS_FILE
 
 /** The photo storage settings, by the names they have in Vercel. */
 const STORAGE = [
@@ -47,13 +56,14 @@ const askForStorage = async () => {
   }
 }
 
-/** Reads .env.staging-import (NAME=value lines) and checks every setting is filled in. */
-const readStagingFile = async (slug: string) => {
+/** Reads the target's settings file (NAME=value lines) and checks every setting is filled in. */
+const readSettings = async (target: Target, slug: string) => {
+  const file = resolve(SETTINGS_FOLDER, SETTINGS_FILE[target])
   let text = ''
   try {
-    text = readFileSync(STAGING_FILE, 'utf8')
+    text = readFileSync(file, 'utf8')
   } catch {
-    fail(`There is no ${STAGING_FILE} yet. See docs/operations/club-import.md, step 4.`)
+    fail(`There is no ${file} yet. See docs/operations/club-import.md, step 4.`)
   }
   const values: Record<string, string> = {}
   for (const line of text.split(/\r?\n/)) {
@@ -65,25 +75,33 @@ const readStagingFile = async (slug: string) => {
       .replace(/^(['"])(.*)\1$/, '$2')
   }
   const missing = ['DATABASE_URL', ...STORAGE].filter((name) => !values[name])
-  if (missing.length) fail(`${STAGING_FILE} still needs: ${missing.join(', ')}`)
+  if (missing.length) fail(`${file} still needs: ${missing.join(', ')}`)
   for (const [name, value] of Object.entries(values)) process.env[name] = value
 
   const url = new URL(values.DATABASE_URL)
-  console.log(`This will replace the club "${slug}" on STAGING`)
+  const word = target.toUpperCase()
+  const verb = target === 'production' ? 'add the NEW club' : 'replace the club'
+  console.log(`This will ${verb} "${slug}" on ${word}`)
   console.log(`(database "${url.pathname.replace(/^\//, '')}" on ${url.hostname}).`)
-  if ((await ask('Type "staging" to continue: ')) !== 'staging') fail('Confirmation did not match.')
+  if (target === 'production') {
+    console.log("Production is live. You need Dan's explicit approval for this run.")
+  }
+  if ((await ask(`Type "${target}" to continue: `)) !== target) fail('Confirmation did not match.')
 }
 
 const main = async () => {
   const args = process.argv.slice(2)
-  const staging = args[0] === 'staging'
-  const folder = args.find((arg, i) => !(staging && i === 0))
+  const target: Target | null = args[0] === 'staging' || args[0] === 'production' ? args[0] : null
+  const rest = target ? args.slice(1) : args
+  const demo = rest.includes('demo')
+  const folder = rest.find((arg) => arg !== 'demo')
+  if (demo && target !== 'production') fail('"demo" only works with import-club-production.')
   if (!folder) fail('Say which folder to import, e.g. pnpm import-club club-imports/cottrell')
   const dir = resolve(folder as string)
   const { default: content } = await import(pathToFileURL(resolve(dir, 'site.ts')).href)
   console.log(`Import ${content.name}\n`)
-  if (staging) {
-    await readStagingFile(content.slug)
+  if (target) {
+    await readSettings(target, content.slug)
   } else {
     await chooseDatabase(`replace the club "${content.slug}"`)
     if (!LOCAL_HOSTS.includes(new URL(process.env.DATABASE_URL as string).hostname)) {
@@ -91,13 +109,35 @@ const main = async () => {
     }
   }
   const payload = await connect()
-  const { importClub } = await import('../src/import/clubImport')
+  const { ExistingClubError, importClub, removeImportedClub } =
+    await import('../src/import/clubImport')
+  const production = target === 'production'
   try {
-    const result = await importClub(payload, content, dir, (m) => console.log(`  ${m}`))
-    console.log(`\nDone: ${result.pages} pages. See it at /preview/${result.slug}`)
+    const result = await importClub(payload, content, dir, (m) => console.log(`  ${m}`), {
+      onlyIfNew: production,
+      demo,
+    })
+    console.log(`\nDone: ${result.pages} pages.`)
+    if (result.demo) {
+      console.log(`Demo link: <the company's domain>${result.demo.address}`)
+      console.log(`It stops working on ${new Date(result.demo.expiresAt).toDateString()}.`)
+    } else if (production) {
+      console.log('Not public yet: switch on "Public demo" for the club to get a link.')
+    } else {
+      console.log(`See it at /preview/${result.slug}`)
+    }
   } catch (error) {
-    // The club may be half built: fix the content file and run again to replace it.
+    if (error instanceof ExistingClubError) fail(`${error.message}`)
     console.error(`\nImport stopped: ${(error as Error).message}`)
+    // The club may be half built. On staging, fix the content file and run again to replace it.
+    // On production we checked the club was new, so what is there is only this attempt.
+    if (production) {
+      await removeImportedClub(payload, content.slug)
+        .then(() => console.error('The half-built club was removed from production.'))
+        .catch((e) =>
+          console.error(`Could not remove it: ${(e as Error).message}. Remove it in the admin.`),
+        )
+    }
     process.exit(1)
   }
   process.exit(0)

@@ -79,6 +79,19 @@ Vercel marks all of these "Sensitive", so they can't be read there. Get them fro
 
 Only update the file if one of these changes (a token deleted, the database password reset).
 
+### 4b. One-time setup: production's settings file (only when Dan approves production builds)
+
+Same idea, a second private file outside the project: `~/.golf-platform/production-import.env`, with the same six names.
+
+| Setting | Where |
+|---|---|
+| `DATABASE_URL` | Neon → the **production** project (`golf-production`) → **Connect** → choose the **`golf_app`** role (the website's limited account, which can only read and write data), not the owner. Never use the owner account here. |
+| `MEDIA_S3_BUCKET` | `golf-platform-media-production` |
+| `MEDIA_S3_ENDPOINT`, `MEDIA_PUBLIC_URL` | Cloudflare → R2 → `golf-platform-media-production` (same pages as staging) |
+| `MEDIA_S3_ACCESS_KEY_ID`, `MEDIA_S3_SECRET_ACCESS_KEY` | A separate R2 token with Object Read & Write on `golf-platform-media-production` only |
+
+Delete the file again if you'd rather not keep production's keys on this Mac between runs.
+
 ### 5. Build it on staging
 
 ```bash
@@ -90,6 +103,21 @@ It shows staging's database name and server and asks you to type `staging`. It r
 **Import once.** After that, Dan changes photos and wording in the staging admin. Running the import again for the same club replaces the whole club, so any edits made in the admin would be lost.
 
 Staging is private (behind the Vercel login). Still, don't show a prospective club's site to anyone outside the company until the club agrees.
+
+### 5b. Or build a new club straight onto production
+
+For a prospect demo, or a club that doesn't need a staging stage:
+
+```bash
+pnpm import-club-production club-imports/<club> demo
+```
+
+- It shows production's database name and server and asks you to type `production`. **Only run it with Dan's explicit approval, each time.**
+- It builds a **new** club only. If a club with that short name is already on production, it stops and changes nothing. It never replaces, so a club that has been edited there is safe.
+- Leave off `demo` to build the club switched off, and switch **Public demo** on later in the admin.
+- With `demo` it prints the demo link path (add the company's domain in front) and the day it stops working.
+- If the build fails part-way, it removes the half-built club from production, then you fix the content file and run again.
+- The same rule as staging applies in a different way: once the club is on production, don't edit the content file and re-run it. Edit in the admin.
 
 ### 6. Check every page
 

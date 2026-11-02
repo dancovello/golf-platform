@@ -645,3 +645,10 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Going live:** switch the demo off (clears the link), then add the club's web address. The live site is indexable on its own domain, since demo pages and live pages are different routes. This is a go-live checklist step (`docs/operations/prospect-demos.md`).
 - **The `/preview/…` rule is unchanged:** it still exists on staging only.
 - **Still to build:** a "promote" tool that copies an approved club from staging to production, keeping edits (the second PR). Until then, demos exist only where the club was built.
+
+## 2026-11-02: Clubs built straight onto production; no promote tool
+
+- **Dan, 2 Nov:** a staging-to-production "promote" tool isn't needed. The club's content file is the master copy, so a club that signs up is built again on production, and a demo is switched off to go live.
+- **Change:** `pnpm import-club-production <folder> [demo]`. It builds a new club only and refuses if the short name is already on production, so it can't overwrite edited work. It needs a typed `production` and Dan's approval, uses the website's limited `golf_app` account (never the owner), and removes a half-built club if the run fails. `demo` switches the public demo link on in the same step.
+- **Trade-off:** production's database address and photo keys sit in a private file on Dan's Mac (outside the project, never committed). A GitHub-run button would keep them in GitHub; not built.
+- **Rule kept:** edits made in an admin are never overwritten by a re-run, because production runs never replace.

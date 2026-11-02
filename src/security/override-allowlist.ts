@@ -184,8 +184,8 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
   {
     file: 'src/import/clubImport.ts',
     fn: 'importClub',
-    uses: 2,
-    club: 'The club it has just created, and its own pages (IDs it created)',
+    uses: 4,
+    club: 'A check that the content file’s slug is not already taken (production), the club it has just created and its demo switch, and its own pages (IDs it created)',
     why: 'As above: the import-club script only',
   },
   {
