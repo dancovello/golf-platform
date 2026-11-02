@@ -318,7 +318,9 @@ const eventAnswer = async (
         }),
         label: next.categoryLabel,
       },
-      { value: clock(next.startsAt), label: next.timeNote ?? 'Starts' },
+      ...(next.noStartTime
+        ? []
+        : [{ value: clock(next.startsAt), label: next.timeNote ?? 'Starts' }]),
       ...(next.price ? [{ value: next.price, label: 'Entry' }] : []),
       ...(next.placesLeft !== null && next.booking !== 'soldOut'
         ? [{ value: String(next.placesLeft), label: 'Places left' }]
@@ -477,7 +479,7 @@ export const quickAccess = async (club: ClubSite, base: string): Promise<QuickAc
     eventsHeading: thisWeek.length > 0 ? 'This week at the club' : 'Coming up',
     events: shown.map((e) => ({
       title: e.title,
-      when: `${new Date(e.startsAt).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: UK })}, ${clock(e.startsAt)}`,
+      when: `${new Date(e.startsAt).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: UK })}${e.noStartTime ? '' : `, ${clock(e.startsAt)}`}`,
       href: siteHref(base, { kind: 'page', slug: 'events' }),
       image: e.image
         ? { url: e.image.url, srcSet: e.image.srcSet, position: e.image.position }
