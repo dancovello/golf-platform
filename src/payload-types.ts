@@ -1000,6 +1000,14 @@ export interface Course {
         colour: 'white' | 'yellow' | 'red' | 'blue';
         rating?: number | null;
         slope?: number | null;
+        /**
+         * Optional.
+         */
+        ratingWomen?: number | null;
+        /**
+         * Optional.
+         */
+        slopeWomen?: number | null;
         id?: string | null;
       }[]
     | null;
@@ -1011,6 +1019,11 @@ export interface Course {
         name?: string | null;
         par: number;
         strokeIndex?: number | null;
+        /**
+         * Leave blank when it is the same as the par.
+         */
+        ladiesPar?: number | null;
+        ladiesStrokeIndex?: number | null;
         yardsWhite?: number | null;
         yardsYellow?: number | null;
         yardsRed?: number | null;
@@ -3297,6 +3310,8 @@ export interface CoursesSelect<T extends boolean = true> {
         colour?: T;
         rating?: T;
         slope?: T;
+        ratingWomen?: T;
+        slopeWomen?: T;
         id?: T;
       };
   holes?:
@@ -3305,6 +3320,8 @@ export interface CoursesSelect<T extends boolean = true> {
         name?: T;
         par?: T;
         strokeIndex?: T;
+        ladiesPar?: T;
+        ladiesStrokeIndex?: T;
         yardsWhite?: T;
         yardsYellow?: T;
         yardsRed?: T;
