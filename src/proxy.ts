@@ -15,7 +15,14 @@ const CLUB_HOST = 'x-club-host'
 const CLUB_ORIGIN = 'x-club-origin'
 
 /** Paths that exist only on the platform's own address, never on a club's domain. */
-const PLATFORM_ONLY = /^\/(admin|api|preview|sites|health|accounts-by-administrator)(\/|$)/
+const PLATFORM_ONLY = /^\/(admin|api|preview|demo|sites|health|accounts-by-administrator)(\/|$)/
+
+/**
+ * Prospect demos (src/site/demo.ts): a club's site shown publicly at /demo/<club>-<ending>, on
+ * the company's domain and the platform's own address, never on a club's domain. Always
+ * "noindex", in the header as well as the page.
+ */
+const DEMO = /^\/demo(\/|$)/
 
 /**
  * The company's marketing site is served from /marketing/… (src/app/(marketing)), reached only
@@ -24,7 +31,7 @@ const PLATFORM_ONLY = /^\/(admin|api|preview|sites|health|accounts-by-administra
  */
 const MARKETING = '/marketing'
 const PLATFORM_PATHS =
-  /^\/(admin|api|preview|health|accounts-by-administrator|cron|csp-report|robots\.txt|_vercel|__nextjs[\w-]*)(\/|$)/
+  /^\/(admin|api|preview|demo|health|accounts-by-administrator|cron|csp-report|robots\.txt|_vercel|__nextjs[\w-]*)(\/|$)/
 const INTERNAL_ONLY = /^\/(sites|marketing)(\/|$)/
 /** Marketing review pages (super-admin only): on the platform's own address, never the company's. */
 const REVIEW = /^\/dev(\/|$)/
@@ -64,6 +71,14 @@ const notFound = () =>
     status: 404,
     headers: { 'Content-Type': 'text/plain; charset=utf-8', 'X-Robots-Tag': 'noindex' },
   })
+
+/** A prospect demo page: the club's own page policy, and never indexed. */
+const demo = (headers: Headers) => {
+  const withPolicy = addPolicy('site', headers)
+  const response = withPolicy(NextResponse.next({ request: { headers } }))
+  response.headers.set('X-Robots-Tag', NOINDEX)
+  return response
+}
 
 /** The same request on another address (keeps http and the port locally). */
 const onHost = (request: NextRequest, host: string) => {
@@ -110,6 +125,7 @@ export function proxy(request: NextRequest) {
   if (host && isMarketingHost(host)) {
     const [main] = marketingHosts()
     if (host !== main) return onHost(request, main)
+    if (DEMO.test(pathname)) return demo(headers)
     if (PLATFORM_ONLY.test(pathname) || INTERNAL_ONLY.test(pathname) || REVIEW.test(pathname)) {
       return notFound()
     }
@@ -164,6 +180,7 @@ export function proxy(request: NextRequest) {
   // report-only for now (src/security/csp.ts). Everything else here (the API, /health,
   // /accounts-by-administrator): the enforced platform policy (headers audit, finding 3).
   // Vercel's and Next.js's own development paths keep the basic policy from next.config.ts.
+  if (DEMO.test(pathname)) return isolateWindow(demo(headers))
   const kind: PolicyKind | null = /^\/preview(\/|$)/.test(pathname)
     ? 'site'
     : /^\/admin(\/|$)/.test(pathname)

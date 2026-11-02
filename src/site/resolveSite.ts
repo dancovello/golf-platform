@@ -10,6 +10,7 @@ import { SLUG } from '@/fields/slug'
 
 import { canSeeDrafts, draftAccess } from './livePreviewAccess'
 import { type ClubSite, clubIDBySlug, loadClubBySlug } from './loadClub'
+import { demoBase, demoHasExpired, parseDemoAddress } from './demo'
 import { siteBase, sitePreviewEnabled } from './preview'
 
 /**
@@ -33,6 +34,8 @@ export type ResolvedSite = {
   origin: string | null
   /** Search engines may index it: the club's own domain on production only. */
   indexable: boolean
+  /** Set only on a prospect demo (/demo/…, src/site/demo.ts): when the demo stops working. */
+  demo: { expiresAt: string } | null
 }
 
 /** Headers src/proxy.ts sets on a club-domain request (any sent by the visitor are dropped). */
@@ -88,6 +91,7 @@ export const siteFromDomain = cache(
       base: '',
       origin,
       indexable: process.env.VERCEL_ENV === 'production',
+      demo: null,
       redirect: found.mainHost === host ? null : origin,
     }
   },
@@ -115,6 +119,49 @@ export const siteFromPreview = cache(
     const club = await loadClubBySlug(slug)
     if (!club) return null
     if (!open && !(await canSeeDrafts(club.tenantID, live))) return null
-    return { club, base: siteBase(club.slug), origin: null, indexable: false }
+    return { club, base: siteBase(club.slug), origin: null, indexable: false, demo: null }
+  },
+)
+
+/**
+ * The club site for a `/demo/<club>-<ending>` request (src/site/demo.ts). Open to anyone with
+ * the link, on production too, and only while the club is switched on as a demo and its 30 days
+ * haven't run out. The club must match both its short name and its random ending, so a link
+ * for one club never opens another. Never cached: switching a demo off or letting it expire
+ * takes effect on the next request. After it expires the answer is 'expired' (the page says
+ * so, and nothing about the club); anything that isn't a demo link at all is null.
+ */
+export const siteFromDemo = cache(
+  async (address: string): Promise<ResolvedSite | 'expired' | null> => {
+    const parsed = parseDemoAddress(address)
+    if (!parsed) return null
+    await trackDbTiming()
+    const payload = await getPayload({ config })
+    const { docs } = await payload.find({
+      collection: 'tenants',
+      where: {
+        and: [
+          { demoEnabled: { equals: true } },
+          { demoToken: { equals: parsed.token } },
+          { slug: { equals: parsed.slug } },
+        ],
+      },
+      select: { slug: true, demoToken: true, demoExpiresAt: true },
+      limit: 1,
+      depth: 0,
+      overrideAccess: true,
+    })
+    const tenant = docs[0]
+    if (!tenant?.slug || !tenant.demoToken) return null
+    if (demoHasExpired(tenant.demoExpiresAt)) return 'expired'
+    const club = await loadClubBySlug(tenant.slug)
+    if (!club) return null
+    return {
+      club,
+      base: demoBase(tenant.slug, tenant.demoToken),
+      origin: null,
+      indexable: false,
+      demo: { expiresAt: tenant.demoExpiresAt as string },
+    }
   },
 )

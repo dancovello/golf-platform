@@ -12353,13 +12353,6 @@
           "notNull": true,
           "default": "'social'"
         },
-        "no_start_time": {
-          "name": "no_start_time",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "default": false
-        },
         "venue": {
           "name": "venue",
           "type": "varchar",
@@ -12462,6 +12455,13 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "no_start_time": {
+          "name": "no_start_time",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
         }
       },
       "indexes": {
@@ -13129,18 +13129,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "ladies_par": {
-          "name": "ladies_par",
-          "type": "numeric",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "ladies_stroke_index": {
-          "name": "ladies_stroke_index",
-          "type": "numeric",
-          "primaryKey": false,
-          "notNull": false
-        },
         "yards_white": {
           "name": "yards_white",
           "type": "numeric",
@@ -13174,6 +13162,18 @@
         "tip": {
           "name": "tip",
           "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ladies_par": {
+          "name": "ladies_par",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ladies_stroke_index": {
+          "name": "ladies_stroke_index",
+          "type": "numeric",
           "primaryKey": false,
           "notNull": false
         }
@@ -17181,6 +17181,25 @@
           "primaryKey": false,
           "notNull": false
         },
+        "demo_enabled": {
+          "name": "demo_enabled",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "demo_token": {
+          "name": "demo_token",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "demo_expires_at": {
+          "name": "demo_expires_at",
+          "type": "timestamp(3) with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp(3) with time zone",
@@ -17202,6 +17221,36 @@
           "columns": [
             {
               "expression": "slug",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "tenants_demo_enabled_idx": {
+          "name": "tenants_demo_enabled_idx",
+          "columns": [
+            {
+              "expression": "demo_enabled",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "tenants_demo_token_idx": {
+          "name": "tenants_demo_token_idx",
+          "columns": [
+            {
+              "expression": "demo_token",
               "isExpression": false,
               "asc": true,
               "nulls": "last"

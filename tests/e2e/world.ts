@@ -20,6 +20,8 @@ export type World = {
   editorTypesCode: { id: string; email: string }
   editorWrongCode: { id: string; email: string }
   editorLinkTarget: { id: string; email: string }
+  demoLive: { name: string; address: string }
+  demoExpired: { name: string; address: string }
 }
 
 export const STATE_DIR = 'tests/e2e/.state'

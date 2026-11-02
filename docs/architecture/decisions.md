@@ -635,3 +635,13 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Change:** four optional course fields: women's rating and slope on each tee, ladies' par and ladies' stroke index on each hole. The existing rating and slope are now labelled "(men)". One migration that only adds empty columns.
 - **Kept simple:** ladies' par is one figure per hole ("only if different"), not a par for every tee colour. Par only differs on the ladies' tees in practice. Nothing shows unless the club fills it in, so existing scorecards look the same.
 - **Wording:** "Ladies'" on the public scorecard (what UK clubs print); "women" for the ratings (the handicap system's term).
+
+## 2026-11-02: Public prospect demos at /demo/<club>-<ending>
+
+- **Dan, 2 Nov:** clubs should be able to see a demo (a homepage or a full site) from a link in an email, with no account.
+- **Where:** the company's own domain (and the platform's own address), at `/demo/<short name>-<random ending>`. The ending is 16 random characters (about 79 bits; first made 8, raised after the automated security review), so other clubs' demos can't be guessed.
+- **How long:** 30 days. The page strip reads "Demo - expires in X days". After that the link says it has expired. Nothing is deleted, and the date can be extended.
+- **Rules:** never indexed (page and header), no sitemap entry, contact form sends nothing, no editor accounts, no web address, never the canary clubs.
+- **Going live:** switch the demo off (clears the link), then add the club's web address. The live site is indexable on its own domain, since demo pages and live pages are different routes. This is a go-live checklist step (`docs/operations/prospect-demos.md`).
+- **The `/preview/…` rule is unchanged:** it still exists on staging only.
+- **Still to build:** a "promote" tool that copies an approved club from staging to production, keeping edits (the second PR). Until then, demos exist only where the club was built.

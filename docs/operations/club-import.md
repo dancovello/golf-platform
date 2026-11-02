@@ -104,6 +104,10 @@ Things the first run caught:
 
 Building locally first is still possible (`pnpm import-club club-imports/<club>` against a local database, with `SITE_PREVIEW=on`) for trying out a content file without touching staging.
 
-### 7. Suggestions for the club
+### 7. Show it to the club
+
+To send a club a link instead of sharing a screen, switch on **Public demo** for the club (30 days, hidden from search engines): `docs/operations/prospect-demos.md`.
+
+### 8. Suggestions for the club
 
 Write `SUGGESTIONS.md`: what to fix or confirm first, what to add next (features they're not using yet), and what the new site already improves.

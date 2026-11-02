@@ -20,6 +20,7 @@ It runs inside the app, as a Vercel cron job, so it uses no GitHub Actions minut
 
 - **No web address.** The clubs collection refuses a web address for any club whose slug starts with `canary-`, so a club domain can never reach them (test: "can never be given a web address").
 - **No preview on production.** `/preview/<club>` only exists where `SITE_PREVIEW=on` (staging). The canary itself checks this every hour.
+- **No demo link.** Public prospect demos (`/demo/<club>-<ending>`, `docs/operations/prospect-demos.md`) are open on production on purpose, but the clubs collection refuses to switch demo mode on for any club whose slug starts with `canary-` (test: "can never be one of the hidden canary clubs"). The "no preview on production" rule above is unchanged: `/preview/…` stays closed.
 - **No sitemap, robots or search entries outside their own site,** which can't be reached.
 - They do appear to the **super-admin** in the admin, labelled "(hidden test club)". That's admin-only.
 
