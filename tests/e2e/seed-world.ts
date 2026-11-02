@@ -201,12 +201,14 @@ await w.payload.update({
   id: w.courseA.id,
   data: {
     tees: [
-      { colour: 'white', rating: 70.1, slope: 125 },
+      { colour: 'white', rating: 70.1, slope: 125, ratingWomen: 75.3, slopeWomen: 131 },
       { colour: 'yellow', rating: 68.4, slope: 120 },
     ],
     holes: Array.from({ length: 9 }, (_, i) => ({
       par: 4,
       strokeIndex: i + 1,
+      ladiesStrokeIndex: 9 - i,
+      ladiesPar: i === 2 ? 5 : undefined,
       yardsWhite: 400,
       yardsYellow: 380,
     })),

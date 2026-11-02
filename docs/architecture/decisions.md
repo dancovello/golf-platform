@@ -623,6 +623,13 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Production:** still stops while the repository is public. Production releases are on hold anyway until Dan reviews the marketing pages.
 
 
+## 2026-11-02: Ladies' figures on the scorecard
+
+- **Why:** the first real club (Cottrell) showed that UK scorecards carry a women's course rating and slope per tee, a ladies' stroke index, and sometimes a different ladies' par. A tee held one rating and slope, and a hole one stroke index.
+- **Change:** four optional course fields: women's rating and slope on each tee, ladies' par and ladies' stroke index on each hole. The existing rating and slope are now labelled "(men)". One migration that only adds empty columns.
+- **Kept simple:** ladies' par is one figure per hole ("only if different"), not a par for every tee colour. Par only differs on the ladies' tees in practice. Nothing shows unless the club fills it in, so existing scorecards look the same.
+- **Wording:** "Ladies'" on the public scorecard (what UK clubs print); "women" for the ratings (the handicap system's term).
+
 ## 2026-11-02: Public prospect demos at /demo/<club>-<ending>
 
 - **Dan, 2 Nov:** clubs should be able to see a demo (a homepage or a full site) from a link in an email, with no account.
@@ -632,4 +639,3 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Going live:** switch the demo off (clears the link), then add the club's web address. The live site is indexable on its own domain, since demo pages and live pages are different routes. This is a go-live checklist step (`docs/operations/prospect-demos.md`).
 - **The `/preview/…` rule is unchanged:** it still exists on staging only.
 - **Still to build:** a "promote" tool that copies an approved club from staging to production, keeping edits (the second PR). Until then, demos exist only where the club was built.
-

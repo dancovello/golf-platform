@@ -3,7 +3,16 @@
 import { useEffect, useState } from 'react'
 
 import type { SiteCourse } from './resolve'
-import { fmt, halves, Summary, sum, TeeLabel } from './scorecardParts'
+import {
+  fmt,
+  halves,
+  hasLadiesPar,
+  hasLadiesSI,
+  ladiesPar,
+  Summary,
+  sum,
+  TeeLabel,
+} from './scorecardParts'
 
 /**
  * Scorecard style C: the whole course on one strip for the chosen tee. The tee picker
@@ -119,6 +128,34 @@ export const TeeScorecard = ({ course }: { course: SiteCourse }) => {
               ])}
               {parts.length > 1 ? <td className="is-total">—</td> : null}
             </tr>
+            {hasLadiesPar(course.holes) ? (
+              <tr>
+                <th scope="row">Ladies’ par</th>
+                {parts.flatMap((p) => [
+                  ...p.holes.map((h) => <td key={h.number}>{ladiesPar(h)}</td>),
+                  <td key={p.total} className="is-total">
+                    {fmt(sum(p.holes, ladiesPar))}
+                  </td>,
+                ])}
+                {parts.length > 1 ? (
+                  <td className="is-total">{fmt(sum(course.holes, ladiesPar))}</td>
+                ) : null}
+              </tr>
+            ) : null}
+            {hasLadiesSI(course.holes) ? (
+              <tr>
+                <th scope="row">
+                  <abbr title="Ladies’ stroke index">Ladies’ SI</abbr>
+                </th>
+                {parts.flatMap((p) => [
+                  ...p.holes.map((h) => <td key={h.number}>{h.ladiesStrokeIndex ?? '—'}</td>),
+                  <td key={p.total} className="is-total">
+                    —
+                  </td>,
+                ])}
+                {parts.length > 1 ? <td className="is-total">—</td> : null}
+              </tr>
+            ) : null}
           </tbody>
         </table>
       </div>

@@ -3,7 +3,16 @@ import type { ScorecardBlock } from '@/payload-types'
 import { Download } from '../components/Icons'
 import { Paragraphs } from './parts'
 import type { BlockContext, SiteCourse } from './resolve'
-import { fmt, halves, Summary, sum, TeeLabel } from './scorecardParts'
+import {
+  fmt,
+  halves,
+  hasLadiesPar,
+  hasLadiesSI,
+  ladiesPar,
+  Summary,
+  sum,
+  TeeLabel,
+} from './scorecardParts'
 import { TeeScorecard } from './TeeScorecard'
 import { NEW_TAB } from '../components/links'
 
@@ -64,6 +73,24 @@ const Classic = ({ course }: { course: SiteCourse }) => (
               ))}
               <td className="is-total">—</td>
             </tr>
+            {hasLadiesPar(course.holes) ? (
+              <tr>
+                <th scope="row">Ladies’ par</th>
+                {p.holes.map((h) => (
+                  <td key={h.number}>{ladiesPar(h)}</td>
+                ))}
+                <td className="is-total">{fmt(sum(p.holes, ladiesPar))}</td>
+              </tr>
+            ) : null}
+            {hasLadiesSI(course.holes) ? (
+              <tr>
+                <th scope="row">Ladies’ stroke index</th>
+                {p.holes.map((h) => (
+                  <td key={h.number}>{h.ladiesStrokeIndex ?? '—'}</td>
+                ))}
+                <td className="is-total">—</td>
+              </tr>
+            ) : null}
           </tbody>
         </table>
       </div>
@@ -75,6 +102,8 @@ const Classic = ({ course }: { course: SiteCourse }) => (
 /** Style B: holes down; front and back nine side by side on raised panels. */
 const Vertical = ({ course, linkToGuide }: { course: SiteCourse; linkToGuide: boolean }) => {
   const parts = halves(course.holes)
+  const ladiesPars = hasLadiesPar(course.holes)
+  const ladiesSIs = hasLadiesSI(course.holes)
   return (
     <div className="sc-nines">
       {parts.map((p, n) => (
@@ -88,6 +117,12 @@ const Vertical = ({ course, linkToGuide }: { course: SiteCourse; linkToGuide: bo
                 <th scope="col">
                   <abbr title="Stroke index">SI</abbr>
                 </th>
+                {ladiesPars ? <th scope="col">Ladies’ par</th> : null}
+                {ladiesSIs ? (
+                  <th scope="col">
+                    <abbr title="Ladies’ stroke index">Ladies’ SI</abbr>
+                  </th>
+                ) : null}
                 {course.tees.map((t) => (
                   <th key={t.colour} scope="col">
                     {t.name}
@@ -103,6 +138,8 @@ const Vertical = ({ course, linkToGuide }: { course: SiteCourse; linkToGuide: bo
                   </th>
                   <td>{h.par}</td>
                   <td>{h.strokeIndex ?? '—'}</td>
+                  {ladiesPars ? <td>{ladiesPar(h)}</td> : null}
+                  {ladiesSIs ? <td>{h.ladiesStrokeIndex ?? '—'}</td> : null}
                   {course.tees.map((t, i) => (
                     <td key={t.colour}>{fmt(h.yards[i])}</td>
                   ))}
@@ -114,6 +151,8 @@ const Vertical = ({ course, linkToGuide }: { course: SiteCourse; linkToGuide: bo
                 <th scope="row">{p.total}</th>
                 <td>{fmt(sum(p.holes, (h) => h.par))}</td>
                 <td>—</td>
+                {ladiesPars ? <td>{fmt(sum(p.holes, ladiesPar))}</td> : null}
+                {ladiesSIs ? <td>—</td> : null}
                 {course.tees.map((t, i) => (
                   <td key={t.colour}>{fmt(sum(p.holes, (h) => h.yards[i]))}</td>
                 ))}
@@ -123,6 +162,8 @@ const Vertical = ({ course, linkToGuide }: { course: SiteCourse; linkToGuide: bo
                   <th scope="row">Total</th>
                   <td>{fmt(sum(course.holes, (h) => h.par))}</td>
                   <td>—</td>
+                  {ladiesPars ? <td>{fmt(sum(course.holes, ladiesPar))}</td> : null}
+                  {ladiesSIs ? <td>—</td> : null}
                   {course.tees.map((t, i) => (
                     <td key={t.colour}>{fmt(sum(course.holes, (h) => h.yards[i]))}</td>
                   ))}

@@ -13015,6 +13015,18 @@
           "type": "numeric",
           "primaryKey": false,
           "notNull": false
+        },
+        "rating_women": {
+          "name": "rating_women",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "slope_women": {
+          "name": "slope_women",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {
@@ -13143,6 +13155,18 @@
         "tip": {
           "name": "tip",
           "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ladies_par": {
+          "name": "ladies_par",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ladies_stroke_index": {
+          "name": "ladies_stroke_index",
+          "type": "numeric",
           "primaryKey": false,
           "notNull": false
         }
