@@ -4429,6 +4429,47 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
  */
 export interface MarketingSetting {
   id: string;
+  branding?: {
+    /**
+     * Shown in the menu, the footer and the homepage animation. Use a transparent PNG or WebP at least 800px wide, in light colours: it sits on the dark green. Empty: the built-in A1.Studios logo.
+     */
+    logo?: (string | null) | MarketingMedia;
+    /**
+     * A square PNG, at least 512px. Empty: the browser’s default icon.
+     */
+    icon?: (string | null) | MarketingMedia;
+  };
+  site?: {
+    footerTagline?: string | null;
+    /**
+     * Used on any page that has no description of its own. Aim for under 160 characters.
+     */
+    description?: string | null;
+    /**
+     * Shown when a link is shared on social media or messages. 1200 × 630 works best.
+     */
+    shareImage?: (string | null) | MarketingMedia;
+  };
+  /**
+   * Shown in the footer. Anything left empty is simply not shown.
+   */
+  contact?: {
+    phone?: string | null;
+    registeredName?: string | null;
+    companyNumber?: string | null;
+    vatNumber?: string | null;
+    registeredAddress?: string | null;
+  };
+  /**
+   * Full web addresses. Empty ones are not shown in the footer.
+   */
+  social?: {
+    linkedin?: string | null;
+    instagram?: string | null;
+    x?: string | null;
+    youtube?: string | null;
+    facebook?: string | null;
+  };
   pricing: {
     monthlyPrice: number;
     /**
@@ -4476,6 +4517,37 @@ export interface MarketingSetting {
  * via the `definition` "marketing-settings_select".
  */
 export interface MarketingSettingsSelect<T extends boolean = true> {
+  branding?:
+    | T
+    | {
+        logo?: T;
+        icon?: T;
+      };
+  site?:
+    | T
+    | {
+        footerTagline?: T;
+        description?: T;
+        shareImage?: T;
+      };
+  contact?:
+    | T
+    | {
+        phone?: T;
+        registeredName?: T;
+        companyNumber?: T;
+        vatNumber?: T;
+        registeredAddress?: T;
+      };
+  social?:
+    | T
+    | {
+        linkedin?: T;
+        instagram?: T;
+        x?: T;
+        youtube?: T;
+        facebook?: T;
+      };
   pricing?:
     | T
     | {

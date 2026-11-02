@@ -17,6 +17,128 @@ export const MarketingSettings: GlobalConfig = {
   access: { read: marketingAccess.read, update: marketingAccess.update },
   fields: [
     {
+      // The logo and tab icon. Uploads are PNG, WebP or JPEG (no SVG: it can carry code). Until
+      // a logo is uploaded, the A1.Studios logo built into the site is used.
+      name: 'branding',
+      label: 'Logo and icon',
+      type: 'group',
+      fields: [
+        {
+          name: 'logo',
+          label: 'Logo (optional)',
+          type: 'upload',
+          relationTo: 'marketing-media',
+          admin: {
+            description:
+              'Shown in the menu, the footer and the homepage animation. Use a transparent PNG or WebP at least 800px wide, in light colours: it sits on the dark green. Empty: the built-in A1.Studios logo.',
+          },
+        },
+        {
+          name: 'icon',
+          label: 'Browser tab icon (optional)',
+          type: 'upload',
+          relationTo: 'marketing-media',
+          admin: {
+            description: 'A square PNG, at least 512px. Empty: the browser’s default icon.',
+          },
+        },
+      ],
+    },
+    {
+      name: 'site',
+      label: 'Footer and search results',
+      type: 'group',
+      fields: [
+        {
+          name: 'footerTagline',
+          label: 'Footer line',
+          type: 'textarea',
+          maxLength: 200,
+          defaultValue:
+            'Golf club websites your team can update in minutes. Tee-time booking coming next.',
+        },
+        {
+          name: 'description',
+          label: 'Default description for search results and sharing',
+          type: 'textarea',
+          maxLength: 300,
+          admin: {
+            description:
+              'Used on any page that has no description of its own. Aim for under 160 characters.',
+          },
+        },
+        {
+          name: 'shareImage',
+          label: 'Sharing picture (optional)',
+          type: 'upload',
+          relationTo: 'marketing-media',
+          admin: {
+            description:
+              'Shown when a link is shared on social media or messages. 1200 × 630 works best.',
+          },
+        },
+      ],
+    },
+    {
+      name: 'contact',
+      label: 'Contact and company details',
+      type: 'group',
+      admin: { description: 'Shown in the footer. Anything left empty is simply not shown.' },
+      fields: [
+        {
+          name: 'phone',
+          label: 'Phone',
+          type: 'text',
+          maxLength: 30,
+          validate: (value: unknown) =>
+            !value || (typeof value === 'string' && /^\+?[0-9 ()-]{6,30}$/.test(value))
+              ? true
+              : 'Digits, spaces and brackets only.',
+        },
+        {
+          name: 'registeredName',
+          label: 'Registered company name',
+          type: 'text',
+          maxLength: 120,
+        },
+        {
+          type: 'row',
+          fields: [
+            { name: 'companyNumber', label: 'Company number', type: 'text', maxLength: 20 },
+            { name: 'vatNumber', label: 'VAT number', type: 'text', maxLength: 20 },
+          ],
+        },
+        {
+          name: 'registeredAddress',
+          label: 'Registered address',
+          type: 'textarea',
+          maxLength: 300,
+        },
+      ],
+    },
+    {
+      name: 'social',
+      label: 'Social links',
+      type: 'group',
+      admin: { description: 'Full web addresses. Empty ones are not shown in the footer.' },
+      fields: [
+        ['linkedin', 'LinkedIn'],
+        ['instagram', 'Instagram'],
+        ['x', 'X'],
+        ['youtube', 'YouTube'],
+        ['facebook', 'Facebook'],
+      ].map(([name, label]) => ({
+        name,
+        label,
+        type: 'text' as const,
+        maxLength: 300,
+        validate: (value: unknown) =>
+          !value || (typeof value === 'string' && value.startsWith('https://'))
+            ? true
+            : 'Use a full web address starting with https://.',
+      })),
+    },
+    {
       name: 'pricing',
       label: 'Pricing',
       type: 'group',

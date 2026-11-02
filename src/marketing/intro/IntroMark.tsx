@@ -1,6 +1,4 @@
-import { BRAND } from '@/brand'
-
-import logoMark from '../site/assets/wordmark-mark.svg'
+import { BUILT_IN_LOGO, type LogoImage } from '../branding'
 
 import type { IntroMark as Mark } from './mark'
 
@@ -11,19 +9,16 @@ import type { IntroMark as Mark } from './mark'
  * headline and nav carry the content), and a paragraph rather than a heading so the page keeps
  * its one real H1.
  */
-export const IntroMark = ({ mark }: { mark: Mark }) => {
+export const IntroMark = ({ mark, logo = BUILT_IN_LOGO }: { mark: Mark; logo?: LogoImage }) => {
   if (mark.kind === 'none') return null
   return (
     <div className="mk-intro-mark" data-kind={mark.kind}>
       {mark.kind === 'message' ? (
         <p className="mk-display-xl mk-intro-message">{mark.message}</p>
       ) : (
-        // A stand-in until the company logo exists: the nav's wordmark, scaled up. The real logo
-        // replaces this markup (an <img> of the logo file) and keeps the same wrapper.
         <span className="mk-intro-logo">
-          {/* eslint-disable-next-line @next/next/no-img-element -- the Figma mark */}
-          <img src={logoMark.src} alt="" />
-          <span>{BRAND.name}</span>
+          {/* eslint-disable-next-line @next/next/no-img-element -- the logo, from R2 or the build */}
+          <img src={logo.src} alt="" style={{ aspectRatio: logo.ratio }} />
         </span>
       )}
     </div>
