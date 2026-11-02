@@ -652,3 +652,8 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Change:** `pnpm import-club-production <folder> [demo]`. It builds a new club only and refuses if the short name is already on production, so it can't overwrite edited work. It needs a typed `production` and Dan's approval, uses the website's limited `golf_app` account (never the owner), and removes a half-built club if the run fails. `demo` switches the public demo link on in the same step.
 - **Trade-off:** production's database address and photo keys sit in a private file on Dan's Mac (outside the project, never committed). A GitHub-run button would keep them in GitHub; not built.
 - **Rule kept:** edits made in an admin are never overwritten by a re-run, because production runs never replace.
+
+## 2026-11-02: Page tree removed
+
+- **Dan, 2 Nov:** the tree above the Pages list isn't wanted. `PageTree`, its data loader and their tests are gone; the Pages list is the normal Payload list again. Nothing in the database changes.
+- **Deleting a club now works from the Clubs list (Dan, 2 Nov: "unable to delete a club").** The database still refuses to delete a club that owns anything, so a `beforeDelete` hook on Clubs (`src/collections/Tenants.ts`) first removes the club's pages, news, events, photos and the rest (the list in `src/tenancy.ts`), in the same transaction. It **refuses if the club has editor accounts or an accepted agreement**: those are real records and must be removed deliberately. Super-admin only, as before. Tests: `tests/int/delete-club.int.spec.ts`.

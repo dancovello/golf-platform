@@ -94,13 +94,6 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
     why: 'Super-admin only: ClubHome calls it only when isSuperAdmin(user)',
   },
   {
-    file: 'src/admin/pageTreeData.ts',
-    fn: 'query',
-    uses: 1,
-    club: 'The editor’s own club, or the club picked by the super-admin (src/admin/PageTree.tsx), in the where clause',
-    why: 'Reads drafts and published versions together for the page tree. Candidate to run as the signed-in user instead',
-  },
-  {
     file: 'src/agreement/acceptance.ts',
     fn: 'clubHasAccepted',
     uses: 1,
@@ -144,6 +137,13 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
   },
 
   // ---------- Demo club (staging only) ----------
+  {
+    file: 'src/collections/Tenants.ts',
+    fn: 'deleteClubWithContent',
+    uses: 2,
+    club: 'The one club being deleted, in the where clause; refuses if it has accounts or an accepted agreement',
+    why: 'Runs only when a super-admin deletes a club (Tenants.access.delete); clears its content first because the database refuses to delete a club that still owns anything',
+  },
   {
     file: 'src/demo/demoClub.ts',
     fn: 'removeDemoClub',
