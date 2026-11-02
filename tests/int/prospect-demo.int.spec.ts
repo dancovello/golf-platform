@@ -37,7 +37,7 @@ const makeDemo = async (slug: string) => {
 describe('switching a demo on and off', () => {
   it('makes a random ending and a 30-day expiry', async () => {
     const { club } = await makeDemo('demo-one')
-    expect(club.demoToken).toMatch(/^[a-z2-9]{8}$/)
+    expect(club.demoToken).toMatch(/^[a-z2-9]{16}$/)
     const days = (new Date(club.demoExpiresAt!).getTime() - Date.now()) / 86_400_000
     expect(days).toBeGreaterThan(DEMO_DAYS - 0.01)
     expect(days).toBeLessThanOrEqual(DEMO_DAYS)
@@ -131,9 +131,9 @@ describe('opening a demo link', () => {
   })
 
   it('never opens a club that is not a demo, however the link is built', async () => {
-    expect(await siteFromDemo('test-club-a-aaaaaaaa')).toBeNull()
-    expect(await siteFromDemo('test-club-b-22222222')).toBeNull()
-    expect(await siteFromDemo(`${w.clubA.slug}-${'x'.repeat(8)}`)).toBeNull()
+    expect(await siteFromDemo('test-club-a-aaaaaaaaaaaaaaaa')).toBeNull()
+    expect(await siteFromDemo('test-club-b-2222222222222222')).toBeNull()
+    expect(await siteFromDemo(`${w.clubA.slug}-${'x'.repeat(16)}`)).toBeNull()
     expect(await siteFromDemo('../admin')).toBeNull()
   })
 

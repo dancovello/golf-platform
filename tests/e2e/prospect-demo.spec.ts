@@ -50,8 +50,8 @@ test('a guessed or wrong demo link is "not found", and says nothing about the cl
   const [slug] = w.demoLive.address.split(/-(?=[^-]+$)/)
   for (const path of [
     `/demo/${slug}`,
-    `/demo/${slug}-aaaaaaaa`,
-    `/demo/test-club-a-aaaaaaaa`,
+    `/demo/${slug}-aaaaaaaaaaaaaaaa`,
+    `/demo/test-club-a-aaaaaaaaaaaaaaaa`,
     `/demo/test-club-a`,
   ]) {
     const response = await page.goto(path)

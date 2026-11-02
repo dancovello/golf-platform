@@ -25,23 +25,25 @@ describe('prospect demo addresses', () => {
   })
 
   it('splits an address into the club and its ending, and back', () => {
-    const address = demoAddress('cottrell-park', 'x7k2m9pq')
-    expect(address).toBe('cottrell-park-x7k2m9pq')
-    expect(parseDemoAddress(address)).toEqual({ slug: 'cottrell-park', token: 'x7k2m9pq' })
-    expect(demoBase('cottrell-park', 'x7k2m9pq')).toBe('/demo/cottrell-park-x7k2m9pq')
+    const address = demoAddress('cottrell-park', 'x7k2m9pqx7k2m9pq')
+    expect(address).toBe('cottrell-park-x7k2m9pqx7k2m9pq')
+    expect(parseDemoAddress(address)).toEqual({ slug: 'cottrell-park', token: 'x7k2m9pqx7k2m9pq' })
+    expect(demoBase('cottrell-park', 'x7k2m9pqx7k2m9pq')).toBe(
+      '/demo/cottrell-park-x7k2m9pqx7k2m9pq',
+    )
   })
 
   it('refuses anything that is not a club name plus an ending', () => {
     for (const bad of [
       'cottrell-park',
       'cottrell-park-short',
-      'cottrell-park-x7k2m9pq1',
-      'cottrell-park-X7K2M9PQ',
-      'cottrell-park-x7k2m0pq',
-      '-x7k2m9pq',
-      'x7k2m9pq',
+      'cottrell-park-x7k2m9pqx7k2m9pq1',
+      'cottrell-park-X7K2M9PQX7K2M9PQ',
+      'cottrell-park-x7k2m0pqx7k2m0pq',
+      '-x7k2m9pqx7k2m9pq',
+      'x7k2m9pqx7k2m9pq',
       '../admin',
-      'a'.repeat(200),
+      'a'.repeat(250),
       '',
       undefined,
       42,

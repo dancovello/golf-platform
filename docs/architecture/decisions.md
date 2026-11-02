@@ -626,7 +626,7 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 ## 2026-11-02: Public prospect demos at /demo/<club>-<ending>
 
 - **Dan, 2 Nov:** clubs should be able to see a demo (a homepage or a full site) from a link in an email, with no account.
-- **Where:** the company's own domain (and the platform's own address), at `/demo/<short name>-<random ending>`. The ending is 8 random characters, so other clubs' demos can't be guessed.
+- **Where:** the company's own domain (and the platform's own address), at `/demo/<short name>-<random ending>`. The ending is 16 random characters (about 79 bits; first made 8, raised after the automated security review), so other clubs' demos can't be guessed.
 - **How long:** 30 days. The page strip reads "Demo - expires in X days". After that the link says it has expired. Nothing is deleted, and the date can be extended.
 - **Rules:** never indexed (page and header), no sitemap entry, contact form sends nothing, no editor accounts, no web address, never the canary clubs.
 - **Going live:** switch the demo off (clears the link), then add the club's web address. The live site is indexable on its own domain, since demo pages and live pages are different routes. This is a go-live checklist step (`docs/operations/prospect-demos.md`).

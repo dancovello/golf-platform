@@ -13,11 +13,11 @@ export const DEMO_DAYS = 30
 
 /** No look-alike characters (no 0/o, 1/l/i): the link is easy to read out or retype. */
 const ALPHABET = 'abcdefghjkmnpqrstuvwxyz23456789'
-export const DEMO_TOKEN_LENGTH = 8
+export const DEMO_TOKEN_LENGTH = 16
 
 const DAY_MS = 86_400_000
 
-/** The random ending of a demo address. About 40 bits: not guessable by trying. */
+/** The random ending of a demo address. 16 characters is about 79 bits: not guessable by trying. */
 export const newDemoToken = (): string =>
   Array.from({ length: DEMO_TOKEN_LENGTH }, () => ALPHABET[randomInt(ALPHABET.length)]).join('')
 
@@ -33,7 +33,7 @@ const ADDRESS = new RegExp(`^([a-z0-9]+(?:-[a-z0-9]+)*)-([${ALPHABET}]{${DEMO_TO
 
 /** Splits what was typed after /demo/ into a club short name and random ending, or null. */
 export const parseDemoAddress = (value: unknown): { slug: string; token: string } | null => {
-  if (typeof value !== 'string' || value.length > 120) return null
+  if (typeof value !== 'string' || value.length > 200) return null
   const found = ADDRESS.exec(value)
   return found ? { slug: found[1]!, token: found[2]! } : null
 }

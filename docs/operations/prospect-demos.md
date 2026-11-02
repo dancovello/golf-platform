@@ -5,7 +5,7 @@ How we show a club its new website before it has signed up: a public link anyone
 ## What a demo is
 
 - A club in the platform with **Public demo** switched on (Platform → Clubs → the club).
-- Its address is `https://<the company's domain>/demo/<short name>-<random ending>`, for example `/demo/cottrell-park-x7k2m9pq`. The random ending is made when the demo is switched on. Without it, nobody can open the demo, so one club's link never reveals another's.
+- Its address is `https://<the company's domain>/demo/<short name>-<random ending>`, for example `/demo/cottrell-park-x7k2m9pqx7k2m9pq`. The random ending is 16 characters (about 79 bits, far too many to guess) and is made when the demo is switched on. Without it, nobody can open the demo, so one club's link never reveals another's.
 - It also works on the platform's own address, with the same path.
 - A slim strip fixed to the bottom of every page says **"Demo - expires in 12 days"**, then "Demo - expires today" on the last day.
 - A demo is just a club, so it can be a one-page homepage or a full site. It uses the same pages, menu, branding and blocks a live club does.
