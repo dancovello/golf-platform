@@ -621,3 +621,10 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Why:** the repository is public again until 1 Nov (Dan). The 22 Oct guard stopped every staging release from 24 Oct (#147 to #193), so staging stayed on the 23 Oct release.
 - **Change:** the "repository must be private" check now runs only for production releases. Staging releases run whether the repository is public or private, as they did from 15 to 22 Oct. Secrets stay in GitHub and Vercel and are masked in logs; gitleaks still scans every pull request.
 - **Production:** still stops while the repository is public. Production releases are on hold anyway until Dan reviews the marketing pages.
+
+## 2026-11-02: Events with a date but no start time
+
+- **Why:** open days and similar events often have a date and no start time, but every event needed one, so the Cottrell open days had to stay out of What's on.
+- **Change:** a "No set start time" tick on an event (one migration adding a column that defaults to off). Only the date is shown on event cards, the featured panel, search and the quick answers. A saved event is stored at the start of its UK day.
+- **Stays up all day:** a normal event leaves the website once it has started; one with no set time stays until its day ends (UK time), in the events feed, the archive and site search. It is listed first on its day.
+- **Wording:** just the date (for example "Sat 14 Jun"), not "All day", because an open day is not necessarily all day.

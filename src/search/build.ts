@@ -11,6 +11,7 @@ import { categoryName } from '@/site/blocks/documentsShared'
 import { clubEvents } from '@/site/events'
 import type { SiteLink } from '@/site/loadClub'
 import { PUBLISHED } from '@/site/published'
+import { ukEndOfDay } from '@/site/ukTime'
 
 import { blockWords, opening, richTextWords, tidy } from './text'
 
@@ -269,7 +270,9 @@ export const buildClubEntries = async (
       },
       date: event.startsAt,
       visibleFrom: null,
-      visibleUntil: event.startsAt,
+      visibleUntil: event.noStartTime
+        ? ukEndOfDay(new Date(event.startsAt)).toISOString()
+        : event.startsAt,
     })
   }
 

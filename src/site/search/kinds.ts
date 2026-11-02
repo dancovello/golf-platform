@@ -24,7 +24,7 @@ export const kindFromParam = (value: unknown): SearchKind | null =>
 
 const UK = 'Europe/London'
 
-/** "Thu 23 Apr, 17:00" */
+/** "Thu 23 Apr, 17:00", or just "Thu 23 Apr" for an event with no set time (stored at 00:00). */
 export const eventWhen = (iso: string) => {
   const d = new Date(iso)
   const day = d.toLocaleDateString('en-GB', {
@@ -34,7 +34,7 @@ export const eventWhen = (iso: string) => {
     timeZone: UK,
   })
   const time = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: UK })
-  return `${day.replace(',', '')}, ${time}`
+  return time === '00:00' ? day.replace(',', '') : `${day.replace(',', '')}, ${time}`
 }
 
 /** "2 April 2026" */

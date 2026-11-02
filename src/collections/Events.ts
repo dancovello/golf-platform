@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionBeforeValidateHook, CollectionConfig } from 'payload'
 
 import { clubContentCreate, loggedIn } from '../access/roles'
 import { imageField } from '../blocks/shared'
@@ -8,6 +8,19 @@ import { checkEventSameClub } from '../site/sameClub'
 import { EVENT_CATEGORIES } from './eventCategories'
 import { clubBannerField } from '../tenancy'
 import { searchHooks } from '../search/hooks'
+import { ukStartOfDay } from '../site/ukTime'
+
+/**
+ * "No set start time": only the date counts, so it is stored as the start of that UK day.
+ * The website then keeps the event up until the day ends, and lists it first on its day.
+ */
+const dateOnlyEvents: CollectionBeforeValidateHook = ({ data, originalDoc }) => {
+  if (!data) return data
+  const noTime = data.noStartTime ?? originalDoc?.noStartTime
+  const startsAt = data.startsAt ?? originalDoc?.startsAt
+  if (noTime && startsAt) data.startsAt = ukStartOfDay(new Date(startsAt)).toISOString()
+  return data
+}
 
 // Club-owned (src/tenancy.ts): the club is required and editors only see their own events.
 // The website shows published events until they start, at /events and in Events blocks.
@@ -23,7 +36,7 @@ export const Events: CollectionConfig = {
     livePreview: eventLivePreview,
   },
   access: { create: clubContentCreate, read: loggedIn, update: loggedIn, delete: loggedIn },
-  hooks: { beforeValidate: [checkEventSameClub], ...searchHooks },
+  hooks: { beforeValidate: [checkEventSameClub, dateOnlyEvents], ...searchHooks },
   defaultSort: 'startsAt',
   fields: [
     clubBannerField,
@@ -49,7 +62,8 @@ export const Events: CollectionConfig = {
           required: true,
           admin: {
             date: { pickerAppearance: 'dayAndTime', displayFormat: 'd MMM yyyy, HH:mm' },
-            description: 'UK time. The event leaves the website once it has started.',
+            description:
+              'UK time. The event leaves the website once it has started (or, with no set start time, when its day ends).',
           },
         },
         {
@@ -61,6 +75,16 @@ export const Events: CollectionConfig = {
           options: [...EVENT_CATEGORIES],
         },
       ],
+    },
+    {
+      name: 'noStartTime',
+      label: 'No set start time',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        description:
+          'Tick this for an event with a date but no start time (an open day, say). Only the date is shown, and the time above is ignored.',
+      },
     },
     {
       type: 'row',
@@ -77,7 +101,10 @@ export const Events: CollectionConfig = {
           label: 'Time note (optional)',
           type: 'text',
           maxLength: 20,
-          admin: { description: 'e.g. "shotgun". Shown after the time.' },
+          admin: {
+            description:
+              'e.g. "shotgun". Shown after the time (or on its own when there is no set time).',
+          },
         },
       ],
     },
