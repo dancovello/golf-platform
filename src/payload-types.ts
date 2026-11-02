@@ -1235,16 +1235,20 @@ export interface Event {
   title: string;
   status: 'draft' | 'published';
   /**
-   * UK time. The event leaves the website once it has started.
+   * UK time. The event leaves the website once it has started (or, with no set start time, when its day ends).
    */
   startsAt: string;
   category: 'social' | 'dining' | 'competition' | 'academy' | 'members';
+  /**
+   * Tick this for an event with a date but no start time (an open day, say). Only the date is shown, and the time above is ignored.
+   */
+  noStartTime?: boolean | null;
   /**
    * e.g. "Clubhouse" or "Championship course"
    */
   venue?: string | null;
   /**
-   * e.g. "shotgun". Shown after the time.
+   * e.g. "shotgun". Shown after the time (or on its own when there is no set time).
    */
   timeNote?: string | null;
   /**
@@ -3251,6 +3255,7 @@ export interface EventsSelect<T extends boolean = true> {
   status?: T;
   startsAt?: T;
   category?: T;
+  noStartTime?: T;
   venue?: T;
   timeNote?: T;
   summary?: T;

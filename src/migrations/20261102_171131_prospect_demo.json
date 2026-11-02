@@ -12455,6 +12455,13 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "no_start_time": {
+          "name": "no_start_time",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
         }
       },
       "indexes": {

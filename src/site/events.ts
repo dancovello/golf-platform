@@ -8,6 +8,7 @@ import { loadClubMedia, type SiteMedia } from './blocks/media'
 import { PUBLISHED } from './published'
 import type { SiteLink } from './loadClub'
 import { siteToday } from './today'
+import { ukStartOfDay } from './ukTime'
 import { clubCached } from './cache'
 import { idOf } from '@/blocks/types'
 
@@ -18,6 +19,8 @@ export type SiteEvent = {
   category: string
   categoryLabel: string
   startsAt: string
+  /** A date only: no start time is shown, and the event stays up until its day ends. */
+  noStartTime: boolean
   venue: string | null
   timeNote: string | null
   summary: string | null
@@ -40,6 +43,7 @@ type EventDoc = {
   title: string
   category: string
   startsAt: string
+  noStartTime?: boolean | null
   venue?: string | null
   timeNote?: string | null
   summary?: string | null
@@ -53,12 +57,22 @@ type EventDoc = {
   featured?: boolean | null
 }
 
-/** Published and not yet started. */
+/** Published and not yet started (events with no set time: until their day ends). */
 const upcoming = (tenantID: string, category?: string | null): Where => ({
   and: [
     { tenant: { equals: tenantID } },
     { status: { equals: 'published' } },
-    { startsAt: { greater_than: siteToday().toISOString() } },
+    {
+      or: [
+        { startsAt: { greater_than: siteToday().toISOString() } },
+        {
+          and: [
+            { noStartTime: { equals: true } },
+            { startsAt: { greater_than_equal: ukStartOfDay(siteToday()).toISOString() } },
+          ],
+        },
+      ],
+    },
     ...(category ? [{ category: { equals: category } }] : []),
   ],
 })
@@ -107,6 +121,7 @@ const toEvents = async (tenantID: string, docs: EventDoc[]): Promise<SiteEvent[]
       category: d.category,
       categoryLabel: eventCategoryLabel(d.category),
       startsAt: d.startsAt,
+      noStartTime: Boolean(d.noStartTime),
       venue: d.venue?.trim() || null,
       timeNote: d.timeNote?.trim() || null,
       summary: d.summary?.trim() || null,
