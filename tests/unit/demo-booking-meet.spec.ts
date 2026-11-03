@@ -50,6 +50,20 @@ describe('Google Meet for demo bookings', () => {
     expect(sent.conferenceData.createRequest.conferenceSolutionKey.type).toBe('hangoutsMeet')
   })
 
+  it('looks again when Google has not made the Meet room yet', async () => {
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce(reply({ access_token: 'token' }))
+      .mockResolvedValueOnce(reply({ id: 'evt1' }))
+      .mockResolvedValueOnce(reply({ id: 'evt1', hangoutLink: 'https://meet.google.com/xyz' }))
+    const wait = vi.fn().mockResolvedValue(undefined)
+    expect(await createMeetLink(booking, 30, { config, fetcher, wait })).toBe(
+      'https://meet.google.com/xyz',
+    )
+    expect(fetcher.mock.calls[2]?.[0]).toContain('/events/evt1')
+    expect(wait).toHaveBeenCalledTimes(1)
+  })
+
   it('falls back to nothing when Google refuses or answers oddly', async () => {
     const quiet = vi.spyOn(console, 'error').mockImplementation(() => {})
     const refused = vi.fn().mockResolvedValueOnce(reply({}, false, 401))

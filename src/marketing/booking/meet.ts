@@ -33,6 +33,8 @@ export const googleConfig = (
 const TOKEN_URL = 'https://oauth2.googleapis.com/token'
 const EVENTS_URL = 'https://www.googleapis.com/calendar/v3/calendars'
 const TIMEOUT_MS = 8000
+const RECHECKS = 2
+const RECHECK_MS = 1000
 
 /** A Meet link for one booked call, or null when Google isn't connected or the call failed. */
 export const createMeetLink = async (
@@ -41,7 +43,12 @@ export const createMeetLink = async (
   {
     config = googleConfig(),
     fetcher = fetch,
-  }: { config?: GoogleConfig | null; fetcher?: typeof fetch } = {},
+    wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+  }: {
+    config?: GoogleConfig | null
+    fetcher?: typeof fetch
+    wait?: (ms: number) => Promise<unknown>
+  } = {},
 ): Promise<string | null> => {
   if (!config) return null
   try {
@@ -84,8 +91,21 @@ export const createMeetLink = async (
       },
     )
     if (!event.ok) throw new Error(`Google Calendar answered ${event.status}`)
-    const { hangoutLink } = (await event.json()) as { hangoutLink?: string }
-    return hangoutLink?.startsWith('https://') ? hangoutLink : null
+    const made = (await event.json()) as { id?: string; hangoutLink?: string }
+    let link = made.hangoutLink
+    // Google makes the Meet room a moment after the event, so look again if it isn't there yet.
+    for (let tries = 0; !link && made.id && tries < RECHECKS; tries++) {
+      await wait(RECHECK_MS)
+      const again = await fetcher(
+        `${EVENTS_URL}/${encodeURIComponent(config.calendarId)}/events/${encodeURIComponent(made.id)}`,
+        {
+          headers: { authorization: `Bearer ${accessToken}` },
+          signal: AbortSignal.timeout(TIMEOUT_MS),
+        },
+      )
+      if (again.ok) link = ((await again.json()) as { hangoutLink?: string }).hangoutLink
+    }
+    return link?.startsWith('https://') ? link : null
   } catch (error) {
     console.error('Demo booking: could not create a Google Meet link, using the fixed link', error)
     return null
