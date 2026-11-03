@@ -30,6 +30,7 @@ export const platformCollections = [
   'marketing-pages',
   'marketing-media',
   'homepage-requests',
+  'demo-bookings',
 ] as const
 
 export type ClubOwnedSlug = keyof typeof clubOwnedCollections

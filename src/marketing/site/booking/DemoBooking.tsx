@@ -35,15 +35,16 @@ const WEEKDAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', '
  * times can be picked. Keyboard: arrow keys move through the days, Enter or Space picks one
  * (Figma: "arrow keys move through days, Enter selects"). The times are radios.
  *
- * `book` makes the booking; until a calendar is connected (open question Q4) the component is
- * only shown on the review page, with sample times, and the live page offers email instead.
+ * `book` makes the booking and returns true, or a sentence to show (the server action in
+ * src/marketing/booking/actions.ts). The review page shows it with sample times and a pretend
+ * booking.
  */
 export const DemoBooking = ({
   open,
   book,
 }: {
   open: OpenDay[]
-  book: (details: BookingDetails, date: string, time: string) => Promise<boolean>
+  book: (details: BookingDetails, date: string, time: string) => Promise<boolean | string>
 }) => {
   const days = useMemo(() => bookableDays(open), [open])
   const first = [...days.keys()].sort()[0] ?? null
@@ -85,10 +86,12 @@ export const DemoBooking = ({
     if (!day || !time) return
     setBusy(true)
     setProblem(null)
-    const ok = await book(details, day, time).catch(() => false)
+    const result = await book(details, day, time).catch(() => false)
     setBusy(false)
-    if (!ok) {
-      setProblem('That time has just gone. Please pick another.')
+    if (result !== true) {
+      setProblem(
+        typeof result === 'string' ? result : 'That time has just gone. Please pick another.',
+      )
       return
     }
     setStep('booked')
