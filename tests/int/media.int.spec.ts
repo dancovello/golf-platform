@@ -84,6 +84,12 @@ describe('photo storage', () => {
     ['a javascript link', `<svg ${NS}><a href="javascript:alert(1)"><path d="M0 0"/></a></svg>`],
     ['an outside stylesheet', `<svg ${NS}><style>@import url(https://x.test/a.css);</style></svg>`],
     ['an outside fill', `<svg ${NS}><path fill="url(https://x.test/a)" d="M0 0"/></svg>`],
+    [
+      'an HTML-namespace element',
+      `<svg ${NS}><div xmlns="http://www.w3.org/1999/xhtml"><img src="x" onerror="alert(1)"/></div></svg>`,
+    ],
+    ['a CDATA block', `<svg ${NS}><style><![CDATA[a{}]]></style></svg>`],
+    ['broken XML', `<svg ${NS}><path></svg>`],
     ['an entity', `<!DOCTYPE svg [<!ENTITY a "b">]><svg ${NS}/>`],
   ])('refuses an SVG with %s', async (_name, svg) => {
     expect(await uploadSvg(svg)).not.toBeNull()

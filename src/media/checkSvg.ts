@@ -5,6 +5,15 @@ import type { CollectionBeforeChangeHook } from 'payload'
 /** The largest SVG a club can upload. Logos and icons are a few KB; this stops a huge file. */
 export const MAX_SVG_BYTES = 1024 * 1024
 
+const SVG_NS = 'http://www.w3.org/2000/svg'
+const OK_NAMESPACES = new Set([
+  'http://www.w3.org/2000/xmlns/',
+  'http://www.w3.org/1999/xlink',
+  'http://www.w3.org/XML/1998/namespace',
+])
+const NOT_ALLOWED =
+  'This SVG contains scripts, links or other content that isn’t allowed. Export it again as a plain SVG (in Illustrator choose “SVG 1.1” and “Presentation Attributes”; in Figma use Export → SVG).'
+
 const purify = DOMPurify(new JSDOM('').window as unknown as Window & typeof globalThis)
 
 // Only links to another part of the same drawing (gradients, symbols). A link to a web
@@ -42,7 +51,30 @@ export const svgProblem = (file: Buffer): string | null => {
   if (/url\(\s*['"]?(?!#)/i.test(text.replace(/<style[\s\S]*?<\/style>/gi, ''))) {
     return 'This SVG links to another address. Export it again as a plain SVG.'
   }
-  purify.sanitize(text, { USE_PROFILES: { svg: true, svgFilters: true }, RETURN_DOM: true })
+  // Read it the way a browser reads an SVG file: strict XML. An HTML-style parse can see a
+  // different document from the browser, so a file could pass the check yet run code.
+  let doc: Document
+  try {
+    doc = new JSDOM(text, { contentType: 'image/svg+xml' }).window.document
+  } catch {
+    return 'This SVG is damaged or not valid. Export it again as a plain SVG.'
+  }
+  const root = doc.documentElement
+  if (root.localName !== 'svg' || root.namespaceURI !== SVG_NS) {
+    return 'This doesn’t look like an SVG file.'
+  }
+  const everything = [root, ...Array.from(root.querySelectorAll('*'))]
+  const odd = everything.some(
+    (el) =>
+      el.namespaceURI !== SVG_NS ||
+      Array.from(el.attributes).some((a) => a.namespaceURI && !OK_NAMESPACES.has(a.namespaceURI)),
+  )
+  const hasOddNodes = (node: Node): boolean =>
+    Array.from(node.childNodes).some(
+      (n) => n.nodeType === 4 || n.nodeType === 7 || (n.nodeType === 1 && hasOddNodes(n)),
+    )
+  if (odd || hasOddNodes(root)) return NOT_ALLOWED
+  purify.sanitize(root, { USE_PROFILES: { svg: true, svgFilters: true }, RETURN_DOM: true })
   const removed = purify.removed.filter(
     (r) =>
       ('element' in r &&
@@ -50,9 +82,7 @@ export const svgProblem = (file: Buffer): string | null => {
         !/^(body|head|html)$/i.test(r.element.nodeName)) ||
       'attribute' in r,
   )
-  if (removed.length > 0) {
-    return 'This SVG contains scripts, links or other content that isn’t allowed. Export it again as a plain SVG (in Illustrator choose “SVG 1.1” and “Presentation Attributes”; in Figma use Export → SVG).'
-  }
+  if (removed.length > 0) return NOT_ALLOWED
   return null
 }
 
@@ -60,7 +90,10 @@ export const svgProblem = (file: Buffer): string | null => {
  * Payload downloads from storage to read before the record is saved. */
 export const checkSvgUpload: CollectionBeforeChangeHook = ({ data, req }) => {
   const file = req.file
-  if (file?.data && file.mimetype === 'image/svg+xml') {
+  // Judged by what the file contains, not only the type the browser reported.
+  const looksLikeSvg = file?.data && /<svg[\s>]/i.test(file.data.subarray(0, 4096).toString('utf8'))
+  if (file?.data && (file.mimetype === 'image/svg+xml' || looksLikeSvg)) {
+    if (file.mimetype !== 'image/svg+xml') throw new Error('This file isn’t what it claims to be.')
     const problem = svgProblem(file.data)
     if (problem) throw new Error(problem)
   }
