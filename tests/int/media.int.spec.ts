@@ -53,17 +53,40 @@ describe('photo storage', () => {
     expect(error).not.toBeNull()
   })
 
-  it('refuses SVG files, which can carry code', async () => {
-    const svg = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"><script>1</script></svg>')
-    const error = await errorOf(() =>
+  const svgFile = (svg: string) => {
+    const data = Buffer.from(svg)
+    return { data, mimetype: 'image/svg+xml', name: 'logo.svg', size: data.length }
+  }
+  const uploadSvg = (svg: string) =>
+    errorOf(() =>
       w.payload.create({
         collection: 'media',
         data: { alt: 'svg', tenant: w.clubA.id },
-        file: { data: svg, mimetype: 'image/svg+xml', name: 'logo.svg', size: svg.length },
+        file: svgFile(svg),
         ...asEditorA(),
       }),
     )
-    expect(error).not.toBeNull()
+  const NS = 'xmlns="http://www.w3.org/2000/svg"'
+
+  it('accepts a plain SVG logo', async () => {
+    const svg = `<svg ${NS} viewBox="0 0 10 10"><defs><linearGradient id="g"><stop offset="0" stop-color="#000"/></linearGradient></defs><path d="M0 0h10v10z" fill="url(#g)"/></svg>`
+    expect(await uploadSvg(svg)).toBeNull()
+  })
+
+  it.each([
+    ['a script', `<svg ${NS}><script>alert(1)</script></svg>`],
+    ['an event handler', `<svg ${NS} onload="alert(1)"><path d="M0 0"/></svg>`],
+    [
+      'an embedded web page',
+      `<svg ${NS}><foreignObject><iframe src="https://x.test"/></foreignObject></svg>`,
+    ],
+    ['an outside image link', `<svg ${NS}><image href="https://x.test/p.png"/></svg>`],
+    ['a javascript link', `<svg ${NS}><a href="javascript:alert(1)"><path d="M0 0"/></a></svg>`],
+    ['an outside stylesheet', `<svg ${NS}><style>@import url(https://x.test/a.css);</style></svg>`],
+    ['an outside fill', `<svg ${NS}><path fill="url(https://x.test/a)" d="M0 0"/></svg>`],
+    ['an entity', `<!DOCTYPE svg [<!ENTITY a "b">]><svg ${NS}/>`],
+  ])('refuses an SVG with %s', async (_name, svg) => {
+    expect(await uploadSvg(svg)).not.toBeNull()
   })
 
   it("an editor cannot point a file at club B's folder", async () => {
