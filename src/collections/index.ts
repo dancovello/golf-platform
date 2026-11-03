@@ -13,6 +13,7 @@ import { Pages } from './Pages'
 import { Staff } from './Staff'
 import { Tenants } from './Tenants'
 import { Users } from './Users'
+import { DemoBookings } from '../marketing/collections/DemoBookings'
 import { HomepageRequests } from '../marketing/collections/HomepageRequests'
 import { MarketingMedia } from '../marketing/collections/MarketingMedia'
 import { MarketingPages } from '../marketing/collections/MarketingPages'
@@ -40,4 +41,5 @@ export const collections: CollectionConfig[] = [
   MarketingPages,
   MarketingMedia,
   HomepageRequests,
+  DemoBookings,
 ]

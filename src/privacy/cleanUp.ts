@@ -9,14 +9,15 @@ import { deleteOldCounts } from '../security/rateLimit'
 import { mediaStorageSettings } from '../media/storage'
 
 /**
- * The nightly clean-up (plan part D, 2026-10-20). It keeps three promises:
+ * The nightly clean-up (plan part D, 2026-10-20). It keeps four promises:
  *
  * 1. **Enquiries** are deleted 12 months after they're marked handled, or 12 months after
  *    they arrived if nobody ever marked them (Dan chose this, option a). The privacy policy
  *    says so (src/site/privacy/policy.ts, RETENTION.enquiries).
  * 2. **Homepage requests** from the company website are deleted 12 months after the last
  *    contact (decision F).
- * 3. **Uploads that never became a photo or document** (the browser uploaded the file, then
+ * 3. **Demo bookings** are deleted 12 months after their last change.
+ * 4. **Uploads that never became a photo or document** (the browser uploaded the file, then
  *    Payload's content check refused the record) are removed from storage after a day.
  *
  * It also deletes rate-limit counts older than a day (src/security/rateLimit.ts): they hold
@@ -79,6 +80,25 @@ export const deleteOldHomepageRequests = async (payload: Payload, now = new Date
     payload.logger.error(
       { errors: result.errors },
       'Clean-up: some homepage requests could not be deleted',
+    )
+  }
+  return result.docs.length
+}
+
+/** Demo bookings are kept 12 months after the call's day: long enough to follow up. */
+export const DEMO_BOOKING_MONTHS = 12
+
+export const deleteOldDemoBookings = async (payload: Payload, now = new Date()) => {
+  const result = await payload.delete({
+    collection: 'demo-bookings',
+    where: { updatedAt: { less_than: monthsBefore(now, DEMO_BOOKING_MONTHS) } },
+    overrideAccess: true,
+    depth: 0,
+  })
+  if (result.errors.length) {
+    payload.logger.error(
+      { errors: result.errors },
+      'Clean-up: some demo bookings could not be deleted',
     )
   }
   return result.docs.length
@@ -181,11 +201,12 @@ export const runCleanUp = async (
 ) => {
   const enquiries = await deleteOldEnquiries(payload, now)
   const homepageRequests = await deleteOldHomepageRequests(payload, now)
+  const demoBookings = await deleteOldDemoBookings(payload, now)
   const uploads = files ? await deleteOrphanUploads(payload, now) : null
   const db = (payload.db as unknown as { drizzle: Parameters<typeof deleteOldCounts>[0] }).drizzle
   const counts = await deleteOldCounts(db, now)
   payload.logger.info(
-    `Clean-up: deleted ${enquiries} enquiries, ${homepageRequests} homepage requests and ${counts} old rate-limit counts${uploads ? `, removed ${uploads.removed} unused files` : ''}`,
+    `Clean-up: deleted ${enquiries} enquiries, ${homepageRequests} homepage requests, ${demoBookings} demo bookings and ${counts} old rate-limit counts${uploads ? `, removed ${uploads.removed} unused files` : ''}`,
   )
-  return { enquiries, homepageRequests, uploads, counts }
+  return { enquiries, homepageRequests, demoBookings, uploads, counts }
 }

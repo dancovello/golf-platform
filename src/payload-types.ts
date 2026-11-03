@@ -83,6 +83,7 @@ export interface Config {
     'marketing-pages': MarketingPage;
     'marketing-media': MarketingMedia;
     'homepage-requests': HomepageRequest;
+    'demo-bookings': DemoBooking;
     'totp-attempts': TotpAttempt;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
@@ -107,6 +108,7 @@ export interface Config {
     'marketing-pages': MarketingPagesSelect<false> | MarketingPagesSelect<true>;
     'marketing-media': MarketingMediaSelect<false> | MarketingMediaSelect<true>;
     'homepage-requests': HomepageRequestsSelect<false> | HomepageRequestsSelect<true>;
+    'demo-bookings': DemoBookingsSelect<false> | DemoBookingsSelect<true>;
     'totp-attempts': TotpAttemptsSelect<false> | TotpAttemptsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
@@ -2649,6 +2651,31 @@ export interface HomepageRequest {
   createdAt: string;
 }
 /**
+ * Demo calls booked on the Book a demo page. Mark one cancelled and its time is offered again.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "demo-bookings".
+ */
+export interface DemoBooking {
+  id: string;
+  status: 'booked' | 'done' | 'cancelled';
+  /**
+   * Year-month-day.
+   */
+  date: string;
+  time: string;
+  slotKey?: string | null;
+  name: string;
+  role?: string | null;
+  club: string;
+  email: string;
+  alertSentAt?: string | null;
+  confirmationSentAt?: string | null;
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "totp-attempts".
  */
@@ -4607,6 +4634,25 @@ export interface HomepageRequestsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "demo-bookings_select".
+ */
+export interface DemoBookingsSelect<T extends boolean = true> {
+  status?: T;
+  date?: T;
+  time?: T;
+  slotKey?: T;
+  name?: T;
+  role?: T;
+  club?: T;
+  email?: T;
+  alertSentAt?: T;
+  confirmationSentAt?: T;
+  notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "totp-attempts_select".
  */
 export interface TotpAttemptsSelect<T extends boolean = true> {
@@ -4743,6 +4789,32 @@ export interface MarketingSetting {
      */
     inbox?: string | null;
   };
+  /**
+   * When visitors can book a demo on the Book a demo page, in UK time. Add the hours you are free each weekday; with none, the page offers email instead. Booked times are under Demo bookings.
+   */
+  demoCalls: {
+    /**
+     * One row per block, e.g. Tuesday 10:00 to 12:00. Weekdays only.
+     */
+    hours?:
+      | {
+          weekday: 'mon' | 'tue' | 'wed' | 'thu' | 'fri';
+          from: string;
+          to: string;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Sets how far apart times are. Never shown to visitors.
+     */
+    slotMinutes: number;
+    daysAhead: number;
+    noticeHours: number;
+    /**
+     * Your Google Meet or Zoom room, put in the confirmation email. Empty: the email says you will send the link.
+     */
+    videoLink?: string | null;
+  };
   trust?: {
     /**
      * Empty: the claim isn’t shown. Only fill in once the Neon plan gives it (Q6).
@@ -4812,6 +4884,22 @@ export interface MarketingSettingsSelect<T extends boolean = true> {
     | T
     | {
         inbox?: T;
+      };
+  demoCalls?:
+    | T
+    | {
+        hours?:
+          | T
+          | {
+              weekday?: T;
+              from?: T;
+              to?: T;
+              id?: T;
+            };
+        slotMinutes?: T;
+        daysAhead?: T;
+        noticeHours?: T;
+        videoLink?: T;
       };
   trust?:
     | T

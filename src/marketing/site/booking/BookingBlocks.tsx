@@ -1,16 +1,25 @@
+import config from '@payload-config'
+import { getPayload } from 'payload'
+
 import { BRAND } from '@/brand'
+import { hasHours, openDays, ukClock } from '@/marketing/booking/availability'
+import { bookDemo } from '@/marketing/booking/actions'
+import { bookingConfig, takenSlots } from '@/marketing/booking/config'
+import { marketingSettings } from '@/marketing/settings'
 import type { MarketingDemoIntroBlock } from '@/payload-types'
 
 import { TextLink } from '../controls/controls'
 import { MarketingIcon } from '../MarketingIcon'
 import { MarketingButton } from '../parts'
+import { DemoBooking } from './DemoBooking'
 
 /**
  * Book a demo intro (187:7371): heading, what to expect and the email line, beside the booking
- * panel. Until a calendar is connected (open question Q4) the panel offers email: the plan's
- * agreed fallback. The working Demo Booking component is on the review page (/dev/components).
+ * panel. The panel is our own calendar (Q4, decided 3 Nov 2026): the hours in Settings → Demo
+ * calls, less anything booked. With no hours set, or if they can't be read, it offers email.
  */
-export const DemoIntro = ({ block }: { block: MarketingDemoIntroBlock }) => {
+export const DemoIntro = async ({ block }: { block: MarketingDemoIntroBlock }) => {
+  const open = await openTimes()
   const mailto = `mailto:${BRAND.email}?subject=${encodeURIComponent('Demo')}`
   return (
     <div className="mk-demo-intro">
@@ -39,14 +48,18 @@ export const DemoIntro = ({ block }: { block: MarketingDemoIntroBlock }) => {
         ) : null}
       </div>
       <div className="mk-demo-intro-panel">
-        <div className="mk-booking-fallback">
-          <h2 className="mk-booking-title">Pick a time by email</h2>
-          <p className="mk-booking-text">
-            Send us two or three weekday times that suit you, and we’ll send a video call invite.
-            Bring anyone from the committee.
-          </p>
-          <MarketingButton label={`Email ${BRAND.email}`} href={mailto} variant="primary" />
-        </div>
+        {open ? (
+          <DemoBooking open={open} book={bookDemo} />
+        ) : (
+          <div className="mk-booking-fallback">
+            <h2 className="mk-booking-title">Pick a time by email</h2>
+            <p className="mk-booking-text">
+              Send us two or three weekday times that suit you, and we’ll send a video call invite.
+              Bring anyone from the committee.
+            </p>
+            <MarketingButton label={`Email ${BRAND.email}`} href={mailto} variant="primary" />
+          </div>
+        )}
       </div>
       {/* Under "What to expect" on desktop; under the booking panel on phones (275:9682). */}
       <p className="mk-demo-email">
@@ -57,4 +70,19 @@ export const DemoIntro = ({ block }: { block: MarketingDemoIntroBlock }) => {
       </p>
     </div>
   )
+}
+
+/** The times on offer now, or null when no hours are set (or the database can't be read). */
+const openTimes = async () => {
+  try {
+    const settings = await marketingSettings()
+    const booking = bookingConfig(settings)
+    if (!hasHours(booking)) return null
+    const now = new Date()
+    const taken = await takenSlots(await getPayload({ config }), ukClock(now).date)
+    return openDays(booking, taken, now)
+  } catch (error) {
+    console.error('Book a demo: could not read the booking times, showing email instead', error)
+    return null
+  }
 }
