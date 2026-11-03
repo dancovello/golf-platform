@@ -1857,6 +1857,14 @@ button.mk-button {
 .mk-morph-frames {
   width: 100%;
 }
+/* Phones: the frame and its three stacked chips together must fit the window below the nav
+ * (Dan, 26 Oct). At 375×812 they came to 759px against 748px, so the gap between them is the
+ * chips' own 8px. */
+@media (max-width: 767px) {
+  .mk-morph[data-scroll-driven='false'] .mk-morph-sticky {
+    gap: 8px;
+  }
+}
 /* Pinned 88px from the top, with the chips (39px + 24px gap) and browser bar (42px) under the
  * hero: the frame narrows so all of it fits on the screen. */
 .mk-morph[data-scroll-driven='true'] .mk-morph-frames {
