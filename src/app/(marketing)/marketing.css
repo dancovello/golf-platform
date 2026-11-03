@@ -5619,3 +5619,313 @@ html[data-intro='reveal'] .mk-footer {
   font: inherit;
   resize: vertical;
 }
+
+/* ---- v2 selling blocks (Figma "marketing site v2": Assurance Item 351:1811, Compare Row
+ * 351:1818, Step Card 351:1829, Objection Card 351:1833, Role Tabs 351:2029) ---- */
+
+.mk-assure {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px 32px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 640px) {
+  .mk-assure {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  .mk-assure {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+.mk-assure-item {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.mk-assure-icon,
+.mk-roles-tick,
+.mk-cmp-icon.is-tick {
+  display: inline-flex;
+  flex: none;
+  color: var(--mk-accent-dawn);
+}
+.mk-assure-icon {
+  padding-top: 2px;
+}
+.mk-assure-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.mk-assure-text strong {
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.034px;
+  color: var(--mk-text-primary);
+}
+.mk-assure-text span {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mk-text-secondary);
+}
+
+.mk-cmp ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.mk-cmp-labels,
+.mk-cmp-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+.mk-cmp-labels {
+  display: none;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--mk-border-hairline);
+}
+.mk-cmp-labels p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--mk-text-tertiary);
+}
+.mk-cmp-row {
+  padding: 22px 0;
+  border-bottom: 1px solid var(--mk-border-hairline);
+}
+.mk-cmp-row p {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin: 0;
+  font-size: 19px;
+  line-height: 1.55;
+  letter-spacing: -0.038px;
+}
+.mk-cmp-icon {
+  display: inline-flex;
+  flex: none;
+  padding-top: 2px;
+  color: var(--mk-text-tertiary);
+}
+.mk-cmp-old {
+  color: var(--mk-text-secondary);
+}
+.mk-cmp-our {
+  color: var(--mk-text-primary);
+}
+@media (min-width: 768px) {
+  .mk-cmp-labels,
+  .mk-cmp-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 48px;
+  }
+  .mk-cmp-labels {
+    display: grid;
+  }
+}
+
+.mk-stepcards {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 640px) {
+  .mk-stepcards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  .mk-stepcards[data-count='4'] {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .mk-stepcards[data-count='3'] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.mk-stepcard,
+.mk-objection {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--mk-border-hairline);
+  border-radius: var(--mk-radius-panel);
+  background: var(--mk-surface-raised);
+}
+.mk-stepcard {
+  gap: 12px;
+  padding: 28px 28px 32px;
+}
+.mk-stepcard-number {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  letter-spacing: 0.2px;
+  color: var(--mk-accent-dawn);
+}
+.mk-stepcard-title,
+.mk-objection-question {
+  margin: 0;
+  font-family: var(--mk-font-display), system-ui, sans-serif;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.168px;
+  color: var(--mk-text-primary);
+}
+.mk-stepcard p,
+.mk-objection-answer {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.55;
+  letter-spacing: -0.016px;
+  color: var(--mk-text-secondary);
+}
+
+.mk-objections {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 768px) {
+  .mk-objections {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.mk-objection {
+  gap: 14px;
+  padding: 32px 32px 36px;
+}
+.mk-objection-topic {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--mk-text-tertiary);
+}
+
+.mk-roles {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: flex-start;
+}
+.mk-roles-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 32px;
+  align-items: center;
+  width: 100%;
+  padding: 24px;
+  border: 1px solid var(--mk-border-hairline);
+  border-radius: var(--mk-radius-panel);
+  background: var(--mk-surface-raised);
+}
+.mk-roles-panel[hidden] {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .mk-roles-panel {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 64px;
+    padding: 56px;
+  }
+}
+.mk-roles-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+.mk-roles-eyebrow {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--mk-accent-dawn);
+}
+.mk-roles-headline {
+  margin: 0;
+  font-family: var(--mk-font-display), system-ui, sans-serif;
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.528px;
+  color: var(--mk-text-primary);
+}
+@media (min-width: 1024px) {
+  .mk-roles-headline {
+    font-size: 44px;
+  }
+}
+.mk-roles-points {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 16px 0 0;
+  list-style: none;
+}
+.mk-roles-points li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  font-size: 19px;
+  line-height: 1.55;
+  letter-spacing: -0.038px;
+  color: var(--mk-text-primary);
+}
+.mk-roles-tick {
+  padding-top: 3px;
+}
+.mk-roles-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  padding: 16px;
+  border-radius: var(--mk-radius-window);
+  background: var(--mk-surface-tint);
+}
+@media (min-width: 1024px) {
+  .mk-roles-visual {
+    padding: 32px;
+  }
+}
+/* The showcase's pictures sit cropped in a faded cell; here they sit whole. */
+.mk-roles-visual .mk-li {
+  position: static;
+  width: 100%;
+  font-size: 14px;
+}
+/* On a phone the tabs scroll sideways in one row, so the sliding highlight stays under its tab. */
+.mk-roles {
+  align-items: stretch;
+  width: 100%;
+  min-width: 0;
+}
+.mk-roles .mk-pill-tabs {
+  display: flex;
+  flex-wrap: nowrap;
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.mk-roles .mk-pill-tab {
+  flex: none;
+  white-space: nowrap;
+}

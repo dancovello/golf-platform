@@ -8,6 +8,7 @@ import { FEATURE_ICONS } from './icons'
 import { homeBlocks } from './homeBlocks'
 import { infoBlocks } from './infoBlocks'
 import { pricingBlocks } from './pricingBlocks'
+import { sellingBlocks } from './sellingBlocks'
 import { switchingBlocks } from './switchingBlocks'
 import { marketingRichText } from './richText'
 
@@ -290,4 +291,5 @@ export const marketingBlocks: Block[] = [
   ...builderBlocks,
   ...bookingsBlocks,
   ...infoBlocks,
+  ...sellingBlocks,
 ]

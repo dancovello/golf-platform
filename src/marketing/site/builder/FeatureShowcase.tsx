@@ -183,6 +183,16 @@ const VISUALS: Record<Feature, () => ReactNode> = {
   greenFees: GreenFees,
 }
 
+/** One feature's picture on its own (the Role Tabs show these beside a role's points). */
+export const FeatureVisual = ({ feature }: { feature: Feature }) => {
+  const Visual = VISUALS[feature]
+  return (
+    <div className={`mk-li mk-li--${feature}`}>
+      <Visual />
+    </div>
+  )
+}
+
 /**
  * Feature showcase (Dan, 26 Oct, after Linear's AI page; restyled 28 Oct after looking at it
  * closely): up to four everyday features in a hairline grid. Each cell is a simplified, dark
