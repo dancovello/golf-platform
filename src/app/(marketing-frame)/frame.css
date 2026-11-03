@@ -41,3 +41,45 @@
 .frame {
   background: var(--color-surface-canvas);
 }
+
+/*
+ * Two-Column in the Block Switcher: the block fills the screen it is shown on (laptop or phone)
+ * instead of leaving blank page colour under it, and the Collage's photos are sized to the screen's
+ * height. Only the demo needs this: on a real club's page, the block sits between other blocks.
+ */
+.frame .tc-split {
+  flex: 1;
+  min-height: 0;
+}
+.frame .tc-collage,
+.frame .tc-keyFacts {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+}
+@media (min-width: 768px) {
+  .frame .tc-collage {
+    padding-top: 56px;
+    padding-bottom: 56px;
+  }
+  .frame .tc-collage > .tc-grid {
+    flex: 1;
+    width: 100%;
+    min-height: 0;
+  }
+  .frame .tc-collage .tc-media {
+    align-self: stretch;
+    grid-template-rows: repeat(5, minmax(0, 1fr));
+    min-height: 0;
+  }
+  .frame .tc-collage .tc-primary {
+    height: 100%;
+    min-height: 0;
+    aspect-ratio: auto;
+  }
+  .frame .tc-collage .tc-inset {
+    height: 100%;
+    min-height: 0;
+  }
+}
