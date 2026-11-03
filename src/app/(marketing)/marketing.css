@@ -5624,6 +5624,8 @@ html[data-intro='reveal'] .mk-footer {
  * 351:1818, Step Card 351:1829, Objection Card 351:1833, Role Tabs 351:2029) ---- */
 
 .mk-assure {
+  /* 64px under whatever sits above it (the hero's devices, a block switcher): Figma 357:5456. */
+  margin-top: 64px;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 24px 32px;
@@ -5928,4 +5930,35 @@ html[data-intro='reveal'] .mk-footer {
 .mk-roles .mk-pill-tab {
   flex: none;
   white-space: nowrap;
+}
+
+/* "The other route" under a page's points: a short line and a link (Book a demo, Request your homepage). */
+.mk-alt-route {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--mk-border-hairline);
+}
+.mk-alt-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.034px;
+  color: var(--mk-text-primary);
+}
+.mk-alt-body {
+  max-width: 560px;
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--mk-text-secondary);
+}
+.mk-club-morph-note {
+  margin: 16px 0 0;
+  text-align: center;
+  font-size: 14px;
+  color: var(--mk-text-tertiary);
 }

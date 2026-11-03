@@ -1,4 +1,5 @@
 import type {
+  MarketingClubMorphBlock,
   MarketingCompareBlock,
   MarketingContentMovesBlock,
   MarketingHomeHeroBlock,
@@ -62,6 +63,14 @@ export const HomeHero = async ({ block }: { block: MarketingHomeHeroBlock }) => 
     </div>
   )
 }
+
+/** The Tenant Morph on its own (Who it's for): the same blocks, in each demo club's identity. */
+export const ClubMorph = ({ block }: { block: MarketingClubMorphBlock }) => (
+  <div className="mk-club-morph">
+    <TenantMorph />
+    {block.note ? <p className="mk-club-morph-note">{block.note}</p> : null}
+  </div>
+)
 
 /** Proof Stats in a row of up to three (First impressions, 180:2674). */
 export const ProofStats = ({ block }: { block: MarketingProofStatsBlock }) => (
