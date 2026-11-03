@@ -672,3 +672,7 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Dan, 3 Nov:** hard to tell which block you're editing when many are open. Now, when you click or type in a block in the page editor, the live preview scrolls to that block (just under the site's header) and outlines it in blue. Typing in another field, such as the title, clears the outline.
 - **How:** the editor (`src/admin/BlockHighlighter.tsx`) tells the preview which block with a message to its own address only; the preview (`src/site/components/BlockHighlight.tsx`) finds the block by an invisible marker placed *after* each block, in the preview only (`RenderBlocks live`). Markers go after, not around, so the preview's layout is the live site's (the hero-over-header styles rely on the first block being the first element). The public site is unchanged.
 - **Limits:** it follows the page's blocks, not rows inside a block (cards, questions): those point at their block. Blocks that draw nothing aren't outlined.
+
+## 2026-11-03: "View page" button on the page screen
+
+- **Dan, 3 Nov:** a View page button on the page edit screen. It is Payload's own external-link button beside Save, labelled "View page" (`admin.preview` on Pages, `viewPageURL` in `src/site/livePreview.ts`). It opens in a new tab: the club's real address once the page is published and the club has a web address (production only), otherwise the club's preview of the page, drafts included, which only that club's signed-in editors and the super-admin can open.

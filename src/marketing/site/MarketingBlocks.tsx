@@ -10,7 +10,7 @@ import { BuilderHero, LiveDemo } from './builder/BuilderBlocks'
 import { FeatureShowcase } from './builder/FeatureShowcase'
 import { FounderCard } from './FounderCard'
 import { readMinutes, Reviewed, Roadmap } from './info/InfoBlocks'
-import { Compare, ContentMoves, HomeHero, ProofStats } from './home/HomeBlocks'
+import { ClubMorph, Compare, ContentMoves, HomeHero, ProofStats } from './home/HomeBlocks'
 import { EditLive } from './home/EditLive'
 import { Week } from './home/Week'
 import { MarketingIcon } from './MarketingIcon'
@@ -201,6 +201,8 @@ const drawBlock = (
       return <FeatureCards block={block} />
     case 'mkCtaBand':
       return <CtaBand block={block} />
+    case 'mkClubMorph':
+      return <ClubMorph block={block} />
     case 'mkHomeHero':
       return <HomeHero block={block} />
     case 'mkProofStats':

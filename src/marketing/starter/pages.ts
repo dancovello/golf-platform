@@ -12,36 +12,181 @@ import { rt } from '@/demo/richText'
  */
 export type StarterPage = { slug: string; title: string; description: string; layout: unknown[] }
 
-// Home (Figma "Home — Desktop" 176:2178).
+// Shared v2 content (Figma "marketing site v2", 2 Nov 2026).
+const SWITCHER_POINTS = [
+  { title: 'Three designs of every block', body: 'Pick the layout that suits each page.' },
+  { title: 'Your colours, everywhere', body: 'Set them once. Every block follows.' },
+  { title: 'Your font pack', body: 'A matched heading and body pair, on every page.' },
+  { title: 'Yours, not your neighbour’s', body: 'Mix the designs for a look that’s your own.' },
+]
+
+const ROLES = [
+  {
+    tab: 'Secretary',
+    eyebrow: 'For the secretary',
+    headline: 'Post it once. Members see it.',
+    points: [
+      { text: 'Course status posted before the phone starts ringing.' },
+      { text: 'News, results and notices published in minutes.' },
+      { text: 'No agency queue, and no waiting for the member who’s good with computers.' },
+    ],
+    visual: 'courseStatus',
+  },
+  {
+    tab: 'Committee',
+    eyebrow: 'For the committee',
+    headline: 'A website the whole club is proud of.',
+    points: [
+      { text: 'Your colours, your photos, your layout.' },
+      { text: 'Competitions and socials listed the moment they’re set.' },
+      { text: 'However many people post, the site still looks right.' },
+    ],
+    visual: 'events',
+  },
+  {
+    tab: 'Treasurer',
+    eyebrow: 'For the treasurer',
+    headline: 'One fee your committee can sign off.',
+    points: [
+      { text: 'One monthly fee, with hosting, security and backups included.' },
+      { text: 'Unlimited editors at no extra cost.' },
+      { text: 'No agency invoices for small changes.' },
+    ],
+    visual: 'greenFees',
+  },
+  {
+    tab: 'Members & visitors',
+    eyebrow: 'For members and visitors',
+    headline: 'The answers they want, on their phone.',
+    points: [
+      { text: 'Is the course open? Course status, kept up to date.' },
+      { text: 'What does a round cost? Green fees for every season.' },
+      { text: 'Search that goes straight to the answer.' },
+    ],
+    visual: 'search',
+  },
+]
+
+const SWITCH_STEPS = [
+  {
+    title: 'See your club on it',
+    body: 'Your demo shows your own homepage, rebuilt on the platform.',
+  },
+  {
+    title: 'We move your content',
+    body: 'Pages, news, photos and documents, copied across from your current site.',
+  },
+  {
+    title: 'We build it with you',
+    body: 'Your colours, your photos, your layout. Your committee signs off.',
+  },
+  {
+    title: 'You run it',
+    body: 'Your team updates the site from day one, with us on hand until launch.',
+  },
+]
+
+// "Old page addresses redirect" is softened (claims-register D8, open question N7): the platform
+// doesn't forward old page addresses yet.
+const OBJECTIONS = [
+  {
+    topic: 'Switching',
+    question: '“We already have a website.”',
+    answer:
+      'Keep your domain. We move your content across and keep your page titles, so visitors and search engines can follow you.',
+  },
+  {
+    topic: 'Cost',
+    question: '“What will it cost?”',
+    answer:
+      'One monthly fee, plus a one-off setup fee agreed with your club. Unlimited editors are included.',
+  },
+  {
+    topic: 'Contract',
+    question: '“What happens when our contract ends?”',
+    answer:
+      'Renew and nothing changes. If you’d rather move on, you’re free to: the website is leased, not sold, so it comes down when your contract ends.',
+  },
+  {
+    topic: 'Day to day',
+    question: '“Who keeps it up to date?”',
+    answer: 'Your team, in minutes. And when you need help, you speak to the person who built it.',
+  },
+]
+
+// Home v2 (Figma "Home v2 — Desktop" 352:1886): sell the outcome, then prove it with the
+// product. Stats keep the sources exactly as the hand-off lists them (§9), and lines the product
+// can't back yet stay softened (claims-register D-rows).
 const home: StarterPage = {
   slug: 'home',
   title: 'Home',
   description:
-    'Golf club websites your team can update in minutes. See a demo club, then book a demo.',
+    'Golf club websites your team can update in minutes. See a demo club, then book a demo or ask for your homepage.',
   layout: [
     {
-      blockType: 'mkHomeHero',
-      title: 'Your club is better\nthan your website.',
+      blockType: 'mkBuilderHero',
+      eyebrow: 'The website platform for golf clubs',
+      title: 'Golf club websites,\nbuilt to be run by the club.',
       subhead:
-        'A golf club website your team can update in minutes, and that still looks professional when they’re done. Tee-time booking is coming next.',
+        'Your team updates course status, fees and news in minutes, and every page still looks professionally designed. We move your content across and stay with you until you’re live.',
       primary: { label: 'Book a demo', href: '/book-a-demo' },
-      secondary: { label: 'See how switching works', href: '/switching' },
-      proofLine:
-        '{price} a month · One-off setup fee agreed with your club · Your demo includes your club’s own homepage',
-      note: 'Three demo clubs, one set of blocks.',
-      noteStrong: 'Each still looks like its own club.',
+      secondary: { label: 'Request your homepage', href: '/request-your-homepage' },
+    },
+    {
+      blockType: 'mkAssurance',
+      items: [
+        { title: 'Unlimited editors', body: 'Your whole committee can post, at no extra cost.' },
+        {
+          title: 'Your content moved across',
+          body: 'Pages, news, photos and documents come with you.',
+        },
+        {
+          title: 'Supported until you’re live',
+          body: 'One person from your first call to launch day.',
+        },
+        {
+          title: 'Designed for phones first',
+          body: 'Every page works on the phone in a visitor’s pocket.',
+        },
+      ],
     },
     {
       blockType: 'mkSectionHeader',
-      eyebrow: 'Why it matters',
-      title: 'Most visitors meet your\nclub online first.',
+      eyebrow: 'The problem',
+      title: 'Most club websites are run by whoever has time.',
       subhead:
-        'Golfers look at the website before they book, visit or join. It’s where they decide whether the club is for them.',
+        'Updates wait for an agency or a volunteer. Meanwhile, the website is the first thing visitors, societies and new members see.',
       align: 'left',
     },
     {
+      blockType: 'mkCompareRows',
+      oldLabel: 'How it usually goes',
+      ourLabel: `With ${BRAND.name}`,
+      rows: [
+        {
+          oldWay: 'Every change goes to an agency and waits in a queue.',
+          ourWay: 'Change it yourself and publish in minutes.',
+        },
+        {
+          oldWay: 'It all depends on the member who’s good with computers.',
+          ourWay: 'Anyone you invite can post, at no extra cost.',
+        },
+        {
+          oldWay: 'Last winter’s green fees are still up in spring.',
+          ourWay: 'Fees, course status and news change the day things change.',
+        },
+        {
+          oldWay: 'One wrong edit and the layout falls apart.',
+          ourWay: 'Every block fits every other. It still looks designed.',
+        },
+        {
+          oldWay: 'Pages that are hard to use on a phone.',
+          ourWay: 'Designed for the phone in a visitor’s pocket.',
+        },
+      ],
+    },
+    {
       blockType: 'mkProofStats',
-      // Sources exactly as the hand-off lists them (§9).
       stats: [
         {
           number: '84%',
@@ -63,42 +208,11 @@ const home: StarterPage = {
       ],
     },
     {
-      blockType: 'mkCompare',
-      good: {
-        label: 'A great website',
-        title: 'The club sells itself.',
-        points: [
-          { text: 'Visitors book because the course looks as good as it plays.' },
-          {
-            text: 'Members find the draw, the course report and green fees without ringing the office.',
-          },
-          { text: 'A prospective member sees a well-run club before they ever visit.' },
-          { text: 'Societies, sponsors and wedding parties take the club seriously.' },
-        ],
-      },
-      poor: {
-        label: 'A poor website',
-        title: 'The club has to explain itself.',
-        points: [
-          {
-            text: 'Nearly half of what people say about trusting a website is about how it looks.¹',
-          },
-          {
-            text: 'Over half of phone visitors leave a page that takes more than three seconds to load.²',
-          },
-          { text: 'Out-of-date fees and fixtures send members to the phone instead.' },
-          { text: 'The course, the food and the people never get seen.' },
-        ],
-      },
-      footnotes:
-        '¹ Stanford Persuasive Technology Lab (Fogg et al.), How Do People Evaluate a Web Site’s Credibility?, 2002.   ² Google, The Need for Mobile Speed, 2016.',
-    },
-    {
       blockType: 'mkSectionHeader',
-      eyebrow: 'The editor',
-      title: 'What you type is\nwhat members see.',
+      eyebrow: 'How it works',
+      title: 'Your team runs it. It still looks designed.',
       subhead:
-        'Edit the page as it looks on the site. Publish when it’s right, and members see it on their next visit.',
+        'Edit the page as it looks on the site, and publish when it’s right. Fixed blocks and your club’s colours keep every page professional.',
       align: 'center',
     },
     {
@@ -108,6 +222,26 @@ const home: StarterPage = {
     },
     {
       blockType: 'mkSectionHeader',
+      eyebrow: 'Make it yours',
+      title: 'Every block, three ways. All of them yours.',
+      subhead:
+        'Choose a design for each block and it takes on your club’s colours and font pack, on every screen. Mix them across the site and it looks like your club, not your neighbour’s.',
+      align: 'left',
+    },
+    { blockType: 'mkLiveDemo', demo: 'blockSwitcher' },
+    { blockType: 'mkAssurance', items: SWITCHER_POINTS },
+    {
+      blockType: 'mkSectionHeader',
+      eyebrow: 'Who it’s for',
+      title: 'Easier for everyone at the club.',
+      subhead:
+        'From the club office to the first tee, each person gets what they need from the website.',
+      align: 'left',
+    },
+    { blockType: 'mkRoleTabs', roles: ROLES },
+    {
+      blockType: 'mkSectionHeader',
+      eyebrow: 'A week at the club',
       title: 'The site keeps up\nwith the club.',
       subhead:
         'Course status on Monday, the Captain’s Day draw on Wednesday, winter green fees on Friday. Whoever’s on duty can post it, without waiting for anyone.',
@@ -144,51 +278,29 @@ const home: StarterPage = {
     },
     {
       blockType: 'mkSectionHeader',
-      eyebrow: 'Switching',
-      title: 'Your content\ncomes with you.',
+      eyebrow: 'Switching to us',
+      title: 'We do the heavy lifting.',
       subhead:
-        'Our AI-assisted migration moves your pages, news, photos and documents across, then we build the new site with you. You start from your club, not a blank page.',
+        'Switching is a service, not a project. We set the site up with you for a one-off fee, and stay with you until it’s live.',
       align: 'left',
     },
-    {
-      blockType: 'mkContentMoves',
-      found: [
-        { label: 'Pages', count: '34' },
-        { label: 'News posts', count: '126' },
-        { label: 'Photos', count: '212' },
-        { label: 'Course and hole details', count: '18 holes' },
-        { label: 'PDFs and documents', count: '19' },
-      ],
-      built: [
-        { label: 'Hero · Heritage' },
-        { label: 'Course guide' },
-        { label: 'Green fees' },
-        { label: 'News' },
-        { label: 'Documents' },
-      ],
-      chip: 'AI-assisted migration',
-      steps: [
-        {
-          title: 'AI reads your whole site',
-          body: 'It copies your pages, news posts, photos and PDFs across, so nobody has to retype a thing.',
-        },
-        {
-          title: 'We rebuild it in blocks',
-          body: 'Your content goes into the same blocks as our demo club, in your colours.',
-        },
-        {
-          title: 'You shape it with us',
-          body: 'We go through it together and change anything you want before it goes live.',
-        },
-      ],
-    },
+    { blockType: 'mkSteps', steps: SWITCH_STEPS },
     { blockType: 'mkFounder' },
+    {
+      blockType: 'mkSectionHeader',
+      eyebrow: 'Committee questions',
+      title: 'The questions your committee will ask.',
+      subhead: 'Answered plainly, so you can take them straight to the next meeting.',
+      align: 'left',
+    },
+    { blockType: 'mkObjections', items: OBJECTIONS },
     {
       blockType: 'mkCtaBand',
       title: 'See your club on it.',
-      subhead: 'Your demo includes your own club’s homepage, rebuilt on the platform.',
+      subhead:
+        'Book a demo and we’ll walk you through it, or ask for your homepage and we’ll send it over to look at in your own time.',
       primary: { label: 'Book a demo', href: '/book-a-demo' },
-      secondary: { label: 'See how switching works', href: '/switching' },
+      secondary: { label: 'Request your homepage', href: '/request-your-homepage' },
     },
   ],
 }
@@ -247,7 +359,7 @@ const pricing: StarterPage = {
         {
           question: 'What happens if we leave?',
           answer:
-            'You take everything with you: pages and news as Markdown, every photo and PDF in its original file, and form entries as CSV. Your domain was always yours.',
+            'Your site stays live for as long as your contract runs. If you decide not to renew, you’re free to move elsewhere, and the site comes down at the end of the term. Your domain was always yours.',
         },
         {
           question: 'What do you move across from our old site?',
@@ -272,15 +384,17 @@ const pricing: StarterPage = {
     {
       blockType: 'mkCtaBand',
       title: 'One price your committee can sign off.',
-      subhead: '{price} a month {vat}, everything included. See it working on your own club first.',
+      subhead:
+        'Book a demo and we’ll walk you through it, or ask for your homepage and we’ll send it over to look at in your own time.',
       primary: { label: 'Book a demo', href: '/book-a-demo' },
-      secondary: { label: 'See how switching works', href: '/switching' },
+      secondary: { label: 'Request your homepage', href: '/request-your-homepage' },
     },
   ],
 }
 
-// Switching to us (Figma "Switching — Desktop" 186:6494, "Switching — Mobile" 300:9636). Lines
-// that would promise old page addresses forward are held back until question N7 is answered.
+// Switching to us v2 (Figma "Switching to us — Desktop" 356:4477): the form now sends the
+// homepage, and four Step Cards replace the Migration section. Lines about old page addresses
+// forwarding stay softened (claims-register D8, N7).
 const switching: StarterPage = {
   slug: 'switching',
   title: 'Switching to us',
@@ -289,33 +403,57 @@ const switching: StarterPage = {
   layout: [
     {
       blockType: 'mkRequestHero',
-      eyebrow: 'See it on your club',
-      title: 'We’ll show you\nwhat we can do.',
+      eyebrow: 'Switching to us',
+      title: 'We do the heavy lifting.',
       subhead:
-        'Tell us your club and your current website. In your demo, we’ll show you your own homepage on our platform.',
+        'Switching is a service, not a project. See your own homepage on the platform first, then we set the site up with you for a one-off fee.',
       points: [
         { text: 'Your logo, colours and photos, on our blocks' },
-        { text: 'Shown to you in your demo' },
-        { text: 'No commitment until you decide to sign up' },
+        { text: 'Sent over to look at in your own time' },
+        { text: 'No commitment until you sign up' },
       ],
       form: {
         title: 'Your club',
-        button: 'Book my demo',
+        button: 'Send me my homepage',
         footnote: 'We build it from your current site. Nothing on your live site changes.',
-        sentTitle: 'Thanks.',
+        sentTitle: 'Thanks. We’ll be in touch.',
+        sentBody: 'We’ll email {email} when your homepage is ready.',
       },
     },
     {
-      blockType: 'mkDemoExample',
-      eyebrow: 'Example',
-      caption: 'A demo club rebuilt on our blocks. Same domain, same club, new site.',
+      blockType: 'mkSectionHeader',
+      eyebrow: 'How switching works',
+      title: 'Four steps to a live site.',
+      subhead: 'Four steps from your first look to a live site, at your committee’s pace.',
+      align: 'left',
+    },
+    {
+      blockType: 'mkSteps',
+      steps: [
+        {
+          title: 'See your homepage',
+          body: 'Book a demo, or ask us to send your homepage over to look at first.',
+        },
+        {
+          title: 'We move your content',
+          body: 'Pages, news, photos and documents, copied across from your current site.',
+        },
+        {
+          title: 'We build it with you',
+          body: 'Your colours, your photos, your layout. Your committee signs off.',
+        },
+        {
+          title: 'You run it',
+          body: 'Your team updates the site from day one, with us on hand until launch.',
+        },
+      ],
     },
     {
       blockType: 'mkSectionHeader',
       eyebrow: 'Your content',
       title: 'Your content\ncomes with you.',
       subhead:
-        'Our AI-assisted migration moves your pages, news, photos and documents across, then we build the new site with you. You start from your club, not a blank page.',
+        'We copy the pages, news, photos and documents from your current site, then build the new one with you. You start from your club, not a blank page.',
       align: 'left',
     },
     {
@@ -334,7 +472,7 @@ const switching: StarterPage = {
         { label: 'News' },
         { label: 'Documents' },
       ],
-      chip: 'AI-assisted migration',
+      chip: 'Copied across with AI',
       steps: [
         {
           title: 'AI reads your whole site',
@@ -349,14 +487,6 @@ const switching: StarterPage = {
           body: 'We go through it together and change anything you want before it goes live.',
         },
       ],
-    },
-    {
-      blockType: 'mkSectionHeader',
-      eyebrow: 'The switch',
-      title: 'From first call to live site.',
-      subhead:
-        'We set you up for a one-off fee, agreed with your club, and support you until the site is live. Your committee signs off before anything goes live.',
-      align: 'left',
     },
     {
       blockType: 'mkFaq',
@@ -392,9 +522,10 @@ const switching: StarterPage = {
     {
       blockType: 'mkCtaBand',
       title: 'Ready when your committee is.',
-      subhead: 'See your own club on the platform, or talk it through with us first.',
+      subhead:
+        'Book a demo and we’ll walk you through it, or ask for your homepage and we’ll send it over to look at in your own time.',
       primary: { label: 'Book a demo', href: '/book-a-demo' },
-      secondary: { label: 'See pricing', href: '/pricing' },
+      secondary: { label: 'Request your homepage', href: '/request-your-homepage' },
     },
   ],
 }
@@ -416,10 +547,16 @@ const bookADemo: StarterPage = {
       expect: [
         { text: 'Your homepage, rebuilt in your colours' },
         { text: 'How updates work, day to day' },
-        { text: 'What switching involves, and how long it takes' },
+        { text: 'What switching involves, and what it costs' },
         { text: 'Pricing and contract, in plain terms' },
       ],
       emailLead: 'Rather email?',
+      alt: {
+        title: 'Not ready for a call?',
+        body: 'Ask for your homepage instead. We’ll rebuild it on the platform and send it over to look at in your own time.',
+        label: 'Request your homepage',
+        href: '/request-your-homepage',
+      },
     },
     {
       blockType: 'mkFounder',
@@ -428,107 +565,181 @@ const bookADemo: StarterPage = {
   ],
 }
 
-// Website builder (Figma "Website builder — Desktop" 183:3008). The product film is left out
-// (Q8). Lines Figma has that the product can't back yet are reworded (design notes D12–D14):
-// colours aren't changed or blocked (Q5), photo descriptions are optional (N8) and old page
-// addresses don't forward yet (N7).
-const websiteBuilder: StarterPage = {
-  slug: 'website-builder',
-  title: 'Website builder',
+// Request your homepage (Figma "Request your homepage — Desktop" 356:5156): for people not ready
+// for a call. Dan sends the homepage by hand; nothing is emailed to the person (3 Nov decision).
+const requestHomepage: StarterPage = {
+  slug: 'request-your-homepage',
+  title: 'Request your homepage',
+  description:
+    'Tell us about your club and we’ll rebuild your homepage on the platform, then send it over to look at in your own time.',
+  layout: [
+    {
+      blockType: 'mkRequestHero',
+      eyebrow: 'Request your homepage',
+      title: 'See your homepage before you decide.',
+      subhead:
+        'Not ready for a demo? Tell us about your club and we’ll rebuild your homepage on the platform, then send it over to look at in your own time.',
+      points: [
+        { text: 'Your logo, colours, photos and words, on our blocks' },
+        { text: 'Sent to you, ready to share with your committee' },
+        { text: 'No call needed, and no commitment' },
+      ],
+      form: {
+        title: 'Your club',
+        intro: 'Three details and we’ll get started.',
+        button: 'Send me my homepage',
+        footnote: 'Built from your current site. Nothing on your live site changes.',
+        sentTitle: 'Thanks. We’ll be in touch.',
+        sentBody: 'We’ll email {email} when your homepage is ready.',
+      },
+      alt: { title: 'Rather talk it through?', label: 'Book a demo', href: '/book-a-demo' },
+    },
+    {
+      blockType: 'mkSectionHeader',
+      eyebrow: 'What happens next',
+      title: 'Your homepage, then your decision.',
+      subhead:
+        'No sales call to sit through. Look at it properly, share it with your committee, and come back when you’re ready.',
+      align: 'left',
+    },
+    {
+      blockType: 'mkSteps',
+      steps: [
+        {
+          title: 'Tell us your club',
+          body: 'Your club name, current website and email. That’s all we need.',
+        },
+        {
+          title: 'We rebuild your homepage',
+          body: 'Using the logo, colours, photos and words from your current site.',
+        },
+        {
+          title: 'Decide in your own time',
+          body: 'Share it with your committee. If you like it, we’ll talk about the rest.',
+        },
+      ],
+    },
+    {
+      blockType: 'mkFounder',
+      message: 'You’ll deal with me from the first call to launch day, and after it.',
+    },
+  ],
+}
+
+// Who it's for (Figma "Who it's for — Desktop" 356:3785).
+const whoItsFor: StarterPage = {
+  slug: 'who-its-for',
+  title: 'Who it’s for',
+  description:
+    'Members’ clubs, links courses, pay and play and resorts. One platform, set up around the way your club runs.',
+  layout: [
+    {
+      blockType: 'mkSectionHeader',
+      eyebrow: 'Who it’s for',
+      title: 'Built for every kind of golf club.',
+      subhead:
+        'Members’ clubs, links courses, pay and play and resorts. One platform, set up around the way your club runs.',
+      align: 'center',
+    },
+    { blockType: 'mkClubMorph' },
+    {
+      blockType: 'mkSectionHeader',
+      eyebrow: 'Every kind of club',
+      title: 'Set up around how your club runs.',
+      subhead: 'The same blocks, arranged for what matters most to your members and visitors.',
+      align: 'left',
+    },
+    {
+      blockType: 'mkFeatureCards',
+      style: 'cards',
+      cards: [
+        {
+          icon: 'players',
+          title: 'Members’ clubs',
+          body: 'Member news, competitions and course status up front, with a warm welcome for visitors and societies.',
+        },
+        {
+          icon: 'pin',
+          title: 'Pay & play and proprietary',
+          body: 'Green fees and visitor information first, so golfers can see what it costs and how to book.',
+        },
+        {
+          icon: 'flag',
+          title: 'Links, resorts and hotel golf',
+          body: 'Show the course hole by hole, and send visitors straight to where they book.',
+        },
+      ],
+    },
+    {
+      blockType: 'mkSectionHeader',
+      eyebrow: 'Everyone at the club',
+      title: 'Easier for everyone at the club.',
+      subhead:
+        'From the club office to the first tee, each person gets what they need from the website.',
+      align: 'left',
+    },
+    { blockType: 'mkRoleTabs', roles: ROLES },
+    {
+      blockType: 'mkCtaBand',
+      title: 'See your club on it.',
+      subhead:
+        'Book a demo and we’ll walk you through it, or ask for your homepage and we’ll send it over to look at in your own time.',
+      primary: { label: 'Book a demo', href: '/book-a-demo' },
+      secondary: { label: 'Request your homepage', href: '/request-your-homepage' },
+    },
+  ],
+}
+
+// How it works (Figma "How it works — Desktop" 356:2760; was Website builder). Lines the product
+// can't back yet stay as the earlier reworded versions (design notes D12–D14: colours aren't
+// blocked (Q5), photo descriptions are optional (N8), old page addresses don't forward (N7)).
+const howItWorks: StarterPage = {
+  slug: 'how-it-works',
+  title: 'How it works',
   description:
     'Every block was designed to fit every other block. Add your colours and photos, move things around, and your club’s site still looks right.',
   layout: [
     {
       blockType: 'mkBuilderHero',
-      eyebrow: 'Website builder',
+      eyebrow: 'How it works',
       title: 'Make it yours.\nIt’ll still look right.',
       subhead:
-        'Every block fits every other block, and every screen. Change the layout, add your colours and photos, move things around. It still looks right on a laptop or a phone.',
+        'Every block was designed to fit every other block. Change the layout, add your colours and photos, move things around. The design holds, so your site never looks thrown together.',
       primary: { label: 'Book a demo', href: '/book-a-demo' },
-      secondary: { label: 'See how switching works', href: '/switching' },
+      secondary: { label: 'Request your homepage', href: '/request-your-homepage' },
     },
     {
       blockType: 'mkSectionHeader',
-      eyebrow: '01 · Club colours',
-      title: 'Your colours, kept readable.',
+      eyebrow: 'Three designs',
+      title: 'Same block. A different club.',
       subhead:
-        'Pick your club colour and the whole site follows. Text on it switches to stay readable, and your colour stays as you picked it.',
+        'Every block comes in three designs. Each one picks up your colours and font pack the moment you add it.',
       align: 'left',
     },
-    {
-      blockType: 'mkLiveDemo',
-      demo: 'tokenDial',
-      details: [
-        {
-          title: 'One colour, the whole site',
-          body: 'Buttons, links and accents follow the colour you pick. Nothing to restyle by hand.',
-        },
-        {
-          title: 'Readable by design',
-          body: 'If text would be hard to read on a colour, it switches to one that reads, so pages meet WCAG AA.',
-        },
-        {
-          title: 'Your photos, your logo',
-          body: 'They sit in layouts designed around them, so every page still holds together.',
-        },
-      ],
-    },
+    { blockType: 'mkLiveDemo', demo: 'blockSwitcher' },
+    { blockType: 'mkAssurance', items: SWITCHER_POINTS },
     {
       blockType: 'mkSectionHeader',
-      eyebrow: '02 · Course guide',
-      title: 'Your course, hole by hole.',
+      eyebrow: 'Built for golf',
+      title: 'Everything the club needs to say.',
       subhead:
-        'Every hole with its photo, its par and the yardage from every tee. The pro keeps it up to date, not a developer.',
-      align: 'left',
-    },
-    {
-      blockType: 'mkLiveDemo',
-      demo: 'courseGuide',
-      details: [
-        {
-          title: 'Every tee, every yardage',
-          body: 'Each hole’s photo carries its par and yardages, so visitors see the hole and the numbers together.',
-        },
-        {
-          title: 'Made for visitors',
-          body: 'A first-timer can read the course before they arrive, hole by hole.',
-        },
-        {
-          title: 'Kept current by the club',
-          body: 'Change a yardage or a hole note and publish. No developer, no wait.',
-        },
-      ],
-    },
-    {
-      blockType: 'mkSectionHeader',
-      eyebrow: '03 · Kept current',
-      title: 'Everything members look for.',
-      subhead:
-        'The course report, fixtures, fees and a search that finds them. Whoever’s on duty keeps them current, so members stop ringing the office.',
+        'Fees, fixtures, course conditions and answers, kept current by the people who know them.',
       align: 'left',
     },
     {
       blockType: 'mkFeatureShowcase',
       items: [
-        {
-          feature: 'courseStatus',
-          title: 'The course report, first thing',
-          body: 'Greens, tees and bunkers, posted from the office and time-stamped, before the first tee time.',
-        },
+        { feature: 'greenFees', title: 'Green fees', body: 'As flexible as you need them to be' },
         {
           feature: 'events',
-          title: 'Fixtures members can find',
-          body: 'Competitions and socials in date order, on every page that lists them.',
+          title: 'Competitions',
+          body: 'Take the stress away and enjoy the day',
         },
+        { feature: 'search', title: 'Site search', body: 'Every answer, one search away' },
         {
-          feature: 'search',
-          title: 'Search that answers',
-          body: 'Type “winter green fees” and get the fees, then the pages and documents behind them.',
-        },
-        {
-          feature: 'greenFees',
-          title: 'Change a fee once',
-          body: 'Update a rate in one place. Every page that shows it follows.',
+          feature: 'courseStatus',
+          title: 'Course status',
+          body: 'The first question, answered before the phone rings',
         },
       ],
     },
@@ -588,11 +799,90 @@ const websiteBuilder: StarterPage = {
       ],
     },
     {
+      blockType: 'mkSectionHeader',
+      eyebrow: '01 · Club colours',
+      title: 'Your colours, kept readable.',
+      subhead:
+        'Pick your club colour and the whole site follows. Text on it switches to stay readable, and your colour stays as you picked it.',
+      align: 'left',
+    },
+    {
+      blockType: 'mkLiveDemo',
+      demo: 'tokenDial',
+      details: [
+        {
+          title: 'One colour, the whole site',
+          body: 'Buttons, links and accents follow the colour you pick. Nothing to restyle by hand.',
+        },
+        {
+          title: 'Readable by design',
+          body: 'If text would be hard to read on a colour, it switches to one that reads, so pages meet WCAG AA.',
+        },
+        {
+          title: 'Your photos, your logo',
+          body: 'They sit in layouts designed around them, so every page still holds together.',
+        },
+      ],
+    },
+    {
+      blockType: 'mkSectionHeader',
+      eyebrow: '02 · Course guide',
+      title: 'Your course, hole by hole.',
+      subhead:
+        'Every hole with its photo, its par and the yardage from every tee. The pro keeps it up to date, not a developer.',
+      align: 'left',
+    },
+    {
+      blockType: 'mkLiveDemo',
+      demo: 'courseGuide',
+      details: [
+        {
+          title: 'Every tee, every yardage',
+          body: 'Each hole’s photo carries its par and yardages, so visitors see the hole and the numbers together.',
+        },
+        {
+          title: 'Made for visitors',
+          body: 'A first-timer can read the course before they arrive, hole by hole.',
+        },
+        {
+          title: 'Kept current by the club',
+          body: 'Change a yardage or a hole note and publish. No developer, no wait.',
+        },
+      ],
+    },
+    {
+      blockType: 'mkSectionHeader',
+      eyebrow: '03 · Course status',
+      title: 'The course report, first thing.',
+      subhead:
+        'Post greens, tees and bunkers from the office. It sits on the homepage, where members look before they set off.',
+      align: 'left',
+    },
+    {
+      blockType: 'mkLiveDemo',
+      demo: 'courseStatus',
+      details: [
+        {
+          title: 'Where members look',
+          body: 'The report sits on the homepage, above the fold, every day of the week.',
+        },
+        {
+          title: 'Time-stamped',
+          body: 'Members see when it was last updated, so nobody wonders if it’s current.',
+        },
+        {
+          title: 'Whoever’s on duty',
+          body: 'Anyone with access can post it. It doesn’t wait for one person.',
+        },
+      ],
+    },
+    {
       blockType: 'mkCtaBand',
       title: 'See your club on it.',
-      subhead: 'Your demo includes your own club’s homepage, rebuilt on the platform.',
+      subhead:
+        'Book a demo and we’ll walk you through it, or ask for your homepage and we’ll send it over to look at in your own time.',
       primary: { label: 'Book a demo', href: '/book-a-demo' },
-      secondary: { label: 'See how switching works', href: '/switching' },
+      secondary: { label: 'Request your homepage', href: '/request-your-homepage' },
     },
   ],
 }
@@ -841,10 +1131,12 @@ const terms = legalPage('terms', 'Terms', 'The terms for using this website and 
 
 export const STARTER_PAGES: StarterPage[] = [
   home,
+  howItWorks,
+  whoItsFor,
   pricing,
   switching,
+  requestHomepage,
   bookADemo,
-  websiteBuilder,
   bookings,
   trust,
   accessibility,

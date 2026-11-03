@@ -66,6 +66,7 @@ import * as migration_20261102_194637_events_no_start_time from './20261102_1946
 import * as migration_20261102_232743_brand_logo_settings from './20261102_232743_brand_logo_settings';
 import * as migration_20261103_002104_block_switcher_demo from './20261103_002104_block_switcher_demo';
 import * as migration_20261103_003410_selling_blocks from './20261103_003410_selling_blocks';
+import * as migration_20261103_014302_v2_pages_fields from './20261103_014302_v2_pages_fields';
 
 export const migrations = [
   {
@@ -406,6 +407,11 @@ export const migrations = [
   {
     up: migration_20261103_003410_selling_blocks.up,
     down: migration_20261103_003410_selling_blocks.down,
-    name: '20261103_003410_selling_blocks'
+    name: '20261103_003410_selling_blocks',
+  },
+  {
+    up: migration_20261103_014302_v2_pages_fields.up,
+    down: migration_20261103_014302_v2_pages_fields.down,
+    name: '20261103_014302_v2_pages_fields'
   },
 ];

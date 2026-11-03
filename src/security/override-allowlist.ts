@@ -135,6 +135,13 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
     club: 'The club of the record being edited (its tenant field)',
     why: 'Reads the club’s slug to build the admin’s live preview address',
   },
+  {
+    file: 'src/site/livePreview.ts',
+    fn: 'viewPageURL',
+    uses: 1,
+    club: 'The club of the page being edited (its tenant field)',
+    why: 'Reads the club’s web address to build the page screen’s View page link; only a link is returned, never the club’s record',
+  },
 
   // ---------- Demo club (staging only) ----------
   {

@@ -10,20 +10,18 @@ const site = (path = '/switching') => `http://marketing.localhost:3100${path}`
 test('the page has every Figma section, in order, with one H1', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto(site())
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-    'We’ll show you\nwhat we can do.',
-  )
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('We do the heavy lifting.')
   await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1)
   await expect(page.locator('.mk-ticks li')).toHaveCount(3)
   await expect(page.getByRole('heading', { level: 2 })).toContainText([
     'Your club',
+    'Four steps to a live site.',
     'Your content',
-    'From first call to live site.',
     'What happens to',
     'Ready when your committee is.',
   ])
-  // The example is a real demo club hero, labelled as a demo (not the deprecated URL Reskin).
-  await expect(page.getByRole('figure', { name: /Demo club: Ashgrove Park/ })).toBeVisible()
+  // Four step cards replace the week-by-week section.
+  await expect(page.locator('.mk-stepcard')).toHaveCount(4)
   // The week-by-week timeline is gone (hand-off, 21 Oct): no fixed switching timeline.
   await expect(page.locator('.mk-week-card')).toHaveCount(0)
   await expect(page.locator('.mk-faq')).toHaveCount(5)
@@ -37,7 +35,7 @@ test('asking for a demo: mistakes are explained, then it says we will be in touc
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto(site())
   const form = page.locator('.mk-request')
-  await form.getByRole('button', { name: 'Book my demo' }).click()
+  await form.getByRole('button', { name: 'Send me my homepage' }).click()
   const alert = form.getByRole('alert')
   await expect(alert).toHaveText('There are 3 things to fix.')
   await expect(alert).toBeFocused()
@@ -49,11 +47,11 @@ test('asking for a demo: mistakes are explained, then it says we will be in touc
   await form.getByLabel('Email').fill('secretary@ashgrove.example')
   // A person takes more than a few seconds; quicker is treated as a bot (src/site/contact/formToken.ts).
   await page.waitForTimeout(3_100)
-  await form.getByRole('button', { name: 'Book my demo' }).click()
+  await form.getByRole('button', { name: 'Send me my homepage' }).click()
   const sent = form.getByRole('status')
-  await expect(sent.getByRole('heading', { name: 'Thanks.' })).toBeFocused()
+  await expect(sent.getByRole('heading', { name: 'Thanks. We’ll be in touch.' })).toBeFocused()
   await expect(sent).toContainText(
-    'We’ll be in touch. We’ll email secretary@ashgrove.example to arrange your demo.',
+    'We’ll email secretary@ashgrove.example when your homepage is ready.',
   )
   // No date is promised.
   await expect(sent).not.toContainText(/by (Monday|Tuesday|Wednesday|Thursday|Friday)/)
@@ -90,7 +88,7 @@ for (const width of [1440, 390]) {
         .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
         .analyze()
     expect((await scan()).violations).toEqual([])
-    await page.locator('.mk-request').getByRole('button', { name: 'Book my demo' }).click()
+    await page.locator('.mk-request').getByRole('button', { name: 'Send me my homepage' }).click()
     await expect(page.locator('.mk-request').getByRole('alert')).toBeVisible()
     expect((await scan()).violations).toEqual([])
   })
