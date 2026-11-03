@@ -22,10 +22,10 @@ const builderHero: Block = {
       label: 'Title',
       type: 'textarea',
       required: true,
-      maxLength: 80,
-      validate: maxWords(8, true),
+      maxLength: 90,
+      validate: maxWords(10, true),
       admin: {
-        description: 'The page’s main heading. Under eight words. Line breaks are kept.',
+        description: 'The page’s main heading. Under ten words. Line breaks are kept.',
         rows: 2,
       },
     },

@@ -63,7 +63,7 @@ export const DEMO_CLUBS: DemoClub[] = [
   {
     id: 'heritage',
     name: 'Ashgrove Park',
-    style: 'Heritage',
+    style: 'Members’ club',
     domain: 'ashgrovepark.golf',
     swatch: '#1B2A22',
     brand: DEFAULT_BRAND,
@@ -80,7 +80,7 @@ export const DEMO_CLUBS: DemoClub[] = [
   {
     id: 'coastal',
     name: 'Carreg Bay Links',
-    style: 'Coastal',
+    style: 'Links & coastal',
     domain: 'carregbay.golf',
     swatch: '#16324F',
     brand: COASTAL,
@@ -97,7 +97,7 @@ export const DEMO_CLUBS: DemoClub[] = [
   {
     id: 'bookingLed',
     name: 'Kingsmere',
-    style: 'Booking-led',
+    style: 'Pay & play',
     domain: 'kingsmere.golf',
     swatch: '#B39462',
     brand: DEFAULT_BRAND,

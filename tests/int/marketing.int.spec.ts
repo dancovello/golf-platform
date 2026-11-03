@@ -147,12 +147,15 @@ describe('the super-admin manages it', () => {
           title: 'Too long',
           slug: 'too-long',
           layout: [
-            { blockType: 'mkSectionHeader', title: 'One two three four five six seven eight nine' },
+            {
+              blockType: 'mkSectionHeader',
+              title: 'One two three four five six seven eight nine ten eleven',
+            },
           ],
         } as never,
       }),
     ).rejects.toMatchObject({
-      data: { errors: [expect.objectContaining({ message: expect.stringContaining('8 words') })] },
+      data: { errors: [expect.objectContaining({ message: expect.stringContaining('10 words') })] },
     })
   })
 

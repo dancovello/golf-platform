@@ -1855,6 +1855,7 @@ export interface MarketingPage {
         | MarketingFeatureCardsBlock
         | MarketingCtaBandBlock
         | MarketingHomeHeroBlock
+        | MarketingClubMorphBlock
         | MarketingProofStatsBlock
         | MarketingCompareBlock
         | MarketingEditLiveBlock
@@ -1901,11 +1902,11 @@ export interface MarketingPage {
 export interface MarketingSectionHeaderBlock {
   eyebrow?: string | null;
   /**
-   * Under eight words. Line breaks are kept.
+   * Under ten words. Line breaks are kept.
    */
   title: string;
   /**
-   * One or two sentences that back the title up. Under thirty words. Use {price}, {vat}, {term} (months) and {notice} (days) for values from Settings, so they always match.
+   * One or two sentences that back the title up. Under thirty-five words. Use {price}, {vat}, {term} (months) and {notice} (days) for values from Settings, so they always match.
    */
   subhead?: string | null;
   align: 'left' | 'center';
@@ -2125,6 +2126,16 @@ export interface MarketingHomeHeroBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingClubMorphBlock".
+ */
+export interface MarketingClubMorphBlock {
+  note?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkClubMorph';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "MarketingProofStatsBlock".
  */
 export interface MarketingProofStatsBlock {
@@ -2314,7 +2325,7 @@ export interface MarketingRequestHeroBlock {
       }[]
     | null;
   /**
-   * The fields are fixed: club name, current website and email. The date in the reply is two UK working days away, worked out when they send it.
+   * The fields are fixed: club name, current website and email. No date is promised, and nothing is emailed to the person who sends it.
    */
   form: {
     title: string;
@@ -2322,6 +2333,18 @@ export interface MarketingRequestHeroBlock {
     button: string;
     footnote?: string | null;
     sentTitle: string;
+    /**
+     * Use {email} for the address they typed. Nothing is emailed to them: the address is so you know where to send your follow-up.
+     */
+    sentBody?: string | null;
+  };
+  /**
+   * A short line and link under the points, e.g. “Rather talk it through?”
+   */
+  alt?: {
+    title?: string | null;
+    label?: string | null;
+    href?: string | null;
   };
   id?: string | null;
   blockName?: string | null;
@@ -2379,6 +2402,15 @@ export interface MarketingDemoIntroBlock {
    * The address itself comes from the company details.
    */
   emailLead?: string | null;
+  /**
+   * e.g. “Not ready for a call?” with a link to ask for the homepage.
+   */
+  alt?: {
+    title?: string | null;
+    body?: string | null;
+    label?: string | null;
+    href?: string | null;
+  };
   id?: string | null;
   blockName?: string | null;
   blockType: 'mkDemoIntro';
@@ -2390,7 +2422,7 @@ export interface MarketingDemoIntroBlock {
 export interface MarketingBuilderHeroBlock {
   eyebrow?: string | null;
   /**
-   * The page’s main heading. Under eight words. Line breaks are kept.
+   * The page’s main heading. Under ten words. Line breaks are kept.
    */
   title: string;
   subhead?: string | null;
@@ -3914,6 +3946,7 @@ export interface MarketingPagesSelect<T extends boolean = true> {
         mkFeatureCards?: T | MarketingFeatureCardsBlockSelect<T>;
         mkCtaBand?: T | MarketingCtaBandBlockSelect<T>;
         mkHomeHero?: T | MarketingHomeHeroBlockSelect<T>;
+        mkClubMorph?: T | MarketingClubMorphBlockSelect<T>;
         mkProofStats?: T | MarketingProofStatsBlockSelect<T>;
         mkCompare?: T | MarketingCompareBlockSelect<T>;
         mkEditLive?: T | MarketingEditLiveBlockSelect<T>;
@@ -4046,6 +4079,15 @@ export interface MarketingHomeHeroBlockSelect<T extends boolean = true> {
   proofLine?: T;
   note?: T;
   noteStrong?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingClubMorphBlock_select".
+ */
+export interface MarketingClubMorphBlockSelect<T extends boolean = true> {
+  note?: T;
   id?: T;
   blockName?: T;
 }
@@ -4228,6 +4270,14 @@ export interface MarketingRequestHeroBlockSelect<T extends boolean = true> {
         button?: T;
         footnote?: T;
         sentTitle?: T;
+        sentBody?: T;
+      };
+  alt?:
+    | T
+    | {
+        title?: T;
+        label?: T;
+        href?: T;
       };
   id?: T;
   blockName?: T;
@@ -4273,6 +4323,14 @@ export interface MarketingDemoIntroBlockSelect<T extends boolean = true> {
         id?: T;
       };
   emailLead?: T;
+  alt?:
+    | T
+    | {
+        title?: T;
+        body?: T;
+        label?: T;
+        href?: T;
+      };
   id?: T;
   blockName?: T;
 }
