@@ -14,13 +14,13 @@ test('desktop nav: Figma labels, current page, Coming next clock, glass after sc
   await page.goto(site('/e2e-pricing'))
   const nav = page.getByRole('navigation', { name: 'Main' }).first()
   await expect(nav.getByRole('link')).toHaveText([
-    'Website builder',
-    'Tee times',
-    'Switching',
+    'How it works',
+    'Who it’s for',
+    'Switching to us',
     'Pricing',
     'Trust',
   ])
-  await expect(nav.getByText('(coming next)')).toHaveCount(1)
+  await expect(nav.getByText('(coming next)')).toHaveCount(0)
   const header = page.locator('.mk-nav')
   await expect(header.getByRole('link', { name: 'Club log in' })).toHaveAttribute(
     'href',
@@ -50,7 +50,7 @@ test('phone menu: opens as a sheet, keeps focus inside, Esc closes it', async ({
   const sheet = page.getByRole('dialog', { name: 'Menu' })
   await expect(sheet).toBeVisible()
   await expect(page.getByRole('button', { name: 'Close menu' })).toBeFocused()
-  await expect(sheet.getByRole('link', { name: /Tee times/ })).toBeVisible()
+  await expect(sheet.getByRole('link', { name: /How it works/ })).toBeVisible()
   // Tab from the last item goes back to the first: focus stays in the sheet.
   for (let i = 0; i < 12; i++) await page.keyboard.press('Tab')
   expect(await sheet.evaluate((el) => el.contains(document.activeElement))).toBe(true)

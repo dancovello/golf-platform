@@ -5,7 +5,7 @@ import { expect, test } from './fixtures'
 // The Website builder page (plan phase 6.1), from the Figma copy (src/marketing/starter/pages.ts),
 // against "Website builder — Desktop" (183:3008). Figma has no phone frame for it.
 
-const site = (path = '/website-builder') => `http://marketing.localhost:3100${path}`
+const site = (path = '/how-it-works') => `http://marketing.localhost:3100${path}`
 
 test('every Figma section in order, one H1, and no product film (Q8)', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
@@ -15,14 +15,16 @@ test('every Figma section in order, one H1, and no product film (Q8)', async ({ 
   )
   await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1)
   await expect(page.getByRole('heading', { level: 2 })).toContainText([
+    'Same block. A different club.',
+    'Everything the club needs to say.',
+    'Sorted before you log in.',
     'Your colours, kept readable.',
     'Your course, hole by hole.',
-    'Everything members look for.',
-    'Sorted before you log in.',
+    'The course report, first thing.',
     'See your club on it.',
   ])
   await expect(page.locator('video')).toHaveCount(0)
-  await expect(page.locator('.mk-details li')).toHaveCount(6)
+  await expect(page.locator('.mk-details li')).toHaveCount(9)
   await expect(page.locator('.mk-showcase-card')).toHaveCount(4)
   const cards = page.locator('.mk-features--cards > li')
   await expect(cards).toHaveCount(8)
