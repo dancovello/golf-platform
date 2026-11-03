@@ -1,3 +1,5 @@
+> **Retired 3 Nov 2026.** `pnpm update-marketing-wording` was removed: the v2 pages replace the whole layout of each page they touch (`pnpm update-v2-pages`), so a word-by-word update is no longer needed.
+
 # Plan: update the saved marketing pages on staging to the new wording
 
 Approved by Dan (option B), 28 Oct 2026. Follows PRs #206 (wording Part A) and #210 (Part B). **The script is built (`pnpm update-marketing-wording`) and rehearsed on a throwaway local database; it has not been run on staging.**

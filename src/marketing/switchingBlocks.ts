@@ -1,6 +1,6 @@
 import type { Block } from 'payload'
 
-import { maxWords } from './fields'
+import { marketingHref, maxWords } from './fields'
 
 /**
  * Switching page blocks (Figma "Switching — Desktop" 186:6494, "Switching — Mobile" 300:9636).
@@ -50,7 +50,7 @@ const requestHero: Block = {
       type: 'group',
       admin: {
         description:
-          'The fields are fixed: club name, current website and email. The date in the reply is two UK working days away, worked out when they send it.',
+          'The fields are fixed: club name, current website and email. No date is promised, and nothing is emailed to the person who sends it.',
       },
       fields: [
         {
@@ -85,6 +85,30 @@ const requestHero: Block = {
           maxLength: 40,
           defaultValue: 'Thanks.',
         },
+        {
+          name: 'sentBody',
+          label: 'Text once sent',
+          type: 'text',
+          maxLength: 160,
+          defaultValue: 'We’ll be in touch. We’ll email {email} to arrange your demo.',
+          admin: {
+            description:
+              'Use {email} for the address they typed. Nothing is emailed to them: the address is so you know where to send your follow-up.',
+          },
+        },
+      ],
+    },
+    {
+      name: 'alt',
+      label: 'The other route (optional)',
+      type: 'group',
+      admin: {
+        description: 'A short line and link under the points, e.g. “Rather talk it through?”',
+      },
+      fields: [
+        { name: 'title', label: 'Line', type: 'text', maxLength: 60 },
+        { name: 'label', label: 'Link text', type: 'text', maxLength: 40 },
+        { name: 'href', label: 'Link to', type: 'text', maxLength: 300, validate: marketingHref },
       ],
     },
   ],

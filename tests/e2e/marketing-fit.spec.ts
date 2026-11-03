@@ -6,7 +6,16 @@ import { expect, test } from './fixtures'
 
 const site = (path: string) => `http://marketing.localhost:3100${path}`
 
-const PAGES = ['/', '/website-builder', '/switching', '/pricing', '/bookings', '/book-a-demo']
+const PAGES = [
+  '/',
+  '/how-it-works',
+  '/who-its-for',
+  '/switching',
+  '/pricing',
+  '/bookings',
+  '/request-your-homepage',
+  '/book-a-demo',
+]
 
 /** The interactive components and live demos. A new one belongs in this list. */
 const COMPONENTS = [
