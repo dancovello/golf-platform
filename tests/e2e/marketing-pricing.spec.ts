@@ -22,8 +22,9 @@ test('every number on the page comes from the settings', async ({ page }) => {
   await expect(page.locator('.mk-calc-footnote')).toHaveText(
     'Prices exclude VAT. Plus a one-off setup fee. 90 days’ notice after the first 12 months.',
   )
+  // The closing band is the same on every page now (marketing v2) and carries no number.
   await expect(page.locator('.mk-cta-body')).toHaveText(
-    '£149 a month + VAT, everything included. See it working on your own club first.',
+    'Book a demo and we’ll walk you through it, or ask for your homepage and we’ll send it over to look at in your own time.',
   )
   // No token is ever shown raw.
   await expect(page.locator('main')).not.toContainText('{')
