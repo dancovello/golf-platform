@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { AgreementAcceptances } from './AgreementAcceptances'
+import { Categories } from './Categories'
 import { ClubSettings } from './ClubSettings'
 import { Courses } from './Courses'
 import { CourseStatus } from './CourseStatus'
@@ -26,6 +27,7 @@ export const collections: CollectionConfig[] = [
   // appear in the order their first collection does here.
   Pages,
   News,
+  Categories,
   Events,
   CourseStatus,
   Staff,

@@ -1,8 +1,7 @@
 import type { Block } from 'payload'
 
-import { NEWS_CATEGORIES } from '../../collections/newsCategories'
 import { styleField } from '../shared'
-import type { BlockDefinition } from '../types'
+import { type BlockDefinition, idOf } from '../types'
 
 /** News (doc 14). One block, three design styles; always the club's latest published news. */
 const config: Block = {
@@ -29,11 +28,17 @@ const config: Block = {
     {
       name: 'category',
       label: 'Only this category (optional)',
-      type: 'select',
-      options: [...NEWS_CATEGORIES],
+      type: 'relationship',
+      relationTo: 'categories',
       admin: { description: 'Leave empty for all news.' },
     },
   ],
 }
 
-export const newsFeed: BlockDefinition = { config, refs: () => [] }
+export const newsFeed: BlockDefinition = {
+  config,
+  refs: (block, path) => {
+    const id = idOf(block.category)
+    return id ? [{ collection: 'categories', id, path: `${path}.category` }] : []
+  },
+}

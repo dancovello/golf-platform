@@ -43,6 +43,7 @@ export const COLLECTIONS: Manifest = {
     { file: API, test: "club B's page history answers like history that doesn't exist" },
   ],
   news: [perCollection],
+  categories: [perCollection],
   events: [perCollection],
   'course-status': [perCollection],
   staff: [perCollection],
@@ -436,6 +437,7 @@ export const CACHED: Manifest = {
     ...cacheCovers,
   ],
   latestNews: cacheCovers,
+  clubCategories: cacheCovers,
   newsArchive: cacheCovers,
   newsPost: cacheCovers,
   upcomingEvents: [

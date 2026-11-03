@@ -3,6 +3,7 @@ import { randomBytes } from 'node:crypto'
 import type { Payload } from 'payload'
 
 import { allowAccountCreation } from '../access/accountCreation'
+import { categoryIds } from '../collections/categoryIds'
 import { CANARY_A_SLUG, CANARY_B_SLUG, CANARY_MARKER } from './targets'
 
 /**
@@ -38,7 +39,7 @@ export const createCanaryClubs = async (payload: Payload, editorEmail: string) =
     collection: 'news',
     data: {
       title: `${CANARY_MARKER} news`,
-      category: 'club',
+      category: (await categoryIds(payload, tenant)).get('club'),
       status: 'published',
       publishedAt: new Date().toISOString(),
       tenant,
