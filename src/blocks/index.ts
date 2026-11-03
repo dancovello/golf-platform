@@ -18,6 +18,7 @@ import { courseStatus } from './courseStatus/config'
 import { courseRecord } from './courseRecord/config'
 import { newsFeed } from './newsFeed/config'
 import { eventsFeed } from './eventsFeed/config'
+import { blockPreview } from './previews'
 import type { BlockDefinition, BlockRef } from './types'
 
 /** Every block a club can add to a page. The website side is in src/site/blocks. */
@@ -44,7 +45,11 @@ export const blockDefinitions: BlockDefinition[] = [
   eventsFeed,
 ]
 
-export const pageBlocks = blockDefinitions.map((b) => b.config)
+/** Each block with its wireframe picture for the "Add block" list (src/blocks/previews.ts). */
+export const pageBlocks = blockDefinitions.map(({ config }) => {
+  const thumbnail = blockPreview(config.slug)
+  return thumbnail ? { ...config, admin: { ...config.admin, images: { thumbnail } } } : config
+})
 
 /** Every page and photo a page's blocks point at. */
 export const layoutRefs = (layout: unknown): BlockRef[] =>
