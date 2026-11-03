@@ -17,6 +17,7 @@ import '@/site/blocks/holes.css'
 import { PreviewCard } from '../home/PreviewCard'
 import { BrowserChrome, MarketingButton } from '../parts'
 import { BlockFlipper } from './BlockFlipper'
+import { BlockSwitcher } from './BlockSwitcher'
 import { DialColours, TokenDial } from './TokenDial'
 
 /** Website builder intro (183:3044): centred heading, two buttons, the Block Flipper. */
@@ -119,6 +120,7 @@ export const LiveDemo = ({ block }: { block: MarketingLiveDemoBlock }) => (
     {block.demo === 'tokenDial' ? <TokenDialDemo /> : null}
     {block.demo === 'courseGuide' ? <CourseGuideDemo /> : null}
     {block.demo === 'courseStatus' ? <CourseStatusDemo /> : null}
+    {block.demo === 'blockSwitcher' ? <BlockSwitcher /> : null}
     {block.details?.length ? (
       <ul className="mk-details">
         {block.details.map((d, i) => (

@@ -1873,6 +1873,11 @@ export interface MarketingPage {
         | MarketingBookingDemoBlock
         | MarketingReviewedBlock
         | MarketingRoadmapBlock
+        | MarketingAssuranceBlock
+        | MarketingCompareRowsBlock
+        | MarketingStepsBlock
+        | MarketingObjectionsBlock
+        | MarketingRoleTabsBlock
       )[]
     | null;
   meta?: {
@@ -2415,7 +2420,7 @@ export interface MarketingBuilderHeroBlock {
  * via the `definition` "MarketingLiveDemoBlock".
  */
 export interface MarketingLiveDemoBlock {
-  demo: 'tokenDial' | 'courseGuide' | 'courseStatus';
+  demo: 'tokenDial' | 'courseGuide' | 'courseStatus' | 'blockSwitcher';
   details?:
     | {
         title: string;
@@ -2491,6 +2496,100 @@ export interface MarketingRoadmapBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'mkRoadmap';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingAssuranceBlock".
+ */
+export interface MarketingAssuranceBlock {
+  /**
+   * Short, true facts about the offer. Four sit in one row.
+   */
+  items: {
+    title: string;
+    body: string;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkAssurance';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingCompareRowsBlock".
+ */
+export interface MarketingCompareRowsBlock {
+  oldLabel: string;
+  ourLabel: string;
+  /**
+   * Never mock a club or whoever built its site: the way websites are usually run is the problem.
+   */
+  rows: {
+    oldWay: string;
+    ourWay: string;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkCompareRows';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingStepsBlock".
+ */
+export interface MarketingStepsBlock {
+  /**
+   * Numbered automatically. No durations or dates.
+   */
+  steps: {
+    title: string;
+    body: string;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkSteps';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingObjectionsBlock".
+ */
+export interface MarketingObjectionsBlock {
+  /**
+   * Two or four work best: they sit two to a row. Answers lead with yes or no.
+   */
+  items: {
+    topic: string;
+    question: string;
+    answer: string;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkObjections';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingRoleTabsBlock".
+ */
+export interface MarketingRoleTabsBlock {
+  roles: {
+    tab: string;
+    eyebrow: string;
+    headline: string;
+    points: {
+      text: string;
+      id?: string | null;
+    }[];
+    /**
+     * Shows only what the club site really does today.
+     */
+    visual: 'courseStatus' | 'events' | 'search' | 'greenFees';
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkRoleTabs';
 }
 /**
  * Clubs asking for a demo (Switching page).
@@ -3833,6 +3932,11 @@ export interface MarketingPagesSelect<T extends boolean = true> {
         mkBookingDemo?: T | MarketingBookingDemoBlockSelect<T>;
         mkReviewed?: T | MarketingReviewedBlockSelect<T>;
         mkRoadmap?: T | MarketingRoadmapBlockSelect<T>;
+        mkAssurance?: T | MarketingAssuranceBlockSelect<T>;
+        mkCompareRows?: T | MarketingCompareRowsBlockSelect<T>;
+        mkSteps?: T | MarketingStepsBlockSelect<T>;
+        mkObjections?: T | MarketingObjectionsBlockSelect<T>;
+        mkRoleTabs?: T | MarketingRoleTabsBlockSelect<T>;
       };
   meta?:
     | T
@@ -4259,6 +4363,92 @@ export interface MarketingRoadmapBlockSelect<T extends boolean = true> {
     | {
         title?: T;
         body?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingAssuranceBlock_select".
+ */
+export interface MarketingAssuranceBlockSelect<T extends boolean = true> {
+  items?:
+    | T
+    | {
+        title?: T;
+        body?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingCompareRowsBlock_select".
+ */
+export interface MarketingCompareRowsBlockSelect<T extends boolean = true> {
+  oldLabel?: T;
+  ourLabel?: T;
+  rows?:
+    | T
+    | {
+        oldWay?: T;
+        ourWay?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingStepsBlock_select".
+ */
+export interface MarketingStepsBlockSelect<T extends boolean = true> {
+  steps?:
+    | T
+    | {
+        title?: T;
+        body?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingObjectionsBlock_select".
+ */
+export interface MarketingObjectionsBlockSelect<T extends boolean = true> {
+  items?:
+    | T
+    | {
+        topic?: T;
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingRoleTabsBlock_select".
+ */
+export interface MarketingRoleTabsBlockSelect<T extends boolean = true> {
+  roles?:
+    | T
+    | {
+        tab?: T;
+        eyebrow?: T;
+        headline?: T;
+        points?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+        visual?: T;
         id?: T;
       };
   id?: T;

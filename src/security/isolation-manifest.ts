@@ -317,6 +317,16 @@ export const ROUTES: Manifest = {
       test: "a club's domain never shows the marketing site",
     },
   ],
+  'src/app/(marketing-frame)/marketing/frame/two-column/[club]/[design]/page.tsx': [
+    {
+      file: 'tests/e2e/marketing-website-builder.spec.ts',
+      test: 'the Two-Column frame: the real block in each club, inert, only for known clubs and designs',
+    },
+    {
+      file: 'tests/e2e/marketing-routing.spec.ts',
+      test: "a club's domain never shows the marketing site",
+    },
+  ],
   'src/app/(marketing)/marketing/[[...path]]/page.tsx': [
     {
       file: 'tests/e2e/marketing-routing.spec.ts',

@@ -64,6 +64,8 @@ import * as migration_20261102_135003_ladies_scorecard from './20261102_135003_l
 import * as migration_20261102_171131_prospect_demo from './20261102_171131_prospect_demo';
 import * as migration_20261102_194637_events_no_start_time from './20261102_194637_events_no_start_time';
 import * as migration_20261102_232743_brand_logo_settings from './20261102_232743_brand_logo_settings';
+import * as migration_20261103_002104_block_switcher_demo from './20261103_002104_block_switcher_demo';
+import * as migration_20261103_003410_selling_blocks from './20261103_003410_selling_blocks';
 
 export const migrations = [
   {
@@ -394,6 +396,16 @@ export const migrations = [
   {
     up: migration_20261102_232743_brand_logo_settings.up,
     down: migration_20261102_232743_brand_logo_settings.down,
-    name: '20261102_232743_brand_logo_settings'
+    name: '20261102_232743_brand_logo_settings',
+  },
+  {
+    up: migration_20261103_002104_block_switcher_demo.up,
+    down: migration_20261103_002104_block_switcher_demo.down,
+    name: '20261103_002104_block_switcher_demo',
+  },
+  {
+    up: migration_20261103_003410_selling_blocks.up,
+    down: migration_20261103_003410_selling_blocks.down,
+    name: '20261103_003410_selling_blocks'
   },
 ];
