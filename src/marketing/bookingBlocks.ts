@@ -1,6 +1,6 @@
 import type { Block } from 'payload'
 
-import { maxWords } from './fields'
+import { marketingHref, maxWords } from './fields'
 
 // Book a demo intro (Figma "Book a demo — Desktop" 187:7371): the page's heading, what to
 // expect, the email line, and Marketing/Demo Booking beside them. Hand-off §6: "Never state how
@@ -40,6 +40,18 @@ const demoIntro: Block = {
       maxLength: 30,
       defaultValue: 'Rather email?',
       admin: { description: 'The address itself comes from the company details.' },
+    },
+    {
+      name: 'alt',
+      label: 'The other route (optional)',
+      type: 'group',
+      admin: { description: 'e.g. “Not ready for a call?” with a link to ask for the homepage.' },
+      fields: [
+        { name: 'title', label: 'Title', type: 'text', maxLength: 60 },
+        { name: 'body', label: 'Text', type: 'textarea', maxLength: 200, validate: maxWords(30) },
+        { name: 'label', label: 'Link text', type: 'text', maxLength: 40 },
+        { name: 'href', label: 'Link to', type: 'text', maxLength: 300, validate: marketingHref },
+      ],
     },
   ],
 }

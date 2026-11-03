@@ -318,8 +318,25 @@ const founder: Block = {
   ],
 }
 
+// The Tenant Morph on its own (Who it's for, 356:3830): one set of blocks, three demo clubs.
+const clubMorph: Block = {
+  slug: 'mkClubMorph',
+  dbName: 'mk_club_morph',
+  interfaceName: 'MarketingClubMorphBlock',
+  labels: { singular: 'Club switcher demo', plural: 'Club switcher demos' },
+  fields: [
+    {
+      name: 'note',
+      label: 'Line under the demo (optional)',
+      type: 'text',
+      maxLength: 120,
+    },
+  ],
+}
+
 export const homeBlocks: Block[] = [
   homeHero,
+  clubMorph,
   proofStats,
   compare,
   editLive,
