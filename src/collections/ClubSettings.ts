@@ -73,8 +73,10 @@ const logoField = (name: string, label: string, description: string): Field => (
   label,
   type: 'upload',
   relationTo: 'media',
-  // Images only; the same-club check (src/site/sameClub.ts) refuses another club's file.
-  filterOptions: { mimeType: { in: ['image/png', 'image/webp', 'image/avif', 'image/jpeg'] } },
+  // Images only (an SVG is checked on upload); the same-club check (src/site/sameClub.ts) refuses another club's file.
+  filterOptions: {
+    mimeType: { in: ['image/png', 'image/webp', 'image/avif', 'image/jpeg', 'image/svg+xml'] },
+  },
   admin: { description },
 })
 
