@@ -95,6 +95,8 @@ export default buildConfig({
           emailOrPasswordIncorrect: SIGN_IN_REFUSED,
           userLocked: SIGN_IN_REFUSED,
         },
+        // The page screen's external-link button opens the page on the website.
+        version: { preview: 'View page' },
       },
     },
   },
