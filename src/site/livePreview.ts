@@ -1,4 +1,4 @@
-import type { LivePreviewConfig, PayloadRequest } from 'payload'
+import type { GeneratePreviewURL, LivePreviewConfig, PayloadRequest } from 'payload'
 
 import { siteBase } from './preview'
 import { idOf } from '@/blocks/types'
@@ -35,6 +35,24 @@ const breakpoints = [
 export const clubSettingsLivePreview: LivePreviewConfig = {
   breakpoints,
   url: ({ data, req }) => pageURL(req, data?.tenant, null),
+}
+
+/** Pages' "Preview" button (View page): opens the page in a new tab. Once the page is published
+ * and the club has a web address, that's the real address on the club's own domain (production
+ * only: staging and local have no such domains); otherwise the club's preview of the page,
+ * drafts included, which only that club's signed-in editors and the super-admin can open. */
+export const viewPageURL: GeneratePreviewURL = async (doc, { req }) => {
+  const tenantID = idOf(doc.tenant)
+  const slug = typeof doc.slug === 'string' ? doc.slug : null
+  if (!tenantID || !slug) return null
+  if (doc._status === 'published' && process.env.VERCEL_ENV === 'production') {
+    const club = await req.payload
+      .findByID({ collection: 'tenants', id: tenantID, depth: 0, overrideAccess: true, req })
+      .catch(() => null)
+    const host = club?.domains?.[0]?.hostname
+    if (host) return `https://${host}${slug === 'home' ? '' : `/${encodeURIComponent(slug)}`}`
+  }
+  return pageURL(req, doc.tenant, slug)
 }
 
 /** Pages: the page being edited, as you type (pages autosave drafts). */
