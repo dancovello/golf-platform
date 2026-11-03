@@ -708,6 +708,7 @@ writeFileSync(
     editorB: { id: w.editorB.id, email: w.editorB.email },
     pageA: { id: w.pageA.id, title: w.pageA.title },
     pageB: { id: w.pageB.id, title: w.pageB.title },
+    categoryA: { id: w.categoryA.id },
     homeA: { id: homeA.id },
     settingsA: { id: w.settingsA.id },
     settingsB: { id: w.settingsB.id },
