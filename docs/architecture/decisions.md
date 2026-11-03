@@ -696,5 +696,5 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 
 - **Dan, 3 Nov:** bought `a1engine.co` through Vercel, so Vercel also manages its DNS and issues the certificates. No records need sending to anyone.
 - **Addresses (Vercel → Domains, Production):** `a1engine.co` is the main company address, `www.a1engine.co` forwards to it, and `app.a1engine.co` is the admin. Production sets `MARKETING_HOSTS=a1engine.co,www.a1engine.co` and `ADMIN_URL=https://app.a1engine.co`. Staging and previews keep their own addresses.
-- **In the code:** `BRAND.domain` in `src/brand.ts` is now `a1engine.co`. The company email stays the `hello@brandname.golf` placeholder until a mailbox is chosen (free forwarding or Google Workspace: undecided).
+- **In the code:** `BRAND.domain` in `src/brand.ts` is now `a1engine.co`. The company email is `daniel@a1engine.co`, on Dan's existing Google Workspace account with `a1engine.co` added as a domain (Google's mail, spam-protection and signing records are in Vercel's DNS).
 - **Still to do:** verify `a1engine.co` as the sending domain in Resend and set `EMAIL_FROM_ADDRESS`; check whether the marketing forms need `a1engine.co` on the Turnstile widget (the free widget lists 10 addresses); point the uptime monitor at `app.a1engine.co/health`. Nothing is public until the held main → production release.

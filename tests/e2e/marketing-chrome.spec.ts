@@ -68,7 +68,7 @@ test('footer: the site map, legal links and this year', async ({ page }) => {
   )
   await expect(footer.getByRole('link', { name: 'Contact' })).toHaveAttribute(
     'href',
-    'mailto:hello@brandname.golf',
+    'mailto:daniel@a1engine.co',
   )
   await expect(footer.getByText(`© ${new Date().getFullYear()} A1.Engine`)).toBeVisible()
 })
