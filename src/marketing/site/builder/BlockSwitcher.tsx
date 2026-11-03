@@ -19,7 +19,6 @@ export const BlockSwitcher = () => {
 
   const chosenDesign = SWITCHER_DESIGNS[design]
   const chosenClub = SWITCHER_CLUBS[club]
-  const description = `${chosenDesign.name} design, in ${chosenClub.name}’s colours and fonts`
 
   return (
     <div className="mk-flipper mk-switcher" data-fit-screen="">
