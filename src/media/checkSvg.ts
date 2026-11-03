@@ -1,5 +1,5 @@
-import DOMPurify from 'dompurify'
-import { JSDOM } from 'jsdom'
+import type { DOMPurify } from 'dompurify'
+import type { JSDOM as JSDOMType } from 'jsdom'
 import type { CollectionBeforeChangeHook } from 'payload'
 
 /** The largest SVG a club can upload. Logos and icons are a few KB; this stops a huge file. */
@@ -14,19 +14,31 @@ const OK_NAMESPACES = new Set([
 const NOT_ALLOWED =
   'This SVG contains scripts, links or other content that isn’t allowed. Export it again as a plain SVG (in Illustrator choose “SVG 1.1” and “Presentation Attributes”; in Figma use Export → SVG).'
 
-const purify = DOMPurify(new JSDOM('').window as unknown as Window & typeof globalThis)
+// jsdom and DOMPurify load the first time an SVG is checked, not when the site starts.
+// A problem loading them then only affects SVG uploads, never every page of every site.
+let tools: Promise<{ JSDOM: typeof JSDOMType; purify: DOMPurify }> | undefined
 
-// Only links to another part of the same drawing (gradients, symbols). A link to a web
-// address could make every visitor's browser fetch it, which tracks who views the page.
-purify.addHook('uponSanitizeAttribute', (_node, data) => {
-  if (
-    (data.attrName === 'href' || data.attrName === 'xlink:href') &&
-    !data.attrValue.startsWith('#')
-  ) {
-    data.keepAttr = false
-    data.forceKeepAttr = false
-  }
-})
+const loadTools = () =>
+  (tools ??= Promise.all([import('jsdom'), import('dompurify')])
+    .then(([{ JSDOM }, { default: createDOMPurify }]) => {
+      const purify = createDOMPurify(new JSDOM('').window as unknown as Window & typeof globalThis)
+      // Only links to another part of the same drawing (gradients, symbols). A link to a web
+      // address could make every visitor's browser fetch it, which tracks who views the page.
+      purify.addHook('uponSanitizeAttribute', (_node, data) => {
+        if (
+          (data.attrName === 'href' || data.attrName === 'xlink:href') &&
+          !data.attrValue.startsWith('#')
+        ) {
+          data.keepAttr = false
+          data.forceKeepAttr = false
+        }
+      })
+      return { JSDOM, purify }
+    })
+    .catch((err: unknown) => {
+      tools = undefined
+      throw err
+    }))
 
 /**
  * Checks that an SVG is plain artwork: shapes, paths, gradients and text. Anything that could
@@ -35,7 +47,7 @@ purify.addHook('uponSanitizeAttribute', (_node, data) => {
  * not to quietly edit it: the file stored is then exactly the file that was checked.
  * Returns what's wrong in plain English, or null if the file is safe.
  */
-export const svgProblem = (file: Buffer): string | null => {
+export const svgProblem = async (file: Buffer): Promise<string | null> => {
   if (file.length > MAX_SVG_BYTES)
     return 'This SVG is over 1 MB. Logos and icons are normally far smaller.'
   const text = file.toString('utf8')
@@ -51,6 +63,7 @@ export const svgProblem = (file: Buffer): string | null => {
   if (/url\(\s*['"]?(?!#)/i.test(text.replace(/<style[\s\S]*?<\/style>/gi, ''))) {
     return 'This SVG links to another address. Export it again as a plain SVG.'
   }
+  const { JSDOM, purify } = await loadTools()
   // Read it the way a browser reads an SVG file: strict XML. An HTML-style parse can see a
   // different document from the browser, so a file could pass the check yet run code.
   let doc: Document
@@ -88,13 +101,13 @@ export const svgProblem = (file: Buffer): string | null => {
 
 /** Media: refuses an unsafe SVG. Runs on server uploads and on browser uploads, whose file
  * Payload downloads from storage to read before the record is saved. */
-export const checkSvgUpload: CollectionBeforeChangeHook = ({ data, req }) => {
+export const checkSvgUpload: CollectionBeforeChangeHook = async ({ data, req }) => {
   const file = req.file
   // Judged by what the file contains, not only the type the browser reported.
   const looksLikeSvg = file?.data && /<svg[\s>]/i.test(file.data.subarray(0, 4096).toString('utf8'))
   if (file?.data && (file.mimetype === 'image/svg+xml' || looksLikeSvg)) {
     if (file.mimetype !== 'image/svg+xml') throw new Error('This file isn’t what it claims to be.')
-    const problem = svgProblem(file.data)
+    const problem = await svgProblem(file.data)
     if (problem) throw new Error(problem)
   }
   return data
