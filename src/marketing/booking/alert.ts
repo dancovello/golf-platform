@@ -10,6 +10,7 @@ import {
 } from '@/security/rateLimit'
 
 import { longDay } from './calendar'
+import { createMeetLink } from './meet'
 
 /** Keeps typed text out of email headers: one line, no angle brackets or quotes. */
 const headerSafe = (value: string, max = 80) =>
@@ -52,7 +53,11 @@ export const sendDemoBookingEmails = async (id: string): Promise<BookingEmailRes
     overrideAccess: true,
   })
   const inbox = settings.requests?.inbox?.trim() || null
-  const link = settings.demoCalls?.videoLink?.trim() || null
+  // A Meet link made for this booking when Google is connected, else the fixed link in Settings.
+  const link =
+    (await createMeetLink(booking, settings.demoCalls?.slotMinutes ?? 30)) ||
+    settings.demoCalls?.videoLink?.trim() ||
+    null
   const from = `${headerSafe(BRAND.name, 60)} <${payload.email.defaultFromAddress}>`
   const when = `${longDay(booking.date)} at ${booking.time} (UK time)`
   const send = async (to: string, subject: string, lines: string[], replyTo?: string) => {
