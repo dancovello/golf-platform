@@ -20,3 +20,14 @@ export const isFullyAuthenticated = (user: unknown): boolean => {
 /** A super-admin who has entered their two-factor code in this session. */
 export const isSuperAdminWithCode = (user: unknown): boolean =>
   isSuperAdmin(user) && isFullyAuthenticated(user)
+
+/** Whether this account has already entered its emailed code in this session. */
+export const hasEnteredCode = (user: unknown): boolean =>
+  Boolean(user) && (user as { _strategy?: string })._strategy === 'totp'
+
+/** The strategy that accepted the password, to record in the "code entered" cookie. Nothing
+ * when the code is already in (the strategy is then the code cookie itself) or unknown. */
+export const passwordStrategy = (user: unknown): string | undefined => {
+  const strategy = user ? (user as { _strategy?: string })._strategy : undefined
+  return strategy && strategy !== 'totp' ? strategy : undefined
+}

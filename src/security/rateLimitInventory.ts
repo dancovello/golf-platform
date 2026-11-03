@@ -156,20 +156,15 @@ export const RATE_LIMITS: Record<string, Protection> = {
     limit: '100 upload links an hour per account',
     where: 'App, shared database (UPLOAD_LINK_LIMIT, src/media/uploadGuards.ts)',
   },
-  'POST /api/setup-totp': {
+  'POST /api/send-email-code': {
     who: 'signed in',
-    limit: 'Password already accepted; wrong codes count towards the lockout below',
-    where: 'payload-totp',
+    limit: 'Password already accepted; one email per account a minute; Vercel Firewall rule 2',
+    where: 'App, shared database (totp-attempts, src/auth/emailCode.ts)',
   },
   'POST /api/verify-totp': {
     who: 'signed in',
     limit: 'Locked for 10 minutes after 5 wrong codes (same settings as passwords)',
-    where: 'payload-totp (totp-attempts, stored in the database)',
-  },
-  'POST /api/remove-totp': {
-    who: 'signed in',
-    limit: 'Refused while two-factor is required; wrong codes count towards the lockout',
-    where: 'payload-totp',
+    where: 'App, shared database (totp-attempts, src/auth/emailCode.ts)',
   },
   'GET /api/tenants/populate-tenant-options': SIGNED_IN,
   'GET /api/access': SIGNED_IN,

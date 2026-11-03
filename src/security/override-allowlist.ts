@@ -57,6 +57,13 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
     why: 'Called only from the invite endpoint after the super-admin check. Accounts can’t be created through the normal rules at all (allowAccountCreation context)',
   },
   {
+    file: 'src/auth/emailCode.ts',
+    fn: 'findOrCreateRow',
+    uses: 1,
+    club: 'None: one account’s wrong-guess counter and emailed code (totp-attempts), by that account’s ID',
+    why: 'The table has no access rules at all (nobody can reach it through the API); only the sign-in endpoints in src/auth/emailCodeEndpoints.ts use it, for the account that has just entered its password',
+  },
+  {
     file: 'src/auth/sessionLimit.ts',
     fn: 'emailPasswordReset',
     uses: 1,

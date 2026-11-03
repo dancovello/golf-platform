@@ -70,12 +70,20 @@ describe('who needs the two-factor code (decisions.md, 22 Oct)', () => {
     })
   }
 
-  it('a super-admin who never set two-factor up reaches nothing, even signed in', async () => {
+  it('every super-admin owes a code, even a brand-new one with nothing set up', async () => {
     const created = await createSuperAdmin(w.payload, {
       email: `no-code-${Date.now()}@example.com`,
       password: PASSWORD,
     })
-    const user = await asUser(w.payload, created.id) // password only: no two-factor yet
+    const found = await w.payload.findByID({
+      collection: 'users',
+      id: created.id,
+      depth: 0,
+      overrideAccess: true,
+    })
+    expect((found as { hasTotp?: boolean }).hasTotp).toBe(true)
+    // Password accepted, no emailed code entered yet: nothing is reachable.
+    const user = withoutCode(await asUser(w.payload, created.id))
     for (const collection of ['pages', 'club-settings', 'tenants', 'users'] as const) {
       const visible = await w.payload
         .find({ collection, overrideAccess: false, user })
@@ -88,6 +96,16 @@ describe('who needs the two-factor code (decisions.md, 22 Oct)', () => {
         .findGlobal({ slug: 'marketing-settings', overrideAccess: false, user })
         .catch(() => null),
     ).toBeNull()
+  })
+
+  it('a club editor with only a password does not owe a code', async () => {
+    const found = await w.payload.findByID({
+      collection: 'users',
+      id: w.editorA.id,
+      depth: 0,
+      overrideAccess: true,
+    })
+    expect((found as { hasTotp?: boolean }).hasTotp).toBe(false)
   })
 
   it("a password-only club editor reaches their own club's content, and only that", async () => {

@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 
 import { type Cookie, expect, test as setup } from '@playwright/test'
 
-import { currentCode } from '../shared/totp'
+import { plantCode, TEST_CODE } from './code'
 import { asSameOrigin } from './fixtures'
 import { loadWorld, PASSWORD, STATE_DIR } from './world'
 
@@ -30,10 +30,12 @@ for (const who of ['editorA', 'superAdmin'] as const) {
     await page.getByLabel('Password').fill(PASSWORD)
     await page.getByRole('button', { name: 'Login' }).click()
     if (who === 'superAdmin') {
-      // Password accepted: the admin now asks for the two-factor code.
+      // Password accepted: the admin now asks for the emailed sign-in code. The test can't
+      // read an inbox, so it plants a known code as if the email had been sent.
       await expect(page).toHaveURL(/\/admin\/verify-totp/)
+      plantCode(w.superAdmin.email)
       const verified = await page.request.post('/api/verify-totp', {
-        data: { token: currentCode() },
+        data: { token: TEST_CODE },
       })
       expect(verified.ok()).toBe(true)
     } else {

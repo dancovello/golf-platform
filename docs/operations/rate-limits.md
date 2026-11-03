@@ -37,9 +37,10 @@ Every public endpoint has a limit, at two layers (doc 04 §8): **the app** and *
 - The account is locked for 10 minutes after 5 wrong passwords.
 - Enforced by Payload (stored on the account, so shared) and by Vercel Firewall rule 2 per address.
 
-**Two-factor code** (`/api/verify-totp`, `/api/setup-totp`, `/api/remove-totp`)
-- Locked for 10 minutes after 5 wrong codes. `remove-totp` refuses while two-factor is required.
-- Enforced by payload-totp (stored in the database) and by Vercel Firewall rule 2.
+**Emailed sign-in code** (`/api/send-email-code`, `/api/verify-totp`)
+- Asking for a code: one email per account a minute, and only after the password is accepted.
+- Typing one in: locked for 10 minutes after 5 wrong codes (the same count as passwords). A code works once and expires after 10 minutes.
+- Enforced in the app (stored in the database) and by Vercel Firewall rule 2.
 
 **Forgot password** (`/api/users/forgot-password`)
 - One email per account every 15 minutes. Refused while email reset is off.
@@ -84,7 +85,7 @@ Every public endpoint has a limit, at two layers (doc 04 §8): **the app** and *
 | # | Name | If (all must match) | Window | Limit | Action |
 |---|---|---|---|---|---|
 | 1 | Search | **Request Path** *contains* `/search` | 60 s | 150 | 429 (default) |
-| 2 | Sign-in and codes | **Method** *equals* `POST`, and **Request Path** *is any of* `/api/users/login`, `/api/users/forgot-password`, `/api/users/reset-password`, `/api/users/unlock`, `/api/verify-totp`, `/api/setup-totp`, `/api/remove-totp` | 60 s | 10 | 429 (default) |
+| 2 | Sign-in and codes | **Method** *equals* `POST`, and **Request Path** *is any of* `/api/users/login`, `/api/users/forgot-password`, `/api/users/reset-password`, `/api/users/unlock`, `/api/verify-totp`, `/api/send-email-code` | 60 s | 10 | 429 (default) |
 | 3 | Contact form | **Method** *equals* `POST`, and **Request Path** *ends with* `/contact` | 600 s (10 min) | 10 | 429 (default) |
 | 4 *(optional)* | All pages | **Request Path** *starts with* `/` | 60 s | 600 | **Log** only |
 

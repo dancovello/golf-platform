@@ -319,9 +319,9 @@ const extraEditor = async (email: string, enrol: boolean) => {
   return { id: user.id, email }
 }
 const editorNotSetUp = await extraEditor('editor-not-set-up@example.com', false)
-// A super-admin who hasn't set two-factor up: must do so before anything else (22 Oct).
-const superAdminNotSetUp = await (async () => {
-  const email = 'super-not-set-up@example.com'
+// A second super-admin, for the sign-in tests: every super-admin is asked for the emailed code.
+const superAdminCodeOnly = await (async () => {
+  const email = 'super-code-only@example.com'
   const created = await createSuperAdmin(w.payload, { email, password: PASSWORD })
   return { id: created.id, email }
 })()
@@ -331,6 +331,7 @@ const editorToReset = await extraEditor('editor-to-reset@example.com', true)
 const editorLoginOnly = await extraEditor('editor-login-only@example.com', true)
 const editorTypesCode = await extraEditor('editor-types-code@example.com', true)
 const editorWrongCode = await extraEditor('editor-wrong-code@example.com', true)
+const editorCodeOnce = await extraEditor('editor-code-once@example.com', true)
 const editorLinkTarget = await extraEditor('editor-link-target@example.com', true)
 // One club per header style, with a long name in the widest font set, so the phone-width check
 // in tests/e2e/site-header.spec.ts has something that could overflow.
@@ -719,11 +720,12 @@ writeFileSync(
       url: w.mediaB.url,
     },
     editorNotSetUp,
-    superAdminNotSetUp,
+    superAdminCodeOnly,
     editorToReset,
     editorLoginOnly,
     editorTypesCode,
     editorWrongCode,
+    editorCodeOnce,
     editorLinkTarget,
     demoLive: { name: demoLive.name, address: `${demoLive.slug}-${demoLive.demoToken}` },
     demoExpired: {

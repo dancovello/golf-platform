@@ -1,15 +1,17 @@
 /**
- * Resets an account's two-factor login (lost phone), so they set it up again at their next
- * login. Run with:  pnpm reset-two-factor
+ * Switches a club editor who still has the old authenticator app back to a password alone.
+ * Run with:  pnpm reset-two-factor
  *
- * Club editors can also be reset by a super-admin in the admin. This script is the only way to
- * reset a SUPER-ADMIN. Running it against PRODUCTION needs Dan's explicit approval.
+ * Nobody can set the authenticator up any more (the sign-in code is emailed since 3 Nov), and
+ * super-admins always use the emailed code, so this only matters for editors who set it up
+ * earlier. A super-admin can also do it in the admin. Running it against PRODUCTION needs Dan's
+ * explicit approval. If email is down, use  pnpm login-code  instead.
  */
 import { ask, chooseDatabase, connect, fail } from './lib/prompts'
 
 const main = async () => {
   console.log('Reset two-factor login\n')
-  await chooseDatabase('reset an account’s two-factor login')
+  await chooseDatabase('switch an editor back to a password alone')
 
   const email = await ask('\nEmail address of the account: ')
   const payload = await connect()
@@ -21,13 +23,18 @@ const main = async () => {
   })
   const user = found.docs[0]
   if (!user) fail(`No account with the email ${email}.`)
+  if (user.role === 'super-admin') {
+    fail(
+      'Super-admins always sign in with an emailed code, so there is nothing to reset. If email is down, run: pnpm login-code',
+    )
+  }
 
-  if ((await ask(`Reset two-factor for ${email} (${user.role})? Type "reset": `)) !== 'reset') {
+  if ((await ask(`Switch ${email} back to a password alone? Type "reset": `)) !== 'reset') {
     fail('Not confirmed.')
   }
   const { resetTwoFactor } = await import('../src/auth/resetTwoFactor')
   await resetTwoFactor(payload, user.id)
-  console.log(`\nDone. ${email} will set up their authenticator app at their next login.`)
+  console.log(`\nDone. ${email} now signs in with their password alone.`)
   process.exit(0)
 }
 

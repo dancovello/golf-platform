@@ -134,21 +134,16 @@ export const ENDPOINTS: Manifest = {
       test: "a crafted upload request cannot reach club B's file",
     },
   ],
-  'POST /api/setup-totp': [
+  'POST /api/send-email-code': [
+    { file: API, test: 'a sign-in code is not sent to an account that only has a password' },
     {
       file: 'tests/e2e/two-factor.spec.ts',
-      test: 'a super-admin without two-factor must set it up before anything else',
+      test: 'a code can only be asked for after the password is accepted',
     },
   ],
   'POST /api/verify-totp': [
     { file: 'tests/e2e/two-factor.spec.ts', test: 'a wrong code is refused' },
-  ],
-  'POST /api/remove-totp': [
-    { file: API, test: 'switching off two-factor does nothing for an account without it' },
-    {
-      file: 'tests/e2e/two-factor.spec.ts',
-      test: "a super-admin can't switch their two-factor off",
-    },
+    { file: 'tests/e2e/two-factor.spec.ts', test: 'a code works once' },
   ],
   'GET /api/tenants/populate-tenant-options': [noLeaks],
   // Payload's own, beyond the standard ones

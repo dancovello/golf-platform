@@ -2705,6 +2705,9 @@ export interface TotpAttempt {
   id: string;
   attempts: number;
   lockUntil?: string | null;
+  codeHash?: string | null;
+  codeExpires?: string | null;
+  codeSentAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -4692,6 +4695,9 @@ export interface TotpAttemptsSelect<T extends boolean = true> {
   id?: T;
   attempts?: T;
   lockUntil?: T;
+  codeHash?: T;
+  codeExpires?: T;
+  codeSentAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

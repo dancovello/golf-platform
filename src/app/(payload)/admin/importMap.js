@@ -24,7 +24,6 @@ import { MenuDropdownPreview as MenuDropdownPreview_b50057d96127bffae2bae99fcea3
 import { MenuRowLabel as MenuRowLabel_a7b5e316e5e0b30158da1854ec94f269 } from '../../../admin/MenuRowLabel'
 import { ColumnRowLabel as ColumnRowLabel_a7b5e316e5e0b30158da1854ec94f269 } from '../../../admin/MenuRowLabel'
 import { AccountActions as AccountActions_5939924b736c0af7dc12cb105215f5ae } from '../../../admin/AccountActions'
-import { TOTPField as TOTPField_4eaf6cb33cfb75be01716613e3c9a512 } from 'payload-totp/rsc'
 import { InviteEditorButton as InviteEditorButton_ed6924b166afdc0cc951a5635a759e32 } from '../../../admin/InviteEditorButton'
 import { AgreementText as AgreementText_ccfb96bd008288f196e6336a2e0a5cfe } from '../../../admin/AgreementText'
 import { WatchTenantCollection as WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
@@ -36,9 +35,9 @@ import { ClubHome as ClubHome_d5994150e51c48090be4b9072de8e30f } from '../../../
 import { TenantSelector as TenantSelector_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
 import { TenantSelectionAfterTwoFactor as TenantSelectionAfterTwoFactor_81c53e0ef025a5e59bab11a3e58579bd } from '../../../admin/TenantSelectionAfterTwoFactor'
 import { S3ClientUploadHandler as S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24 } from '@payloadcms/storage-s3/client'
-import { SuperAdminTwoFactorProvider as SuperAdminTwoFactorProvider_2552afe2d4ec8dc58deb5f0f61b6a22b } from '../../../admin/SuperAdminTwoFactorProvider'
-import { TOTPSetup as TOTPSetup_4eaf6cb33cfb75be01716613e3c9a512 } from 'payload-totp/rsc'
-import { TOTPVerify as TOTPVerify_4eaf6cb33cfb75be01716613e3c9a512 } from 'payload-totp/rsc'
+import { TOTPProvider as TOTPProvider_4eaf6cb33cfb75be01716613e3c9a512 } from 'payload-totp/rsc'
+import { EmailCodeSetupRedirect as EmailCodeSetupRedirect_8547c5d58676f8d6d81afab0b38401e1 } from '../../../admin/EmailCodeSetupRedirect'
+import { EmailCodeVerify as EmailCodeVerify_7d6b1d0aba1acfe45efda1fc916801fe } from '../../../admin/EmailCodeVerify'
 import { InviteEditorView as InviteEditorView_81c4e00104ce61dd8de9811588af1e2c } from '../../../admin/InviteEditorView'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
@@ -70,7 +69,6 @@ export const importMap = {
   "/admin/MenuRowLabel#MenuRowLabel": MenuRowLabel_a7b5e316e5e0b30158da1854ec94f269,
   "/admin/MenuRowLabel#ColumnRowLabel": ColumnRowLabel_a7b5e316e5e0b30158da1854ec94f269,
   "/admin/AccountActions#AccountActions": AccountActions_5939924b736c0af7dc12cb105215f5ae,
-  "payload-totp/rsc#TOTPField": TOTPField_4eaf6cb33cfb75be01716613e3c9a512,
   "/admin/InviteEditorButton#InviteEditorButton": InviteEditorButton_ed6924b166afdc0cc951a5635a759e32,
   "/admin/AgreementText#AgreementText": AgreementText_ccfb96bd008288f196e6336a2e0a5cfe,
   "@payloadcms/plugin-multi-tenant/client#WatchTenantCollection": WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a,
@@ -82,9 +80,9 @@ export const importMap = {
   "@payloadcms/plugin-multi-tenant/rsc#TenantSelector": TenantSelector_d6d5f193a167989e2ee7d14202901e62,
   "/admin/TenantSelectionAfterTwoFactor#TenantSelectionAfterTwoFactor": TenantSelectionAfterTwoFactor_81c53e0ef025a5e59bab11a3e58579bd,
   "@payloadcms/storage-s3/client#S3ClientUploadHandler": S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24,
-  "/admin/SuperAdminTwoFactorProvider#SuperAdminTwoFactorProvider": SuperAdminTwoFactorProvider_2552afe2d4ec8dc58deb5f0f61b6a22b,
-  "payload-totp/rsc#TOTPSetup": TOTPSetup_4eaf6cb33cfb75be01716613e3c9a512,
-  "payload-totp/rsc#TOTPVerify": TOTPVerify_4eaf6cb33cfb75be01716613e3c9a512,
+  "payload-totp/rsc#TOTPProvider": TOTPProvider_4eaf6cb33cfb75be01716613e3c9a512,
+  "/admin/EmailCodeSetupRedirect#EmailCodeSetupRedirect": EmailCodeSetupRedirect_8547c5d58676f8d6d81afab0b38401e1,
+  "/admin/EmailCodeVerify#EmailCodeVerify": EmailCodeVerify_7d6b1d0aba1acfe45efda1fc916801fe,
   "/admin/InviteEditorView#InviteEditorView": InviteEditorView_81c4e00104ce61dd8de9811588af1e2c,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

@@ -4,8 +4,9 @@ import { isSuperAdminWithCode } from './fullyAuthenticated'
 import { publicError } from '../errors'
 
 /**
- * Clears an account's two-factor secret, so they set it up again at their next login
- * (lost phone). There are no backup codes in v1 (docs/architecture/decisions.md).
+ * Clears an account's old authenticator secret, so a club editor who had set it up signs in
+ * with their password alone again. (Codes are emailed now and nobody can set the authenticator
+ * up any more: decisions.md, 3 Nov.)
  */
 export const resetTwoFactor = (payload: Payload, userID: string) =>
   payload.update({
@@ -37,8 +38,7 @@ export const resetTwoFactorEndpoint: Endpoint = {
     }
     await resetTwoFactor(req.payload, id)
     return Response.json({
-      message:
-        'Two-factor reset. They can sign in with their password, and set it up again from their account page.',
+      message: 'Done. They now sign in with their password alone, with no emailed code.',
     })
   },
 }

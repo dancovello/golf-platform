@@ -116,10 +116,11 @@ test.describe("REST API as club A's editor", () => {
     }
   })
 
-  test('switching off two-factor does nothing for an account without it', async ({
+  test('a sign-in code is not sent to an account that only has a password', async ({
     editorPage,
   }) => {
-    const res = await editorPage.request.post('/api/remove-totp', { data: { token: '000000' } })
+    const res = await editorPage.request.post('/api/send-email-code')
+    expect(res.status()).toBe(401)
     expect((await res.json()).ok).toBe(false)
   })
 

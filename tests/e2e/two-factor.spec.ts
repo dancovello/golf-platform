@@ -1,13 +1,13 @@
 /**
- * Two-factor login: required for super-admins, optional for club editors (decisions.md, 22 Oct).
- * Editors who have set it up still need their code.
+ * Two-factor login by emailed code: required for super-admins, optional for club editors
+ * (decisions.md, 22 Oct and 3 Nov). Editors who had set the old authenticator up still need a code.
+ * The tests can't read an inbox, so they plant a known code (tests/e2e/code.ts).
  * Each test starts logged out, in its own browser, unless it uses a logged-in fixture.
  */
 import type { Page } from '@playwright/test'
 
-import { currentCode } from '../shared/totp'
-
-import { expect, openReady, test } from './fixtures'
+import { plantCode, TEST_CODE } from './code'
+import { asSameOrigin, expect, openReady, test } from './fixtures'
 import { PASSWORD } from './world'
 
 const logInWithPassword = async (page: Page, email: string) => {
@@ -30,16 +30,15 @@ test('a password alone reaches only the code screen', async ({ page, world }) =>
   }
 })
 
-test('typing the code from the authenticator app logs you in', async ({ page, world }) => {
+test('typing the emailed code logs you in', async ({ page, world }) => {
   await logInWithPassword(page, world.editorTypesCode.email)
   await expect(page).toHaveURL(/\/admin\/verify-totp/)
   await page.waitForLoadState('networkidle')
-  // The plugin's six digit boxes have no labels (an accessibility gap, noted for follow-up),
-  // and the first textbox is its hidden combined field, so the first visible box is the second.
-  await page.getByRole('textbox').nth(1).click()
-  await page.keyboard.type(currentCode())
-  // After the code, the plugin sends you back where you came from (sometimes the login page,
-  // which then forwards to the dashboard), so allow for the extra hop when the machine is busy.
+  // The test can't read an inbox: it plants a known code, then says it already has one.
+  plantCode(world.editorTypesCode.email)
+  await page.getByRole('button', { name: 'I already have a code' }).click()
+  await page.getByLabel('6-digit code').fill(TEST_CODE)
+  await page.getByRole('button', { name: 'Sign in' }).click()
   await expect(page).toHaveURL(/\/admin$/, { timeout: 15_000 })
   expect((await page.request.get('/api/pages')).status()).toBe(200)
 })
@@ -47,10 +46,35 @@ test('typing the code from the authenticator app logs you in', async ({ page, wo
 test('a wrong code is refused', async ({ page, world }) => {
   await logInWithPassword(page, world.editorWrongCode.email)
   await expect(page).toHaveURL(/\/admin\/verify-totp/)
-  const wrong = currentCode() === '000000' ? '111111' : '000000'
-  const response = await page.request.post('/api/verify-totp', { data: { token: wrong } })
+  plantCode(world.editorWrongCode.email)
+  const response = await page.request.post('/api/verify-totp', { data: { token: '000000' } })
   expect((await response.json()).ok).toBe(false)
   expect((await page.request.get('/api/pages')).status()).toBe(403)
+})
+
+test('a code works once', async ({ page, browser, baseURL, world }) => {
+  const email = world.editorCodeOnce.email
+  await logInWithPassword(page, email)
+  await expect(page).toHaveURL(/\/admin\/verify-totp/)
+  plantCode(email)
+  const first = await page.request.post('/api/verify-totp', { data: { token: TEST_CODE } })
+  expect((await first.json()).ok).toBe(true)
+  // The same code, from a second sign-in with the password, is no longer good.
+  const other = await browser.newContext({ baseURL })
+  asSameOrigin(other)
+  const second = await other.newPage()
+  await logInWithPassword(second, email)
+  const again = await second.request.post('/api/verify-totp', { data: { token: TEST_CODE } })
+  expect((await again.json()).ok).toBe(false)
+  await other.close()
+})
+
+test('a code can only be asked for after the password is accepted', async ({ page }) => {
+  const res = await page.request.post('/api/send-email-code')
+  expect(res.status()).toBe(401)
+  expect((await res.json()).ok).toBe(false)
+  const verify = await page.request.post('/api/verify-totp', { data: { token: TEST_CODE } })
+  expect((await verify.json()).ok).toBe(false)
 })
 
 test('a club editor without two-factor signs in with their password alone', async ({
@@ -62,14 +86,14 @@ test('a club editor without two-factor signs in with their password alone', asyn
   expect((await page.request.get('/api/pages')).status()).toBe(200)
 })
 
-test('a super-admin without two-factor must set it up before anything else', async ({
+test('a super-admin is always asked for the emailed code before anything else', async ({
   page,
   world,
 }) => {
-  await logInWithPassword(page, world.superAdminNotSetUp.email)
-  await expect(page).toHaveURL(/\/admin\/setup-totp/)
+  await logInWithPassword(page, world.superAdminCodeOnly.email)
+  await expect(page).toHaveURL(/\/admin\/verify-totp/)
   await page.goto('/admin/collections/pages')
-  await expect(page).toHaveURL(/\/admin\/setup-totp/)
+  await expect(page).toHaveURL(/\/admin\/(verify-totp|login)/)
   for (const path of ['/api/pages', '/api/tenants', '/api/club-settings']) {
     const res = await page.request.get(path)
     // Refused outright, or an empty list: either way, nothing.
@@ -78,11 +102,14 @@ test('a super-admin without two-factor must set it up before anything else', asy
   }
 })
 
-test("a super-admin can't switch their two-factor off", async ({ superAdminPage }) => {
-  const res = await superAdminPage.request.post('/api/remove-totp', {
-    data: { token: currentCode() },
-  })
-  expect(res.status()).toBe(403)
+test('the authenticator app is gone: no set-up or switch-off', async ({ superAdminPage }) => {
+  for (const path of ['/api/setup-totp', '/api/remove-totp']) {
+    const res = await superAdminPage.request.post(path, { data: { token: '000000' } })
+    expect({ path, status: res.status() }).toEqual({ path, status: 404 })
+  }
+  // The old set-up address just goes to the admin.
+  await superAdminPage.goto('/admin/setup-totp')
+  await expect(superAdminPage).toHaveURL(/\/admin$/)
   expect((await superAdminPage.request.get('/api/pages')).status()).toBe(200)
 })
 
