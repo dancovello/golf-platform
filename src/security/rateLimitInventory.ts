@@ -129,6 +129,7 @@ export const RATE_LIMITS: Record<string, Protection> = {
   'src/app/(marketing)/marketing/robots.txt/route.ts': FILE,
   'src/app/(marketing)/marketing/sitemap.xml/route.ts': FILE,
   'src/app/(marketing-frame)/marketing/frame/hero/[style]/page.tsx': PAGE,
+  'src/app/(marketing-frame)/marketing/frame/two-column/[club]/[design]/page.tsx': PAGE,
   'src/marketing/requests/actions.ts': {
     who: 'anyone',
     limit:
