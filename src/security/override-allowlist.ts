@@ -94,13 +94,6 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
     why: 'Super-admin only: ClubHome calls it only when isSuperAdmin(user)',
   },
   {
-    file: 'src/admin/pageTreeData.ts',
-    fn: 'query',
-    uses: 1,
-    club: 'The editor’s own club, or the club picked by the super-admin (src/admin/PageTree.tsx), in the where clause',
-    why: 'Reads drafts and published versions together for the page tree. Candidate to run as the signed-in user instead',
-  },
-  {
     file: 'src/agreement/acceptance.ts',
     fn: 'clubHasAccepted',
     uses: 1,
@@ -124,9 +117,23 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
   {
     file: 'src/collections/Tenants.ts',
     fn: 'afterChange',
-    uses: 2,
+    uses: 3,
     club: 'The club just created (doc.id)',
-    why: 'Creates its Club Settings and Course status. Editors can’t create those records, and only the super-admin can create a club',
+    why: 'Creates its Club Settings, Course status and starter categories. Editors can’t create the first two, and the starter categories must exist before any editor does; only the super-admin can create a club',
+  },
+  {
+    file: 'src/collections/Categories.ts',
+    fn: 'keepCategoriesInUse',
+    uses: 1,
+    club: 'The category being deleted: counts the news that uses it (its ID in the where clause)',
+    why: 'Runs on the delete itself, for whoever is deleting; it must see every article of the club, including drafts the deleter might not be shown',
+  },
+  {
+    file: 'src/collections/categoryIds.ts',
+    fn: 'categoryIds',
+    uses: 1,
+    club: 'The one club passed in as tenant, in the where clause',
+    why: 'Used only by scripts that fill a club (demo club, club import, canary clubs); no request or signed-in user',
   },
   {
     file: 'src/site/sameClub.ts',
@@ -142,8 +149,22 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
     club: 'The club of the record being edited (its tenant field)',
     why: 'Reads the club’s slug to build the admin’s live preview address',
   },
+  {
+    file: 'src/site/livePreview.ts',
+    fn: 'viewPageURL',
+    uses: 1,
+    club: 'The club of the page being edited (its tenant field)',
+    why: 'Reads the club’s web address to build the page screen’s View page link; only a link is returned, never the club’s record',
+  },
 
   // ---------- Demo club (staging only) ----------
+  {
+    file: 'src/collections/Tenants.ts',
+    fn: 'deleteClubWithContent',
+    uses: 2,
+    club: 'The one club being deleted, in the where clause; refuses if it has accounts or an accepted agreement',
+    why: 'Runs only when a super-admin deletes a club (Tenants.access.delete); clears its content first because the database refuses to delete a club that still owns anything',
+  },
   {
     file: 'src/demo/demoClub.ts',
     fn: 'removeDemoClub',
@@ -171,6 +192,36 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
     uses: 1,
     club: 'The demo club’s own pages (IDs it created)',
     why: 'Helper inside buildDemoClub',
+  },
+
+  // ---------- Club import (docs/operations/club-import.md) ----------
+  {
+    file: 'src/import/clubImport.ts',
+    fn: 'removeImportedClub',
+    uses: 4,
+    club: 'The club with the content file’s slug only; refuses if it has accounts or an accepted agreement',
+    why: 'Run only by the import-club script, which asks for the database and a typed confirmation; no request or signed-in user',
+  },
+  {
+    file: 'src/import/clubImport.ts',
+    fn: 'importClub',
+    uses: 4,
+    club: 'A check that the content file’s slug is not already taken (production), the club it has just created and its demo switch, and its own pages (IDs it created)',
+    why: 'As above: the import-club script only',
+  },
+  {
+    file: 'src/import/clubImport.ts',
+    fn: 'create',
+    uses: 1,
+    club: 'The imported club (tenant set on every record)',
+    why: 'Helper inside importClub',
+  },
+  {
+    file: 'src/import/clubImport.ts',
+    fn: 'one',
+    uses: 2,
+    club: 'The imported club’s own settings and course status (found by its tenant)',
+    why: 'Helper inside importClub',
   },
 
   // ---------- Live isolation canary (hidden canary clubs only) ----------
@@ -233,13 +284,42 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
     why: 'Called from /api/marketing-starter, which checks for a super-admin with their code',
   },
 
+  {
+    file: 'src/marketing/booking/alert.ts',
+    fn: 'sendDemoBookingEmails',
+    uses: 4,
+    club: 'No club data: one demo booking (company website) and the company website settings',
+    why: 'Runs after the booking has answered, with no user; reads the booking by the ID the form just saved and records when its two emails were sent',
+  },
+  {
+    file: 'src/marketing/booking/submit.ts',
+    fn: 'submitDemoBooking',
+    uses: 1,
+    club: 'No club data: saves company-website demo bookings only',
+    why: 'Public form with no user; nobody may create a booking any other way (create is refused to everyone else)',
+  },
+  {
+    file: 'src/marketing/booking/config.ts',
+    fn: 'takenSlots',
+    uses: 1,
+    club: 'No club data: which demo times are already booked, times only',
+    why: 'Public Book a demo page with no user; reads only the slot keys, never a visitor’s details',
+  },
+  {
+    file: 'src/privacy/cleanUp.ts',
+    fn: 'deleteOldDemoBookings',
+    uses: 1,
+    club: 'No club data: company-website demo bookings past their retention period',
+    why: 'Background job with no user. Runs from the cron route, which checks CRON_SECRET',
+  },
+
   // ---------- Nightly clean-up (every club, by design) ----------
   {
     file: 'src/marketing/requests/alert.ts',
     fn: 'sendHomepageRequestEmails',
-    uses: 4,
+    uses: 3,
     club: 'No club data: one homepage request (company website) and the company website settings',
-    why: 'Runs after the form has answered, with no user; reads the request by the ID the form just saved and records when its emails were sent',
+    why: 'Runs after the form has answered, with no user; reads the request by the ID the form just saved and records when its alert email was sent',
   },
   {
     file: 'src/marketing/requests/submit.ts',
@@ -307,6 +387,34 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
     uses: 1,
     club: 'The one club whose list of web addresses contains the requested host',
     why: `${PUBLIC_SITE}. This is how the club is found in the first place`,
+  },
+  {
+    file: 'src/site/resolveSite.ts',
+    fn: 'siteFromDemo',
+    uses: 1,
+    club: 'The one club whose short name AND random ending both match the link, and only while it is switched on as a demo and has not expired',
+    why: `${PUBLIC_SITE}. A prospect demo is open to anyone holding its link (src/site/demo.ts)`,
+  },
+  {
+    file: 'src/site/demoClub.ts',
+    fn: 'isDemoClub',
+    uses: 1,
+    club: 'The one club by ID (the club the contact form was sent to); returns only whether it is a demo',
+    why: `${PUBLIC_SITE}. Lets the contact form refuse to send or store anything from a demo`,
+  },
+  {
+    file: 'src/collections/Tenants.ts',
+    fn: 'demoClubsAreNotLive',
+    uses: 1,
+    club: 'The club being saved: counts its editor accounts (users with this tenant) and returns no data',
+    why: 'Validation runs inside a super-admin’s save and only counts the club’s accounts; it reads no account data',
+  },
+  {
+    file: 'src/access/accountCreation.ts',
+    fn: 'noAccountsInDemoClubs',
+    uses: 1,
+    club: 'The club an account is being added to (by ID); returns nothing but a yes/no refusal',
+    why: 'Runs inside the account save, which has its own rules (enforceAccountCreationRules); an editor can’t read Clubs other than their own',
   },
   {
     file: 'src/site/loadClub.ts',
@@ -409,6 +517,13 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
     why: PUBLIC_SITE,
   },
   { file: 'src/site/events.ts', fn: 'clubEvents', uses: 1, club: RESOLVED_CLUB, why: PUBLIC_SITE },
+  {
+    file: 'src/site/news.ts',
+    fn: 'clubCategoriesFresh',
+    uses: 1,
+    club: RESOLVED_CLUB,
+    why: PUBLIC_SITE,
+  },
   {
     file: 'src/site/news.ts',
     fn: 'newsForSitemap',

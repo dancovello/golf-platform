@@ -10,13 +10,15 @@ import { BuilderHero, LiveDemo } from './builder/BuilderBlocks'
 import { FeatureShowcase } from './builder/FeatureShowcase'
 import { FounderCard } from './FounderCard'
 import { readMinutes, Reviewed, Roadmap } from './info/InfoBlocks'
-import { Compare, ContentMoves, HomeHero, ProofStats } from './home/HomeBlocks'
+import { ClubMorph, Compare, ContentMoves, HomeHero, ProofStats } from './home/HomeBlocks'
 import { EditLive } from './home/EditLive'
 import { Week } from './home/Week'
 import { MarketingIcon } from './MarketingIcon'
 import { Faq, Filled, Pricing } from './pricing/PricingBlocks'
 import { MarketingRichText } from './MarketingRichText'
 import { AvailabilityBadge, BrowserChrome, MarketingButton, marketingPhoto } from './parts'
+import { RoleTabs } from './selling/RoleTabs'
+import { Assurance, CompareRows, Objections, Steps } from './selling/SellingBlocks'
 import { DemoExample, Migration, RequestHero } from './switching/SwitchingBlocks'
 
 type Block = NonNullable<MarketingPage['layout']>[number]
@@ -199,6 +201,8 @@ const drawBlock = (
       return <FeatureCards block={block} />
     case 'mkCtaBand':
       return <CtaBand block={block} />
+    case 'mkClubMorph':
+      return <ClubMorph block={block} />
     case 'mkHomeHero':
       return <HomeHero block={block} />
     case 'mkProofStats':
@@ -229,6 +233,16 @@ const drawBlock = (
       return <BuilderHero block={block} />
     case 'mkLiveDemo':
       return <LiveDemo block={block} />
+    case 'mkAssurance':
+      return <Assurance block={block} />
+    case 'mkCompareRows':
+      return <CompareRows block={block} />
+    case 'mkSteps':
+      return <Steps block={block} />
+    case 'mkObjections':
+      return <Objections block={block} />
+    case 'mkRoleTabs':
+      return <RoleTabs block={block} />
     case 'mkFeatureShowcase':
       return <FeatureShowcase block={block} />
     case 'mkBookingDemo':

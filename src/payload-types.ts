@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     pages: Page;
     news: News;
+    categories: Category;
     events: Event;
     'course-status': CourseStatus;
     staff: Staff;
@@ -83,6 +84,7 @@ export interface Config {
     'marketing-pages': MarketingPage;
     'marketing-media': MarketingMedia;
     'homepage-requests': HomepageRequest;
+    'demo-bookings': DemoBooking;
     'totp-attempts': TotpAttempt;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
@@ -93,6 +95,7 @@ export interface Config {
   collectionsSelect: {
     pages: PagesSelect<false> | PagesSelect<true>;
     news: NewsSelect<false> | NewsSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
     events: EventsSelect<false> | EventsSelect<true>;
     'course-status': CourseStatusSelect<false> | CourseStatusSelect<true>;
     staff: StaffSelect<false> | StaffSelect<true>;
@@ -107,6 +110,7 @@ export interface Config {
     'marketing-pages': MarketingPagesSelect<false> | MarketingPagesSelect<true>;
     'marketing-media': MarketingMediaSelect<false> | MarketingMediaSelect<true>;
     'homepage-requests': HomepageRequestsSelect<false> | HomepageRequestsSelect<true>;
+    'demo-bookings': DemoBookingsSelect<false> | DemoBookingsSelect<true>;
     'totp-attempts': TotpAttemptsSelect<false> | TotpAttemptsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
@@ -226,6 +230,18 @@ export interface Tenant {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Shows this club at a public link anyone can open, for 30 days, hidden from search engines. Turn it OFF when the club goes live (then add its web address).
+   */
+  demoEnabled?: boolean | null;
+  /**
+   * Made for you when the demo is switched on. The link is /demo/<short name>-<this>.
+   */
+  demoToken?: string | null;
+  /**
+   * 30 days after the demo was switched on. Change it to extend or end it early.
+   */
+  demoExpiresAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1000,6 +1016,14 @@ export interface Course {
         colour: 'white' | 'yellow' | 'red' | 'blue';
         rating?: number | null;
         slope?: number | null;
+        /**
+         * Optional.
+         */
+        ratingWomen?: number | null;
+        /**
+         * Optional.
+         */
+        slopeWomen?: number | null;
         id?: string | null;
       }[]
     | null;
@@ -1011,6 +1035,11 @@ export interface Course {
         name?: string | null;
         par: number;
         strokeIndex?: number | null;
+        /**
+         * Leave blank when it is the same as the par.
+         */
+        ladiesPar?: number | null;
+        ladiesStrokeIndex?: number | null;
         yardsWhite?: number | null;
         yardsYellow?: number | null;
         yardsRed?: number | null;
@@ -1132,10 +1161,27 @@ export interface NewsFeedBlock {
   /**
    * Leave empty for all news.
    */
-  category?: ('course' | 'competitions' | 'clubhouse' | 'membership' | 'academy' | 'club') | null;
+  category?: (string | null) | Category;
   id?: string | null;
   blockName?: string | null;
   blockType: 'newsFeed';
+}
+/**
+ * The club’s categories, used to sort news (and anything else that gets categories later). They show on the website in the order they were added.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  name: string;
+  /**
+   * Filled in from the name. Used in links such as /news?category=competitions. Renaming a category does not change it.
+   */
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1167,7 +1213,10 @@ export interface News {
    * Shown on the article. A future date keeps it hidden until then.
    */
   publishedAt: string;
-  category: 'course' | 'competitions' | 'clubhouse' | 'membership' | 'academy' | 'club';
+  /**
+   * Add or change categories under Website → Categories.
+   */
+  category: string | Category;
   /**
    * One or two sentences, shown on cards and under the title.
    */
@@ -1210,16 +1259,20 @@ export interface Event {
   title: string;
   status: 'draft' | 'published';
   /**
-   * UK time. The event leaves the website once it has started.
+   * UK time. The event leaves the website once it has started (or, with no set start time, when its day ends).
    */
   startsAt: string;
   category: 'social' | 'dining' | 'competition' | 'academy' | 'members';
+  /**
+   * Tick this for an event with a date but no start time (an open day, say). Only the date is shown, and the time above is ignored.
+   */
+  noStartTime?: boolean | null;
   /**
    * e.g. "Clubhouse" or "Championship course"
    */
   venue?: string | null;
   /**
-   * e.g. "shotgun". Shown after the time.
+   * e.g. "shotgun". Shown after the time (or on its own when there is no set time).
    */
   timeNote?: string | null;
   /**
@@ -1826,6 +1879,7 @@ export interface MarketingPage {
         | MarketingFeatureCardsBlock
         | MarketingCtaBandBlock
         | MarketingHomeHeroBlock
+        | MarketingClubMorphBlock
         | MarketingProofStatsBlock
         | MarketingCompareBlock
         | MarketingEditLiveBlock
@@ -1844,6 +1898,11 @@ export interface MarketingPage {
         | MarketingBookingDemoBlock
         | MarketingReviewedBlock
         | MarketingRoadmapBlock
+        | MarketingAssuranceBlock
+        | MarketingCompareRowsBlock
+        | MarketingStepsBlock
+        | MarketingObjectionsBlock
+        | MarketingRoleTabsBlock
       )[]
     | null;
   meta?: {
@@ -1867,11 +1926,11 @@ export interface MarketingPage {
 export interface MarketingSectionHeaderBlock {
   eyebrow?: string | null;
   /**
-   * Under eight words. Line breaks are kept.
+   * Under ten words. Line breaks are kept.
    */
   title: string;
   /**
-   * One or two sentences that back the title up. Under thirty words. Use {price}, {vat}, {term} (months) and {notice} (days) for values from Settings, so they always match.
+   * One or two sentences that back the title up. Under thirty-five words. Use {price}, {vat}, {term} (months) and {notice} (days) for values from Settings, so they always match.
    */
   subhead?: string | null;
   align: 'left' | 'center';
@@ -2091,6 +2150,16 @@ export interface MarketingHomeHeroBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingClubMorphBlock".
+ */
+export interface MarketingClubMorphBlock {
+  note?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkClubMorph';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "MarketingProofStatsBlock".
  */
 export interface MarketingProofStatsBlock {
@@ -2280,7 +2349,7 @@ export interface MarketingRequestHeroBlock {
       }[]
     | null;
   /**
-   * The fields are fixed: club name, current website and email. The date in the reply is two UK working days away, worked out when they send it.
+   * The fields are fixed: club name, current website and email. No date is promised, and nothing is emailed to the person who sends it.
    */
   form: {
     title: string;
@@ -2288,6 +2357,18 @@ export interface MarketingRequestHeroBlock {
     button: string;
     footnote?: string | null;
     sentTitle: string;
+    /**
+     * Use {email} for the address they typed. Nothing is emailed to them: the address is so you know where to send your follow-up.
+     */
+    sentBody?: string | null;
+  };
+  /**
+   * A short line and link under the points, e.g. “Rather talk it through?”
+   */
+  alt?: {
+    title?: string | null;
+    label?: string | null;
+    href?: string | null;
   };
   id?: string | null;
   blockName?: string | null;
@@ -2345,6 +2426,15 @@ export interface MarketingDemoIntroBlock {
    * The address itself comes from the company details.
    */
   emailLead?: string | null;
+  /**
+   * e.g. “Not ready for a call?” with a link to ask for the homepage.
+   */
+  alt?: {
+    title?: string | null;
+    body?: string | null;
+    label?: string | null;
+    href?: string | null;
+  };
   id?: string | null;
   blockName?: string | null;
   blockType: 'mkDemoIntro';
@@ -2356,7 +2446,7 @@ export interface MarketingDemoIntroBlock {
 export interface MarketingBuilderHeroBlock {
   eyebrow?: string | null;
   /**
-   * The page’s main heading. Under eight words. Line breaks are kept.
+   * The page’s main heading. Under ten words. Line breaks are kept.
    */
   title: string;
   subhead?: string | null;
@@ -2386,7 +2476,7 @@ export interface MarketingBuilderHeroBlock {
  * via the `definition` "MarketingLiveDemoBlock".
  */
 export interface MarketingLiveDemoBlock {
-  demo: 'tokenDial' | 'courseGuide' | 'courseStatus';
+  demo: 'tokenDial' | 'courseGuide' | 'courseStatus' | 'blockSwitcher';
   details?:
     | {
         title: string;
@@ -2464,7 +2554,101 @@ export interface MarketingRoadmapBlock {
   blockType: 'mkRoadmap';
 }
 /**
- * Clubs asking for their free homepage (Switching page). Each one was promised it by the date shown.
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingAssuranceBlock".
+ */
+export interface MarketingAssuranceBlock {
+  /**
+   * Short, true facts about the offer. Four sit in one row.
+   */
+  items: {
+    title: string;
+    body: string;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkAssurance';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingCompareRowsBlock".
+ */
+export interface MarketingCompareRowsBlock {
+  oldLabel: string;
+  ourLabel: string;
+  /**
+   * Never mock a club or whoever built its site: the way websites are usually run is the problem.
+   */
+  rows: {
+    oldWay: string;
+    ourWay: string;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkCompareRows';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingStepsBlock".
+ */
+export interface MarketingStepsBlock {
+  /**
+   * Numbered automatically. No durations or dates.
+   */
+  steps: {
+    title: string;
+    body: string;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkSteps';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingObjectionsBlock".
+ */
+export interface MarketingObjectionsBlock {
+  /**
+   * Two or four work best: they sit two to a row. Answers lead with yes or no.
+   */
+  items: {
+    topic: string;
+    question: string;
+    answer: string;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkObjections';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingRoleTabsBlock".
+ */
+export interface MarketingRoleTabsBlock {
+  roles: {
+    tab: string;
+    eyebrow: string;
+    headline: string;
+    points: {
+      text: string;
+      id?: string | null;
+    }[];
+    /**
+     * Shows only what the club site really does today.
+     */
+    visual: 'courseStatus' | 'events' | 'search' | 'greenFees';
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mkRoleTabs';
+}
+/**
+ * Clubs asking for a demo (Switching page).
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "homepage-requests".
@@ -2473,11 +2657,39 @@ export interface HomepageRequest {
   id: string;
   status: 'new' | 'sent' | 'closed';
   /**
-   * Two UK working days after the request, as the form told them.
+   * Set only on requests made before 28 Oct 2026, when the form promised a date. Nothing is promised now.
    */
-  dueBy: string;
+  dueBy?: string | null;
   clubName: string;
   website: string;
+  email: string;
+  alertSentAt?: string | null;
+  /**
+   * Set only on requests made before 3 Nov 2026. Nothing is emailed to the person now.
+   */
+  confirmationSentAt?: string | null;
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Demo calls booked on the Book a demo page. Mark one cancelled and its time is offered again.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "demo-bookings".
+ */
+export interface DemoBooking {
+  id: string;
+  status: 'booked' | 'done' | 'cancelled';
+  /**
+   * Year-month-day.
+   */
+  date: string;
+  time: string;
+  slotKey?: string | null;
+  name: string;
+  role?: string | null;
+  club: string;
   email: string;
   alertSentAt?: string | null;
   confirmationSentAt?: string | null;
@@ -3218,6 +3430,17 @@ export interface NewsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories_select".
+ */
+export interface CategoriesSelect<T extends boolean = true> {
+  tenant?: T;
+  name?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "events_select".
  */
 export interface EventsSelect<T extends boolean = true> {
@@ -3226,6 +3449,7 @@ export interface EventsSelect<T extends boolean = true> {
   status?: T;
   startsAt?: T;
   category?: T;
+  noStartTime?: T;
   venue?: T;
   timeNote?: T;
   summary?: T;
@@ -3297,6 +3521,8 @@ export interface CoursesSelect<T extends boolean = true> {
         colour?: T;
         rating?: T;
         slope?: T;
+        ratingWomen?: T;
+        slopeWomen?: T;
         id?: T;
       };
   holes?:
@@ -3305,6 +3531,8 @@ export interface CoursesSelect<T extends boolean = true> {
         name?: T;
         par?: T;
         strokeIndex?: T;
+        ladiesPar?: T;
+        ladiesStrokeIndex?: T;
         yardsWhite?: T;
         yardsYellow?: T;
         yardsRed?: T;
@@ -3759,6 +3987,9 @@ export interface TenantsSelect<T extends boolean = true> {
         hostname?: T;
         id?: T;
       };
+  demoEnabled?: T;
+  demoToken?: T;
+  demoExpiresAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -3778,6 +4009,7 @@ export interface MarketingPagesSelect<T extends boolean = true> {
         mkFeatureCards?: T | MarketingFeatureCardsBlockSelect<T>;
         mkCtaBand?: T | MarketingCtaBandBlockSelect<T>;
         mkHomeHero?: T | MarketingHomeHeroBlockSelect<T>;
+        mkClubMorph?: T | MarketingClubMorphBlockSelect<T>;
         mkProofStats?: T | MarketingProofStatsBlockSelect<T>;
         mkCompare?: T | MarketingCompareBlockSelect<T>;
         mkEditLive?: T | MarketingEditLiveBlockSelect<T>;
@@ -3796,6 +4028,11 @@ export interface MarketingPagesSelect<T extends boolean = true> {
         mkBookingDemo?: T | MarketingBookingDemoBlockSelect<T>;
         mkReviewed?: T | MarketingReviewedBlockSelect<T>;
         mkRoadmap?: T | MarketingRoadmapBlockSelect<T>;
+        mkAssurance?: T | MarketingAssuranceBlockSelect<T>;
+        mkCompareRows?: T | MarketingCompareRowsBlockSelect<T>;
+        mkSteps?: T | MarketingStepsBlockSelect<T>;
+        mkObjections?: T | MarketingObjectionsBlockSelect<T>;
+        mkRoleTabs?: T | MarketingRoleTabsBlockSelect<T>;
       };
   meta?:
     | T
@@ -3905,6 +4142,15 @@ export interface MarketingHomeHeroBlockSelect<T extends boolean = true> {
   proofLine?: T;
   note?: T;
   noteStrong?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingClubMorphBlock_select".
+ */
+export interface MarketingClubMorphBlockSelect<T extends boolean = true> {
+  note?: T;
   id?: T;
   blockName?: T;
 }
@@ -4087,6 +4333,14 @@ export interface MarketingRequestHeroBlockSelect<T extends boolean = true> {
         button?: T;
         footnote?: T;
         sentTitle?: T;
+        sentBody?: T;
+      };
+  alt?:
+    | T
+    | {
+        title?: T;
+        label?: T;
+        href?: T;
       };
   id?: T;
   blockName?: T;
@@ -4132,6 +4386,14 @@ export interface MarketingDemoIntroBlockSelect<T extends boolean = true> {
         id?: T;
       };
   emailLead?: T;
+  alt?:
+    | T
+    | {
+        title?: T;
+        body?: T;
+        label?: T;
+        href?: T;
+      };
   id?: T;
   blockName?: T;
 }
@@ -4229,6 +4491,92 @@ export interface MarketingRoadmapBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingAssuranceBlock_select".
+ */
+export interface MarketingAssuranceBlockSelect<T extends boolean = true> {
+  items?:
+    | T
+    | {
+        title?: T;
+        body?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingCompareRowsBlock_select".
+ */
+export interface MarketingCompareRowsBlockSelect<T extends boolean = true> {
+  oldLabel?: T;
+  ourLabel?: T;
+  rows?:
+    | T
+    | {
+        oldWay?: T;
+        ourWay?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingStepsBlock_select".
+ */
+export interface MarketingStepsBlockSelect<T extends boolean = true> {
+  steps?:
+    | T
+    | {
+        title?: T;
+        body?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingObjectionsBlock_select".
+ */
+export interface MarketingObjectionsBlockSelect<T extends boolean = true> {
+  items?:
+    | T
+    | {
+        topic?: T;
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MarketingRoleTabsBlock_select".
+ */
+export interface MarketingRoleTabsBlockSelect<T extends boolean = true> {
+  roles?:
+    | T
+    | {
+        tab?: T;
+        eyebrow?: T;
+        headline?: T;
+        points?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+        visual?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "marketing-media_select".
  */
 export interface MarketingMediaSelect<T extends boolean = true> {
@@ -4319,6 +4667,25 @@ export interface HomepageRequestsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "demo-bookings_select".
+ */
+export interface DemoBookingsSelect<T extends boolean = true> {
+  status?: T;
+  date?: T;
+  time?: T;
+  slotKey?: T;
+  name?: T;
+  role?: T;
+  club?: T;
+  email?: T;
+  alertSentAt?: T;
+  confirmationSentAt?: T;
+  notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "totp-attempts_select".
  */
 export interface TotpAttemptsSelect<T extends boolean = true> {
@@ -4392,6 +4759,47 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
  */
 export interface MarketingSetting {
   id: string;
+  branding?: {
+    /**
+     * Shown in the menu, the footer and the homepage animation. Use a transparent PNG or WebP at least 800px wide, in light colours: it sits on the dark green. Empty: the built-in A1.Engine logo.
+     */
+    logo?: (string | null) | MarketingMedia;
+    /**
+     * A square PNG, at least 512px. Empty: the browser’s default icon.
+     */
+    icon?: (string | null) | MarketingMedia;
+  };
+  site?: {
+    footerTagline?: string | null;
+    /**
+     * Used on any page that has no description of its own. Aim for under 160 characters.
+     */
+    description?: string | null;
+    /**
+     * Shown when a link is shared on social media or messages. 1200 × 630 works best.
+     */
+    shareImage?: (string | null) | MarketingMedia;
+  };
+  /**
+   * Shown in the footer. Anything left empty is simply not shown.
+   */
+  contact?: {
+    phone?: string | null;
+    registeredName?: string | null;
+    companyNumber?: string | null;
+    vatNumber?: string | null;
+    registeredAddress?: string | null;
+  };
+  /**
+   * Full web addresses. Empty ones are not shown in the footer.
+   */
+  social?: {
+    linkedin?: string | null;
+    instagram?: string | null;
+    x?: string | null;
+    youtube?: string | null;
+    facebook?: string | null;
+  };
   pricing: {
     monthlyPrice: number;
     /**
@@ -4406,13 +4814,39 @@ export interface MarketingSetting {
     secondCoursePrice?: number | null;
   };
   /**
-   * Where requests from the website are emailed. Without an address they are still saved under Homepage requests.
+   * Where requests from the website are emailed. Without an address they are still saved under Demo requests.
    */
   requests?: {
     /**
      * Replying to a request’s email answers the club directly.
      */
     inbox?: string | null;
+  };
+  /**
+   * When visitors can book a demo on the Book a demo page, in UK time. Add the hours you are free each weekday; with none, the page offers email instead. Booked times are under Demo bookings.
+   */
+  demoCalls: {
+    /**
+     * One row per block, e.g. Tuesday 10:00 to 12:00. Weekdays only.
+     */
+    hours?:
+      | {
+          weekday: 'mon' | 'tue' | 'wed' | 'thu' | 'fri';
+          from: string;
+          to: string;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Sets how far apart times are. Never shown to visitors.
+     */
+    slotMinutes: number;
+    daysAhead: number;
+    noticeHours: number;
+    /**
+     * Your Google Meet or Zoom room, put in the confirmation email. Once Google is connected, each booking gets its own Meet link instead and this is the backup. Empty: the email says you will send the link.
+     */
+    videoLink?: string | null;
   };
   trust?: {
     /**
@@ -4439,6 +4873,37 @@ export interface MarketingSetting {
  * via the `definition` "marketing-settings_select".
  */
 export interface MarketingSettingsSelect<T extends boolean = true> {
+  branding?:
+    | T
+    | {
+        logo?: T;
+        icon?: T;
+      };
+  site?:
+    | T
+    | {
+        footerTagline?: T;
+        description?: T;
+        shareImage?: T;
+      };
+  contact?:
+    | T
+    | {
+        phone?: T;
+        registeredName?: T;
+        companyNumber?: T;
+        vatNumber?: T;
+        registeredAddress?: T;
+      };
+  social?:
+    | T
+    | {
+        linkedin?: T;
+        instagram?: T;
+        x?: T;
+        youtube?: T;
+        facebook?: T;
+      };
   pricing?:
     | T
     | {
@@ -4452,6 +4917,22 @@ export interface MarketingSettingsSelect<T extends boolean = true> {
     | T
     | {
         inbox?: T;
+      };
+  demoCalls?:
+    | T
+    | {
+        hours?:
+          | T
+          | {
+              weekday?: T;
+              from?: T;
+              to?: T;
+              id?: T;
+            };
+        slotMinutes?: T;
+        daysAhead?: T;
+        noticeHours?: T;
+        videoLink?: T;
       };
   trust?:
     | T

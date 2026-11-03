@@ -31,7 +31,7 @@ test('marketing pages use the marketing colours and fonts', async ({ page }) => 
     const style = await bodyStyle(page)
     expect(style.background, path).toBe('rgb(9, 26, 19)')
     expect(style.canvas, path).toBe('#091a13')
-    expect(style.headingFont.toLowerCase(), path).toContain('newsreader')
+    expect(style.headingFont.toLowerCase(), path).toContain('silka')
   }
 })
 
@@ -39,7 +39,7 @@ test("the marketing look never reaches a club's site", async ({ page }) => {
   await page.goto('http://club-a.localhost:3100/')
   const style = await bodyStyle(page)
   expect(style.canvas).toBe('')
-  expect(style.headingFont.toLowerCase()).not.toContain('newsreader')
+  expect(style.headingFont.toLowerCase()).not.toContain('silka')
   expect(await page.locator('body.mk').count()).toBe(0)
 })
 
@@ -96,7 +96,8 @@ test('desktop matches the Figma blocks', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto(site('/e2e-blocks'))
   const m = await measure(page)
-  expect(m.pageTitle).toEqual(['80px', '-1.76px'])
+  // H1 (display XL) made smaller on 28 Oct (commit 2ea7fc7): 72px desktop, 40px phone.
+  expect(m.pageTitle).toEqual(['72px', '-1.44px'])
   expect(m.ctaTitle).toEqual(['60px', '63px', '-1.08px'])
   expect(m.buttons).toEqual([
     {
@@ -124,7 +125,7 @@ test('phones match the Figma mobile frames', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto(site('/e2e-blocks'))
   const m = await measure(page)
-  expect(m.pageTitle).toEqual(['44px', '-0.792px'])
+  expect(m.pageTitle).toEqual(['40px', '-0.72px'])
   expect(m.ctaTitle).toEqual(['32px', '36px', '-0.384px'])
   // Full-width 44px buttons, 20px from the edges.
   expect(m.buttons.map((b) => [b.height, b.width])).toEqual([

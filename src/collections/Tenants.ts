@@ -1,10 +1,19 @@
-import type { CollectionBeforeValidateHook, CollectionConfig } from 'payload'
+import type {
+  CollectionBeforeChangeHook,
+  CollectionBeforeDeleteHook,
+  CollectionBeforeValidateHook,
+  CollectionConfig,
+} from 'payload'
 import { ValidationError } from 'payload'
 
 import { editorTenantID, isSuperAdmin, superAdminOnly } from '../access/roles'
+import { publicError } from '../errors'
 import { SLUG, slugify } from '../fields/slug'
+import { clubOwnedCollections, type ClubOwnedSlug } from '../tenancy'
+import { demoExpiry, newDemoToken } from '../site/demo'
 import { hostProblem, normaliseHost } from '../site/hosts'
 import { DEFAULT_BRAND } from '../theme/colour'
+import { DEFAULT_CATEGORIES } from './defaultCategories'
 import { DEFAULT_FONT_SET } from '../theme/fontSets'
 
 /** New clubs get a web-safe short name from their name unless one is given. */
@@ -25,7 +34,7 @@ const tidyDomains: CollectionBeforeValidateHook = ({ data }) => {
   return data
 }
 
-/** The hidden canary clubs (src/canary) must never be reachable on a web address. */
+/** The hidden canary clubs (src/canary) must never be reachable on a web address or a demo link. */
 const canaryClubsHaveNoAddress: CollectionBeforeValidateHook = ({ data, originalDoc }) => {
   const slug = String(data?.slug ?? originalDoc?.slug ?? '')
   const domains = (data?.domains ?? originalDoc?.domains ?? []) as unknown[]
@@ -34,7 +43,91 @@ const canaryClubsHaveNoAddress: CollectionBeforeValidateHook = ({ data, original
       errors: [{ path: 'domains', message: 'The hidden canary clubs can’t have a web address.' }],
     })
   }
+  if (slug.startsWith('canary-') && (data?.demoEnabled ?? originalDoc?.demoEnabled)) {
+    throw new ValidationError({
+      errors: [{ path: 'demoEnabled', message: 'The hidden canary clubs can’t be a public demo.' }],
+    })
+  }
   return data
+}
+
+/**
+ * A prospect demo (src/site/demo.ts) is a club shown publicly before it has signed up, so it
+ * can have neither a web address nor an editor account: turn the demo off first (going live).
+ */
+const demoClubsAreNotLive: CollectionBeforeValidateHook = async ({ data, originalDoc, req }) => {
+  const enabled = data?.demoEnabled ?? originalDoc?.demoEnabled
+  if (!enabled) return data
+  const domains = (data?.domains ?? originalDoc?.domains ?? []) as unknown[]
+  if (domains.length > 0) {
+    throw new ValidationError({
+      errors: [
+        {
+          path: 'domains',
+          message: 'A demo club can’t have a web address. Turn the demo off to take it live.',
+        },
+      ],
+    })
+  }
+  if (originalDoc?.id) {
+    const { totalDocs } = await req.payload.count({
+      collection: 'users',
+      where: { tenant: { equals: originalDoc.id } },
+      overrideAccess: true,
+      req,
+    })
+    if (totalDocs > 0) {
+      throw new ValidationError({
+        errors: [{ path: 'demoEnabled', message: 'A club with editor accounts can’t be a demo.' }],
+      })
+    }
+  }
+  return data
+}
+
+/**
+ * Turning a demo on makes its random address ending and a 30-day expiry; turning it off (the
+ * club going live) clears both, so the old link stops working for good and a later demo gets a
+ * new one.
+ */
+const manageDemo: CollectionBeforeChangeHook = ({ data, originalDoc }) => {
+  if (!data) return data
+  const was = Boolean(originalDoc?.demoEnabled)
+  const now = data.demoEnabled === undefined ? was : Boolean(data.demoEnabled)
+  if (now && !was) {
+    data.demoToken = newDemoToken()
+    if (!data.demoExpiresAt) data.demoExpiresAt = demoExpiry().toISOString()
+  } else if (!now) {
+    data.demoToken = null
+    data.demoExpiresAt = null
+  }
+  return data
+}
+
+/** Deleting a club deletes everything it owns, but only if it is an empty shell as far as real
+ * people go: editor accounts and accepted agreements are real records, so a club that has
+ * either is refused (remove them first, deliberately). The database itself refuses to delete
+ * a club that still owns anything, so without this the Delete button just fails. The club's
+ * collections come from src/tenancy.ts, the list the isolation suite also uses, so a new one
+ * can't be forgotten. Runs in the same transaction: if any step fails, nothing is removed. */
+const deleteClubWithContent: CollectionBeforeDeleteHook = async ({ id, req }) => {
+  const { payload } = req
+  const own = { tenant: { equals: id } }
+  for (const collection of ['users', 'agreement-acceptances'] as const) {
+    const { totalDocs } = await payload.count({ collection, where: own, overrideAccess: true, req })
+    if (totalDocs > 0) {
+      throw publicError(
+        'This club has editor accounts or an accepted agreement, so it can’t be deleted here. Remove those first.',
+        400,
+        undefined,
+        true,
+      )
+    }
+  }
+  const owned = Object.keys(clubOwnedCollections).filter((c) => c !== 'agreement-acceptances')
+  for (const collection of owned as ClubOwnedSlug[]) {
+    await payload.delete({ collection, where: own, overrideAccess: true, req })
+  }
 }
 
 export const Tenants: CollectionConfig = {
@@ -61,7 +154,9 @@ export const Tenants: CollectionConfig = {
     delete: superAdminOnly,
   },
   hooks: {
-    beforeValidate: [defaultSlug, tidyDomains, canaryClubsHaveNoAddress],
+    beforeValidate: [defaultSlug, tidyDomains, canaryClubsHaveNoAddress, demoClubsAreNotLive],
+    beforeDelete: [deleteClubWithContent],
+    beforeChange: [manageDemo],
     // Every club gets its Club Settings and Course status records straight away (one each).
     afterChange: [
       async ({ doc, operation, req }) => {
@@ -86,6 +181,15 @@ export const Tenants: CollectionConfig = {
           overrideAccess: true,
           req,
         })
+        // The starter categories, in order (one at a time, so they keep that order).
+        for (const category of DEFAULT_CATEGORIES) {
+          await req.payload.create({
+            collection: 'categories',
+            data: { ...category, tenant: doc.id },
+            overrideAccess: true,
+            req,
+          })
+        }
         return doc
       },
     ],
@@ -147,6 +251,51 @@ export const Tenants: CollectionConfig = {
           ? rows.map((r) => (r as { hostname?: unknown })?.hostname).filter(Boolean)
           : []
         return new Set(names).size === names.length ? true : 'Each address can only be listed once.'
+      },
+    },
+    {
+      // Prospect demos (docs/operations/prospect-demos.md). Only a super-admin can change these.
+      name: 'demoEnabled',
+      label: 'Public demo',
+      type: 'checkbox',
+      defaultValue: false,
+      index: true,
+      access: {
+        create: ({ req: { user } }) => isSuperAdmin(user),
+        update: ({ req: { user } }) => isSuperAdmin(user),
+      },
+      admin: {
+        description:
+          'Shows this club at a public link anyone can open, for 30 days, hidden from search engines. Turn it OFF when the club goes live (then add its web address).',
+      },
+    },
+    {
+      name: 'demoToken',
+      label: 'Demo link ending',
+      type: 'text',
+      unique: true,
+      index: true,
+      // No field-level access: Payload would drop the value the hook above sets. Only a
+      // super-admin can change a club at all, and the admin shows it read-only.
+      admin: {
+        readOnly: true,
+        condition: (data) => Boolean(data?.demoEnabled),
+        description:
+          'Made for you when the demo is switched on. The link is /demo/<short name>-<this>.',
+      },
+    },
+    {
+      name: 'demoExpiresAt',
+      label: 'Demo expires',
+      type: 'date',
+      access: {
+        create: ({ req: { user } }) => isSuperAdmin(user),
+        update: ({ req: { user } }) => isSuperAdmin(user),
+      },
+      admin: {
+        date: { pickerAppearance: 'dayAndTime' },
+        condition: (data) => Boolean(data?.demoEnabled),
+        description: '30 days after the demo was switched on. Change it to extend or end it early.',
       },
     },
   ],

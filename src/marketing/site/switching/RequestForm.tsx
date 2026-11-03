@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useEffect, useRef } from 'react'
+import { Fragment, useActionState, useEffect, useRef } from 'react'
 
 import type { RequestState } from '@/marketing/requests/state'
 import type { RequestErrors, RequestValues } from '@/marketing/requests/validate'
@@ -16,6 +16,8 @@ export type RequestFormCopy = {
   button: string
   footnote?: string | null
   sentTitle: string
+  /** Shown once sent; {email} becomes the address they typed. */
+  sentBody?: string | null
 }
 
 type Props = {
@@ -31,7 +33,7 @@ const ORDER: (keyof RequestValues)[] = ['clubName', 'website', 'email']
 const fieldID = (field: keyof RequestValues) => `mk-request-${field}`
 
 /**
- * Marketing/Homepage Request Form (265:8785): Default, then Submitted with the promised date.
+ * Marketing/Homepage Request Form (265:8785): Default, then Submitted (no date promised).
  * Works without JavaScript too (the form posts and the page comes back with the result).
  */
 export const RequestForm = ({ copy, action, initial, turnstileSiteKey }: Props) => {
@@ -39,7 +41,7 @@ export const RequestForm = ({ copy, action, initial, turnstileSiteKey }: Props) 
   return (
     <div className="mk-request" aria-busy={pending || undefined}>
       {state.sent ? (
-        <Sent title={copy.sentTitle} email={state.sent.email} dueBy={state.sent.dueBy} />
+        <Sent title={copy.sentTitle} body={copy.sentBody} email={state.sent.email} />
       ) : (
         // A new key after each send: React clears a form once its action finishes, so the
         // fields are drawn again from what was sent.
@@ -157,7 +159,9 @@ const RequestFields = ({
   )
 }
 
-const Sent = ({ title, email, dueBy }: { title: string; email: string; dueBy: string }) => {
+const DEFAULT_SENT = 'We’ll be in touch. We’ll email {email} to arrange your demo.'
+
+const Sent = ({ title, body, email }: { title: string; body?: string | null; email: string }) => {
   const headingRef = useRef<HTMLHeadingElement>(null)
   useEffect(() => headingRef.current?.focus(), [])
   return (
@@ -169,8 +173,12 @@ const Sent = ({ title, email, dueBy }: { title: string; email: string; dueBy: st
         {title}
       </h2>
       <p className="mk-request-sent-body">
-        We’ll email your homepage on the new site to <strong>{email}</strong> by{' '}
-        <strong>{dueBy}</strong>.
+        {(body || DEFAULT_SENT).split('{email}').map((part, i, parts) => (
+          <Fragment key={i}>
+            {part}
+            {i < parts.length - 1 ? <strong>{email}</strong> : null}
+          </Fragment>
+        ))}
       </p>
     </div>
   )

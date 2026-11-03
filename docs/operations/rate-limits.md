@@ -13,7 +13,7 @@ Every public endpoint has a limit, at two layers (doc 04 §8): **the app** and *
 
 ## Every endpoint and its limit
 
-**Search** (club domain and staging preview: `/search`, `/search/suggest`)
+**Search** (club domain, staging preview and prospect demos: `/search`, `/search/suggest`)
 - 120 a minute per visitor, results page and panel together.
 - Enforced in the app (shared database) and by Vercel Firewall rule 1.
 - At the limit, the panel gets a 429 ("busy") and the results page asks the visitor to wait.
@@ -26,7 +26,7 @@ Every public endpoint has a limit, at two layers (doc 04 §8): **the app** and *
 
 **Homepage Request Form** (company website, server action, `src/marketing/requests/actions.ts`; added 24 Oct)
 - The same protections as the Contact form: 5 sends per visitor in 10 minutes, checked in the app whatever page address it's posted to; 20 requests an hour from everyone together, counted in one step; hidden spam trap, too-fast sends dropped, Cloudflare Turnstile.
-- Emails: at most 10 requests emailed a day (each is an alert to the company and a confirmation to the club), and every email counts towards the website forms' shared 70 a day. Past either, the request is saved but not emailed, so the form can't send strangers confirmations in bulk.
+- Emails: at most 10 requests emailed a day (each is an alert to the company; nothing is emailed to the person who sent it), and every email counts towards the website forms' shared 70 a day. Past either, the request is saved but not emailed, so the form can't use up the emails password resets need.
 - Enforced in the app (shared database).
 
 **Security-report address** (`/csp-report`)

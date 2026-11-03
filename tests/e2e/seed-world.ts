@@ -11,7 +11,7 @@ import { STARTER_PAGES, starterPageData } from '@/marketing/starter/pages'
 
 import { pdfFile, photoFile } from '../shared/media'
 import { rt } from '../shared/richText'
-import { enrolTwoFactor, PASSWORD, seedWorld } from '../int/helpers/seed'
+import { categoryOf, enrolTwoFactor, PASSWORD, seedWorld } from '../int/helpers/seed'
 
 const w = await seedWorld()
 
@@ -201,12 +201,14 @@ await w.payload.update({
   id: w.courseA.id,
   data: {
     tees: [
-      { colour: 'white', rating: 70.1, slope: 125 },
+      { colour: 'white', rating: 70.1, slope: 125, ratingWomen: 75.3, slopeWomen: 131 },
       { colour: 'yellow', rating: 68.4, slope: 120 },
     ],
     holes: Array.from({ length: 9 }, (_, i) => ({
       par: 4,
       strokeIndex: i + 1,
+      ladiesStrokeIndex: 9 - i,
+      ladiesPar: i === 2 ? 5 : undefined,
       yardsWhite: 400,
       yardsYellow: 380,
     })),
@@ -502,7 +504,7 @@ for (const [title, category, date] of articles) {
     collection: 'news',
     data: {
       title,
-      category,
+      category: (await categoryOf(w.payload, w.clubA.id, category)).id,
       status: 'published',
       publishedAt: `${date}T12:00:00.000Z`,
       excerpt: `${title}: the latest from the club.`,
@@ -525,7 +527,7 @@ await w.payload.create({
   collection: 'news',
   data: {
     title: 'Unfinished draft',
-    category: 'club',
+    category: w.categoryA.id,
     status: 'draft',
     publishedAt: '2026-07-13T12:00:00.000Z',
     tenant: w.clubA.id,
@@ -661,7 +663,7 @@ await w.payload.create({
       {
         blockType: 'mkCtaBand',
         title: 'See your club on it.',
-        subhead: 'We’ll rebuild your homepage in your colours and send it straight to you, free.',
+        subhead: 'Your demo includes your own club’s homepage, rebuilt on the platform.',
       },
     ],
   } as never,
@@ -679,6 +681,22 @@ for (const starter of STARTER_PAGES) {
   })
 }
 
+// Prospect demos (src/site/demo.ts), for tests/e2e/prospect-demo.spec.ts: one live, one whose
+// 30 days have run out. Neither has an editor or a web address.
+const demoLive = await w.payload.create({
+  collection: 'tenants',
+  data: { name: 'Test Demo Club', slug: 'test-demo-club', demoEnabled: true },
+})
+const demoExpired = await w.payload.create({
+  collection: 'tenants',
+  data: {
+    name: 'Test Demo Expired',
+    slug: 'test-demo-expired',
+    demoEnabled: true,
+    demoExpiresAt: new Date(Date.now() - 86_400_000).toISOString(),
+  },
+})
+
 writeFileSync(
   'tests/e2e/.state/world.json',
   JSON.stringify({
@@ -690,6 +708,7 @@ writeFileSync(
     editorB: { id: w.editorB.id, email: w.editorB.email },
     pageA: { id: w.pageA.id, title: w.pageA.title },
     pageB: { id: w.pageB.id, title: w.pageB.title },
+    categoryA: { id: w.categoryA.id },
     homeA: { id: homeA.id },
     settingsA: { id: w.settingsA.id },
     settingsB: { id: w.settingsB.id },
@@ -706,6 +725,11 @@ writeFileSync(
     editorTypesCode,
     editorWrongCode,
     editorLinkTarget,
+    demoLive: { name: demoLive.name, address: `${demoLive.slug}-${demoLive.demoToken}` },
+    demoExpired: {
+      name: demoExpired.name,
+      address: `${demoExpired.slug}-${demoExpired.demoToken}`,
+    },
   }),
 )
 process.exit(0)

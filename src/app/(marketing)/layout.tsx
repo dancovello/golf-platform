@@ -3,13 +3,15 @@ import { headers } from 'next/headers'
 import React from 'react'
 
 import { BRAND } from '@/brand'
+import { mediaUrl } from '@/marketing/branding'
+import { marketingSettings } from '@/marketing/settings'
 import { marketingOrigin } from '@/marketing/seo'
 import { Footer } from '@/marketing/site/chrome/Footer'
 import { Nav } from '@/marketing/site/chrome/Nav'
 import { introGateScript } from '@/marketing/intro/gateScript'
 import { InlineScript } from '@/site/components/InlineScript'
 
-import { hankenGrotesk, newsreader } from './fonts'
+import { silka, silkaDisplay } from './fonts'
 import './marketing.css'
 
 /**
@@ -18,11 +20,23 @@ import './marketing.css'
  * to the .mk body). Pages live under /marketing/… and are reached only through src/proxy.ts.
  * Whether search engines may index a page is decided there too (X-Robots-Tag).
  */
-export const metadata: Metadata = {
-  // Makes every address in the page's tags (canonical, sharing) absolute.
-  metadataBase: new URL(marketingOrigin()),
-  title: { default: BRAND.name, template: `%s | ${BRAND.name}` },
-  openGraph: { siteName: BRAND.name, locale: 'en_GB', type: 'website' },
+export async function generateMetadata(): Promise<Metadata> {
+  const { branding, site } = await marketingSettings()
+  const icon = mediaUrl(branding?.icon, 'w640')
+  const shareImage = mediaUrl(site?.shareImage, 'w1600')
+  return {
+    // Makes every address in the page's tags (canonical, sharing) absolute.
+    metadataBase: new URL(marketingOrigin()),
+    title: { default: BRAND.name, template: `%s | ${BRAND.name}` },
+    description: site?.description || undefined,
+    icons: icon ? { icon } : undefined,
+    openGraph: {
+      siteName: BRAND.name,
+      locale: 'en_GB',
+      type: 'website',
+      images: shareImage ? [shareImage] : undefined,
+    },
+  }
 }
 
 export default async function MarketingLayout({ children }: { children: React.ReactNode }) {
@@ -33,7 +47,7 @@ export default async function MarketingLayout({ children }: { children: React.Re
     // suppressHydrationWarning: the intro script sets data-intro on <html> before React starts.
     <html
       lang="en-GB"
-      className={`${newsreader.variable} ${hankenGrotesk.variable}`}
+      className={`${silkaDisplay.variable} ${silka.variable}`}
       suppressHydrationWarning
     >
       {isHome ? (

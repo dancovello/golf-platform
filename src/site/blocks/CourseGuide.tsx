@@ -3,7 +3,7 @@
 import { useState } from 'react'
 
 import { ArrowRight } from '../components/Icons'
-import { pad2, TeeYards } from './holeParts'
+import { holeFigures, pad2, TeeYards } from './holeParts'
 import { Photo } from './parts'
 import type { SiteHole, SiteTee } from './resolve'
 
@@ -66,21 +66,18 @@ export const CourseGuide = ({
           <li
             key={hole.number}
             id={`hole-${hole.number}`}
-            className={`hole-row${i >= FIRST_ROWS ? ' is-more' : ''}`}
+            className={`hole-row${i >= FIRST_ROWS ? ' is-more' : ''}${hole.image ? '' : ' is-no-photo'}`}
           >
-            <div className="hole-row-image">
-              {hole.image ? (
+            {hole.image ? (
+              <div className="hole-row-image">
                 <Photo image={hole.image} sizes="(max-width: 767px) 80vw, 280px" alt="" />
-              ) : null}
-            </div>
+              </div>
+            ) : null}
             <div className="hole-row-copy">
               <h3 className="hole-row-title">
                 <span className="t-data-serif hole-number">{pad2(hole.number)}</span>
                 <span className="t-heading-m">{hole.name ?? `Hole ${hole.number}`}</span>
-                <span className="t-label-s hole-par">
-                  Par {hole.par}
-                  {hole.strokeIndex ? ` · SI ${hole.strokeIndex}` : ''}
-                </span>
+                <span className="t-label-s hole-par">{holeFigures(hole)}</span>
               </h3>
               {hole.tip ? <p className="t-body-m hole-tip">{hole.tip}</p> : null}
             </div>

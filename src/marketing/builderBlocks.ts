@@ -22,10 +22,10 @@ const builderHero: Block = {
       label: 'Title',
       type: 'textarea',
       required: true,
-      maxLength: 80,
-      validate: maxWords(8, true),
+      maxLength: 90,
+      validate: maxWords(10, true),
       admin: {
-        description: 'The page’s main heading. Under eight words. Line breaks are kept.',
+        description: 'The page’s main heading. Under ten words. Line breaks are kept.',
         rows: 2,
       },
     },
@@ -40,7 +40,7 @@ const builderHero: Block = {
     button(
       'secondary',
       'Second button (optional)',
-      { label: 'Get your free homepage', href: '/switching' },
+      { label: 'See how switching works', href: '/switching' },
       'Leave the text empty to show only the main button.',
     ),
   ],
@@ -64,6 +64,7 @@ const liveDemo: Block = {
         { label: 'Club colours (Token Dial)', value: 'tokenDial' },
         { label: 'Course guide', value: 'courseGuide' },
         { label: 'Course status and news', value: 'courseStatus' },
+        { label: 'Block switcher (one block, three designs, two clubs)', value: 'blockSwitcher' },
       ],
     },
     {

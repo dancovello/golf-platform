@@ -3,7 +3,7 @@ import { headers } from 'next/headers'
 import { publishedMarketingSlugs } from '../../content'
 import { MarketingIcon } from '../MarketingIcon'
 import { MarketingButton } from '../parts'
-import { clubLogInHref, NAV_LINKS, onlyPublished } from './links'
+import { NAV_LINKS, onlyPublished } from './links'
 import { NavBehaviour } from './NavBehaviour'
 import { Wordmark } from './Wordmark'
 
@@ -24,7 +24,6 @@ const ComingNext = () => (
 export const Nav = async () => {
   const path = (await headers()).get('x-pathname') ?? '/'
   const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`)
-  const logIn = clubLogInHref()
   const links = onlyPublished(NAV_LINKS, await publishedMarketingSlugs())
   return (
     <header className="mk-nav" data-scrolled="false">
@@ -45,17 +44,6 @@ export const Nav = async () => {
           ))}
         </nav>
         <div className="mk-nav-actions">
-          <span className="mk-nav-desktop-only">
-            <MarketingButton label="Club log in" href={logIn} variant="ghost" arrow={false} />
-          </span>
-          <span className="mk-nav-desktop-only">
-            <MarketingButton
-              label="Free homepage"
-              href="/switching"
-              variant="ghost"
-              arrow={false}
-            />
-          </span>
           <span className="mk-nav-book">
             <MarketingButton label="Book a demo" href="/book-a-demo" variant="primary" />
           </span>
@@ -111,7 +99,6 @@ export const Nav = async () => {
           ))}
         </nav>
         <div className="mk-nav-sheet-actions">
-          <MarketingButton label="Club log in" href={logIn} variant="secondary" arrow={false} />
           <MarketingButton
             label="Book a demo"
             href="/book-a-demo"

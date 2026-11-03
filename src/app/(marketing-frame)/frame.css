@@ -1,0 +1,85 @@
+/*
+ * The block flipper's frames: a demo club's header above one hero block, filling the frame.
+ * Only the demo needs this. A real club's hero is followed by more blocks, so on a phone the
+ * Resort hero's photo keeps its 4:3 shape there; in the demo it grows to fill the screen.
+ */
+.frame {
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+}
+.frame > main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.frame .hero-full {
+  flex: 1;
+}
+
+@media (max-width: 1023px) {
+  .frame .hero-resort {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+  }
+  .frame .hero-resort-figure {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding-bottom: var(--space-24);
+  }
+  .frame .hero-resort-frame {
+    flex: 1;
+    min-height: 240px;
+    aspect-ratio: auto;
+  }
+}
+
+/* A short block (Block Switcher) sits on the club's page colour, not the browser's white. */
+.frame {
+  background: var(--color-surface-canvas);
+}
+
+/*
+ * Two-Column in the Block Switcher: the block fills the screen it is shown on (laptop or phone)
+ * instead of leaving blank page colour under it, and the Collage's photos are sized to the screen's
+ * height. Only the demo needs this: on a real club's page, the block sits between other blocks.
+ */
+.frame .tc-split {
+  flex: 1;
+  min-height: 0;
+}
+.frame .tc-collage,
+.frame .tc-keyFacts {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+}
+@media (min-width: 768px) {
+  .frame .tc-collage {
+    padding-top: 56px;
+    padding-bottom: 56px;
+  }
+  .frame .tc-collage > .tc-grid {
+    flex: 1;
+    width: 100%;
+    min-height: 0;
+  }
+  .frame .tc-collage .tc-media {
+    align-self: stretch;
+    grid-template-rows: repeat(5, minmax(0, 1fr));
+    min-height: 0;
+  }
+  .frame .tc-collage .tc-primary {
+    height: 100%;
+    min-height: 0;
+    aspect-ratio: auto;
+  }
+  .frame .tc-collage .tc-inset {
+    height: 100%;
+    min-height: 0;
+  }
+}

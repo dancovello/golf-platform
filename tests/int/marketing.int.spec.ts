@@ -147,12 +147,15 @@ describe('the super-admin manages it', () => {
           title: 'Too long',
           slug: 'too-long',
           layout: [
-            { blockType: 'mkSectionHeader', title: 'One two three four five six seven eight nine' },
+            {
+              blockType: 'mkSectionHeader',
+              title: 'One two three four five six seven eight nine ten eleven',
+            },
           ],
         } as never,
       }),
     ).rejects.toMatchObject({
-      data: { errors: [expect.objectContaining({ message: expect.stringContaining('8 words') })] },
+      data: { errors: [expect.objectContaining({ message: expect.stringContaining('10 words') })] },
     })
   })
 
@@ -169,7 +172,7 @@ describe('blocks follow the Figma components', () => {
     })
     const band = doc.layout?.[0] as { primary?: unknown; secondary?: unknown }
     expect(band.primary).toEqual({ label: 'Book a demo', href: '/book-a-demo' })
-    expect(band.secondary).toEqual({ label: 'Get your free homepage', href: '/switching' })
+    expect(band.secondary).toEqual({ label: 'See how switching works', href: '/switching' })
     await expect(
       page('bad-link', 'published', {
         layout: [

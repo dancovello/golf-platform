@@ -15,6 +15,8 @@ export const clubOwnedCollections = {
   staff: {},
   courses: {},
   news: {},
+  // After news: deleting a club removes these in order, and a category in use can't be removed.
+  categories: {},
   'agreement-acceptances': {},
   events: {},
   enquiries: {},
@@ -30,6 +32,7 @@ export const platformCollections = [
   'marketing-pages',
   'marketing-media',
   'homepage-requests',
+  'demo-bookings',
 ] as const
 
 export type ClubOwnedSlug = keyof typeof clubOwnedCollections

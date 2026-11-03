@@ -1,5 +1,6 @@
 'use client'
 
+import { BRAND } from '@/brand'
 import { addDays, isWeekend, type OpenDay } from '@/marketing/booking/calendar'
 
 import { DemoBooking } from './DemoBooking'
@@ -22,5 +23,9 @@ const sampleDays = (today: string): OpenDay[] => {
 }
 
 export const DemoBookingPreview = ({ today }: { today: string }) => (
-  <DemoBooking open={sampleDays(today)} book={async () => true} />
+  <DemoBooking
+    open={sampleDays(today)}
+    book={async () => true}
+    rescheduleHref={`mailto:${BRAND.email}`}
+  />
 )

@@ -4,7 +4,10 @@ import { useEffect, useRef, type CSSProperties } from 'react'
 
 import type { BallScene } from './ballScene'
 import { INTRO_SEEN_KEY } from './gateScript'
+import type { LogoImage } from '../branding'
+import { IntroMark } from './IntroMark'
 import { DEFAULT_LOOK as LOOK } from './look'
+import { DEFAULT_MARK as MARK } from './mark'
 import { CONTENT_START, revealFrame } from './reveal'
 
 // Keys that would scroll the page: held back while the intro plays, so the page stays put.
@@ -40,7 +43,7 @@ let pendingEnd: number | undefined
  * into place behind it (marketing.css, data-intro="reveal"). Then the intro removes itself and
  * the page scrolls as normal. If the 3D graphics can't start, the page is revealed at once.
  */
-export const HomeIntro = () => {
+export const HomeIntro = ({ logo }: { logo?: LogoImage }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const ballRef = useRef<HTMLDivElement>(null)
   const cueRef = useRef<HTMLButtonElement>(null)
@@ -204,6 +207,9 @@ export const HomeIntro = () => {
     '--mk-intro-size-mobile': LOOK.sizeMobile,
     '--mk-intro-top-desktop': LOOK.top,
     '--mk-intro-top-mobile': LOOK.topMobile,
+    '--mk-intro-gap': `${LOOK.markGap}px`,
+    '--mk-intro-logo-h-desktop': `${LOOK.logoHeight}px`,
+    '--mk-intro-logo-h-mobile': `${LOOK.logoHeightMobile}px`,
     '--mk-intro-ball-fade': `${BALL_FADE_IN_MS}ms`,
   } as CSSProperties
 
@@ -212,6 +218,7 @@ export const HomeIntro = () => {
       <div className="mk-intro-ball" ref={ballRef} aria-hidden="true">
         <div className="mk-intro-glow" />
         <canvas className="mk-intro-canvas" ref={canvasRef} />
+        <IntroMark mark={MARK} logo={logo} />
       </div>
       <button
         type="button"

@@ -4,6 +4,7 @@
 **In the repo at** `docs/marketing-site/HANDOFF.md`, linked from `CLAUDE.md`.
 
 > **Changes since this hand-off** (newest first; these win over the text below):
+> - **2026-11-03, the v2 designs** (Figma page "marketing site v2", `349:105`) win over the page sections below where they differ: nav is How it works · Who it's for · Switching to us · Pricing · Trust (no Bookings or Tee times item; "Bookings" in the v2 notes means Book a demo); the Website builder page is now **How it works** (`/how-it-works`); new pages **Who it's for** and **Request your homepage**. "Request your homepage" **stays** (Dan, 3 Nov), which reverses the 21 Oct "no free homepage" line for that page only: the form's email is only so Dan knows where to send his follow-up, and nothing is emailed to the person. Where a v2 line claims something the product can't do yet (old page addresses redirecting, contrast-checked on save), the softer wording stays: see D24 to D29 in `open-questions.md`. Doc 19's examples still use the 21 Oct wording and need updating.
 > - **2026-10-21 (evening), Dan's decisions after the product grilling:** setup is a **paid, one-off fee agreed with each club**, with Dan supporting the club until the site is live. **No free migration and no four-week plan.** The **example homepage** is built with AI and **shown in the demo**, not sent to the club. **"Get your free homepage" is gone**; "Book a demo" is the only primary action. **Bookings is an optional paid add-on (phase 2)**; until then a club's site links to its current booking system, so the **Works With Strip is removed**. **Pricing is reopened** (Q11). The sections below and the Figma page are updated to match; see the Figma note *Review 21 Oct · Dan's decisions after the grilling* (`312:38533`).
 > - **2026-10-21:** the committee summary A4 is **removed**. Don't build it. The delivery plan (`docs/plans/marketing-site-plan.md`) and its decisions (`docs/architecture/decisions.md`, 21 Oct) were approved the same day.
 
@@ -219,7 +220,7 @@ Pull the full set with `get_variable_defs` on `176:2178`. Expose as CSS custom p
 |---|---|
 | Surfaces | `--mk-surface-canvas #091a13` · `--mk-surface-raised #0d2219` · `--mk-surface-elevated #11291f` · `--mk-surface-hover #173327` · `--mk-surface-tint #f3f1ea0a` |
 | Text | `--mk-text-primary #f3f1ea` · `--mk-text-secondary #a3ada6` · `--mk-text-tertiary #8a968f` · `--mk-text-on-accent #091a13` |
-| Accent | `--mk-accent-dawn #ebc07a` · `-wash #ebc07a14` · `-edge #ebc07a66` |
+| Accent | `--mk-accent-dawn #D6DF23` · `-wash #D6DF2314` · `-edge #D6DF2366` |
 | Signal | `--mk-signal-live #7bd4a0` · `-wash #7bd4a029` |
 | Borders | `--mk-border-hairline #f3f1ea14` · `-strong #f3f1ea29` · `-track #6b767066` |
 | Radius | control 8 · window 12 · panel 14 · pill 999 |
@@ -300,7 +301,7 @@ Create `docs/marketing-site/claims-register.md` and add a row for every factual 
 **Homepage Request Form** (Switching page; requests a demo):
 - Fields: club name, current website, email. Validate URL loosely (accept without `https://`).
 - Success state: "Thanks. We'll be in touch." plus "We'll email {email} to arrange your demo." **No date promised.** Use the person's name if collected.
-- Creates a `demoRequests` record, emails Dan, sends the prospect a plain confirmation. Rate-limit; honeypot plus Cloudflare Turnstile.
+- Creates a `demoRequests` record, emails Dan (nothing is emailed to the prospect: their email is only for Dan's follow-up, 3 Nov). Rate-limit; honeypot plus Cloudflare Turnstile.
 - The example homepage is shown in the demo. It is never emailed or linked to the prospect.
 
 **Demo Booking:** Details → Pick a time → Booked. Availability from Dan's real calendar (Q4). Weekdays only. Confirmation email with a calendar invite.

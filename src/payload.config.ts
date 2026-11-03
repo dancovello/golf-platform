@@ -95,6 +95,8 @@ export default buildConfig({
           emailOrPasswordIncorrect: SIGN_IN_REFUSED,
           userLocked: SIGN_IN_REFUSED,
         },
+        // The page screen's external-link button opens the page on the website.
+        version: { preview: 'View page' },
       },
     },
   },
@@ -143,7 +145,8 @@ export default buildConfig({
       // selector (it hid new clubs, e.g. the demo club). Editors can't open the Clubs list, and
       // can only ever read their own club (Tenants.access).
       useTenantsListFilter: false,
-      // Deleting a club is refused by the database while it has accounts or content.
+      // The database refuses to delete a club that still owns anything; the Clubs collection's
+      // beforeDelete hook clears a club's content first, and refuses if it has accounts.
       cleanupAfterTenantDelete: false,
     }),
     // Photos and videos go straight from the browser to storage (Vercel refuses request

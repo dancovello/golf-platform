@@ -6,20 +6,19 @@ import { MARKETING_GROUP, hiddenFromEditors } from '../access'
 /** What the prospect sent stays exactly as sent. */
 const asSent: { update: FieldAccess } = { update: () => false }
 
-// Platform-level (src/tenancy.ts): a golf club asking for its free homepage on the company
+// Platform-level (src/tenancy.ts): a golf club asking for a demo on the company
 // website (Switching page). Only the website's form creates them, as trusted server code
 // (src/marketing/requests/submit.ts), so nobody can add one through the admin or the API.
 // The super-admin alone reads them, marks them sent and deletes them.
 export const HomepageRequests: CollectionConfig = {
   slug: 'homepage-requests',
-  labels: { singular: 'Homepage request', plural: 'Homepage requests' },
+  labels: { singular: 'Demo request', plural: 'Demo requests' },
   lockDocuments: false,
   admin: {
     group: MARKETING_GROUP,
     useAsTitle: 'clubName',
-    defaultColumns: ['clubName', 'website', 'status', 'dueBy', 'createdAt'],
-    description:
-      'Clubs asking for their free homepage (Switching page). Each one was promised it by the date shown.',
+    defaultColumns: ['clubName', 'website', 'status', 'createdAt'],
+    description: 'Clubs asking for a demo (Switching page).',
     hidden: hiddenFromEditors,
   },
   access: {
@@ -47,13 +46,15 @@ export const HomepageRequests: CollectionConfig = {
         },
         {
           name: 'dueBy',
-          label: 'Promised by',
+          label: 'Date promised (old offer)',
           type: 'date',
-          required: true,
+          required: false,
           access: asSent,
           admin: {
             date: { pickerAppearance: 'dayOnly', displayFormat: 'EEEE d MMMM yyyy' },
-            description: 'Two UK working days after the request, as the form told them.',
+            description:
+              'Set only on requests made before 28 Oct 2026, when the form promised a date. Nothing is promised now.',
+            condition: (_data, siblingData) => Boolean(siblingData?.dueBy),
           },
         },
       ],
@@ -73,7 +74,13 @@ export const HomepageRequests: CollectionConfig = {
       label: 'Confirmation emailed to them',
       type: 'date',
       access: asSent,
-      admin: { readOnly: true, date: { pickerAppearance: 'dayAndTime' } },
+      admin: {
+        readOnly: true,
+        date: { pickerAppearance: 'dayAndTime' },
+        description:
+          'Set only on requests made before 3 Nov 2026. Nothing is emailed to the person now.',
+        condition: (_data, siblingData) => Boolean(siblingData?.confirmationSentAt),
+      },
     },
     { name: 'notes', label: 'Notes', type: 'textarea' },
   ],

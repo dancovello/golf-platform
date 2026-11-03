@@ -17,7 +17,7 @@ test('the company domain shows the marketing site, under an enforced policy', as
   const response = await page.goto(site())
   expect(response?.status()).toBe(200)
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-    'Your club is better than your website.',
+    'Golf club websites, built to be run by the club.',
   )
   const headers = response?.headers() ?? {}
   expect(headers['content-security-policy']).toContain("'strict-dynamic'")
@@ -66,7 +66,7 @@ test("a club's domain never shows the marketing site", async ({ page, world: w }
   const response = await page.goto(at('club-a.localhost', '/marketing'))
   expect(response?.status()).toBe(404)
   await expect(homeLink(page, w.clubA.name).first()).toBeVisible()
-  expect(await page.content()).not.toContain('Your club is better than your website.')
+  expect(await page.content()).not.toContain('Golf club websites,')
 })
 
 test("the platform's own address forwards marketing pages to the company domain", async ({

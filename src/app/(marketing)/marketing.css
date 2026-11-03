@@ -21,9 +21,9 @@
   --mk-text-tertiary: #8a968f;
   --mk-text-on-accent: #091a13;
   /* Accents and signal */
-  --mk-accent-dawn: #ebc07a;
-  --mk-accent-dawn-wash: #ebc07a14;
-  --mk-accent-dawn-edge: #ebc07a66;
+  --mk-accent-dawn: #d6df23;
+  --mk-accent-dawn-wash: #d6df2314;
+  --mk-accent-dawn-edge: #d6df2366;
   --mk-accent-haze: #f6e3c6;
   --mk-accent-peach: #f2a983;
   --mk-accent-rose: #d97f78;
@@ -109,18 +109,18 @@
 .mk-display-xl,
 .mk-header--page .mk-header-title {
   margin: 0;
-  font-family: var(--mk-font-display), Georgia, serif;
-  font-weight: 400;
-  font-size: 44px;
-  line-height: 48px;
-  letter-spacing: -0.792px;
+  font-family: var(--mk-font-display), system-ui, sans-serif;
+  font-weight: 500;
+  font-size: 40px;
+  line-height: 44px;
+  letter-spacing: -0.72px;
   white-space: pre-line;
 }
 .mk-display-l,
 .mk-header--section .mk-header-title,
 .mk-cta-title {
   margin: 0;
-  font-family: var(--mk-font-display), Georgia, serif;
+  font-family: var(--mk-font-display), system-ui, sans-serif;
   font-weight: 400;
   font-size: 32px;
   line-height: 36px;
@@ -130,9 +130,9 @@
 @media (min-width: 1024px) {
   .mk-display-xl,
   .mk-header--page .mk-header-title {
-    font-size: 80px;
-    line-height: 1.02;
-    letter-spacing: -1.76px;
+    font-size: 72px;
+    line-height: 1.04;
+    letter-spacing: -1.44px;
   }
   .mk-display-l,
   .mk-header--section .mk-header-title,
@@ -508,7 +508,7 @@ button.mk-button {
   margin-top: 20px;
 }
 .mk-prose h2 {
-  font-family: var(--mk-font-display), Georgia, serif;
+  font-family: var(--mk-font-display), system-ui, sans-serif;
   font-weight: 400;
   font-size: 28px;
   line-height: 1.2;
@@ -565,7 +565,7 @@ button.mk-button {
 .mk-prose blockquote {
   padding-left: 24px;
   border-left: 2px solid var(--mk-accent-dawn);
-  font-family: var(--mk-font-display), Georgia, serif;
+  font-family: var(--mk-font-display), system-ui, sans-serif;
   font-size: 28px;
   line-height: 1.2;
   letter-spacing: -0.168px;
@@ -1253,6 +1253,11 @@ button.mk-button {
 
 /* ---- Marketing/Wordmark (174:1816) ---- */
 
+.mk-wordmark img {
+  display: block;
+  height: 22px;
+  width: auto;
+}
 .mk-wordmark {
   display: inline-flex;
   align-items: center;
@@ -1282,8 +1287,7 @@ button.mk-button {
   height: 64px;
   padding: 0 16px 0 20px;
 }
-.mk-nav-links,
-.mk-nav-desktop-only {
+.mk-nav-links {
   display: none;
 }
 .mk-nav-actions {
@@ -1313,6 +1317,19 @@ button.mk-button {
   color: var(--mk-text-primary);
   cursor: pointer;
 }
+/* Very small screens (a 320px window, or 400% zoom): Silka is wider than the old font, so the
+   bar gives back 12px of padding to keep the logo, the demo button and the menu on one line. */
+@media (max-width: 359px) {
+  .mk-nav-bar {
+    padding: 0 12px 0 16px;
+  }
+  .mk-nav-actions {
+    gap: 4px;
+  }
+  .mk-nav-actions .mk-button {
+    padding-inline: 12px;
+  }
+}
 @media (min-width: 1024px) {
   .mk-nav {
     border-bottom-color: transparent;
@@ -1340,9 +1357,6 @@ button.mk-button {
     flex: 1;
     align-items: center;
     gap: 4px;
-  }
-  .mk-nav-desktop-only {
-    display: contents;
   }
   .mk-nav-menu-button {
     display: none;
@@ -1417,6 +1431,18 @@ button.mk-button {
   margin: 0;
   font-size: 14px;
   line-height: 1.5;
+  color: var(--mk-text-secondary);
+}
+.mk-footer-social {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.mk-footer-company {
+  font-size: 12px;
   color: var(--mk-text-secondary);
 }
 .mk-footer-columns {
@@ -1519,7 +1545,7 @@ button.mk-button {
 }
 .mk-proof-number {
   margin: 0;
-  font-family: var(--mk-font-display), Georgia, serif;
+  font-family: var(--mk-font-display), system-ui, sans-serif;
   font-size: 44px;
   line-height: 48px;
   letter-spacing: -0.792px;
@@ -1587,7 +1613,7 @@ button.mk-button {
   border: 1px solid var(--mk-border-strong);
   border-radius: var(--mk-radius-pill);
   background: var(--mk-surface-hover);
-  font-family: var(--mk-font-display), Georgia, serif;
+  font-family: var(--mk-font-display), system-ui, sans-serif;
   font-size: 28px;
   line-height: 1.2;
   color: var(--mk-text-secondary);
@@ -1610,7 +1636,7 @@ button.mk-button {
   margin: 0;
 }
 .mk-founder-name {
-  font-family: var(--mk-font-display), Georgia, serif;
+  font-family: var(--mk-font-display), system-ui, sans-serif;
   font-size: 28px;
   line-height: 1.2;
   letter-spacing: -0.168px;
@@ -1830,6 +1856,14 @@ button.mk-button {
 }
 .mk-morph-frames {
   width: 100%;
+}
+/* Phones: the frame and its three stacked chips together must fit the window below the nav
+ * (Dan, 26 Oct). At 375×812 they came to 759px against 748px, so the gap between them is the
+ * chips' own 8px. */
+@media (max-width: 767px) {
+  .mk-morph[data-scroll-driven='false'] .mk-morph-sticky {
+    gap: 8px;
+  }
 }
 /* Pinned 88px from the top, with the chips (39px + 24px gap) and browser bar (42px) under the
  * hero: the frame narrows so all of it fits on the screen. */
@@ -2057,7 +2091,7 @@ button.mk-button {
 }
 .mk-compare-title {
   margin: 0;
-  font-family: var(--mk-font-display), Georgia, serif;
+  font-family: var(--mk-font-display), system-ui, sans-serif;
   font-size: 28px;
   font-weight: 400;
   line-height: 1.2;
@@ -2195,9 +2229,6 @@ button.mk-button {
 .mk-week {
   position: relative;
 }
-.mk-week-track {
-  display: none;
-}
 .mk-week-moments {
   display: flex;
   gap: 16px;
@@ -2325,20 +2356,21 @@ button.mk-button {
     position: sticky;
     top: max(88px, calc(50svh - 190px));
   }
-  .mk-week-track {
-    position: absolute;
-    top: 11px;
-    left: 0;
-    display: block;
-    width: 100%;
+  /* The line only fills the gap after each time and badge, up to the next moment's dot, so it
+   * never runs through the words. Moments already passed colour it in as the visitor scrolls. */
+  .mk-moment-time::after {
+    content: '';
+    flex: 1;
     height: 1px;
+    margin-right: -40px;
     background: var(--mk-border-track);
+    transition: background-color 300ms var(--mk-ease-move);
   }
-  .mk-week-progress {
-    display: block;
-    height: 1px;
-    background: linear-gradient(90deg, rgb(235 192 122 / 0%), var(--mk-accent-dawn));
-    transition: width 300ms var(--mk-ease-move);
+  .mk-moment:last-child .mk-moment-time::after {
+    margin-right: 0;
+  }
+  .mk-moment[data-state='past'] .mk-moment-time::after {
+    background: var(--mk-accent-dawn);
   }
   .mk-week-moments {
     position: relative;
@@ -2462,7 +2494,7 @@ button.mk-button {
   color: var(--mk-accent-dawn);
 }
 .mk-moves-arrow {
-  font-family: var(--mk-font-display), Georgia, serif;
+  font-family: var(--mk-font-display), system-ui, sans-serif;
   font-size: 28px;
   line-height: 1.2;
   color: var(--mk-accent-dawn);
@@ -2532,7 +2564,7 @@ button.mk-button {
 
 /* Reduced motion: the week and the morph show their final state without movement. */
 @media (prefers-reduced-motion: reduce) {
-  .mk-week-progress,
+  .mk-moment-time::after,
   .mk-moment-preview,
   .mk-morph-frame[data-active='true'] {
     transition: none;
@@ -2558,7 +2590,7 @@ button.mk-button {
 }
 .mk-header--compact .mk-header-title {
   margin: 0;
-  font-family: var(--mk-font-display), Georgia, serif;
+  font-family: var(--mk-font-display), system-ui, sans-serif;
   font-weight: 400;
   font-size: 32px;
   line-height: 36px;
@@ -2631,7 +2663,7 @@ button.mk-button {
 .mk-calc-title {
   display: none;
   margin: 0;
-  font-family: var(--mk-font-display), Georgia, serif;
+  font-family: var(--mk-font-display), system-ui, sans-serif;
   font-size: 28px;
   font-weight: 400;
   line-height: 1.2;
@@ -2746,7 +2778,7 @@ button.mk-button {
   margin: 0;
 }
 .mk-calc-amount {
-  font-family: var(--mk-font-display), Georgia, serif;
+  font-family: var(--mk-font-display), system-ui, sans-serif;
   font-size: 60px;
   line-height: 1.05;
   letter-spacing: -1.08px;
@@ -3010,7 +3042,7 @@ button.mk-button {
 }
 .mk-request-title {
   margin: 0;
-  font-family: var(--mk-font-display), Georgia, serif;
+  font-family: var(--mk-font-display), system-ui, sans-serif;
   font-size: 28px;
   font-weight: 400;
   line-height: 1.2;
@@ -3167,7 +3199,7 @@ button.mk-button {
 }
 .mk-week-title {
   margin: 0;
-  font-family: var(--mk-font-display), Georgia, serif;
+  font-family: var(--mk-font-display), system-ui, sans-serif;
   font-size: 28px;
   font-weight: 400;
   line-height: 1.2;
@@ -3344,7 +3376,7 @@ button.mk-button {
 }
 .mk-booking-title {
   margin: 0;
-  font-family: var(--mk-font-display), Georgia, serif;
+  font-family: var(--mk-font-display), system-ui, sans-serif;
   font-size: 28px;
   font-weight: 400;
   line-height: 1.2;
@@ -3456,6 +3488,16 @@ button.mk-button {
   grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
   gap: 8px;
 }
+/* In the booking panel the times fill the row equally, as in the Figma frame. */
+.mk-booking-times .mk-slot > span {
+  display: flex;
+  width: 100%;
+}
+.mk-booking-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
 .mk-booking-tick {
   display: inline-flex;
   align-items: center;
@@ -3527,6 +3569,7 @@ button.mk-button {
 }
 .mk-flipper-window {
   position: absolute;
+  z-index: 0;
   top: 0;
   left: 0;
   max-width: 100%;
@@ -3539,6 +3582,7 @@ button.mk-button {
 }
 .mk-phone {
   position: absolute;
+  z-index: 1;
   right: 0;
   bottom: 0;
   margin: 0;
@@ -3617,6 +3661,33 @@ button.mk-button {
   font-size: 14px;
   line-height: 1.5;
   color: var(--mk-text-tertiary);
+}
+
+/* Marketing/Block Switcher (359:5798): the flipper's stage, with the design and club pickers. */
+.mk-switcher-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 20px;
+  border-top: 1px solid var(--mk-border-hairline);
+}
+.mk-switcher-pickers {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+.mk-switcher-divider {
+  width: 1px;
+  height: 24px;
+  background: var(--mk-border-hairline);
+}
+@media (max-width: 767px) {
+  .mk-switcher-divider {
+    display: none;
+  }
 }
 
 /* A live demo with its details 64px below (desktop; 290:9529). */
@@ -4073,7 +4144,7 @@ button.mk-button {
 }
 .mk-tee-panel-title {
   margin: 0;
-  font-family: var(--mk-font-display), Georgia, serif;
+  font-family: var(--mk-font-display), system-ui, sans-serif;
   font-size: 28px;
   font-weight: 400;
   line-height: 1.2;
@@ -4141,7 +4212,7 @@ button.mk-button {
   color: var(--mk-text-secondary);
 }
 .mk-tee-count-num {
-  font-family: var(--mk-font-display), Georgia, serif;
+  font-family: var(--mk-font-display), system-ui, sans-serif;
   font-size: 60px;
   line-height: 1.05;
   letter-spacing: -1.08px;
@@ -4391,7 +4462,7 @@ button.mk-button {
 }
 .mk-facilities-title {
   margin: 0;
-  font-family: var(--mk-font-display), Georgia, serif;
+  font-family: var(--mk-font-display), system-ui, sans-serif;
   font-size: 28px;
   font-weight: 400;
   line-height: 1.2;
@@ -4532,7 +4603,7 @@ button.mk-button {
 .mk-roadmap-empty h2,
 .mk-roadmap-card h3 {
   margin: 0;
-  font-family: var(--mk-font-display), Georgia, serif;
+  font-family: var(--mk-font-display), system-ui, sans-serif;
   font-weight: 400;
   font-size: 28px;
   line-height: 1.2;
@@ -4586,133 +4657,484 @@ button.mk-button {
   color: var(--mk-text-secondary);
 }
 
-/* ---- Feature showcase (Dan, 26 Oct, after Linear's AI page): 2 × 2 cards, each zoomed in on
- * one piece of a demo club's site that fades into the card ---- */
+/* ---- Feature showcase (Dan, 26 Oct, after Linear's AI page; restyled 28 Oct): a hairline grid,
+ * no boxes. Each cell is a simplified dark picture of a club-site feature, cropped and faded into
+ * the page with one thing in focus, and its title and text underneath ---- */
 
 .mk-showcase {
   display: grid;
-  gap: 16px;
+  grid-template-columns: minmax(0, 1fr);
   margin: 0;
   padding: 0;
   list-style: none;
+  border: 1px solid var(--mk-border-hairline);
+  border-radius: var(--mk-radius-panel);
+  overflow: hidden;
+}
+.mk-showcase-card {
+  display: flex;
+  flex-direction: column;
+  padding-top: 28px;
+  border-top: 1px solid var(--mk-border-hairline);
+}
+.mk-showcase-card:first-child {
+  border-top: 0;
 }
 @media (min-width: 768px) {
   .mk-showcase {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 24px;
   }
-}
-.mk-showcase-card {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  border: 1px solid var(--mk-border-hairline);
-  border-radius: var(--mk-radius-panel);
-  background: var(--mk-surface-raised);
+  .mk-showcase-card:nth-child(2) {
+    border-top: 0;
+  }
+  .mk-showcase-card:nth-child(odd) {
+    border-right: 1px solid var(--mk-border-hairline);
+  }
 }
 .mk-showcase-stage {
   position: relative;
-  height: min(340px, calc(var(--mk-fit-h) - 190px));
+  height: min(340px, calc(var(--mk-fit-h) - 200px));
   min-height: 240px;
   overflow: hidden;
-  background: radial-gradient(120% 90% at 20% 0%, rgb(123 212 160 / 9%), transparent 60%);
+  background: radial-gradient(70% 70% at 35% 15%, var(--mk-signal-live-soft), transparent 75%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 12%, #000 68%, transparent 100%);
 }
 .mk-showcase-text {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 20px 24px 24px;
-  border-top: 1px solid var(--mk-border-hairline);
+  gap: 4px;
+  padding: 20px 32px 32px;
 }
-@media (min-width: 1024px) {
-  .mk-showcase-text {
-    padding: 24px 32px 28px;
-  }
+.mk-showcase-text .mk-detail-title {
+  font-size: 15px;
+  font-weight: 510;
+  letter-spacing: -0.165px;
+}
+.mk-showcase-text .mk-detail-body {
+  max-width: 34ch;
+  font-size: 15px;
+  line-height: 24px;
 }
 
-/* The club's own components, laid out at their real width and shrunk into the card, cropped at
- * the bottom and faded out. Cards stay inert; one small change plays on a loop. */
-.mk-sc {
+/* The picture: offset into the cell so it runs off the right edge, which fades out. */
+.mk-li {
   position: absolute;
-  inset: 0;
-  overflow: hidden;
-  background: var(--color-surface-base, transparent);
-  font-family: var(--font-body), system-ui, sans-serif;
-  color: var(--color-text-primary);
-  mask-image: linear-gradient(to bottom, #000 62%, transparent 100%);
+  top: 36px;
+  left: 6%;
+  width: 88%;
+  font-size: 13px;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  color: var(--mk-text-primary);
 }
-.mk-stage-fit {
-  width: 100%;
+.mk-li p,
+.mk-li dl,
+.mk-li dd,
+.mk-li ol,
+.mk-li ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
-.mk-stage-fit-inner {
-  transform-origin: top left;
+.mk-li-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--mk-border-hairline);
+  border-radius: 12px;
+  background: linear-gradient(180deg, var(--mk-surface-elevated), var(--mk-surface-raised) 60%);
+  box-shadow:
+    inset 0 1px 0 #f3f1ea0f,
+    0 24px 60px #00000059;
 }
-.mk-sc .blk {
-  margin: -24px 0 0;
+.mk-li-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
-@media (max-width: 767px) {
-  .mk-showcase-stage {
-    height: min(440px, calc(var(--mk-fit-h) - 190px));
-  }
+.mk-li-title {
+  font-size: 14px;
+  font-weight: 510;
+}
+.mk-li-sub,
+.mk-li-link {
+  font-size: 12px;
+  color: var(--mk-text-tertiary);
+}
+.mk-li-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 9px 2px 7px;
+  border: 1px solid var(--mk-signal-live-edge);
+  border-radius: var(--mk-radius-pill);
+  background: var(--mk-signal-live-soft);
+  font-size: 12px;
+  color: var(--mk-signal-live);
+}
+.mk-li-pill.is-quiet {
+  padding-left: 9px;
+  border-color: var(--mk-border-hairline);
+  background: transparent;
+  color: var(--mk-text-secondary);
+}
+.mk-li-dot {
+  display: inline-block;
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--mk-signal-live);
+}
+.mk-li-dot.is-warn {
+  background: var(--mk-accent-peach);
 }
 
-/* One real component fading into the same component after the change. */
-.mk-change {
-  display: grid;
+/* Rows */
+.mk-li-rows > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 10px;
+  margin: 0 -10px;
+  border-top: 1px solid var(--mk-border-hairline);
+  border-radius: 8px;
 }
-.mk-change > * {
+.mk-li-rows dt {
+  color: var(--mk-text-secondary);
+}
+.mk-li-rows dd,
+.mk-li-rows dd > span > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.mk-li-rows .is-focus {
+  border-top-color: transparent;
+  background: var(--mk-accent-dawn-wash);
+  box-shadow: inset 0 0 0 1px var(--mk-accent-dawn-edge);
+  animation: mk-li-focus 8s var(--mk-ease-move) infinite;
+}
+
+/* One value fading into the next. */
+.mk-li-swap {
+  display: inline-grid;
+  justify-items: end;
+}
+.mk-li-swap > span {
   grid-area: 1 / 1;
 }
-.mk-change-before {
-  animation: mk-change-out 8s var(--mk-ease-move) infinite;
+.mk-li-swap > span:first-child {
+  animation: mk-li-out 8s var(--mk-ease-move) infinite;
 }
-.mk-change-after {
-  animation: mk-change-in 8s var(--mk-ease-move) infinite;
+.mk-li-swap > span + span {
+  animation: mk-li-in 8s var(--mk-ease-move) infinite;
 }
-@keyframes mk-change-out {
+@keyframes mk-li-out {
   0%,
-  35% {
+  38% {
     opacity: 1;
   }
-  45%,
-  90% {
+  46%,
+  92% {
     opacity: 0;
   }
   100% {
     opacity: 1;
   }
 }
-@keyframes mk-change-in {
+@keyframes mk-li-in {
   0%,
-  35% {
+  38% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  46%,
+  92% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
     opacity: 0;
   }
-  45%,
-  90% {
+}
+@keyframes mk-li-focus {
+  0%,
+  34% {
+    background: transparent;
+    box-shadow: inset 0 0 0 1px transparent;
+  }
+  46%,
+  92% {
+    background: var(--mk-accent-dawn-wash);
+    box-shadow: inset 0 0 0 1px var(--mk-accent-dawn-edge);
+  }
+  100% {
+    background: transparent;
+    box-shadow: inset 0 0 0 1px transparent;
+  }
+}
+
+/* A note that appears once the change is made. */
+.mk-li-toast {
+  position: absolute;
+  left: 28px;
+  bottom: -8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 7px 12px;
+  border: 1px solid var(--mk-border-strong);
+  border-radius: var(--mk-radius-pill);
+  background: var(--mk-surface-hover);
+  box-shadow: 0 12px 30px #00000066;
+  font-size: 12px;
+  animation: mk-li-late 8s var(--mk-ease-enter) infinite;
+}
+@keyframes mk-li-late {
+  0%,
+  46% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  56%,
+  92% {
     opacity: 1;
+    transform: none;
   }
   100% {
     opacity: 0;
   }
 }
 
-/* Spotlight: while the cards are mid-screen, the rest of the page fades back and the cards
- * lift. A card under the pointer lifts further. */
-.mk-showcase-card {
-  transition:
-    transform 400ms var(--mk-ease-enter),
-    opacity 400ms var(--mk-ease-enter),
-    box-shadow 400ms var(--mk-ease-enter);
+/* Events */
+.mk-li-events {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
-html[data-mk-spotlight='on'] .mk-showcase-card {
-  box-shadow: 0 30px 80px rgb(0 0 0 / 45%);
+.mk-li-events li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 10px;
+  margin: 0 -6px;
+  border-radius: 10px;
 }
-html[data-mk-spotlight='on'] .mk-showcase:hover .mk-showcase-card:not(:hover) {
-  opacity: 0.55;
+.mk-li-events .is-focus {
+  background: var(--mk-surface-hover);
+  box-shadow: inset 0 0 0 1px var(--mk-border-strong);
+  animation: mk-li-lift 8s var(--mk-ease-enter) infinite;
 }
-html[data-mk-spotlight='on'] .mk-showcase-card:hover {
-  transform: translateY(-4px);
+@keyframes mk-li-lift {
+  0%,
+  30% {
+    transform: none;
+  }
+  45%,
+  90% {
+    transform: translateY(-2px) scale(1.015);
+  }
+  100% {
+    transform: none;
+  }
 }
+.mk-li-date {
+  display: grid;
+  justify-items: center;
+  width: 44px;
+  padding: 5px 0;
+  border: 1px solid var(--mk-border-hairline);
+  border-radius: 8px;
+  background: var(--mk-surface-canvas);
+  line-height: 1.15;
+}
+.mk-li-date small {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mk-text-tertiary);
+}
+.mk-li-date strong {
+  font-size: 17px;
+  font-weight: 510;
+}
+.mk-li-event {
+  display: grid;
+  gap: 1px;
+}
+.mk-li-event em {
+  font-size: 10px;
+  font-style: normal;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mk-accent-dawn);
+}
+.mk-li-event span {
+  font-size: 14px;
+  font-weight: 510;
+}
+.mk-li-event small {
+  font-size: 12px;
+  color: var(--mk-text-tertiary);
+}
+.mk-li-events .is-focus small {
+  color: var(--mk-text-secondary);
+}
+.mk-li-book {
+  padding: 5px 11px;
+  border-radius: var(--mk-radius-pill);
+  background: var(--mk-text-primary);
+  font-size: 12px;
+  font-weight: 510;
+  color: var(--mk-text-on-accent);
+}
+.mk-li-price {
+  font-size: 12px;
+  color: var(--mk-text-secondary);
+}
+
+/* Search */
+.mk-li-search {
+  padding: 0;
+  gap: 0;
+}
+.mk-li-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--mk-border-hairline);
+  font-size: 14px;
+  color: var(--mk-text-tertiary);
+}
+.mk-li-field kbd {
+  margin-left: auto;
+  padding: 1px 6px;
+  border: 1px solid var(--mk-border-hairline);
+  border-radius: 5px;
+  font: inherit;
+  font-size: 11px;
+}
+.mk-li-typed {
+  display: inline-flex;
+  align-items: center;
+  color: var(--mk-text-primary);
+}
+.mk-li-placeholder {
+  color: var(--mk-text-tertiary);
+}
+.mk-li-caret {
+  width: 1.5px;
+  height: 16px;
+  margin-left: 1px;
+  background: var(--mk-accent-dawn);
+  animation: mk-li-blink 1s steps(1) infinite;
+}
+@keyframes mk-li-blink {
+  50% {
+    opacity: 0;
+  }
+}
+.mk-li-found,
+.mk-li-quick {
+  padding: 10px;
+}
+.mk-li-answer {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--mk-accent-dawn-edge);
+  border-radius: 10px;
+  background: var(--mk-accent-dawn-wash);
+}
+.mk-li-eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mk-accent-dawn);
+}
+.mk-li-answer-title {
+  font-size: 15px;
+  font-weight: 510;
+}
+.mk-li-facts {
+  display: flex;
+  gap: 28px;
+}
+.mk-li-facts p {
+  display: grid;
+  gap: 1px;
+}
+.mk-li-facts strong {
+  font-size: 22px;
+  font-weight: 510;
+  letter-spacing: -0.02em;
+}
+.mk-li-facts span {
+  font-size: 11px;
+  color: var(--mk-text-tertiary);
+}
+.mk-li-results {
+  display: grid;
+  gap: 2px;
+}
+.mk-li-found .mk-li-results {
+  margin-top: 6px;
+}
+.mk-li-results li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 8px;
+}
+.mk-li-results li:first-child:not(.mk-li-quick li) {
+  background: var(--mk-surface-tint);
+}
+.mk-li-results em {
+  font-size: 11px;
+  font-style: normal;
+  color: var(--mk-text-tertiary);
+}
+
+/* Green fees */
+.mk-li-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.mk-li-table th,
+.mk-li-table td {
+  padding: 9px 10px;
+  border-top: 1px solid var(--mk-border-hairline);
+  text-align: right;
+  font-weight: 400;
+}
+.mk-li-table th:first-child {
+  text-align: left;
+  color: var(--mk-text-secondary);
+}
+.mk-li-table thead th {
+  border-top: 0;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mk-text-tertiary);
+}
+.mk-li-table td.is-focus {
+  animation: mk-li-focus 8s var(--mk-ease-move) infinite;
+}
+.mk-li-swap.is-number {
+  justify-items: end;
+}
+
+/* Spotlight: while the cells are mid-screen, the rest of the page fades back and blurs. */
 .mk-section {
   transition:
     opacity 500ms var(--mk-ease-enter),
@@ -4727,15 +5149,18 @@ html[data-mk-spotlight='on'] .mk-section:not(:has(.mk-showcase)) {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mk-change-before,
-  .mk-change-after {
-    animation: none;
+  .mk-li *,
+  .mk-li-toast {
+    animation: none !important;
   }
-  .mk-change-before {
-    opacity: 0;
+  /* Show the change as it ends up. */
+  .mk-li-swap > span:first-child {
+    visibility: hidden;
   }
-  .mk-change-after {
+  .mk-li-swap > span + span,
+  .mk-li-toast {
     opacity: 1;
+    transform: none;
   }
 }
 
@@ -4826,9 +5251,19 @@ html[data-mk-spotlight='on'] .mk-section:not(:has(.mk-showcase)) {
   .mk-calc-next-later {
     display: inline;
   }
+  /* Silka wraps the calculator's text onto more lines than the old font did, so the padding is a
+     little tighter and the footnote a size smaller: it has to fit one phone screen
+     (tests/e2e/marketing-fit.spec.ts). */
   .mk .mk-calc {
     gap: 14px;
-    padding: 20px;
+    padding: 16px;
+  }
+  .mk .mk-calc-top {
+    padding-bottom: 14px;
+  }
+  .mk .mk-calc-footnote {
+    font-size: 13px;
+    line-height: 1.45;
   }
   .mk .mk-calc-build > .mk-calc-row,
   .mk .mk-calc-next {
@@ -4884,6 +5319,7 @@ html[data-mk-spotlight='on'] .mk-section:not(:has(.mk-showcase)) {
 .mk-intro {
   --mk-intro-size: var(--mk-intro-size-desktop, 0.53);
   --mk-intro-top: var(--mk-intro-top-desktop, 0.29);
+  --mk-intro-logo-h: var(--mk-intro-logo-h-desktop, 56px);
 }
 .mk-intro-lab {
   position: fixed;
@@ -4900,6 +5336,7 @@ html[data-mk-spotlight='on'] .mk-section:not(:has(.mk-showcase)) {
   .mk-intro {
     --mk-intro-size: var(--mk-intro-size-mobile, 0.92);
     --mk-intro-top: var(--mk-intro-top-mobile, 0.52);
+    --mk-intro-logo-h: var(--mk-intro-logo-h-mobile, 44px);
   }
 }
 .mk-intro-content {
@@ -5132,4 +5569,416 @@ html[data-intro='reveal'] .mk-footer {
   transition:
     opacity var(--mk-intro-content-ms, 400ms) var(--mk-ease-enter),
     transform var(--mk-intro-content-ms, 400ms) var(--mk-ease-enter);
+}
+
+/* ---- Golf ball intro: the logo or message above the ball (IntroMark.tsx) ----
+   Sits in the ball's layer, so it appears and fades out with the ball. Its bottom edge is
+   --mk-intro-gap above the ball's top edge (the same --mk-intro-top the ball is placed by). */
+
+.mk-intro-mark {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc((1 - var(--mk-intro-top)) * 100% + var(--mk-intro-gap, 32px));
+  display: flex;
+  justify-content: center;
+  padding: 0 var(--mk-gutter);
+  color: var(--mk-text-primary);
+  text-align: center;
+  pointer-events: none;
+}
+.mk-intro-mark[data-kind='logo'] {
+  /* 50px of extra space under the logo, lifting it away from the ball. */
+  padding-bottom: 50px;
+}
+.mk-intro-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--mk-intro-logo-h) * 0.25);
+  font-size: calc(var(--mk-intro-logo-h) * 0.7);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.mk-intro-logo img {
+  display: block;
+  height: var(--mk-intro-logo-h);
+  width: auto;
+  max-width: 100%;
+}
+.mk-intro-message {
+  max-width: 18ch;
+  color: var(--mk-text-primary);
+  text-wrap: balance;
+}
+.mk-intro-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin-bottom: 8px;
+}
+.mk-intro-choice {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+.mk-intro-choice input {
+  accent-color: var(--mk-accent-dawn);
+}
+.mk-intro-textarea {
+  grid-column: 1 / -1;
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--mk-border-strong);
+  border-radius: var(--mk-radius-control);
+  background: var(--mk-surface-elevated);
+  color: var(--mk-text-primary);
+  font: inherit;
+  resize: vertical;
+}
+
+/* ---- v2 selling blocks (Figma "marketing site v2": Assurance Item 351:1811, Compare Row
+ * 351:1818, Step Card 351:1829, Objection Card 351:1833, Role Tabs 351:2029) ---- */
+
+.mk-assure {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px 32px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 640px) {
+  .mk-assure {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  .mk-assure {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+/* 64px under whatever sits above it (the hero's devices, a block switcher): Figma 357:5456. */
+.mk-stack > :not(.mk-header) + .mk-assure {
+  margin-top: 64px;
+}
+.mk-assure-item {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.mk-assure-icon,
+.mk-roles-tick,
+.mk-cmp-icon.is-tick {
+  display: inline-flex;
+  flex: none;
+  color: var(--mk-accent-dawn);
+}
+.mk-assure-icon {
+  padding-top: 2px;
+}
+.mk-assure-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.mk-assure-text strong {
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.034px;
+  color: var(--mk-text-primary);
+}
+.mk-assure-text span {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mk-text-secondary);
+}
+
+.mk-cmp ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.mk-cmp-labels,
+.mk-cmp-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+.mk-cmp-labels {
+  display: none;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--mk-border-hairline);
+}
+.mk-cmp-labels p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--mk-text-tertiary);
+}
+.mk-cmp-row {
+  padding: 22px 0;
+  border-bottom: 1px solid var(--mk-border-hairline);
+}
+.mk-cmp-row p {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.55;
+  letter-spacing: -0.016px;
+}
+.mk-cmp-icon {
+  display: inline-flex;
+  flex: none;
+  padding-top: 2px;
+  color: var(--mk-text-tertiary);
+}
+.mk-cmp-old {
+  color: var(--mk-text-secondary);
+}
+.mk-cmp-our {
+  color: var(--mk-text-primary);
+}
+@media (min-width: 768px) {
+  .mk-cmp-labels,
+  .mk-cmp-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 48px;
+  }
+  .mk-cmp-labels {
+    display: grid;
+  }
+}
+
+.mk-stepcards {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 640px) {
+  .mk-stepcards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  .mk-stepcards[data-count='4'] {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .mk-stepcards[data-count='3'] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.mk-stepcard,
+.mk-objection {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--mk-border-hairline);
+  border-radius: var(--mk-radius-panel);
+  background: var(--mk-surface-raised);
+}
+.mk-stepcard {
+  gap: 12px;
+  padding: 28px 28px 32px;
+}
+.mk-stepcard-number {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  letter-spacing: 0.2px;
+  color: var(--mk-accent-dawn);
+}
+.mk-stepcard-title,
+.mk-objection-question {
+  margin: 0;
+  font-family: var(--mk-font-display), system-ui, sans-serif;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.168px;
+  color: var(--mk-text-primary);
+}
+.mk-stepcard p,
+.mk-objection-answer {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.55;
+  letter-spacing: -0.016px;
+  color: var(--mk-text-secondary);
+}
+
+.mk-objections {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 768px) {
+  .mk-objections {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.mk-objection {
+  gap: 14px;
+  padding: 32px 32px 36px;
+}
+.mk-objection-topic {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--mk-text-tertiary);
+}
+
+.mk-roles {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: flex-start;
+}
+.mk-roles-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 32px;
+  align-items: center;
+  width: 100%;
+  padding: 24px;
+  border: 1px solid var(--mk-border-hairline);
+  border-radius: var(--mk-radius-panel);
+  background: var(--mk-surface-raised);
+}
+.mk-roles-panel[hidden] {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .mk-roles-panel {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 64px;
+    padding: 56px;
+  }
+}
+.mk-roles-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+.mk-roles-eyebrow {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--mk-accent-dawn);
+}
+.mk-roles-headline {
+  margin: 0;
+  font-family: var(--mk-font-display), system-ui, sans-serif;
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.528px;
+  color: var(--mk-text-primary);
+}
+@media (min-width: 1024px) {
+  .mk-roles-headline {
+    font-size: 44px;
+  }
+}
+.mk-roles-points {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 16px 0 0;
+  list-style: none;
+}
+.mk-roles-points li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  font-size: 19px;
+  line-height: 1.55;
+  letter-spacing: -0.038px;
+  color: var(--mk-text-primary);
+}
+.mk-roles-tick {
+  padding-top: 3px;
+}
+.mk-roles-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  padding: 16px;
+  border-radius: var(--mk-radius-window);
+  background: var(--mk-surface-tint);
+}
+@media (min-width: 1024px) {
+  .mk-roles-visual {
+    padding: 32px;
+  }
+}
+/* The showcase's pictures sit cropped in a faded cell; here they sit whole. */
+.mk-roles-visual .mk-li {
+  position: static;
+  width: 100%;
+  font-size: 14px;
+}
+/* On a phone the tabs scroll sideways in one row, so the sliding highlight stays under its tab. */
+.mk-roles {
+  align-items: stretch;
+  width: 100%;
+  min-width: 0;
+}
+.mk-roles .mk-pill-tabs {
+  display: flex;
+  flex-wrap: nowrap;
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.mk-roles .mk-pill-tab {
+  flex: none;
+  white-space: nowrap;
+}
+
+/* "The other route" under a page's points: a short line and a link (Book a demo, Request your homepage). */
+.mk-alt-route {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--mk-border-hairline);
+}
+.mk-alt-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.034px;
+  color: var(--mk-text-primary);
+}
+.mk-alt-body {
+  max-width: 560px;
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--mk-text-secondary);
+}
+.mk-club-morph-note {
+  margin: 16px 0 0;
+  text-align: center;
+  font-size: 14px;
+  color: var(--mk-text-tertiary);
 }

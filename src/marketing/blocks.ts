@@ -8,13 +8,14 @@ import { FEATURE_ICONS } from './icons'
 import { homeBlocks } from './homeBlocks'
 import { infoBlocks } from './infoBlocks'
 import { pricingBlocks } from './pricingBlocks'
+import { sellingBlocks } from './sellingBlocks'
 import { switchingBlocks } from './switchingBlocks'
 import { marketingRichText } from './richText'
 
-/** Short body copy: under thirty words, and prices only as {price}. */
+/** Short body copy: under thirty-five words, and prices only as {price}. */
 const shortBody = (value: unknown) => {
   const prices = noTypedPrices(value)
-  return prices === true ? maxWords(30)(value, {} as never) : prices
+  return prices === true ? maxWords(35)(value, {} as never) : prices
 }
 
 /**
@@ -34,19 +35,19 @@ const sectionHeader: Block = {
   fields: [
     {
       name: 'eyebrow',
-      label: 'Eyebrow (1–3 words, optional)',
+      label: 'Eyebrow (a few words, optional)',
       type: 'text',
-      maxLength: 30,
-      validate: maxWords(3),
+      maxLength: 40,
+      validate: maxWords(5),
     },
     {
       name: 'title',
       label: 'Title',
       type: 'textarea',
       required: true,
-      maxLength: 80,
-      validate: maxWords(8, true),
-      admin: { description: 'Under eight words. Line breaks are kept.', rows: 2 },
+      maxLength: 90,
+      validate: maxWords(10, true),
+      admin: { description: 'Under ten words. Line breaks are kept.', rows: 2 },
     },
     {
       name: 'subhead',
@@ -55,7 +56,7 @@ const sectionHeader: Block = {
       maxLength: 240,
       validate: shortBody,
       admin: {
-        description: `One or two sentences that back the title up. Under thirty words. ${TOKEN_HELP}`,
+        description: `One or two sentences that back the title up. Under thirty-five words. ${TOKEN_HELP}`,
       },
     },
     {
@@ -101,7 +102,7 @@ const ctaBand: Block = {
     button(
       'secondary',
       'Second button (optional)',
-      { label: 'Get your free homepage', href: '/switching' },
+      { label: 'See how switching works', href: '/switching' },
       'Leave the text empty to show only the main button.',
     ),
   ],
@@ -290,4 +291,5 @@ export const marketingBlocks: Block[] = [
   ...builderBlocks,
   ...bookingsBlocks,
   ...infoBlocks,
+  ...sellingBlocks,
 ]

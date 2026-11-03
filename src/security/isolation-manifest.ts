@@ -43,6 +43,7 @@ export const COLLECTIONS: Manifest = {
     { file: API, test: "club B's page history answers like history that doesn't exist" },
   ],
   news: [perCollection],
+  categories: [perCollection],
   events: [perCollection],
   'course-status': [perCollection],
   staff: [perCollection],
@@ -76,6 +77,12 @@ export const COLLECTIONS: Manifest = {
   'homepage-requests': [
     {
       file: 'tests/int/homepage-requests.int.spec.ts',
+      test: 'club editors can’t read, change or delete them, and nobody creates them by hand',
+    },
+  ],
+  'demo-bookings': [
+    {
+      file: 'tests/int/demo-bookings.int.spec.ts',
       test: 'club editors can’t read, change or delete them, and nobody creates them by hand',
     },
   ],
@@ -232,6 +239,35 @@ export const ROUTES: Manifest = {
       test: 'club A’s panel never shows club B’s page',
     },
   ],
+  // Prospect demos (public, no login): one club per link
+  'src/app/(frontend)/demo/[club]/page.tsx': [
+    {
+      file: 'tests/e2e/prospect-demo.spec.ts',
+      test: 'a demo link shows that club, with a "Demo - expires in 30 days" strip, and nothing of club B',
+    },
+    {
+      file: 'tests/e2e/prospect-demo.spec.ts',
+      test: 'a guessed or wrong demo link is "not found", and says nothing about the club',
+    },
+  ],
+  'src/app/(frontend)/demo/[club]/[...path]/page.tsx': [
+    {
+      file: 'tests/e2e/prospect-demo.spec.ts',
+      test: 'the contact form on a demo is replaced by a note and sends nothing',
+    },
+  ],
+  'src/app/(frontend)/demo/[club]/search/page.tsx': [
+    {
+      file: 'tests/e2e/prospect-demo.spec.ts',
+      test: "search on a demo finds that club's pages and never club B's",
+    },
+  ],
+  'src/app/(frontend)/demo/[club]/search/suggest/route.ts': [
+    {
+      file: 'tests/e2e/prospect-demo.spec.ts',
+      test: "search on a demo finds that club's pages and never club B's",
+    },
+  ],
   // Platform services
   'src/app/(frontend)/accounts-by-administrator/page.tsx': [
     { file: ADMIN, test: 'the "create first user" address shows an explanation, not a form' },
@@ -288,6 +324,16 @@ export const ROUTES: Manifest = {
       test: "a club's domain never shows the marketing site",
     },
   ],
+  'src/app/(marketing-frame)/marketing/frame/two-column/[club]/[design]/page.tsx': [
+    {
+      file: 'tests/e2e/marketing-website-builder.spec.ts',
+      test: 'the Two-Column frame: the real block in each club, inert, only for known clubs and designs',
+    },
+    {
+      file: 'tests/e2e/marketing-routing.spec.ts',
+      test: "a club's domain never shows the marketing site",
+    },
+  ],
   'src/app/(marketing)/marketing/[[...path]]/page.tsx': [
     {
       file: 'tests/e2e/marketing-routing.spec.ts',
@@ -338,6 +384,16 @@ export const SERVER_ACTIONS: Manifest = {
       test: 'club editors can’t read, change or delete them, and nobody creates them by hand',
     },
   ],
+  'src/marketing/booking/actions.ts': [
+    {
+      file: 'tests/int/demo-bookings.int.spec.ts',
+      test: 'club editors can’t read, change or delete them, and nobody creates them by hand',
+    },
+    {
+      file: 'tests/int/demo-bookings.int.spec.ts',
+      test: 'only books a time the settings offer, and each time once',
+    },
+  ],
   'src/site/contact/actions.ts': [
     { file: DOMAINS, test: "the Contact form on club A's domain saves into club A" },
     {
@@ -381,6 +437,7 @@ export const CACHED: Manifest = {
     ...cacheCovers,
   ],
   latestNews: cacheCovers,
+  clubCategories: cacheCovers,
   newsArchive: cacheCovers,
   newsPost: cacheCovers,
   upcomingEvents: [

@@ -20,9 +20,12 @@ import {
 import { AvailabilityBadge, BrowserChrome, MarketingButton } from '@/marketing/site/parts'
 import { DemoBookingPreview } from '@/marketing/site/booking/DemoBookingPreview'
 import { TenantMorph } from '@/marketing/demo/TenantMorph'
+import { BlockSwitcher } from '@/marketing/site/builder/BlockSwitcher'
 import { FounderCard } from '@/marketing/site/FounderCard'
 import { ProofStat } from '@/marketing/site/ProofStat'
 import { isSignedInSuperAdmin } from '@/marketing/superAdmin'
+
+import { SellingSamples } from './selling'
 
 export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
@@ -175,6 +178,14 @@ export default async function ComponentsReview() {
           <div className="mk-review-demo">
             <TenantMorph />
           </div>
+        </Row>
+        <Row name="Block Switcher (live demo)" node="359:5798">
+          <div className="mk-review-wide">
+            <BlockSwitcher />
+          </div>
+        </Row>
+        <Row name="Selling blocks: Assurance, Compare, Step, Objection, Role Tabs" node="351:1810">
+          <SellingSamples />
         </Row>
         <Row name="Browser Chrome" node="176:1929">
           <div className="mk-review-wide">

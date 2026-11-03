@@ -1,6 +1,7 @@
 import type { Payload } from 'payload'
 
 import { HOLE_CARD, HOLE_TIPS } from './courseCard'
+import { categoryIds } from '../collections/categoryIds'
 import { demoPDF, portrait, scene, type SceneOptions } from './pictures'
 import { rt } from './richText'
 import { siteBase } from '../site/preview'
@@ -35,6 +36,7 @@ const CLUB_OWNED = [
   'enquiries',
   'events',
   'news',
+  'categories',
   'pages',
   'staff',
   'courses',
@@ -84,6 +86,7 @@ export const buildDemoClub = async (payload: Payload) => {
     overrideAccess: true,
   })
   const tenant = club.id
+  const categories = await categoryIds(payload, tenant)
   const create = <T>(collection: string, data: Record<string, unknown>, file?: unknown) =>
     payload.create({
       collection: collection as never,
@@ -240,14 +243,17 @@ export const buildDemoClub = async (payload: Payload) => {
   const championship = await create<{ id: ID }>('courses', {
     name: 'The Championship course',
     tees: [
-      { colour: 'white', rating: 74.1, slope: 138 },
-      { colour: 'yellow', rating: 72.3, slope: 131 },
-      { colour: 'red', rating: 75.2, slope: 134 },
+      { colour: 'white', rating: 74.1, slope: 138, ratingWomen: 79.6, slopeWomen: 145 },
+      { colour: 'yellow', rating: 72.3, slope: 131, ratingWomen: 77.5, slopeWomen: 139 },
+      { colour: 'red', rating: 75.2, slope: 134, ratingWomen: 80.1, slopeWomen: 139 },
     ],
     holes: holeCard.map(([name, par, strokeIndex, yardsWhite, yardsYellow, yardsRed], i) => ({
       name,
       par,
       strokeIndex,
+      // The ladies' card: its own stroke index, and one hole that plays a shot longer.
+      ladiesStrokeIndex: (strokeIndex % 18) + 1,
+      ladiesPar: i === holeCard.findIndex((h) => h[1] === 4) ? 5 : undefined,
       yardsWhite,
       yardsYellow,
       yardsRed,
@@ -605,7 +611,7 @@ export const buildDemoClub = async (payload: Payload) => {
   for (const [i, [title, category, ago, excerpt]] of stories.entries()) {
     await create('news', {
       title,
-      category,
+      category: categories.get(category),
       status: 'published',
       publishedAt: daysFromNow(-ago, 9),
       excerpt,
@@ -636,13 +642,13 @@ export const buildDemoClub = async (payload: Payload) => {
   // A draft and a scheduled story, so the admin shows both (neither is on the website yet).
   await create('news', {
     title: 'Captain’s Day report (draft)',
-    category: 'competitions',
+    category: categories.get('competitions'),
     status: 'draft',
     publishedAt: daysFromNow(-1),
   })
   await create('news', {
     title: 'Winter programme announced',
-    category: 'club',
+    category: categories.get('club'),
     status: 'published',
     publishedAt: daysFromNow(7),
     excerpt: 'Scheduled for next week: it appears on the website on its publish date.',
@@ -1141,7 +1147,7 @@ export const buildDemoClub = async (payload: Payload) => {
       style: 'headlines',
       eyebrow: 'Results',
       heading: 'Competition news',
-      category: 'competitions',
+      category: categories.get('competitions'),
     },
   ])
 

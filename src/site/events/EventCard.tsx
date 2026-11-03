@@ -14,23 +14,28 @@ const londonMonth = (d: Date) =>
 
 export const eventMonth = (iso: string) => londonMonth(new Date(iso))
 
-/** "Fri 24 Oct · 19:00 · Clubhouse" (with a time note: "08:00 shotgun"). */
-export const eventMeta = (e: SiteEvent) => {
+/** "Fri 24 Oct", and "19:00" (with a time note: "08:00 shotgun"); no time if none is set. */
+const dayAndTime = (e: SiteEvent) => {
   const d = new Date(e.startsAt)
   const weekday = d.toLocaleDateString('en-GB', { weekday: 'short', ...LONDON })
   const date = d.toLocaleDateString('en-GB', { day: 'numeric', ...LONDON })
-  const day = `${weekday} ${date} ${londonMonth(d)}`
   const time = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', ...LONDON })
-  return [day, e.timeNote ? `${time} ${e.timeNote}` : time, e.venue].filter(Boolean).join(' · ')
+  return {
+    day: `${weekday} ${date} ${londonMonth(d)}`,
+    time: e.noStartTime ? e.timeNote : e.timeNote ? `${time} ${e.timeNote}` : time,
+  }
+}
+
+/** "Fri 24 Oct · 19:00 · Clubhouse" (with a time note: "08:00 shotgun"; no time if none is set). */
+export const eventMeta = (e: SiteEvent) => {
+  const { day, time } = dayAndTime(e)
+  return [day, time, e.venue].filter(Boolean).join(' · ')
 }
 
 /** "Thu 22 Oct · 19:00" (with a time note: "08:00 shotgun"), without the place. */
 export const eventWhen = (e: SiteEvent) => {
-  const d = new Date(e.startsAt)
-  const weekday = d.toLocaleDateString('en-GB', { weekday: 'short', ...LONDON })
-  const date = d.toLocaleDateString('en-GB', { day: 'numeric', ...LONDON })
-  const time = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', ...LONDON })
-  return `${weekday} ${date} ${londonMonth(d)} · ${e.timeNote ? `${time} ${e.timeNote}` : time}`
+  const { day, time } = dayAndTime(e)
+  return [day, time].filter(Boolean).join(' · ')
 }
 
 /** "£45 · Members £38" */

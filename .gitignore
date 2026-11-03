@@ -48,3 +48,6 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /tests/e2e/.state/
+
+# Club content copied for imports (the club owns it; never commit)
+club-imports/

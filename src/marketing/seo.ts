@@ -6,7 +6,7 @@ import { marketingHosts } from '@/site/hosts'
  * robots.txt, the sitemap and the company details. Kept free of Payload so it can be tested alone.
  */
 
-/** The company website's main address, e.g. "https://brandname.golf", with no trailing slash. */
+/** The company website's main address, e.g. "https://a1engine.co", with no trailing slash. */
 export const marketingOrigin = (hosts = marketingHosts()): string =>
   `https://${hosts[0] ?? BRAND.domain}`
 

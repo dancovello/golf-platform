@@ -1,6 +1,5 @@
 import type { Payload } from 'payload'
 
-import { newsCategoryLabel } from '@/collections/newsCategories'
 import { STAFF_DEPARTMENTS } from '@/collections/staffDepartments'
 import { BUILT_IN_PAGES } from '@/fields/link'
 import { layoutRefs, pageBlocks } from '@/blocks'
@@ -9,8 +8,10 @@ import { loadClubMedia, type SiteMedia } from '@/site/blocks/media'
 import { loadBlockContext } from '@/site/blocks/resolve'
 import { categoryName } from '@/site/blocks/documentsShared'
 import { clubEvents } from '@/site/events'
+import { clubCategories } from '@/site/news'
 import type { SiteLink } from '@/site/loadClub'
 import { PUBLISHED } from '@/site/published'
+import { ukEndOfDay } from '@/site/ukTime'
 
 import { blockWords, opening, richTextWords, tidy } from './text'
 
@@ -70,7 +71,7 @@ type NewsDoc = {
   slug?: string | null
   title: string
   excerpt?: string | null
-  category: string
+  category: unknown
   publishedAt: string
   image?: unknown
   author?: string | null
@@ -103,6 +104,7 @@ export const buildClubEntries = async (
     }),
     clubEvents(tenantID),
   ])
+  const categories = await clubCategories(tenantID)
   const pages = (pagesFound.docs as unknown as PageDoc[]).filter((p) => p.slug)
   const news = (newsFound.docs as unknown as NewsDoc[]).filter((n) => n.slug)
   const titles = new Map(pages.map((p) => [String(p.id), p.title]))
@@ -240,7 +242,7 @@ export const buildClubEntries = async (
       kind: 'news',
       sourceID: String(post.id),
       title: post.title,
-      eyebrow: newsCategoryLabel(post.category),
+      eyebrow: categories.find((c) => c.id === idOf(post.category))?.name ?? 'News',
       excerpt: post.excerpt?.trim() || opening(text) || null,
       body: [post.author, text].filter(Boolean).join('\n').slice(0, MAX_BODY) || null,
       link: { kind: 'page', slug: `news/${post.slug}` },
@@ -269,7 +271,9 @@ export const buildClubEntries = async (
       },
       date: event.startsAt,
       visibleFrom: null,
-      visibleUntil: event.startsAt,
+      visibleUntil: event.noStartTime
+        ? ukEndOfDay(new Date(event.startsAt)).toISOString()
+        : event.startsAt,
     })
   }
 

@@ -36,7 +36,10 @@ export const HeaderScroll = ({
       const el = ref.current
       if (!el) return
       el.dataset.scrolled = String(y > 8)
-      if (y <= threshold) {
+      // Once hidden, it only comes back well above the threshold. Otherwise, on a page that
+      // can scroll just past it, hiding the row shortens the page, pulls the scroll back
+      // under the threshold, shows the row again, and the browser scrolls back down: a loop.
+      if (y <= (hidden ? threshold - REVEAL_AFTER : threshold)) {
         hidden = false
         anchor = y
       } else if (!hidden && y > anchor) {

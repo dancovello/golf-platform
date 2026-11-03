@@ -8,6 +8,17 @@ export const TeeDot = ({ tee }: { tee: SiteTee }) => (
   <span className={`tee-dot is-${tee.colour}`} aria-hidden="true" />
 )
 
+/** "Par 4 · SI 7", plus the ladies' par and stroke index when the club gives them. */
+export const holeFigures = (hole: SiteHole) =>
+  [
+    `Par ${hole.par}`,
+    hole.strokeIndex ? `SI ${hole.strokeIndex}` : null,
+    hole.ladiesPar ? `Ladies’ par ${hole.ladiesPar}` : null,
+    hole.ladiesStrokeIndex ? `Ladies’ SI ${hole.ladiesStrokeIndex}` : null,
+  ]
+    .filter(Boolean)
+    .join(' · ')
+
 /** Each tee's yardage for a hole, as label/value rows (Hole Card "Guide"). */
 export const TeeYards = ({ hole, tees }: { hole: SiteHole; tees: SiteTee[] }) => (
   <dl className="hole-tees">

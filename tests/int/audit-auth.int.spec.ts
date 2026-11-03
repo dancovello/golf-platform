@@ -13,7 +13,6 @@ import type { Payload } from 'payload'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { ClubHome } from '@/admin/ClubHome'
-import { PageTree } from '@/admin/PageTree'
 
 import {
   createEditor,
@@ -131,11 +130,6 @@ describe('Finding A3 (low): admin screens that skip access rules don’t check t
 
   it('the club home screen shows no clubs to a super-admin who has not entered their code', async () => {
     const rendered = await ClubHome({ payload: p, user: withoutCode(w.superAdmin) } as never)
-    expect(rendered).toBeNull()
-  })
-
-  it('the page tree shows nothing to an editor who has not entered their code', async () => {
-    const rendered = await PageTree({ payload: p, user: withoutCode(editorWithCode) } as never)
     expect(rendered).toBeNull()
   })
 

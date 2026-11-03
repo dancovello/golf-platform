@@ -1,3 +1,5 @@
+import { FONT_SETS, type FontSetID } from '@/theme/fontSets'
+
 import { DEMO_CLUBS, type DemoClub } from './clubs'
 
 /**
@@ -6,13 +8,29 @@ import { DEMO_CLUBS, type DemoClub } from './clubs'
  */
 export const FLIPPER_CLUB: DemoClub = DEMO_CLUBS[0]
 
+/**
+ * Each hero is shown under a different one of the club template's three header styles (Dan,
+ * 28 Oct): Transparent sits over a full-bleed hero, so it goes with Heritage; Classic and App
+ * bar sit above the page, so they go with Resort and Booking-led.
+ */
 export const FLIPPER_STYLES = [
-  { id: 'heritage', label: 'Hero · Heritage' },
-  { id: 'resort', label: 'Hero · Resort' },
-  { id: 'bookingLed', label: 'Hero · Booking-led' },
+  { id: 'heritage', label: 'Hero · Heritage', header: 'transparent', headerLabel: 'Transparent' },
+  { id: 'resort', label: 'Hero · Resort', header: 'classic', headerLabel: 'Classic' },
+  { id: 'bookingLed', label: 'Hero · Booking-led', header: 'appBar', headerLabel: 'App bar' },
 ] as const
 
 export type FlipperStyle = (typeof FLIPPER_STYLES)[number]['id']
+
+/** Each hero is shown in a different font pack, so the variants differ in type as well as layout. */
+export const FLIPPER_FONT_SETS: Record<FlipperStyle, FontSetID> = {
+  heritage: 'heritage',
+  resort: 'editorial',
+  bookingLed: 'contemporary',
+}
+
+/** The short name of a variant's font pack: "Heritage", "Editorial". */
+export const flipperFontName = (style: FlipperStyle) =>
+  FONT_SETS[FLIPPER_FONT_SETS[style]].label.split(':')[0]
 
 /** The demo club's hero copy in another hero style. */
 export const flipperHero = (style: FlipperStyle): DemoClub['hero'] =>

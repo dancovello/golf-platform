@@ -74,6 +74,7 @@ export const HomeView = async ({ site, query }: { site: ResolvedSite; query: Que
             club={club}
             base={base}
             pageUpdatedAt={home.updatedAt}
+            live={live}
           />
         </ClubShell>
       </>
@@ -127,6 +128,7 @@ export const PathView = async ({
           base={base}
           settings={await loadContactSettings(club.tenantID)}
           about={one(query.about)}
+          demo={site.demo !== null}
         />
       </ClubShell>
     )
@@ -208,6 +210,7 @@ export const PathView = async ({
         club={club}
         base={base}
         pageUpdatedAt={found.updatedAt}
+        live={live}
       />
     </ClubShell>
   )

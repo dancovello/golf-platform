@@ -9,6 +9,7 @@ import { requestHomepage } from '@/marketing/requests/actions'
 import { initialRequestState } from '@/marketing/requests/submit'
 import { turnstileSiteKey } from '@/site/contact/turnstile'
 
+import { TextLink } from '../controls/controls'
 import { RequestForm } from './RequestForm'
 
 /**
@@ -36,14 +37,21 @@ export const RequestHero = ({ block }: { block: MarketingRequestHeroBlock }) => 
           ))}
         </ul>
       ) : null}
+      {block.alt?.title && block.alt.label && block.alt.href ? (
+        <div className="mk-alt-route">
+          <p className="mk-alt-title">{block.alt.title}</p>
+          <TextLink href={block.alt.href}>{block.alt.label} →</TextLink>
+        </div>
+      ) : null}
     </div>
     <RequestForm
       copy={{
         title: block.form?.title ?? 'Your club',
         intro: block.form?.intro,
-        button: block.form?.button ?? 'Rebuild my homepage',
+        button: block.form?.button ?? 'Book my demo',
         footnote: block.form?.footnote,
-        sentTitle: block.form?.sentTitle ?? 'On its way.',
+        sentTitle: block.form?.sentTitle ?? 'Thanks.',
+        sentBody: block.form?.sentBody,
       }}
       action={requestHomepage}
       initial={initialRequestState()}

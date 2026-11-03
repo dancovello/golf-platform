@@ -18,6 +18,10 @@ overrides:
   happy-dom: 21.0.4
   # Pulled in by the admin's code editor (via @payloadcms/ui). Patch release with security fixes.
   dompurify: 3.4.17
+  # Via @payloadcms/graphql (pins 1.22.2). 2.0.1 fixes GHSA-x8rm-f576-gq67 (high, PhoneNumber
+  # scalar; 29 Oct 2026). Major version up; Payload only uses DateTime and EmailAddress.
+  # Remove once Payload ships with graphql-scalars >=2.0.1.
+  graphql-scalars: 2.0.1
 
 auditConfig:
   ignoreGhsas:

@@ -5,7 +5,7 @@ import { expect, test } from './fixtures'
 // The Website builder page (plan phase 6.1), from the Figma copy (src/marketing/starter/pages.ts),
 // against "Website builder — Desktop" (183:3008). Figma has no phone frame for it.
 
-const site = (path = '/website-builder') => `http://marketing.localhost:3100${path}`
+const site = (path = '/how-it-works') => `http://marketing.localhost:3100${path}`
 
 test('every Figma section in order, one H1, and no product film (Q8)', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
@@ -15,14 +15,16 @@ test('every Figma section in order, one H1, and no product film (Q8)', async ({ 
   )
   await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1)
   await expect(page.getByRole('heading', { level: 2 })).toContainText([
+    'Same block. A different club.',
+    'Everything the club needs to say.',
+    'Sorted before you log in.',
     'Your colours, kept readable.',
     'Your course, hole by hole.',
-    'Everything members look for.',
-    'Sorted before you log in.',
+    'The course report, first thing.',
     'See your club on it.',
   ])
   await expect(page.locator('video')).toHaveCount(0)
-  await expect(page.locator('.mk-details li')).toHaveCount(6)
+  await expect(page.locator('.mk-details li')).toHaveCount(9)
   await expect(page.locator('.mk-showcase-card')).toHaveCount(4)
   const cards = page.locator('.mk-features--cards > li')
   await expect(cards).toHaveCount(8)
@@ -40,8 +42,10 @@ test('Block Flipper: a laptop and a phone flip together, at their real widths', 
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto(site())
   const flipper = page.getByRole('group', { name: 'Hero block variants' })
-  const laptop = flipper.locator('.mk-flipper-window iframe')
-  const phone = flipper.locator('.mk-phone iframe')
+  // Each screen keeps a second, hidden frame loading the next page ahead (SwapFrame), so the
+  // one a visitor sees is the one that is not faded out.
+  const laptop = flipper.locator('.mk-flipper-window iframe:not([style*="opacity: 0"])')
+  const phone = flipper.locator('.mk-phone iframe:not([style*="opacity: 0"])')
   await expect(laptop).toHaveAttribute('src', '/frame/hero/heritage')
   await expect(phone).toHaveAttribute('src', '/frame/hero/heritage')
   await expect(flipper.locator('.mk-flipper-label')).toContainText('Variant 1 of 3')
@@ -57,15 +61,31 @@ test('Block Flipper: a laptop and a phone flip together, at their real widths', 
   await expect(flipper.getByRole('radio')).toHaveCount(0)
   expect(await laptop.evaluate((el) => (el as HTMLIFrameElement).style.width)).toBe('1366px')
   expect(await phone.evaluate((el) => (el as HTMLIFrameElement).style.width)).toBe('390px')
-  await expect(page.frameLocator('.mk-phone iframe').locator('.hero')).toBeVisible()
+  await expect(phone.contentFrame().locator('.hero')).toBeVisible()
 })
 
 test('the hero frame: the real Hero block, inert, only for known styles', async ({ page }) => {
   const ok = await page.goto(site('/frame/hero/resort'))
   expect(ok?.status()).toBe(200)
-  await expect(page.locator('main.club-theme')).toHaveAttribute('inert', '')
+  await expect(page.locator('.club-theme')).toHaveAttribute('inert', '')
+  await expect(page.locator('.sh')).toBeVisible()
   await expect(page.locator('.hero')).toBeVisible()
   expect((await page.goto(site('/frame/hero/nonsense')))?.status()).toBe(404)
+})
+
+test('the Two-Column frame: the real block in each club, inert, only for known clubs and designs', async ({
+  page,
+}) => {
+  for (const club of ['heritage', 'coastal']) {
+    for (const design of ['split', 'collage', 'keyFacts']) {
+      const ok = await page.goto(site(`/frame/two-column/${club}/${design}`))
+      expect(ok?.status()).toBe(200)
+      await expect(page.locator('.club-theme')).toHaveAttribute('inert', '')
+      await expect(page.locator('.tc')).toBeVisible()
+    }
+  }
+  expect((await page.goto(site('/frame/two-column/coastal/nonsense')))?.status()).toBe(404)
+  expect((await page.goto(site('/frame/two-column/bookingLed/split')))?.status()).toBe(404)
 })
 
 test('Token Dial: picking a colour re-skins the demo and explains the text colour', async ({
@@ -111,25 +131,28 @@ test('the hole carousel moves on by itself, and the showcase shows four live fea
 
   const cards = page.locator('.mk-showcase-card')
   await expect(cards.locator('.mk-showcase-text h3')).toHaveText([
-    'The course report, first thing',
-    'Fixtures members can find',
-    'Search that answers',
-    'Change a fee once',
+    'Green fees',
+    'Competitions',
+    'Site search',
+    'Course status',
   ])
-  // The club's own components, not lookalikes: Course status, Event cards, the header search
-  // (empty until a question is typed) and the Rate table.
-  await expect(cards.nth(0).locator('.status-widget').first()).toContainText('Cut & rolled')
-  await expect(cards.nth(1).locator('.event-card').first()).toContainText('Captain’s Day')
-  await expect(cards.nth(2).locator('.sp-panel')).toBeAttached()
-  await expect(cards.nth(2).locator('.sa-card')).toHaveCount(0)
-  await expect(cards.nth(3).locator('.rate-table').first()).toContainText('18 holes')
+  // Each picture uses the words the club site has: the rate table, the event dates, the
+  // search (empty until a question is typed) and the status rows.
+  await expect(cards.nth(0).locator('.mk-li-table')).toContainText('18 holes')
+  await expect(cards.nth(1)).toContainText('Captain’s Day')
+  await expect(cards.nth(2).locator('.mk-li-field')).toBeAttached()
+  await expect(cards.nth(3)).toContainText('Cut & rolled')
 })
 
 test('phones: no sideways scroll, flipper fits the screen', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto(site())
-  const window = await page.locator('.mk-flipper-window').boundingBox()
-  expect(window!.width).toBeLessThanOrEqual(350)
+  // The page has more than one (the Block Switcher and the Block Flipper): every one fits.
+  const windows = page.locator('.mk-flipper-window')
+  expect(await windows.count()).toBeGreaterThan(0)
+  for (const window of await windows.all()) {
+    expect((await window.boundingBox())!.width).toBeLessThanOrEqual(350)
+  }
   const overflow = await page.evaluate(
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
   )

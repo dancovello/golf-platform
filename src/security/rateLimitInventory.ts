@@ -79,6 +79,10 @@ export const RATE_LIMITS: Record<string, Protection> = {
   'src/app/(frontend)/preview/[club]/[...path]/page.tsx': PAGE,
   'src/app/(frontend)/preview/[club]/search/page.tsx': SEARCH,
   'src/app/(frontend)/preview/[club]/search/suggest/route.ts': SEARCH,
+  'src/app/(frontend)/demo/[club]/page.tsx': PAGE,
+  'src/app/(frontend)/demo/[club]/[...path]/page.tsx': PAGE,
+  'src/app/(frontend)/demo/[club]/search/page.tsx': SEARCH,
+  'src/app/(frontend)/demo/[club]/search/suggest/route.ts': SEARCH,
   'src/site/contact/actions.ts': {
     who: 'anyone',
     limit:
@@ -125,12 +129,20 @@ export const RATE_LIMITS: Record<string, Protection> = {
   'src/app/(marketing)/marketing/robots.txt/route.ts': FILE,
   'src/app/(marketing)/marketing/sitemap.xml/route.ts': FILE,
   'src/app/(marketing-frame)/marketing/frame/hero/[style]/page.tsx': PAGE,
+  'src/app/(marketing-frame)/marketing/frame/two-column/[club]/[design]/page.tsx': PAGE,
   'src/marketing/requests/actions.ts': {
     who: 'anyone',
     limit:
       '5 sends per visitor in 10 minutes; 20 requests an hour from everyone together; 10 requests emailed a day, within the website forms’ shared 70 emails a day; hidden spam trap; too-fast sends dropped; Cloudflare Turnstile',
     where:
       'App, shared database (HOMEPAGE_REQUEST_VISITOR_LIMIT, HOMEPAGE_REQUESTS_PER_HOUR, HOMEPAGE_REQUESTS_EMAILED_PER_DAY, WEBSITE_FORM_EMAILS, src/security/rateLimit.ts); Turnstile',
+  },
+  'src/marketing/booking/actions.ts': {
+    who: 'anyone',
+    limit:
+      '5 bookings per visitor in 10 minutes; 20 bookings an hour from everyone together; 15 bookings emailed a day, within the website forms’ shared 70 emails a day; only times the settings offer can be booked, and a time can be booked once',
+    where:
+      'App, shared database (DEMO_BOOKING_VISITOR_LIMIT, DEMO_BOOKINGS_PER_HOUR, DEMO_BOOKINGS_EMAILED_PER_DAY, WEBSITE_FORM_EMAILS, src/security/rateLimit.ts); the slot is unique in the database',
   },
   'src/app/(marketing)/marketing/dev/components/page.tsx': SUPER_ADMIN,
   'src/app/(marketing)/marketing/dev/intro/page.tsx': SUPER_ADMIN,

@@ -7,7 +7,7 @@ import type {
 } from 'payload'
 import { ValidationError } from 'payload'
 
-import { enforceAccountCreationRules } from '../access/accountCreation'
+import { enforceAccountCreationRules, noAccountsInDemoClubs } from '../access/accountCreation'
 import { editorTenantID, isSuperAdmin } from '../access/roles'
 import { inviteEndpoint, passwordLinkEndpoint } from '../accounts/endpoints'
 import {
@@ -159,7 +159,7 @@ export const Users: CollectionConfig = {
   hooks: {
     beforeOperation: [passwordOperationRules, endLongEditorSessions],
     beforeValidate: [enforcePasswordLength],
-    beforeChange: [enforceAccountCreationRules, notePasswordChange],
+    beforeChange: [enforceAccountCreationRules, noAccountsInDemoClubs, notePasswordChange],
     afterChange: [emailPasswordChange],
     afterOperation: [emailPasswordReset],
     // The multi-tenant plugin reads a user's clubs from a `tenants` list. We store exactly one

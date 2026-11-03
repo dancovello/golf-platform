@@ -9,6 +9,7 @@ export type World = {
   editorB: { id: string; email: string }
   pageA: { id: string; title: string }
   pageB: { id: string; title: string }
+  categoryA: { id: string }
   homeA: { id: string }
   settingsA: { id: string }
   settingsB: { id: string }
@@ -20,6 +21,8 @@ export type World = {
   editorTypesCode: { id: string; email: string }
   editorWrongCode: { id: string; email: string }
   editorLinkTarget: { id: string; email: string }
+  demoLive: { name: string; address: string }
+  demoExpired: { name: string; address: string }
 }
 
 export const STATE_DIR = 'tests/e2e/.state'

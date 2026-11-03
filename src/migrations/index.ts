@@ -58,6 +58,17 @@ import * as migration_20261023_120000_app_role_limits from './20261023_120000_ap
 import * as migration_20261024_095237_marketing_info_pages from './20261024_095237_marketing_info_pages';
 import * as migration_20261026_201248_marketing_feature_showcase from './20261026_201248_marketing_feature_showcase';
 import * as migration_20261027_191922_course_record_block from './20261027_191922_course_record_block';
+import * as migration_20261028_143227_marketing_wording_defaults from './20261028_143227_marketing_wording_defaults';
+import * as migration_20261028_164147_request_due_date_optional from './20261028_164147_request_due_date_optional';
+import * as migration_20261102_135003_ladies_scorecard from './20261102_135003_ladies_scorecard';
+import * as migration_20261102_171131_prospect_demo from './20261102_171131_prospect_demo';
+import * as migration_20261102_194637_events_no_start_time from './20261102_194637_events_no_start_time';
+import * as migration_20261102_232743_brand_logo_settings from './20261102_232743_brand_logo_settings';
+import * as migration_20261103_002104_block_switcher_demo from './20261103_002104_block_switcher_demo';
+import * as migration_20261103_003410_selling_blocks from './20261103_003410_selling_blocks';
+import * as migration_20261103_014302_v2_pages_fields from './20261103_014302_v2_pages_fields';
+import * as migration_20261103_101844_demo_booking_calendar from './20261103_101844_demo_booking_calendar';
+import * as migration_20261103_124458_categories from './20261103_124458_categories';
 
 export const migrations = [
   {
@@ -358,6 +369,61 @@ export const migrations = [
   {
     up: migration_20261027_191922_course_record_block.up,
     down: migration_20261027_191922_course_record_block.down,
-    name: '20261027_191922_course_record_block'
+    name: '20261027_191922_course_record_block',
+  },
+  {
+    up: migration_20261028_143227_marketing_wording_defaults.up,
+    down: migration_20261028_143227_marketing_wording_defaults.down,
+    name: '20261028_143227_marketing_wording_defaults',
+  },
+  {
+    up: migration_20261028_164147_request_due_date_optional.up,
+    down: migration_20261028_164147_request_due_date_optional.down,
+    name: '20261028_164147_request_due_date_optional',
+  },
+  {
+    up: migration_20261102_135003_ladies_scorecard.up,
+    down: migration_20261102_135003_ladies_scorecard.down,
+    name: '20261102_135003_ladies_scorecard',
+  },
+  {
+    up: migration_20261102_171131_prospect_demo.up,
+    down: migration_20261102_171131_prospect_demo.down,
+    name: '20261102_171131_prospect_demo',
+  },
+  {
+    up: migration_20261102_194637_events_no_start_time.up,
+    down: migration_20261102_194637_events_no_start_time.down,
+    name: '20261102_194637_events_no_start_time',
+  },
+  {
+    up: migration_20261102_232743_brand_logo_settings.up,
+    down: migration_20261102_232743_brand_logo_settings.down,
+    name: '20261102_232743_brand_logo_settings',
+  },
+  {
+    up: migration_20261103_002104_block_switcher_demo.up,
+    down: migration_20261103_002104_block_switcher_demo.down,
+    name: '20261103_002104_block_switcher_demo',
+  },
+  {
+    up: migration_20261103_003410_selling_blocks.up,
+    down: migration_20261103_003410_selling_blocks.down,
+    name: '20261103_003410_selling_blocks',
+  },
+  {
+    up: migration_20261103_014302_v2_pages_fields.up,
+    down: migration_20261103_014302_v2_pages_fields.down,
+    name: '20261103_014302_v2_pages_fields',
+  },
+  {
+    up: migration_20261103_101844_demo_booking_calendar.up,
+    down: migration_20261103_101844_demo_booking_calendar.down,
+    name: '20261103_101844_demo_booking_calendar',
+  },
+  {
+    up: migration_20261103_124458_categories.up,
+    down: migration_20261103_124458_categories.down,
+    name: '20261103_124458_categories'
   },
 ];

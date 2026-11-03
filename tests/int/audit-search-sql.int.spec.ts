@@ -94,7 +94,7 @@ describe('finding 1: "Did you mean" only uses words a visitor can already see', 
       data: {
         title: 'Merger with Fairhaven agreed',
         status: 'published',
-        category: 'club',
+        category: w.categoryA.id,
         publishedAt: daysFromNow(14),
         tenant: w.clubA.id,
       } as never,

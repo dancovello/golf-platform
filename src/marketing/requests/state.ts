@@ -10,6 +10,6 @@ export type RequestState = {
   errors: RequestErrors
   /** A problem with the whole form rather than one field. */
   formError: string | null
-  /** After a successful send: where and by when, e.g. "Thursday 22 October". */
-  sent: { email: string; dueBy: string } | null
+  /** After a successful send: the address we'll write to. No date is promised. */
+  sent: { email: string } | null
 }

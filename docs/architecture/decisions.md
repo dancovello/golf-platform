@@ -81,7 +81,7 @@ Dan's devops contact checked and approved the review items raised in PRs #18, #2
 - **Cloudflare R2, one bucket per environment:** `golf-platform-media-staging` (staging and pull-request previews) and `golf-platform-media-production`. Location hint Western Europe. Not the EU jurisdiction used for backups: these are public website images, not personal data, and Cloudflare doesn't document the public address for jurisdiction buckets.
 - **Public files on a separate domain** (doc 04 §8). Until step 4 brings a domain, that's each bucket's `r2.dev` address, which Cloudflare intends for non-production traffic. **Step 4 must move production to a custom domain** (e.g. `media.<platform domain>`) behind Cloudflare.
 - **Unguessable, never listed:** each file sits in its own random folder, and every file name starts with a random code. The code also stops Payload renaming club A's `hero.jpg` to `hero-1.jpg` because club B has one, which would hint that another club exists. Visitors can't list the bucket or the Media collection.
-- **Uploads go straight from the browser to R2** (Vercel refuses request bodies over 4.5 MB), using a 10-minute signed link that can't overwrite an existing file. Links are only issued for the allowed types (JPEG, PNG, WebP, AVIF, MP4, WebM; no SVG; 50 MB), and the file is stored and served as that type (`src/media/uploadGuards.ts`; Payload itself doesn't check its own list at this step). Payload then downloads the file once and checks its real contents, refusing the record if they don't match.
+- **Uploads go straight from the browser to R2** (Vercel refuses request bodies over 4.5 MB), using a 10-minute signed link that can't overwrite an existing file. Links are only issued for the allowed types (JPEG, PNG, WebP, AVIF, MP4, WebM, and SVG for club files; 50 MB), and the file is stored and served as that type (`src/media/uploadGuards.ts`; Payload itself doesn't check its own list at this step). Payload then downloads the file once and checks its real contents, refusing the record if they don't match.
 - **Local development and tests** use SeaweedFS (`docker-compose.yml`), never real R2.
 - **Known gap:** a file that fails Payload's content check after a browser upload stays in the bucket, unlisted and served only as an allowed image or video type. A response header telling browsers not to second-guess the type (`X-Content-Type-Options: nosniff`) needs the custom domain in step 4. A clean-up job is a follow-up (Payload Jobs Queue).
 
@@ -362,7 +362,7 @@ Built from the Figma page "Marketing site" (170:28407): the variables, the CMS b
 
 - **Tokens:** every Figma marketing variable as `--mk-*`, including `accent-haze` (primary button hover) and `accent-peach` (Beta badge). Scoped to the marketing `<body class="mk">`; a test proves none reach a club site.
 - **Type:** the Figma text styles. Figma letter spacing is a percentage of the font size, so a 60px heading is −1.08px. Phones use Mobile Display (44/48) and Mobile Heading (32/36), with body text at 16px.
-- **Fonts:** Newsreader and Hanken Grotesk, self-hosted from Fontsource 5.3.0 (SIL Open Font License).
+- **Fonts:** Silka (Light, Regular, Medium, SemiBold) for headings and text, self-hosted as WOFF2 under the Hopp Studio licence. Replaced Newsreader and Hanken Grotesk on 28 Oct.
 - **Layout:** a 1200px container. Desktop sections are 128px apart, with 96px above a CTA band and 64px from header to content. Phones have 20px sides and 64px sections, and a page intro starts 40px down. **Tablet isn't designed**: 32px sides and 96px sections are derived.
 - **Blocks, with their fields from the Figma component descriptions** (second migration, `marketing_blocks_from_figma`, adds columns only):
   - **Section Header:** eyebrow, title (line breaks kept), body and alignment (left or centre). Page size for the first one, Section size elsewhere.
@@ -621,3 +621,80 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Why:** the repository is public again until 1 Nov (Dan). The 22 Oct guard stopped every staging release from 24 Oct (#147 to #193), so staging stayed on the 23 Oct release.
 - **Change:** the "repository must be private" check now runs only for production releases. Staging releases run whether the repository is public or private, as they did from 15 to 22 Oct. Secrets stay in GitHub and Vercel and are masked in logs; gitleaks still scans every pull request.
 - **Production:** still stops while the repository is public. Production releases are on hold anyway until Dan reviews the marketing pages.
+
+## 2026-11-02: Events with a date but no start time
+
+- **Why:** open days and similar events often have a date and no start time, but every event needed one, so the Cottrell open days had to stay out of What's on.
+- **Change:** a "No set start time" tick on an event (one migration adding a column that defaults to off). Only the date is shown on event cards, the featured panel, search and the quick answers. A saved event is stored at the start of its UK day.
+- **Stays up all day:** a normal event leaves the website once it has started; one with no set time stays until its day ends (UK time), in the events feed, the archive and site search. It is listed first on its day.
+- **Wording:** just the date (for example "Sat 14 Jun"), not "All day", because an open day is not necessarily all day.
+
+## 2026-11-02: Ladies' figures on the scorecard
+
+- **Why:** the first real club (Cottrell) showed that UK scorecards carry a women's course rating and slope per tee, a ladies' stroke index, and sometimes a different ladies' par. A tee held one rating and slope, and a hole one stroke index.
+- **Change:** four optional course fields: women's rating and slope on each tee, ladies' par and ladies' stroke index on each hole. The existing rating and slope are now labelled "(men)". One migration that only adds empty columns.
+- **Kept simple:** ladies' par is one figure per hole ("only if different"), not a par for every tee colour. Par only differs on the ladies' tees in practice. Nothing shows unless the club fills it in, so existing scorecards look the same.
+- **Wording:** "Ladies'" on the public scorecard (what UK clubs print); "women" for the ratings (the handicap system's term).
+
+## 2026-11-02: Public prospect demos at /demo/<club>-<ending>
+
+- **Dan, 2 Nov:** clubs should be able to see a demo (a homepage or a full site) from a link in an email, with no account.
+- **Where:** the company's own domain (and the platform's own address), at `/demo/<short name>-<random ending>`. The ending is 16 random characters (about 79 bits; first made 8, raised after the automated security review), so other clubs' demos can't be guessed.
+- **How long:** 30 days. The page strip reads "Demo - expires in X days". After that the link says it has expired. Nothing is deleted, and the date can be extended.
+- **Rules:** never indexed (page and header), no sitemap entry, contact form sends nothing, no editor accounts, no web address, never the canary clubs.
+- **Going live:** switch the demo off (clears the link), then add the club's web address. The live site is indexable on its own domain, since demo pages and live pages are different routes. This is a go-live checklist step (`docs/operations/prospect-demos.md`).
+- **The `/preview/…` rule is unchanged:** it still exists on staging only.
+- **Still to build:** a "promote" tool that copies an approved club from staging to production, keeping edits (the second PR). Until then, demos exist only where the club was built.
+
+## 2026-11-02: Clubs built straight onto production; no promote tool
+
+- **Dan, 2 Nov:** a staging-to-production "promote" tool isn't needed. The club's content file is the master copy, so a club that signs up is built again on production, and a demo is switched off to go live.
+- **Change:** `pnpm import-club-production <folder> [demo]`. It builds a new club only and refuses if the short name is already on production, so it can't overwrite edited work. It needs a typed `production` and Dan's approval, uses the website's limited `golf_app` account (never the owner), and removes a half-built club if the run fails. `demo` switches the public demo link on in the same step.
+- **Trade-off:** production's database address and photo keys sit in a private file on Dan's Mac (outside the project, never committed). A GitHub-run button would keep them in GitHub; not built.
+- **Rule kept:** edits made in an admin are never overwritten by a re-run, because production runs never replace.
+
+## 2026-11-02: Page tree removed
+
+- **Dan, 2 Nov:** the tree above the Pages list isn't wanted. `PageTree`, its data loader and their tests are gone; the Pages list is the normal Payload list again. Nothing in the database changes.
+- **Deleting a club now works from the Clubs list (Dan, 2 Nov: "unable to delete a club").** The database still refuses to delete a club that owns anything, so a `beforeDelete` hook on Clubs (`src/collections/Tenants.ts`) first removes the club's pages, news, events, photos and the rest (the list in `src/tenancy.ts`), in the same transaction. It **refuses if the club has editor accounts or an accepted agreement**: those are real records and must be removed deliberately. Super-admin only, as before. Tests: `tests/int/delete-club.int.spec.ts`.
+
+- **SVG uploads (Nov 2026):** club files (not the company website's) accept SVG, because logos and icons are often SVG. An SVG can carry code, so `src/media/checkSvg.ts` checks it before the record is saved, for server and browser uploads alike. It refuses (never quietly edits) any file with scripts, event handlers, embedded pages, or links to other addresses; only links within the drawing (`#gradient`) are allowed. Maximum 1 MB. The file stored is exactly the file checked. SVGs are chosen from the library only for a club's logos (`ClubSettings`); photo fields still take photos only.
+
+## 3 Nov 2026: the demo and homepage request form emails nothing to the person who sent it
+
+- Dan's decision: the email field is only so he knows where to send his follow-up. The form no longer sends the person a confirmation. The alert to the company inbox stays, with the person's address as its reply-to.
+- "Request your homepage" stays as a page (it reverses the 21 Oct "no free homepage" wording; docs 19 and 20 are updated to match when the v2 pages land).
+- `confirmationSentAt` stays on the request record for older requests (no data deleted, no migration), and shows in the admin only when set.
+
+
+## 2026-11-03: The live preview points at the block being edited
+
+- **Dan, 3 Nov:** hard to tell which block you're editing when many are open. Now, when you click or type in a block in the page editor, the live preview scrolls to that block (just under the site's header) and outlines it in blue. Typing in another field, such as the title, clears the outline.
+- **How:** the editor (`src/admin/BlockHighlighter.tsx`) tells the preview which block with a message to its own address only; the preview (`src/site/components/BlockHighlight.tsx`) finds the block by an invisible marker placed *after* each block, in the preview only (`RenderBlocks live`). Markers go after, not around, so the preview's layout is the live site's (the hero-over-header styles rely on the first block being the first element). The public site is unchanged.
+- **Limits:** it follows the page's blocks, not rows inside a block (cards, questions): those point at their block. Blocks that draw nothing aren't outlined.
+
+## 2026-11-03: Wireframes in the "Add block" list
+
+- **Dan, 3 Nov:** the block list showed plain placeholders. Each of the 20 page blocks now has a simple wireframe (grey shapes for photos and text, the brand green for buttons and highlights), drawn in `src/blocks/previews.ts` and given to Payload as each block's list picture (`admin.images.thumbnail`). No image files to host and nothing extra to load. `tests/unit/block-previews.spec.ts` fails if a new block is added without one.
+
+## 2026-11-03: "View page" button on the page screen
+
+- **Dan, 3 Nov:** a View page button on the page edit screen. It is Payload's own external-link button beside Save, labelled "View page" (`admin.preview` on Pages, `viewPageURL` in `src/site/livePreview.ts`). It opens in a new tab: the club's real address once the page is published and the club has a web address (production only), otherwise the club's preview of the page, drafts included, which only that club's signed-in editors and the super-admin can open.
+
+## 2026-11-03: Categories: one editable list per club
+
+- **Dan, 3 Nov:** editors couldn't add a news category (the six were fixed in the code), and categories shouldn't be tied to news, as events may want them later. There is now a general **Categories** section (Website group in the admin): one shared list per club, which editors add to, rename and remove. Club-owned like everything else, with the usual isolation tests.
+- **Used by news first.** An article's category and a "Latest news" block's category are now links to that list, not the old fixed choice. Events keep their own fixed list for now; moving them over later means adding a category field and a small migration, not a new section.
+- **Starter list.** Every new club gets Course news, Competitions, Clubhouse, Membership, Academy and Club news (`src/collections/defaultCategories.ts`, created by the club's creation hook). The migration gave every existing club the same six and pointed each article and news block at the matching one, before dropping the old columns. The guard's approved list records it; **it needs Dan's `approved-destructive-migration` label** because it drops those columns.
+- **Web addresses.** Each category has a short address (`course`, `competitions`…) made from its name when it is created. Renaming doesn't change it, so existing `/news?category=course` links keep working.
+- **Order** on the website is the order they were added. There is no reordering yet (kept simple on purpose).
+- **Safety.** A category that articles still use can't be removed (the message says to move them first). An article or news block can only use the club's own categories (checked on save, like photos and pages). Removing a whole club removes its categories after its news.
+- **Scripts.** The demo club, the canary clubs and the club importer look categories up by address; content files can say `"category": "@category:competitions"` (a plain `"competitions"` still works for news).
+- **Not updated automatically:** the search index's small category label on a news result refreshes when that article is next saved, not when a category is renamed.
+
+## 2026-11-03: Company domain a1engine.co
+
+- **Dan, 3 Nov:** bought `a1engine.co` through Vercel, so Vercel also manages its DNS and issues the certificates. No records need sending to anyone.
+- **Addresses (Vercel → Domains, Production):** `a1engine.co` is the main company address, `www.a1engine.co` forwards to it, and `app.a1engine.co` is the admin. Production sets `MARKETING_HOSTS=a1engine.co,www.a1engine.co` and `ADMIN_URL=https://app.a1engine.co`. Staging and previews keep their own addresses.
+- **In the code:** `BRAND.domain` in `src/brand.ts` is now `a1engine.co`. The company email is `daniel@a1engine.co`, on Dan's existing Google Workspace account with `a1engine.co` added as a domain (Google's mail, spam-protection and signing records are in Vercel's DNS).
+- **Still to do:** verify `a1engine.co` as the sending domain in Resend and set `EMAIL_FROM_ADDRESS`; check whether the marketing forms need `a1engine.co` on the Turnstile widget (the free widget lists 10 addresses); point the uptime monitor at `app.a1engine.co/health`. Nothing is public until the held main → production release.

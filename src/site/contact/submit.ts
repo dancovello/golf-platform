@@ -5,6 +5,7 @@ import { enquiryPurposeLabel } from '@/collections/enquiryPurposes'
 import { allowRequest, CONTACT_CLUB_LIMIT } from '@/security/rateLimit'
 
 import { isExternal, siteHref } from '../components/links'
+import { isDemoClub } from '../demoClub'
 import { loadClubBySlug } from '../loadClub'
 import { checkFormToken, issueFormToken } from './formToken'
 import { verifyTurnstile } from './turnstile'
@@ -31,6 +32,8 @@ const CHECK_UNAVAILABLE =
   'We couldn’t send your message just now. Please try again in a minute, or phone or email us instead.'
 const BUSY =
   'We’re receiving a lot of messages right now. Please try again later, or phone or email us instead.'
+
+const DEMO_FORM = 'This is a demo, so messages can’t be sent from it.'
 
 const excerptOf = (message: string) => {
   const flat = message.trim().replace(/\s+/g, ' ')
@@ -106,6 +109,9 @@ export const submitEnquiry = async (
       values: EMPTY_VALUES,
       sent: summary(values, settings, newReference(club.name), now, base),
     })
+
+  // A prospect demo (src/site/demo.ts) sends and stores nothing, whatever page it came from.
+  if (await isDemoClub(club.tenantID)) return keep({ formError: DEMO_FORM })
 
   const honeypot = form.get('website')
   if (typeof honeypot === 'string' && honeypot.trim()) return pretendSent()
