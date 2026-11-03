@@ -42,10 +42,11 @@ const NEW: Partial<Record<ClubOwnedSlug, (tenant: string, n: number) => Record<s
     pages: (tenant, n) => ({ title: `Fuzz ${n}`, slug: `fuzz-${n}`, tenant }),
     news: (tenant, n) => ({
       title: `Fuzz ${n}`,
-      category: 'club',
+      category: tenant === w.clubA.id ? w.categoryA.id : w.categoryB.id,
       publishedAt: new Date().toISOString(),
       tenant,
     }),
+    categories: (tenant, n) => ({ name: `Fuzz ${n}`, slug: `fuzz-${n}`, tenant }),
     events: (tenant, n) => ({
       title: `Fuzz ${n}`,
       category: 'social',
@@ -66,6 +67,7 @@ const NEW: Partial<Record<ClubOwnedSlug, (tenant: string, n: number) => Record<s
 const CHANGE: Record<ClubOwnedSlug, (n: number) => Record<string, unknown>> = {
   pages: (n) => ({ title: `Changed ${n}` }),
   news: (n) => ({ title: `Changed ${n}` }),
+  categories: (n) => ({ name: `Changed ${n}` }),
   events: (n) => ({ title: `Changed ${n}` }),
   staff: (n) => ({ name: `Changed ${n}` }),
   courses: (n) => ({ name: `Changed ${n}` }),

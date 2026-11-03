@@ -11,7 +11,7 @@ import { STARTER_PAGES, starterPageData } from '@/marketing/starter/pages'
 
 import { pdfFile, photoFile } from '../shared/media'
 import { rt } from '../shared/richText'
-import { enrolTwoFactor, PASSWORD, seedWorld } from '../int/helpers/seed'
+import { categoryOf, enrolTwoFactor, PASSWORD, seedWorld } from '../int/helpers/seed'
 
 const w = await seedWorld()
 
@@ -504,7 +504,7 @@ for (const [title, category, date] of articles) {
     collection: 'news',
     data: {
       title,
-      category,
+      category: (await categoryOf(w.payload, w.clubA.id, category)).id,
       status: 'published',
       publishedAt: `${date}T12:00:00.000Z`,
       excerpt: `${title}: the latest from the club.`,
@@ -527,7 +527,7 @@ await w.payload.create({
   collection: 'news',
   data: {
     title: 'Unfinished draft',
-    category: 'club',
+    category: w.categoryA.id,
     status: 'draft',
     publishedAt: '2026-07-13T12:00:00.000Z',
     tenant: w.clubA.id,

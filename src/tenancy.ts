@@ -15,6 +15,8 @@ export const clubOwnedCollections = {
   staff: {},
   courses: {},
   news: {},
+  // After news: deleting a club removes these in order, and a category in use can't be removed.
+  categories: {},
   'agreement-acceptances': {},
   events: {},
   enquiries: {},

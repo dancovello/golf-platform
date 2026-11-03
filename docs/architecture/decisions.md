@@ -680,3 +680,14 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 ## 2026-11-03: "View page" button on the page screen
 
 - **Dan, 3 Nov:** a View page button on the page edit screen. It is Payload's own external-link button beside Save, labelled "View page" (`admin.preview` on Pages, `viewPageURL` in `src/site/livePreview.ts`). It opens in a new tab: the club's real address once the page is published and the club has a web address (production only), otherwise the club's preview of the page, drafts included, which only that club's signed-in editors and the super-admin can open.
+
+## 2026-11-03: Categories: one editable list per club
+
+- **Dan, 3 Nov:** editors couldn't add a news category (the six were fixed in the code), and categories shouldn't be tied to news, as events may want them later. There is now a general **Categories** section (Website group in the admin): one shared list per club, which editors add to, rename and remove. Club-owned like everything else, with the usual isolation tests.
+- **Used by news first.** An article's category and a "Latest news" block's category are now links to that list, not the old fixed choice. Events keep their own fixed list for now; moving them over later means adding a category field and a small migration, not a new section.
+- **Starter list.** Every new club gets Course news, Competitions, Clubhouse, Membership, Academy and Club news (`src/collections/defaultCategories.ts`, created by the club's creation hook). The migration gave every existing club the same six and pointed each article and news block at the matching one, before dropping the old columns. The guard's approved list records it; **it needs Dan's `approved-destructive-migration` label** because it drops those columns.
+- **Web addresses.** Each category has a short address (`course`, `competitions`…) made from its name when it is created. Renaming doesn't change it, so existing `/news?category=course` links keep working.
+- **Order** on the website is the order they were added. There is no reordering yet (kept simple on purpose).
+- **Safety.** A category that articles still use can't be removed (the message says to move them first). An article or news block can only use the club's own categories (checked on save, like photos and pages). Removing a whole club removes its categories after its news.
+- **Scripts.** The demo club, the canary clubs and the club importer look categories up by address; content files can say `"category": "@category:competitions"` (a plain `"competitions"` still works for news).
+- **Not updated automatically:** the search index's small category label on a news result refreshes when that article is next saved, not when a category is renamed.

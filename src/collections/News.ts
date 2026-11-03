@@ -6,7 +6,6 @@ import { clubRichText } from '../blocks/richText/lexical'
 import { SLUG, SLUG_MESSAGE, slugify } from '../fields/slug'
 import { newsLivePreview } from '../site/livePreview'
 import { checkNewsSameClub } from '../site/sameClub'
-import { NEWS_CATEGORIES } from './newsCategories'
 import { clubBannerField } from '../tenancy'
 import { searchHooks } from '../search/hooks'
 
@@ -67,10 +66,10 @@ export const News: CollectionConfig = {
         {
           name: 'category',
           label: 'Category',
-          type: 'select',
+          type: 'relationship',
+          relationTo: 'categories',
           required: true,
-          defaultValue: 'club',
-          options: [...NEWS_CATEGORIES],
+          admin: { description: 'Add or change categories under Website → Categories.' },
         },
       ],
     },

@@ -1,5 +1,3 @@
-import { NEWS_CATEGORIES, newsCategoryLabel } from '@/collections/newsCategories'
-
 import { Search } from '../components/Icons'
 import { NEWS_PER_PAGE, type newsArchive } from '../news'
 import { NewsCard } from './NewsCard'
@@ -31,7 +29,8 @@ const archiveHref = (
  * plain form).
  */
 export const NewsArchive = ({ archive, base }: { archive: Archive; base: string }) => {
-  const { category, q, cards, page, pages, total } = archive
+  const { category, categories, q, cards, page, pages, total } = archive
+  const categoryName = categories.find((c) => c.slug === category)?.name ?? 'News'
   const [lead, ...rest] = cards
   const first = (page - 1) * NEWS_PER_PAGE + 1
   const last = first + cards.length - 1
@@ -48,7 +47,10 @@ export const NewsArchive = ({ archive, base }: { archive: Archive; base: string 
 
       <div className="news-filters">
         <nav className="news-pills" aria-label="News categories">
-          {[{ label: 'All', value: null as string | null }, ...NEWS_CATEGORIES].map((c) => (
+          {[
+            { label: 'All', value: null as string | null },
+            ...categories.map((c) => ({ label: c.name, value: c.slug as string | null })),
+          ].map((c) => (
             <a
               key={c.label}
               className={`news-pill t-label-s${category === c.value ? ' is-active' : ''}`}
@@ -116,9 +118,9 @@ export const NewsArchive = ({ archive, base }: { archive: Archive; base: string 
             {total > 0
               ? 'There’s no page with that number'
               : q
-                ? `No articles match “${q}”${category ? ` in ${newsCategoryLabel(category)}` : ''}.`
+                ? `No articles match “${q}”${category ? ` in ${categoryName}` : ''}.`
                 : category
-                  ? `No ${newsCategoryLabel(category).toLowerCase()} yet`
+                  ? `No ${categoryName.toLowerCase()} yet`
                   : 'No news yet'}
           </h2>
           <p className="t-body-s">
