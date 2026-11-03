@@ -69,6 +69,21 @@ test('the hero frame: the real Hero block, inert, only for known styles', async 
   expect((await page.goto(site('/frame/hero/nonsense')))?.status()).toBe(404)
 })
 
+test('the Two-Column frame: the real block in each club, inert, only for known clubs and designs', async ({
+  page,
+}) => {
+  for (const club of ['heritage', 'coastal']) {
+    for (const design of ['split', 'collage', 'keyFacts']) {
+      const ok = await page.goto(site(`/frame/two-column/${club}/${design}`))
+      expect(ok?.status()).toBe(200)
+      await expect(page.locator('.club-theme')).toHaveAttribute('inert', '')
+      await expect(page.locator('.tc')).toBeVisible()
+    }
+  }
+  expect((await page.goto(site('/frame/two-column/coastal/nonsense')))?.status()).toBe(404)
+  expect((await page.goto(site('/frame/two-column/bookingLed/split')))?.status()).toBe(404)
+})
+
 test('Token Dial: picking a colour re-skins the demo and explains the text colour', async ({
   page,
 }) => {

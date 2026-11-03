@@ -36,3 +36,8 @@
     aspect-ratio: auto;
   }
 }
+
+/* A short block (Block Switcher) sits on the club's page colour, not the browser's white. */
+.frame {
+  background: var(--color-surface-canvas);
+}

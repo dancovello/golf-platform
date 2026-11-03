@@ -2415,7 +2415,7 @@ export interface MarketingBuilderHeroBlock {
  * via the `definition` "MarketingLiveDemoBlock".
  */
 export interface MarketingLiveDemoBlock {
-  demo: 'tokenDial' | 'courseGuide' | 'courseStatus';
+  demo: 'tokenDial' | 'courseGuide' | 'courseStatus' | 'blockSwitcher';
   details?:
     | {
         title: string;

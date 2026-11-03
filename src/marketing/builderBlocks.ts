@@ -64,6 +64,7 @@ const liveDemo: Block = {
         { label: 'Club colours (Token Dial)', value: 'tokenDial' },
         { label: 'Course guide', value: 'courseGuide' },
         { label: 'Course status and news', value: 'courseStatus' },
+        { label: 'Block switcher (one block, three designs, two clubs)', value: 'blockSwitcher' },
       ],
     },
     {

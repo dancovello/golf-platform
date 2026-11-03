@@ -20,6 +20,7 @@ import {
 import { AvailabilityBadge, BrowserChrome, MarketingButton } from '@/marketing/site/parts'
 import { DemoBookingPreview } from '@/marketing/site/booking/DemoBookingPreview'
 import { TenantMorph } from '@/marketing/demo/TenantMorph'
+import { BlockSwitcher } from '@/marketing/site/builder/BlockSwitcher'
 import { FounderCard } from '@/marketing/site/FounderCard'
 import { ProofStat } from '@/marketing/site/ProofStat'
 import { isSignedInSuperAdmin } from '@/marketing/superAdmin'
@@ -174,6 +175,11 @@ export default async function ComponentsReview() {
         <Row name="Tenant Morph (live demo)" node="176:2177">
           <div className="mk-review-demo">
             <TenantMorph />
+          </div>
+        </Row>
+        <Row name="Block Switcher (live demo)" node="359:5798">
+          <div className="mk-review-wide">
+            <BlockSwitcher />
           </div>
         </Row>
         <Row name="Browser Chrome" node="176:1929">

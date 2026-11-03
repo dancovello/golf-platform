@@ -3649,6 +3649,33 @@ button.mk-button {
   color: var(--mk-text-tertiary);
 }
 
+/* Marketing/Block Switcher (359:5798): the flipper's stage, with the design and club pickers. */
+.mk-switcher-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 20px;
+  border-top: 1px solid var(--mk-border-hairline);
+}
+.mk-switcher-pickers {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+.mk-switcher-divider {
+  width: 1px;
+  height: 24px;
+  background: var(--mk-border-hairline);
+}
+@media (max-width: 767px) {
+  .mk-switcher-divider {
+    display: none;
+  }
+}
+
 /* A live demo with its details 64px below (desktop; 290:9529). */
 .mk-live-demo {
   display: flex;
