@@ -4728,7 +4728,7 @@ export interface MarketingSetting {
   id: string;
   branding?: {
     /**
-     * Shown in the menu, the footer and the homepage animation. Use a transparent PNG or WebP at least 800px wide, in light colours: it sits on the dark green. Empty: the built-in A1.Studios logo.
+     * Shown in the menu, the footer and the homepage animation. Use a transparent PNG or WebP at least 800px wide, in light colours: it sits on the dark green. Empty: the built-in A1.Engine logo.
      */
     logo?: (string | null) | MarketingMedia;
     /**

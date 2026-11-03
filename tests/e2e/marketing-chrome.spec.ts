@@ -70,7 +70,7 @@ test('footer: the site map, legal links and this year', async ({ page }) => {
     'href',
     'mailto:hello@brandname.golf',
   )
-  await expect(footer.getByText(`© ${new Date().getFullYear()} A1.Studios`)).toBeVisible()
+  await expect(footer.getByText(`© ${new Date().getFullYear()} A1.Engine`)).toBeVisible()
 })
 
 test('nav and footer pass axe on phone and desktop', async ({ page }) => {

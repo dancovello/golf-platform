@@ -11,7 +11,7 @@ test('a published page shows on the company domain; a draft doesn’t', async ({
   expect(response?.status()).toBe(200)
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('One clear price')
   await expect(page.getByText(MARKETING_ONLY)).toBeVisible()
-  await expect(page).toHaveTitle('E2E pricing | A1.Studios')
+  await expect(page).toHaveTitle('E2E pricing | A1.Engine')
   await expect(page.locator('meta[name="description"]')).toHaveAttribute(
     'content',
     'One price for your club, shown in full.',

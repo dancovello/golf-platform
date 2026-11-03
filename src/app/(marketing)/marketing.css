@@ -5577,6 +5577,10 @@ html[data-intro='reveal'] .mk-footer {
   text-align: center;
   pointer-events: none;
 }
+.mk-intro-mark[data-kind='logo'] {
+  /* 50px of extra space under the logo, lifting it away from the ball. */
+  padding-bottom: 50px;
+}
 .mk-intro-logo {
   display: inline-flex;
   align-items: center;
