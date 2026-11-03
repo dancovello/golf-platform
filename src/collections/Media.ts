@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { clubContentCreate, loggedIn } from '../access/roles'
+import { checkSvgUpload } from '../media/checkSvg'
 import { cleanOriginal } from '../media/cleanOriginal'
 import { measureUpload } from '../media/measure'
 import { randomServerUploadName } from '../media/uploadGuards'
@@ -9,12 +10,14 @@ import { clubBannerField } from '../tenancy'
 import { searchHooks } from '../search/hooks'
 
 /** Photos and videos a club can use in its blocks. Images are checked by their actual
- * contents, not their name; anything not on this list is refused. No SVG: it can carry code. */
+ * contents, not their name; anything not on this list is refused. SVG (logos and icons) is
+ * allowed only if it is plain artwork (src/media/checkSvg.ts): it can otherwise carry code. */
 export const MEDIA_TYPES = [
   'image/jpeg',
   'image/png',
   'image/webp',
   'image/avif',
+  'image/svg+xml',
   'video/mp4',
   'video/webm',
 ]
@@ -39,7 +42,7 @@ export const Media: CollectionConfig = {
   access: { create: clubContentCreate, read: loggedIn, update: loggedIn, delete: loggedIn },
   hooks: {
     beforeOperation: [folder.assignFolder, randomServerUploadName],
-    beforeChange: [measureUpload],
+    beforeChange: [checkSvgUpload, measureUpload],
     ...searchHooks,
   },
   upload: {

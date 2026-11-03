@@ -2640,6 +2640,9 @@ export interface HomepageRequest {
   website: string;
   email: string;
   alertSentAt?: string | null;
+  /**
+   * Set only on requests made before 3 Nov 2026. Nothing is emailed to the person now.
+   */
   confirmationSentAt?: string | null;
   notes?: string | null;
   updatedAt: string;

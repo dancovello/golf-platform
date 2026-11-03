@@ -74,7 +74,13 @@ export const HomepageRequests: CollectionConfig = {
       label: 'Confirmation emailed to them',
       type: 'date',
       access: asSent,
-      admin: { readOnly: true, date: { pickerAppearance: 'dayAndTime' } },
+      admin: {
+        readOnly: true,
+        date: { pickerAppearance: 'dayAndTime' },
+        description:
+          'Set only on requests made before 3 Nov 2026. Nothing is emailed to the person now.',
+        condition: (_data, siblingData) => Boolean(siblingData?.confirmationSentAt),
+      },
     },
     { name: 'notes', label: 'Notes', type: 'textarea' },
   ],

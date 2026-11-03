@@ -220,7 +220,7 @@ Pull the full set with `get_variable_defs` on `176:2178`. Expose as CSS custom p
 |---|---|
 | Surfaces | `--mk-surface-canvas #091a13` · `--mk-surface-raised #0d2219` · `--mk-surface-elevated #11291f` · `--mk-surface-hover #173327` · `--mk-surface-tint #f3f1ea0a` |
 | Text | `--mk-text-primary #f3f1ea` · `--mk-text-secondary #a3ada6` · `--mk-text-tertiary #8a968f` · `--mk-text-on-accent #091a13` |
-| Accent | `--mk-accent-dawn #ebc07a` · `-wash #ebc07a14` · `-edge #ebc07a66` |
+| Accent | `--mk-accent-dawn #D6DF23` · `-wash #D6DF2314` · `-edge #D6DF2366` |
 | Signal | `--mk-signal-live #7bd4a0` · `-wash #7bd4a029` |
 | Borders | `--mk-border-hairline #f3f1ea14` · `-strong #f3f1ea29` · `-track #6b767066` |
 | Radius | control 8 · window 12 · panel 14 · pill 999 |
@@ -301,7 +301,7 @@ Create `docs/marketing-site/claims-register.md` and add a row for every factual 
 **Homepage Request Form** (Switching page; requests a demo):
 - Fields: club name, current website, email. Validate URL loosely (accept without `https://`).
 - Success state: "Thanks. We'll be in touch." plus "We'll email {email} to arrange your demo." **No date promised.** Use the person's name if collected.
-- Creates a `demoRequests` record, emails Dan, sends the prospect a plain confirmation. Rate-limit; honeypot plus Cloudflare Turnstile.
+- Creates a `demoRequests` record, emails Dan (nothing is emailed to the prospect: their email is only for Dan's follow-up, 3 Nov). Rate-limit; honeypot plus Cloudflare Turnstile.
 - The example homepage is shown in the demo. It is never emailed or linked to the prospect.
 
 **Demo Booking:** Details → Pick a time → Booked. Availability from Dan's real calendar (Q4). Weekdays only. Confirmation email with a calendar invite.

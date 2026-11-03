@@ -80,9 +80,8 @@ export const HOMEPAGE_REQUESTS_PER_HOUR: Limit = {
   max: 20,
   windowSeconds: 60 * 60,
 }
-/** Homepage requests emailed per day (an alert to the company and a confirmation to the club
- * each). Past this they're saved but not emailed, so the form can't be used to send strangers
- * confirmations or use up the shared email allowance. */
+/** Homepage requests emailed per day (an alert to the company each). Past this they're saved
+ * but not emailed, so the form can't be used to use up the shared email allowance. */
 export const HOMEPAGE_REQUESTS_EMAILED_PER_DAY: Limit = {
   name: 'homepage-request-emails',
   max: 10,
