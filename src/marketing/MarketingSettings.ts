@@ -19,7 +19,7 @@ export const MarketingSettings: GlobalConfig = {
   fields: [
     {
       // The logo and tab icon. Uploads are PNG, WebP or JPEG (no SVG: it can carry code). Until
-      // a logo is uploaded, the A1.Studios logo built into the site is used.
+      // a logo is uploaded, the A1.Engine logo built into the site is used.
       name: 'branding',
       label: 'Logo and icon',
       type: 'group',
@@ -31,7 +31,7 @@ export const MarketingSettings: GlobalConfig = {
           relationTo: 'marketing-media',
           admin: {
             description:
-              'Shown in the menu, the footer and the homepage animation. Use a transparent PNG or WebP at least 800px wide, in light colours: it sits on the dark green. Empty: the built-in A1.Studios logo.',
+              'Shown in the menu, the footer and the homepage animation. Use a transparent PNG or WebP at least 800px wide, in light colours: it sits on the dark green. Empty: the built-in A1.Engine logo.',
           },
         },
         {
