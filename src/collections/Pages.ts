@@ -90,6 +90,12 @@ export const Pages: CollectionConfig = {
   hooks: { beforeValidate: [defaultSlug, checkPageSameClub], ...searchHooks },
   fields: [
     clubBannerField,
+    // Tells the live preview which block is being edited, so it can scroll to it and outline it.
+    {
+      name: 'blockHighlighter',
+      type: 'ui',
+      admin: { components: { Field: '/admin/BlockHighlighter#BlockHighlighter' } },
+    },
     { name: 'title', type: 'text', required: true },
     {
       name: 'slug',
