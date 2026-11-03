@@ -659,3 +659,10 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Deleting a club now works from the Clubs list (Dan, 2 Nov: "unable to delete a club").** The database still refuses to delete a club that owns anything, so a `beforeDelete` hook on Clubs (`src/collections/Tenants.ts`) first removes the club's pages, news, events, photos and the rest (the list in `src/tenancy.ts`), in the same transaction. It **refuses if the club has editor accounts or an accepted agreement**: those are real records and must be removed deliberately. Super-admin only, as before. Tests: `tests/int/delete-club.int.spec.ts`.
 
 - **SVG uploads (Nov 2026):** club files (not the company website's) accept SVG, because logos and icons are often SVG. An SVG can carry code, so `src/media/checkSvg.ts` checks it before the record is saved, for server and browser uploads alike. It refuses (never quietly edits) any file with scripts, event handlers, embedded pages, or links to other addresses; only links within the drawing (`#gradient`) are allowed. Maximum 1 MB. The file stored is exactly the file checked. SVGs are chosen from the library only for a club's logos (`ClubSettings`); photo fields still take photos only.
+
+## 3 Nov 2026: the demo and homepage request form emails nothing to the person who sent it
+
+- Dan's decision: the email field is only so he knows where to send his follow-up. The form no longer sends the person a confirmation. The alert to the company inbox stays, with the person's address as its reply-to.
+- "Request your homepage" stays as a page (it reverses the 21 Oct "no free homepage" wording; docs 19 and 20 are updated to match when the v2 pages land).
+- `confirmationSentAt` stays on the request record for older requests (no data deleted, no migration), and shows in the admin only when set.
+

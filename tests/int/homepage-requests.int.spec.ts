@@ -282,14 +282,11 @@ describe('emails', () => {
   it('sends nothing when email isn’t set up', async () => {
     const sendEmail = vi.spyOn(w.payload, 'sendEmail')
     const id = await sendAndKeepID()
-    expect(await sendHomepageRequestEmails(id)).toEqual({
-      alert: 'email-off',
-      confirmation: 'email-off',
-    })
+    expect(await sendHomepageRequestEmails(id)).toEqual({ alert: 'email-off' })
     expect(sendEmail).not.toHaveBeenCalled()
   })
 
-  it('emails the inbox from Settings, and a plain confirmation to the club without their link', async () => {
+  it('emails the inbox from Settings, and nothing to the person who sent it', async () => {
     process.env.RESEND_API_KEY = 'test-only'
     await w.payload.updateGlobal({
       slug: 'marketing-settings',
@@ -298,47 +295,50 @@ describe('emails', () => {
     })
     const sendEmail = vi.spyOn(w.payload, 'sendEmail').mockResolvedValue({})
     const id = await sendAndKeepID()
-    expect(await sendHomepageRequestEmails(id)).toEqual({ alert: 'sent', confirmation: 'sent' })
-    const [alert, confirmation] = sendEmail.mock.calls.map((c) => c[0] as Record<string, string>)
+    expect(await sendHomepageRequestEmails(id)).toEqual({ alert: 'sent' })
+    // One email only, to the company: their address is for Dan's own follow-up.
+    expect(sendEmail).toHaveBeenCalledTimes(1)
+    const [alert] = sendEmail.mock.calls.map((c) => c[0] as Record<string, string>)
     expect(alert.to).toBe('requests@company.example')
     expect(alert.replyTo).toBe('secretary@ashgrove.example')
     expect(alert.subject).toBe('Demo request: Ashgrove Park Golf Club')
     expect(alert.text).not.toMatch(/promised|free|due/i)
     expect(alert.text).toContain('Current website: https://ashgroveparkgc.co.uk')
-    expect(confirmation.to).toBe('secretary@ashgrove.example')
-    expect(confirmation.replyTo).toBe('requests@company.example')
-    expect(confirmation.subject).toBe('Your demo request')
-    expect(confirmation.text).toContain('arrange a time')
-    expect(confirmation.text).not.toMatch(/free|by (Monday|Tuesday|Wednesday|Thursday|Friday)/i)
-    expect(confirmation.text).not.toContain('ashgroveparkgc')
-    // Nothing the visitor typed reaches an address nobody has checked.
-    expect(confirmation.text).not.toContain('Ashgrove')
-    expect(confirmation).not.toHaveProperty('html')
     const request = await w.payload.findByID({
       collection: 'homepage-requests',
       id,
       overrideAccess: true,
     })
     expect(request.alertSentAt).toBeTruthy()
-    expect(request.confirmationSentAt).toBeTruthy()
+    expect(request.confirmationSentAt).toBeFalsy()
   })
 
   it(`emails at most ${HOMEPAGE_REQUESTS_EMAILED_PER_DAY.max} requests a day, and keeps the rest`, async () => {
     process.env.RESEND_API_KEY = 'test-only'
+    await w.payload.updateGlobal({
+      slug: 'marketing-settings',
+      data: { requests: { inbox: 'requests@company.example' } } as never,
+      overrideAccess: true,
+    })
     const sendEmail = vi.spyOn(w.payload, 'sendEmail').mockResolvedValue({})
     vi.spyOn(w.payload.logger, 'warn').mockImplementation(() => undefined)
     const results = []
     for (let i = 0; i <= HOMEPAGE_REQUESTS_EMAILED_PER_DAY.max; i++) {
       results.push(await sendHomepageRequestEmails(await sendAndKeepID()))
     }
-    expect(results.at(-1)).toEqual({ alert: 'daily-limit', confirmation: 'daily-limit' })
-    // No inbox set: one confirmation each, for the first 10 only.
+    expect(results.at(-1)).toEqual({ alert: 'daily-limit' })
+    // One alert each, for the first 10 only.
     expect(sendEmail).toHaveBeenCalledTimes(HOMEPAGE_REQUESTS_EMAILED_PER_DAY.max)
     expect(await saved()).toHaveLength(HOMEPAGE_REQUESTS_EMAILED_PER_DAY.max + 1)
   })
 
   it('sends nothing once the website forms have used their shared daily emails', async () => {
     process.env.RESEND_API_KEY = 'test-only'
+    await w.payload.updateGlobal({
+      slug: 'marketing-settings',
+      data: { requests: { inbox: 'requests@company.example' } } as never,
+      overrideAccess: true,
+    })
     const sendEmail = vi.spyOn(w.payload, 'sendEmail').mockResolvedValue({})
     vi.spyOn(w.payload.logger, 'warn').mockImplementation(() => undefined)
     // The Contact form has used the whole allowance today (the 30 kept back are for
@@ -347,20 +347,18 @@ describe('emails', () => {
       await allowRequest(db(), WEBSITE_FORM_EMAILS, 'all')
     }
     const id = await sendAndKeepID()
-    expect(await sendHomepageRequestEmails(id)).toEqual({
-      alert: 'no-inbox',
-      confirmation: 'daily-limit',
-    })
+    expect(await sendHomepageRequestEmails(id)).toEqual({ alert: 'daily-limit' })
     expect(sendEmail).not.toHaveBeenCalled()
   })
 
-  it('without an inbox, still confirms to the club and keeps the request', async () => {
+  it('without an inbox, sends nothing and keeps the request', async () => {
     process.env.RESEND_API_KEY = 'test-only'
     const sendEmail = vi.spyOn(w.payload, 'sendEmail').mockResolvedValue({})
     vi.spyOn(w.payload.logger, 'warn').mockImplementation(() => undefined)
     const id = await sendAndKeepID()
-    expect(await sendHomepageRequestEmails(id)).toEqual({ alert: 'no-inbox', confirmation: 'sent' })
-    expect(sendEmail).toHaveBeenCalledTimes(1)
+    expect(await sendHomepageRequestEmails(id)).toEqual({ alert: 'no-inbox' })
+    expect(sendEmail).not.toHaveBeenCalled()
+    expect(await saved()).toHaveLength(1)
   })
 })
 

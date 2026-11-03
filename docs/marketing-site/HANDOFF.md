@@ -300,7 +300,7 @@ Create `docs/marketing-site/claims-register.md` and add a row for every factual 
 **Homepage Request Form** (Switching page; requests a demo):
 - Fields: club name, current website, email. Validate URL loosely (accept without `https://`).
 - Success state: "Thanks. We'll be in touch." plus "We'll email {email} to arrange your demo." **No date promised.** Use the person's name if collected.
-- Creates a `demoRequests` record, emails Dan, sends the prospect a plain confirmation. Rate-limit; honeypot plus Cloudflare Turnstile.
+- Creates a `demoRequests` record, emails Dan (nothing is emailed to the prospect: their email is only for Dan's follow-up, 3 Nov). Rate-limit; honeypot plus Cloudflare Turnstile.
 - The example homepage is shown in the demo. It is never emailed or linked to the prospect.
 
 **Demo Booking:** Details → Pick a time → Booked. Availability from Dan's real calendar (Q4). Weekdays only. Confirmation email with a calendar invite.
