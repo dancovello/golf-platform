@@ -19,8 +19,9 @@ import { DemoBooking } from './DemoBooking'
  * calls, less anything booked. With no hours set, or if they can't be read, it offers email.
  */
 export const DemoIntro = async ({ block }: { block: MarketingDemoIntroBlock }) => {
-  const open = await openTimes()
+  const times = await openTimes()
   const mailto = `mailto:${BRAND.email}?subject=${encodeURIComponent('Demo')}`
+  const reschedule = `mailto:${BRAND.email}?subject=${encodeURIComponent('Reschedule my demo')}`
   return (
     <div className="mk-demo-intro">
       <div className="mk-demo-intro-copy">
@@ -48,8 +49,13 @@ export const DemoIntro = async ({ block }: { block: MarketingDemoIntroBlock }) =
         ) : null}
       </div>
       <div className="mk-demo-intro-panel">
-        {open ? (
-          <DemoBooking open={open} book={bookDemo} />
+        {times ? (
+          <DemoBooking
+            open={times.open}
+            minutes={times.minutes}
+            book={bookDemo}
+            rescheduleHref={reschedule}
+          />
         ) : (
           <div className="mk-booking-fallback">
             <h2 className="mk-booking-title">Pick a time by email</h2>
@@ -72,7 +78,10 @@ export const DemoIntro = async ({ block }: { block: MarketingDemoIntroBlock }) =
   )
 }
 
-/** The times on offer now, or null when no hours are set (or the database can't be read). */
+/**
+ * The times on offer now and how long each call lasts, or null when no hours are set (or the
+ * database can't be read).
+ */
 const openTimes = async () => {
   try {
     const settings = await marketingSettings()
@@ -80,7 +89,7 @@ const openTimes = async () => {
     if (!hasHours(booking)) return null
     const now = new Date()
     const taken = await takenSlots(await getPayload({ config }), ukClock(now).date)
-    return openDays(booking, taken, now)
+    return { open: openDays(booking, taken, now), minutes: booking.slotMinutes }
   } catch (error) {
     console.error('Book a demo: could not read the booking times, showing email instead', error)
     return null
