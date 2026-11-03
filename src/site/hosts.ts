@@ -39,7 +39,7 @@ export const isPlatformHost = (host: string, adminURL = process.env.ADMIN_URL): 
 
 /**
  * The company website's addresses (the marketing site), from MARKETING_HOSTS: comma-separated,
- * main address first, e.g. "brandname.golf,www.brandname.golf". The others forward to the main
+ * main address first, e.g. "a1engine.co,www.a1engine.co". The others forward to the main
  * one. Empty until the company domain exists; staging and previews show the marketing site on
  * the platform's own address instead (src/proxy.ts).
  */
