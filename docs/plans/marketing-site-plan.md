@@ -107,7 +107,7 @@ The hand-off's own open questions (Q2–Q10: VAT, second-course price, calendar,
    - Coming next rows switched off with their badge.
    - Committee questions, including the export format and migration limits.
 2. **Switching to us, with the homepage request form working end to end:**
-   - Saves to Payload, emails you and sends the prospect a plain confirmation.
+   - Saves to Payload, emails you. Nothing is sent to the prospect (3 Nov: their email is only for your follow-up).
    - Protected by Turnstile, a hidden spam trap and rate limits.
    - "We'll send your homepage by {date}" uses two UK working days, skipping weekends and bank holidays. The bank holiday list is a saved copy, with a test that fails before it runs out.
 3. **Book a demo:**

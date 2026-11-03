@@ -267,9 +267,9 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
   {
     file: 'src/marketing/requests/alert.ts',
     fn: 'sendHomepageRequestEmails',
-    uses: 4,
+    uses: 3,
     club: 'No club data: one homepage request (company website) and the company website settings',
-    why: 'Runs after the form has answered, with no user; reads the request by the ID the form just saved and records when its emails were sent',
+    why: 'Runs after the form has answered, with no user; reads the request by the ID the form just saved and records when its alert email was sent',
   },
   {
     file: 'src/marketing/requests/submit.ts',
