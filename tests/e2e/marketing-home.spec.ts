@@ -11,19 +11,19 @@ test('the home page has every Figma section, in order, with one H1', async ({ pa
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto(site())
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-    'Your club is better than your website.',
+    'Golf club websites, built to be run by the club.',
   )
   await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1)
   await expect(page.getByRole('heading', { level: 2 })).toContainText([
-    'Most visitors meet your club online first.',
-    'What you type is what members see.',
+    'Most club websites are run by whoever has time.',
+    'Your team runs it. It still looks designed.',
+    'Every block, three ways. All of them yours.',
+    'Easier for everyone at the club.',
     'The site keeps up with the club.',
-    'Your content comes with you.',
+    'We do the heavy lifting.',
+    'The questions your committee will ask.',
     'See your club on it.',
   ])
-  // The price comes from the settings, not the copy.
-  await expect(page.locator('.mk-home-hero-proof')).toContainText('£149 a month')
-  await expect(page.getByRole('figure', { name: /Ashgrove Park/ })).toBeVisible()
   await expect(
     page.getByText('Golfshake survey, reported by The Golf Business · 13 Jan 2022'),
   ).toBeVisible()
@@ -67,14 +67,12 @@ test('phones: a swipeable week, stacked editor, full-width buttons, no sideways 
       const row = document.querySelector('.mk-week-moments')!
       return row.scrollWidth > row.clientWidth
     })(),
-    heroButton: document.querySelector('.mk-home-hero-actions .mk-button')!.getBoundingClientRect(),
-    chromeShown: getComputedStyle(document.querySelector('.mk-home-hero-demo .mk-chrome')!).display,
+    heroButton: document.querySelector('.mk-builder-actions .mk-button')!.getBoundingClientRect(),
   }))
   expect(facts.sideScroll).toBe(false)
   expect(facts.weekScrolls).toBe(true)
   expect(Math.round(facts.heroButton.width)).toBe(350)
   expect(Math.round(facts.heroButton.height)).toBe(44)
-  expect(facts.chromeShown).toBe('none')
   await expect(page.getByText('Swipe for the rest of the week →')).toBeVisible()
 })
 

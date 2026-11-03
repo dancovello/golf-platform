@@ -2,10 +2,9 @@ import { BRAND } from '@/brand'
 
 /** The marketing site map (hand-off §6; labels from Figma Marketing/Nav and Footer). */
 export const NAV_LINKS = [
-  { label: 'Website builder', href: '/website-builder' },
-  // Bookings isn't built yet: the nav shows the clock (Coming next) beside it.
-  { label: 'Tee times', href: '/bookings', comingNext: true },
-  { label: 'Switching', href: '/switching' },
+  { label: 'How it works', href: '/how-it-works' },
+  { label: 'Who it’s for', href: '/who-its-for' },
+  { label: 'Switching to us', href: '/switching' },
   { label: 'Pricing', href: '/pricing' },
   { label: 'Trust', href: '/trust' },
 ] as const
@@ -14,15 +13,15 @@ export const FOOTER_COLUMNS = [
   {
     heading: 'Product',
     links: [
-      { label: 'Website builder', href: '/website-builder' },
-      { label: 'Tee times', href: '/bookings' },
+      { label: 'How it works', href: '/how-it-works' },
+      { label: 'Who it’s for', href: '/who-its-for' },
       { label: 'Pricing', href: '/pricing' },
     ],
   },
   {
     heading: 'Clubs',
     links: [
-      { label: 'Switching', href: '/switching' },
+      { label: 'Switching to us', href: '/switching' },
       { label: 'Book a demo', href: '/book-a-demo' },
       { label: 'Contact', href: `mailto:${BRAND.email}` },
     ],
