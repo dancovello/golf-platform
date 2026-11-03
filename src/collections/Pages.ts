@@ -11,7 +11,7 @@ import { clubContentCreate, editorTenantID, isSuperAdmin, loggedIn } from '../ac
 import { pageBlocks } from '../blocks'
 import { BUILT_IN_PAGES } from '../fields/link'
 import { SLUG, SLUG_MESSAGE, slugify } from '../fields/slug'
-import { pageLivePreview } from '../site/livePreview'
+import { pageLivePreview, viewPageURL } from '../site/livePreview'
 import { checkPageSameClub } from '../site/sameClub'
 import { idOf } from '../blocks/types'
 import { clubBannerField } from '../tenancy'
@@ -68,6 +68,8 @@ export const Pages: CollectionConfig = {
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'parent', '_status', 'updatedAt'],
     livePreview: pageLivePreview,
+    // The "Preview" button next to Save: opens the page in a new tab (src/site/livePreview.ts).
+    preview: viewPageURL,
   },
   // Drafts, saved automatically as you type so the live preview keeps up. Visitors only see
   // the published version (src/site/published.ts). The history keeps the last 50 versions.
