@@ -263,6 +263,35 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
     why: 'Called from /api/marketing-starter, which checks for a super-admin with their code',
   },
 
+  {
+    file: 'src/marketing/booking/alert.ts',
+    fn: 'sendDemoBookingEmails',
+    uses: 4,
+    club: 'No club data: one demo booking (company website) and the company website settings',
+    why: 'Runs after the booking has answered, with no user; reads the booking by the ID the form just saved and records when its two emails were sent',
+  },
+  {
+    file: 'src/marketing/booking/submit.ts',
+    fn: 'submitDemoBooking',
+    uses: 1,
+    club: 'No club data: saves company-website demo bookings only',
+    why: 'Public form with no user; nobody may create a booking any other way (create is refused to everyone else)',
+  },
+  {
+    file: 'src/marketing/booking/config.ts',
+    fn: 'takenSlots',
+    uses: 1,
+    club: 'No club data: which demo times are already booked, times only',
+    why: 'Public Book a demo page with no user; reads only the slot keys, never a visitor’s details',
+  },
+  {
+    file: 'src/privacy/cleanUp.ts',
+    fn: 'deleteOldDemoBookings',
+    uses: 1,
+    club: 'No club data: company-website demo bookings past their retention period',
+    why: 'Background job with no user. Runs from the cron route, which checks CRON_SECRET',
+  },
+
   // ---------- Nightly clean-up (every club, by design) ----------
   {
     file: 'src/marketing/requests/alert.ts',
