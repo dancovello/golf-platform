@@ -3480,6 +3480,16 @@ button.mk-button {
   grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
   gap: 8px;
 }
+/* In the booking panel the times fill the row equally, as in the Figma frame. */
+.mk-booking-times .mk-slot > span {
+  display: flex;
+  width: 100%;
+}
+.mk-booking-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
 .mk-booking-tick {
   display: inline-flex;
   align-items: center;

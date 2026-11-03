@@ -320,7 +320,7 @@ export const MarketingSettings: GlobalConfig = {
           maxLength: 300,
           admin: {
             description:
-              'Your Google Meet or Zoom room, put in the confirmation email. Empty: the email says you will send the link.',
+              'Your Google Meet or Zoom room, put in the confirmation email. Once Google is connected, each booking gets its own Meet link instead and this is the backup. Empty: the email says you will send the link.',
           },
           validate: (value: unknown) =>
             !value || (typeof value === 'string' && value.startsWith('https://'))
