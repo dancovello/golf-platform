@@ -55,12 +55,3 @@ export const onlyPublished = <T extends { href: string }>(
     const slug = link.href.slice(1).split(/[#?]/)[0] || 'home'
     return published.has(slug)
   })
-
-/** "Club log in" goes to the admin, on its own address (decision C). */
-export const clubLogInHref = () => {
-  try {
-    return new URL('/admin', process.env.ADMIN_URL).toString()
-  } catch {
-    return '/admin'
-  }
-}

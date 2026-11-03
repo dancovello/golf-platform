@@ -22,10 +22,8 @@ test('desktop nav: Figma labels, current page, Coming next clock, glass after sc
   ])
   await expect(nav.getByText('(coming next)')).toHaveCount(0)
   const header = page.locator('.mk-nav')
-  await expect(header.getByRole('link', { name: 'Club log in' })).toHaveAttribute(
-    'href',
-    /\/admin$/,
-  )
+  // Clubs log in through their own platform, so the marketing site has no log in link.
+  await expect(header.getByRole('link', { name: 'Club log in' })).toHaveCount(0)
   // The "Free homepage" button is gone (hand-off, 21 Oct); Switching is a nav link.
   await expect(header.getByRole('link', { name: 'Free homepage' })).toHaveCount(0)
   await expect(header.getByRole('link', { name: 'Book a demo' }).first()).toHaveAttribute(

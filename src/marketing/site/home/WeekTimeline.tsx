@@ -72,17 +72,6 @@ export const WeekTimeline = ({ moments, theme }: { moments: Moment[]; theme: CSS
   return (
     <div ref={runway} className="mk-week-runway">
       <div ref={root} className="mk-week" data-scroll-driven={scrollDriven}>
-        <div className="mk-week-track" aria-hidden="true">
-          <span
-            className="mk-week-progress"
-            style={{
-              width:
-                !scrollDriven || active < 0
-                  ? '100%'
-                  : `${((active + 0.5) / moments.length) * 100}%`,
-            }}
-          />
-        </div>
         {/* Focusable, so keyboard users can scroll the row on phones (WCAG 2.1.1). */}
         <ol className="mk-week-moments" aria-label="A week at the club" tabIndex={0}>
           {moments.map((moment, i) => (
