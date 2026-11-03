@@ -79,6 +79,12 @@ export const COLLECTIONS: Manifest = {
       test: 'club editors can’t read, change or delete them, and nobody creates them by hand',
     },
   ],
+  'demo-bookings': [
+    {
+      file: 'tests/int/demo-bookings.int.spec.ts',
+      test: 'club editors can’t read, change or delete them, and nobody creates them by hand',
+    },
+  ],
   'marketing-pages': [
     { file: 'tests/int/marketing.int.spec.ts', test: 'pages: no read, create, update or delete' },
     {
@@ -375,6 +381,16 @@ export const SERVER_ACTIONS: Manifest = {
     {
       file: 'tests/int/homepage-requests.int.spec.ts',
       test: 'club editors can’t read, change or delete them, and nobody creates them by hand',
+    },
+  ],
+  'src/marketing/booking/actions.ts': [
+    {
+      file: 'tests/int/demo-bookings.int.spec.ts',
+      test: 'club editors can’t read, change or delete them, and nobody creates them by hand',
+    },
+    {
+      file: 'tests/int/demo-bookings.int.spec.ts',
+      test: 'only books a time the settings offer, and each time once',
     },
   ],
   'src/site/contact/actions.ts': [
