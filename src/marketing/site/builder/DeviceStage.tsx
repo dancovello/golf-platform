@@ -24,8 +24,9 @@ const phoneShare = (room: number) => (room < 600 ? 0.36 : 0.26)
 /** Browser bar (40) + the phone hanging 24 below the window + air above. */
 const CHROME = 40
 const PHONE_DROP = 24
-/** The controls under the devices, with the gap above them. */
-const CONTROLS = 96
+/** The controls under the devices, with the gap above them. The Block Switcher's are the tallest:
+ * a line of text, then the design and club pickers (about 180px at the widths this matters at). */
+const CONTROLS = 200
 const MAX_LAPTOP = 960
 
 type Size = { laptop: number; phone: number }
