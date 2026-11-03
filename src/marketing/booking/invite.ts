@@ -47,7 +47,7 @@ export const demoInvite = ({
   return [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//A1.Studios//Demo call//EN',
+    'PRODID:-//A1.Engine//Demo call//EN',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     'BEGIN:VEVENT',
