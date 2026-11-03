@@ -63,6 +63,12 @@ Places where the build differs from Figma to meet WCAG 2.2 AA. Update Figma or t
 | D21 | Changelog | "Get updates by email" sign-up | Left out | There's no mailing list to sign people up to. Add one if you want it (it would need a privacy notice line) |
 | D22 | Trust CTA | Second button "Committee summary (PDF)" | Left out | The committee summary was removed (21 Oct) |
 | D23 | Accessibility statement read time | "4 minute read" | Worked out from the text ("1 minute read" today) | So it's always right |
+| D24 | v2 Home and How it works, headings | Titles and eyebrows over the 8-word / 3-word limits ("Most club websites are run by whoever has time.", "Three designs of every block") | Limits raised to 10 words (titles), 5 words (eyebrows) and 35 words (section header and CTA bodies; the Block Switcher header is 33); Figma's wording kept, apart from "Three designs of every block", which is now "Three designs" | Dan's v2 headings are longer than doc 19's rules. Change the limits back if you'd rather shorten the headings (3 Nov) |
+| D25 | v2 Home, the stats | Figma adds "Most picked 'average'" to the 3.44 / 5 stat and shortens the sources | Sources and wording exactly as the hand-off lists them (§9) | The extra phrase isn't in the claims register |
+| D26 | v2 Home, Committee questions, "We already have a website" | "...your old page addresses redirect to the new ones." | "...We move your content across and keep your page titles, so visitors and search engines can follow you." | Old page addresses don't forward yet (N7), as D8 |
+| D27 | v2 Switching to us, header and form | Eyebrow "How switching works" with a caption and no title; button "Send me my homepage" | A title "Four steps to a live site." with the caption as its body; button as Figma | Every section header needs a title |
+| D28 | v2 How it works, Course status and Built in sections | Not in the Figma frame's copy for the cards (kept from the Website builder page) | Kept as before (D12, D13, D14) | The cards still describe only what the product does today |
+| D29 | v2 Who it's for, Tenant Morph chips | "Members' club / Links & coastal / Pay & play" under each club | Same labels now on the chips everywhere the Tenant Morph shows | One label per club |
 
 ## Answered
 

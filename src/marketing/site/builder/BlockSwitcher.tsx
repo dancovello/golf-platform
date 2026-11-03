@@ -19,14 +19,13 @@ export const BlockSwitcher = () => {
 
   const chosenDesign = SWITCHER_DESIGNS[design]
   const chosenClub = SWITCHER_CLUBS[club]
-  const description = `${chosenDesign.name} design, in ${chosenClub.name}’s colours and fonts`
 
   return (
     <div className="mk-flipper mk-switcher" data-fit-screen="">
       <DeviceStage
         src={`/frame/two-column/${chosenClub.id}/${chosenDesign.id}`}
         address={chosenClub.domain}
-        laptopLabel={`Demo club: the ${SWITCHER_BLOCK} block, ${description}, on a laptop`}
+        laptopLabel={`Demo club: the ${SWITCHER_BLOCK} block, ${chosenDesign.name} design, on a laptop`}
         phoneLabel={`Demo club: the same block on a phone`}
         onSwipe={(by) =>
           setDesign((i) => (i + by + SWITCHER_DESIGNS.length) % SWITCHER_DESIGNS.length)

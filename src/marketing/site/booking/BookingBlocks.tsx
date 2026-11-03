@@ -1,6 +1,7 @@
 import { BRAND } from '@/brand'
 import type { MarketingDemoIntroBlock } from '@/payload-types'
 
+import { TextLink } from '../controls/controls'
 import { MarketingIcon } from '../MarketingIcon'
 import { MarketingButton } from '../parts'
 
@@ -28,6 +29,13 @@ export const DemoIntro = ({ block }: { block: MarketingDemoIntroBlock }) => {
               </li>
             ))}
           </ul>
+        ) : null}
+        {block.alt?.title && block.alt.label && block.alt.href ? (
+          <div className="mk-alt-route">
+            <p className="mk-alt-title">{block.alt.title}</p>
+            {block.alt.body ? <p className="mk-alt-body">{block.alt.body}</p> : null}
+            <TextLink href={block.alt.href}>{block.alt.label} →</TextLink>
+          </div>
         ) : null}
       </div>
       <div className="mk-demo-intro-panel">
