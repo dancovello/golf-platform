@@ -666,3 +666,7 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - "Request your homepage" stays as a page (it reverses the 21 Oct "no free homepage" wording; docs 19 and 20 are updated to match when the v2 pages land).
 - `confirmationSentAt` stays on the request record for older requests (no data deleted, no migration), and shows in the admin only when set.
 
+
+## 2026-11-03: Wireframes in the "Add block" list
+
+- **Dan, 3 Nov:** the block list showed plain placeholders. Each of the 20 page blocks now has a simple wireframe (grey shapes for photos and text, the brand green for buttons and highlights), drawn in `src/blocks/previews.ts` and given to Payload as each block's list picture (`admin.images.thumbnail`). No image files to host and nothing extra to load. `tests/unit/block-previews.spec.ts` fails if a new block is added without one.
