@@ -72,4 +72,24 @@ describe('content security policy', () => {
     expect(directive(policy, 'img-src')).toContain('https://pub-123.r2.dev')
     expect(directive(policy, 'frame-ancestors')).toBe("frame-ancestors 'self'")
   })
+
+  it('the marketing site gets Google Analytics only when it has its own ID', () => {
+    const withID = buildPolicy('marketing', 'm1', { ...env, MARKETING_GA_ID: 'G-LQXZHBBCGP' })
+    for (const name of ['script-src', 'img-src', 'connect-src']) {
+      expect(directive(withID, name)).toContain('https://*.googletagmanager.com')
+      expect(directive(withID, name)).toContain('https://*.google-analytics.com')
+    }
+    // Still no map, and the other page kinds are unchanged.
+    expect(withID).not.toContain('openstreetmap')
+    // Not set, or not an ID: as strict as before (staging, previews).
+    for (const value of [undefined, '', 'not-an-id', 'GTM-522LKHRT']) {
+      expect(buildPolicy('marketing', 'm1', { ...env, MARKETING_GA_ID: value })).not.toContain(
+        'google',
+      )
+    }
+    // The ID is only for the marketing site: the API and platform pages stay without Google.
+    expect(
+      buildPolicy('platform', 'p1', { ...env, MARKETING_GA_ID: 'G-LQXZHBBCGP' }),
+    ).not.toContain('google')
+  })
 })
