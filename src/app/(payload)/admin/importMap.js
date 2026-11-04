@@ -31,6 +31,8 @@ import { WatchTenantCollection as WatchTenantCollection_1d0591e3cf4f332c83a86da1
 import { DemoClubPanel as DemoClubPanel_d501804340c10bdbd462804989163cd4 } from '../../../admin/DemoClubPanel'
 import { FounderNote as FounderNote_e706a6810c986a3f9100476d0cd6244f } from '../../../marketing/admin/FounderNote'
 import { StarterPagesButton as StarterPagesButton_7261b7f671ff25f31d3eb62061bfb267 } from '../../../marketing/admin/StarterPagesButton'
+import { AdminIcon as AdminIcon_6c456d9958cb55f21b11937064189d83 } from '../../../admin/AdminLogo'
+import { AdminLogo as AdminLogo_6c456d9958cb55f21b11937064189d83 } from '../../../admin/AdminLogo'
 import { GlobalViewRedirect as GlobalViewRedirect_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
 import { ClubHome as ClubHome_d5994150e51c48090be4b9072de8e30f } from '../../../admin/ClubHome'
 import { TenantSelector as TenantSelector_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
@@ -77,6 +79,8 @@ export const importMap = {
   "/admin/DemoClubPanel#DemoClubPanel": DemoClubPanel_d501804340c10bdbd462804989163cd4,
   "/marketing/admin/FounderNote#FounderNote": FounderNote_e706a6810c986a3f9100476d0cd6244f,
   "/marketing/admin/StarterPagesButton#StarterPagesButton": StarterPagesButton_7261b7f671ff25f31d3eb62061bfb267,
+  "/admin/AdminLogo#AdminIcon": AdminIcon_6c456d9958cb55f21b11937064189d83,
+  "/admin/AdminLogo#AdminLogo": AdminLogo_6c456d9958cb55f21b11937064189d83,
   "@payloadcms/plugin-multi-tenant/rsc#GlobalViewRedirect": GlobalViewRedirect_d6d5f193a167989e2ee7d14202901e62,
   "/admin/ClubHome#ClubHome": ClubHome_d5994150e51c48090be4b9072de8e30f,
   "@payloadcms/plugin-multi-tenant/rsc#TenantSelector": TenantSelector_d6d5f193a167989e2ee7d14202901e62,
