@@ -7,7 +7,7 @@ export const DEFAULT_LOGO_RATIO = 1009.08 / 217.7
 
 export type LogoImage = { src: string; ratio: number }
 
-/** The built-in A1.Engine logo, used until a logo is uploaded under Company website → Settings. */
+/** The built-in A1 Engine logo, used until a logo is uploaded under Company website → Settings. */
 export const BUILT_IN_LOGO: LogoImage = { src: defaultLogo.src, ratio: DEFAULT_LOGO_RATIO }
 
 const asMedia = (value: unknown): MarketingMedia | null =>
