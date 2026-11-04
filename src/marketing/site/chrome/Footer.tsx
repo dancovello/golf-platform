@@ -1,5 +1,7 @@
 import { BRAND } from '@/brand'
+import { CookieSettingsButton } from '@/site/privacy/CookieConsent'
 
+import { marketingGAId } from '../../analytics'
 import { publishedMarketingSlugs } from '../../content'
 import { marketingSettings } from '../../settings'
 import { TextLink } from '../controls/controls'
@@ -34,6 +36,8 @@ export const Footer = async () => {
     links: onlyPublished<{ label: string; href: string }>(column.links, published),
   })).filter((column) => column.links.length > 0)
   const legal = onlyPublished(LEGAL_LINKS, published)
+  // "Cookie settings" reopens the banner, so it only shows when there is a banner.
+  const hasAnalytics = marketingGAId() !== null
   return (
     <footer className="mk-footer">
       <div className="mk-container mk-footer-inner">
@@ -76,13 +80,18 @@ export const Footer = async () => {
             © {new Date().getFullYear()} {BRAND.name}
           </p>
           {companyLine ? <p className="mk-footer-company">{companyLine}</p> : null}
-          {legal.length > 0 ? (
+          {legal.length > 0 || hasAnalytics ? (
             <ul aria-label="Legal">
               {legal.map((link) => (
                 <li key={link.href}>
                   <TextLink href={link.href}>{link.label}</TextLink>
                 </li>
               ))}
+              {hasAnalytics ? (
+                <li>
+                  <CookieSettingsButton className="mk-text-link mk-footer-cookie-settings" />
+                </li>
+              ) : null}
             </ul>
           ) : null}
         </div>
