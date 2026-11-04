@@ -9,6 +9,7 @@ import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
 import { isSuperAdmin } from './access/roles'
+import { ADMIN_BRAND_NAME, ADMIN_FAVICON } from './admin/adminBrand'
 import { guardTenantSelection } from './admin/guardTenantSelection'
 import { superAdminTwoFactor } from './auth/superAdminTwoFactor'
 import { encryptTotpSecrets } from './auth/totpSecretEncryption'
@@ -56,7 +57,18 @@ export default buildConfig({
     // Payload's built-in account icon, not Gravatar: Gravatar would receive a code made from
     // each editor's email address on every admin page (found by the security policy, 2026-10-21).
     avatar: 'default',
+    // The platform's own name and icon, not Payload's (Dan, 2026-11-04).
+    meta: {
+      titleSuffix: `– ${ADMIN_BRAND_NAME}`,
+      icons: [{ rel: 'icon', type: 'image/svg+xml', url: ADMIN_FAVICON }],
+      openGraph: { siteName: ADMIN_BRAND_NAME },
+    },
     components: {
+      // Payload's logo and icon, replaced by the platform's (src/admin/AdminLogo.tsx).
+      graphics: {
+        Logo: '/admin/AdminLogo#AdminLogo',
+        Icon: '/admin/AdminLogo#AdminIcon',
+      },
       // The club home screen: setup checklist, new messages, everyday jobs, course status.
       beforeDashboard: ['/admin/ClubHome#ClubHome'],
       views: {
