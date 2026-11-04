@@ -43,6 +43,7 @@ export const COLLECTIONS: Manifest = {
     { file: API, test: "club B's page history answers like history that doesn't exist" },
   ],
   news: [perCollection],
+  categories: [perCollection],
   events: [perCollection],
   'course-status': [perCollection],
   staff: [perCollection],
@@ -76,6 +77,12 @@ export const COLLECTIONS: Manifest = {
   'homepage-requests': [
     {
       file: 'tests/int/homepage-requests.int.spec.ts',
+      test: 'club editors can’t read, change or delete them, and nobody creates them by hand',
+    },
+  ],
+  'demo-bookings': [
+    {
+      file: 'tests/int/demo-bookings.int.spec.ts',
       test: 'club editors can’t read, change or delete them, and nobody creates them by hand',
     },
   ],
@@ -377,6 +384,16 @@ export const SERVER_ACTIONS: Manifest = {
       test: 'club editors can’t read, change or delete them, and nobody creates them by hand',
     },
   ],
+  'src/marketing/booking/actions.ts': [
+    {
+      file: 'tests/int/demo-bookings.int.spec.ts',
+      test: 'club editors can’t read, change or delete them, and nobody creates them by hand',
+    },
+    {
+      file: 'tests/int/demo-bookings.int.spec.ts',
+      test: 'only books a time the settings offer, and each time once',
+    },
+  ],
   'src/site/contact/actions.ts': [
     { file: DOMAINS, test: "the Contact form on club A's domain saves into club A" },
     {
@@ -420,6 +437,7 @@ export const CACHED: Manifest = {
     ...cacheCovers,
   ],
   latestNews: cacheCovers,
+  clubCategories: cacheCovers,
   newsArchive: cacheCovers,
   newsPost: cacheCovers,
   upcomingEvents: [

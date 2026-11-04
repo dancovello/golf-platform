@@ -1,5 +1,8 @@
+import { Fragment } from 'react'
+
 import type { Page } from '@/payload-types'
 
+import { MARKER_ATTRIBUTE } from '../blockHighlight'
 import type { ClubSite } from '../loadClub'
 import { CtaCardGrid } from './CtaCardGrid'
 import { DocumentList } from './DocumentList'
@@ -56,6 +59,7 @@ export const RenderBlocks = ({
   club,
   base,
   pageUpdatedAt = null,
+  live = false,
 }: {
   layout: LayoutBlock[]
   ctx: BlockContext
@@ -63,59 +67,82 @@ export const RenderBlocks = ({
   base: string
   /** The page's last save, for "Prices last updated". */
   pageUpdatedAt?: string | null
+  /** In the admin's live preview: an invisible marker after each block lets the preview find
+   * the block being edited (src/site/blockHighlight.ts). */
+  live?: boolean
 }) =>
   layout.map((block, i) => {
-    switch (block.blockType) {
-      case 'hero':
-        return <Hero key={block.id ?? i} block={block} ctx={ctx} club={club} base={base} />
-      case 'ctaCardGrid':
-        return <CtaCardGrid key={block.id ?? i} block={block} ctx={ctx} base={base} />
-      case 'twoColumn':
-        return <TwoColumn key={block.id ?? i} block={block} ctx={ctx} base={base} />
-      case 'richText':
-        return <RichText key={block.id ?? i} block={block} ctx={ctx} base={base} />
-      case 'rateTable':
-        return (
-          <RateTable
-            key={block.id ?? i}
-            block={block}
-            ctx={ctx}
-            club={club}
-            base={base}
-            pageUpdatedAt={pageUpdatedAt}
-          />
-        )
-      case 'gallery':
-        return <Gallery key={block.id ?? i} block={block} ctx={ctx} />
-      case 'documentList':
-        return <DocumentList key={block.id ?? i} block={block} ctx={ctx} base={base} />
-      case 'map':
-        return <MapBlock key={block.id ?? i} block={block} club={club} />
-      case 'pullQuote':
-        return <PullQuote key={block.id ?? i} block={block} ctx={ctx} />
-      case 'timeline':
-        return <Timeline key={block.id ?? i} block={block} ctx={ctx} />
-      case 'logoStrip':
-        return <LogoStrip key={block.id ?? i} block={block} ctx={ctx} />
-      case 'faq':
-        return <Faq key={block.id ?? i} block={block} ctx={ctx} club={club} base={base} />
-      case 'team':
-        return <Team key={block.id ?? i} block={block} ctx={ctx} base={base} />
-      case 'membership':
-        return <Membership key={block.id ?? i} block={block} ctx={ctx} base={base} />
-      case 'holeGrid':
-        return <HoleGrid key={block.id ?? i} block={block} ctx={ctx} />
-      case 'scorecard':
-        return <Scorecard key={block.id ?? i} block={block} ctx={ctx} />
-      case 'courseStatus':
-        return <CourseStatus key={block.id ?? i} block={block} ctx={ctx} club={club} base={base} />
-      case 'courseRecord':
-        return <CourseRecord key={block.id ?? i} block={block} ctx={ctx} />
-      case 'newsFeed':
-        return <NewsFeed key={block.id ?? i} block={block} club={club} base={base} />
-      case 'eventsFeed':
-        return <EventsFeed key={block.id ?? i} block={block} club={club} base={base} />
-      default:
-        return null
-    }
+    const drawn = drawBlock(block, i, { ctx, club, base, pageUpdatedAt })
+    if (!live) return drawn
+    return (
+      <Fragment key={block.id ?? i}>
+        {drawn}
+        <template {...{ [MARKER_ATTRIBUTE]: i }} />
+      </Fragment>
+    )
   })
+
+const drawBlock = (
+  block: LayoutBlock,
+  i: number,
+  {
+    ctx,
+    club,
+    base,
+    pageUpdatedAt,
+  }: { ctx: BlockContext; club: ClubSite; base: string; pageUpdatedAt: string | null },
+) => {
+  switch (block.blockType) {
+    case 'hero':
+      return <Hero key={block.id ?? i} block={block} ctx={ctx} club={club} base={base} />
+    case 'ctaCardGrid':
+      return <CtaCardGrid key={block.id ?? i} block={block} ctx={ctx} base={base} />
+    case 'twoColumn':
+      return <TwoColumn key={block.id ?? i} block={block} ctx={ctx} base={base} />
+    case 'richText':
+      return <RichText key={block.id ?? i} block={block} ctx={ctx} base={base} />
+    case 'rateTable':
+      return (
+        <RateTable
+          key={block.id ?? i}
+          block={block}
+          ctx={ctx}
+          club={club}
+          base={base}
+          pageUpdatedAt={pageUpdatedAt}
+        />
+      )
+    case 'gallery':
+      return <Gallery key={block.id ?? i} block={block} ctx={ctx} />
+    case 'documentList':
+      return <DocumentList key={block.id ?? i} block={block} ctx={ctx} base={base} />
+    case 'map':
+      return <MapBlock key={block.id ?? i} block={block} club={club} />
+    case 'pullQuote':
+      return <PullQuote key={block.id ?? i} block={block} ctx={ctx} />
+    case 'timeline':
+      return <Timeline key={block.id ?? i} block={block} ctx={ctx} />
+    case 'logoStrip':
+      return <LogoStrip key={block.id ?? i} block={block} ctx={ctx} />
+    case 'faq':
+      return <Faq key={block.id ?? i} block={block} ctx={ctx} club={club} base={base} />
+    case 'team':
+      return <Team key={block.id ?? i} block={block} ctx={ctx} base={base} />
+    case 'membership':
+      return <Membership key={block.id ?? i} block={block} ctx={ctx} base={base} />
+    case 'holeGrid':
+      return <HoleGrid key={block.id ?? i} block={block} ctx={ctx} />
+    case 'scorecard':
+      return <Scorecard key={block.id ?? i} block={block} ctx={ctx} />
+    case 'courseStatus':
+      return <CourseStatus key={block.id ?? i} block={block} ctx={ctx} club={club} base={base} />
+    case 'courseRecord':
+      return <CourseRecord key={block.id ?? i} block={block} ctx={ctx} />
+    case 'newsFeed':
+      return <NewsFeed key={block.id ?? i} block={block} club={club} base={base} />
+    case 'eventsFeed':
+      return <EventsFeed key={block.id ?? i} block={block} club={club} base={base} />
+    default:
+      return null
+  }
+}

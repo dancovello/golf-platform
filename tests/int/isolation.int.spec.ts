@@ -84,6 +84,13 @@ const fixtures: Record<ClubOwnedSlug, Fixture> = {
     editorsCanCreate: true,
     file: () => pdfFile('planted.pdf'),
   },
+  categories: {
+    ids: (w) => ({ a: w.categoryA.id, b: w.categoryB.id }),
+    newRecord: (tenant) => ({ name: 'Planted', slug: `planted-${Date.now()}`, tenant }),
+    change: { name: 'Changed' },
+    read: (doc) => (doc as { name?: unknown }).name,
+    editorsCanCreate: true,
+  },
   staff: {
     ids: (w) => ({ a: w.staffA.id, b: w.staffB.id }),
     newRecord: (tenant) => ({ name: 'Planted', role: 'Planted', department: 'golf', tenant }),
@@ -95,7 +102,7 @@ const fixtures: Record<ClubOwnedSlug, Fixture> = {
     ids: (w) => ({ a: w.newsA.id, b: w.newsB.id }),
     newRecord: (tenant) => ({
       title: `Planted ${Date.now()}`,
-      category: 'club',
+      category: w.categoryA.id,
       publishedAt: new Date().toISOString(),
       tenant,
     }),
@@ -167,7 +174,17 @@ describe.each(slugs)('%s: editor A gets nothing from club B', (slug) => {
   it('lists and counts only club A records', async () => {
     const { a } = f.ids(w)
     const list = await p().find({ collection: slug, ...asEditorA(), limit: 0 })
-    expect(list.docs.map((d) => d.id)).toEqual([a])
+    const ids = list.docs.map((d) => d.id)
+    if (slug === 'categories') {
+      // Every club starts with six categories, so there are several: none of them club B's.
+      const { b } = f.ids(w)
+      expect(ids).toContain(a)
+      expect(ids).not.toContain(b)
+      expect(ids).toHaveLength(6)
+      expect((await p().count({ collection: slug, ...asEditorA() })).totalDocs).toBe(6)
+      return
+    }
+    expect(ids).toEqual([a])
     expect((await p().count({ collection: slug, ...asEditorA() })).totalDocs).toBe(1)
   })
 
@@ -268,7 +285,12 @@ describe.each(slugs)('%s: editor A gets nothing from club B', (slug) => {
   })
 
   it('the super-admin sees both clubs', async () => {
-    const all = await p().find({ collection: slug, overrideAccess: false, user: w.superAdmin })
+    const all = await p().find({
+      collection: slug,
+      overrideAccess: false,
+      user: w.superAdmin,
+      limit: 0,
+    })
     const { a, b } = f.ids(w)
     expect(all.docs.map((d) => d.id)).toEqual(expect.arrayContaining([a, b]))
   })
@@ -392,7 +414,13 @@ describe('the database enforces club ownership on its own', () => {
     ).rejects.toThrow()
     await expect(db().execute(sql`INSERT INTO courses (name) VALUES ('orphan')`)).rejects.toThrow()
     await expect(
-      db().execute(sql`INSERT INTO news (title, slug, category) VALUES ('o', 'o', 'club')`),
+      db().execute(
+        sql`INSERT INTO news (title, slug, published_at, category_id)
+            SELECT 'o', 'o', now(), id FROM categories LIMIT 1`,
+      ),
+    ).rejects.toThrow()
+    await expect(
+      db().execute(sql`INSERT INTO categories (name, slug) VALUES ('o', 'o')`),
     ).rejects.toThrow()
     await expect(
       db().execute(sql`INSERT INTO events (title, starts_at) VALUES ('o', now())`),

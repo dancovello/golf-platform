@@ -117,9 +117,23 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
   {
     file: 'src/collections/Tenants.ts',
     fn: 'afterChange',
-    uses: 2,
+    uses: 3,
     club: 'The club just created (doc.id)',
-    why: 'Creates its Club Settings and Course status. Editors can’t create those records, and only the super-admin can create a club',
+    why: 'Creates its Club Settings, Course status and starter categories. Editors can’t create the first two, and the starter categories must exist before any editor does; only the super-admin can create a club',
+  },
+  {
+    file: 'src/collections/Categories.ts',
+    fn: 'keepCategoriesInUse',
+    uses: 1,
+    club: 'The category being deleted: counts the news that uses it (its ID in the where clause)',
+    why: 'Runs on the delete itself, for whoever is deleting; it must see every article of the club, including drafts the deleter might not be shown',
+  },
+  {
+    file: 'src/collections/categoryIds.ts',
+    fn: 'categoryIds',
+    uses: 1,
+    club: 'The one club passed in as tenant, in the where clause',
+    why: 'Used only by scripts that fill a club (demo club, club import, canary clubs); no request or signed-in user',
   },
   {
     file: 'src/site/sameClub.ts',
@@ -134,6 +148,13 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
     uses: 1,
     club: 'The club of the record being edited (its tenant field)',
     why: 'Reads the club’s slug to build the admin’s live preview address',
+  },
+  {
+    file: 'src/site/livePreview.ts',
+    fn: 'viewPageURL',
+    uses: 1,
+    club: 'The club of the page being edited (its tenant field)',
+    why: 'Reads the club’s web address to build the page screen’s View page link; only a link is returned, never the club’s record',
   },
 
   // ---------- Demo club (staging only) ----------
@@ -261,6 +282,35 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
     uses: 2,
     club: 'None: marketing pages are platform-level',
     why: 'Called from /api/marketing-starter, which checks for a super-admin with their code',
+  },
+
+  {
+    file: 'src/marketing/booking/alert.ts',
+    fn: 'sendDemoBookingEmails',
+    uses: 4,
+    club: 'No club data: one demo booking (company website) and the company website settings',
+    why: 'Runs after the booking has answered, with no user; reads the booking by the ID the form just saved and records when its two emails were sent',
+  },
+  {
+    file: 'src/marketing/booking/submit.ts',
+    fn: 'submitDemoBooking',
+    uses: 1,
+    club: 'No club data: saves company-website demo bookings only',
+    why: 'Public form with no user; nobody may create a booking any other way (create is refused to everyone else)',
+  },
+  {
+    file: 'src/marketing/booking/config.ts',
+    fn: 'takenSlots',
+    uses: 1,
+    club: 'No club data: which demo times are already booked, times only',
+    why: 'Public Book a demo page with no user; reads only the slot keys, never a visitor’s details',
+  },
+  {
+    file: 'src/privacy/cleanUp.ts',
+    fn: 'deleteOldDemoBookings',
+    uses: 1,
+    club: 'No club data: company-website demo bookings past their retention period',
+    why: 'Background job with no user. Runs from the cron route, which checks CRON_SECRET',
   },
 
   // ---------- Nightly clean-up (every club, by design) ----------
@@ -467,6 +517,13 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
     why: PUBLIC_SITE,
   },
   { file: 'src/site/events.ts', fn: 'clubEvents', uses: 1, club: RESOLVED_CLUB, why: PUBLIC_SITE },
+  {
+    file: 'src/site/news.ts',
+    fn: 'clubCategoriesFresh',
+    uses: 1,
+    club: RESOLVED_CLUB,
+    why: PUBLIC_SITE,
+  },
   {
     file: 'src/site/news.ts',
     fn: 'newsForSitemap',

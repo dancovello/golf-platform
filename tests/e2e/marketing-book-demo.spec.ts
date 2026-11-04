@@ -15,9 +15,9 @@ test('the page: one H1, what to expect, email, founder card, and no CTA band', a
   await expect(
     page.getByRole('list', { name: 'What to expect' }).getByRole('listitem'),
   ).toHaveCount(4)
-  const email = page.locator('.mk-demo-email').getByRole('link', { name: 'hello@brandname.golf' })
-  await expect(email).toHaveAttribute('href', /^mailto:hello@brandname\.golf\?subject=Demo$/)
-  await expect(page.getByRole('link', { name: /^Email hello@brandname\.golf/ })).toBeVisible()
+  const email = page.locator('.mk-demo-email').getByRole('link', { name: 'daniel@a1engine.co' })
+  await expect(email).toHaveAttribute('href', /^mailto:daniel@a1engine\.co\?subject=Demo$/)
+  await expect(page.getByRole('link', { name: /^Email daniel@a1engine\.co/ })).toBeVisible()
   const founder = page.getByRole('complementary', { name: /Who’s behind this/ })
   await expect(founder).toContainText('I run every demo myself')
   // No button back to the page you're on.

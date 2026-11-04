@@ -2,7 +2,8 @@ import type { NewsFeedBlock } from '@/payload-types'
 
 import { ArrowRight } from '../components/Icons'
 import type { ClubSite } from '../loadClub'
-import { latestNews, type SiteNewsCard } from '../news'
+import { idOf } from '@/blocks/types'
+import { clubCategories, latestNews, type SiteNewsCard } from '../news'
 import { Photo } from '../blocks/parts'
 import { NewsCard, NewsMeta, newsHref } from './NewsCard'
 import { NewsCarousel } from './NewsCarousel'
@@ -55,10 +56,11 @@ export const NewsFeed = async ({
   base: string
 }) => {
   const style = block.style ?? 'carousel'
-  const cards = await latestNews(club.tenantID, style === 'leadList' ? 4 : 6, block.category)
+  const chosen = (await clubCategories(club.tenantID)).find((c) => c.id === idOf(block.category))
+  const cards = await latestNews(club.tenantID, style === 'leadList' ? 4 : 6, chosen?.id)
   if (cards.length === 0) return null
   const eyebrow = block.eyebrow?.trim() || 'News'
-  const allHref = block.category ? `${base}/news?category=${block.category}` : `${base}/news`
+  const allHref = chosen ? `${base}/news?category=${chosen.slug}` : `${base}/news`
 
   if (style === 'leadList') {
     const [lead, ...rest] = cards

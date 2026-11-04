@@ -1,3 +1,5 @@
+import { FONT_SETS, type FontSetID } from '@/theme/fontSets'
+
 import { DEMO_CLUBS, type DemoClub } from './clubs'
 
 /**
@@ -18,6 +20,17 @@ export const FLIPPER_STYLES = [
 ] as const
 
 export type FlipperStyle = (typeof FLIPPER_STYLES)[number]['id']
+
+/** Each hero is shown in a different font pack, so the variants differ in type as well as layout. */
+export const FLIPPER_FONT_SETS: Record<FlipperStyle, FontSetID> = {
+  heritage: 'heritage',
+  resort: 'editorial',
+  bookingLed: 'contemporary',
+}
+
+/** The short name of a variant's font pack: "Heritage", "Editorial". */
+export const flipperFontName = (style: FlipperStyle) =>
+  FONT_SETS[FLIPPER_FONT_SETS[style]].label.split(':')[0]
 
 /** The demo club's hero copy in another hero style. */
 export const flipperHero = (style: FlipperStyle): DemoClub['hero'] =>

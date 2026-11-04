@@ -1,5 +1,5 @@
 import type { Page } from '@/payload-types'
-import type { FontSetID } from '@/theme/fontSets'
+import { FONT_SETS, type FontSetID } from '@/theme/fontSets'
 
 import { DEMO_CLUBS, type DemoClub, type DemoClubID } from './clubs'
 import type { DemoPhotoKey } from './photos'
@@ -18,13 +18,20 @@ export const SWITCHER_CLUBS: DemoClub[] = DEMO_CLUBS.filter(
 )
 
 /**
- * Carreg Bay wears a different font set here from its Tenant Morph hero (Figma 359:5496: a
- * bolder serif), so the switcher shows colours and fonts changing together.
+ * Each design is shown in a different font pack, in each club, so the picker shows layout, colours
+ * and fonts all changing (Dan, 3 Nov). No two designs share a pack within a club.
  */
-export const SWITCHER_FONT_SETS: Record<'heritage' | 'coastal', FontSetID> = {
-  heritage: 'heritage',
-  coastal: 'editorial',
+export const SWITCHER_FONT_SETS: Record<
+  'heritage' | 'coastal',
+  Record<SwitcherDesign, FontSetID>
+> = {
+  heritage: { split: 'heritage', collage: 'editorial', keyFacts: 'contemporary' },
+  coastal: { split: 'editorial', collage: 'contemporary', keyFacts: 'heritage' },
 }
+
+/** The short name of a pack for the label under the stage: "Heritage", "Editorial". */
+export const switcherFontName = (club: string, design: SwitcherDesign) =>
+  FONT_SETS[SWITCHER_FONT_SETS[club as 'heritage' | 'coastal'][design]].label.split(':')[0]
 
 export type SwitcherDesign = 'split' | 'collage' | 'keyFacts'
 

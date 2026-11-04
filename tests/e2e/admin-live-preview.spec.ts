@@ -74,7 +74,7 @@ test('the News preview shows a draft article to the editor only', async ({
     data: {
       title,
       status: 'draft',
-      category: 'club',
+      category: world.categoryA.id,
       publishedAt: new Date().toISOString(),
       tenant: world.clubA.id,
     },

@@ -1264,7 +1264,13 @@ for (const [slug, p] of Object.entries(palettes)) {
       collection: 'news',
       data: {
         title,
-        category,
+        category: (
+          await payload.find({
+            collection: 'categories',
+            where: { and: [{ tenant: { equals: club.id } }, { slug: { equals: category } }] },
+            limit: 1,
+          })
+        ).docs[0]!.id,
         status: 'published',
         publishedAt: `${date}T12:00:00.000Z`,
         excerpt,

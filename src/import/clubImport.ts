@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { basename, extname, resolve } from 'node:path'
 import type { Payload } from 'payload'
 
+import { categoryIds } from '../collections/categoryIds'
 import { rt } from '../demo/richText'
 import { demoBase } from '../site/demo'
 
@@ -46,6 +47,7 @@ const CLUB_OWNED = [
   'enquiries',
   'events',
   'news',
+  'categories',
   'pages',
   'staff',
   'courses',
@@ -191,6 +193,9 @@ export const importClub = async (
     }
   }
 
+  // The club's starter categories, so content can say "@category:competitions".
+  for (const [slug, id] of await categoryIds(payload, tenant)) ids.set(`@category:${slug}`, id)
+
   for (const [key, { file, alt }] of Object.entries(content.media)) {
     ids.set(`@media:${key}`, (await create('media', { alt }, file)).id)
   }
@@ -264,7 +269,14 @@ export const importClub = async (
   await one('club-settings', content.settings)
   await one('course-status', content.courseStatus)
 
-  for (const story of content.news ?? []) await create('news', story)
+  for (const story of content.news ?? []) {
+    // Older content files name the category plainly ("club"); newer ones can use "@category:club".
+    const category = typeof story.category === 'string' ? story.category : 'club'
+    await create('news', {
+      ...story,
+      category: category.startsWith('@') ? category : `@category:${category}`,
+    })
+  }
   for (const event of content.events ?? []) await create('events', event)
   log(`${content.news?.length ?? 0} news stories, ${content.events?.length ?? 0} events`)
 

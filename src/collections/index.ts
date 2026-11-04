@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { AgreementAcceptances } from './AgreementAcceptances'
+import { Categories } from './Categories'
 import { ClubSettings } from './ClubSettings'
 import { Courses } from './Courses'
 import { CourseStatus } from './CourseStatus'
@@ -13,6 +14,7 @@ import { Pages } from './Pages'
 import { Staff } from './Staff'
 import { Tenants } from './Tenants'
 import { Users } from './Users'
+import { DemoBookings } from '../marketing/collections/DemoBookings'
 import { HomepageRequests } from '../marketing/collections/HomepageRequests'
 import { MarketingMedia } from '../marketing/collections/MarketingMedia'
 import { MarketingPages } from '../marketing/collections/MarketingPages'
@@ -25,6 +27,7 @@ export const collections: CollectionConfig[] = [
   // appear in the order their first collection does here.
   Pages,
   News,
+  Categories,
   Events,
   CourseStatus,
   Staff,
@@ -40,4 +43,5 @@ export const collections: CollectionConfig[] = [
   MarketingPages,
   MarketingMedia,
   HomepageRequests,
+  DemoBookings,
 ]

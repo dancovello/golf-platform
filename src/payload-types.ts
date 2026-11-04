@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     pages: Page;
     news: News;
+    categories: Category;
     events: Event;
     'course-status': CourseStatus;
     staff: Staff;
@@ -83,6 +84,7 @@ export interface Config {
     'marketing-pages': MarketingPage;
     'marketing-media': MarketingMedia;
     'homepage-requests': HomepageRequest;
+    'demo-bookings': DemoBooking;
     'totp-attempts': TotpAttempt;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
@@ -93,6 +95,7 @@ export interface Config {
   collectionsSelect: {
     pages: PagesSelect<false> | PagesSelect<true>;
     news: NewsSelect<false> | NewsSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
     events: EventsSelect<false> | EventsSelect<true>;
     'course-status': CourseStatusSelect<false> | CourseStatusSelect<true>;
     staff: StaffSelect<false> | StaffSelect<true>;
@@ -107,6 +110,7 @@ export interface Config {
     'marketing-pages': MarketingPagesSelect<false> | MarketingPagesSelect<true>;
     'marketing-media': MarketingMediaSelect<false> | MarketingMediaSelect<true>;
     'homepage-requests': HomepageRequestsSelect<false> | HomepageRequestsSelect<true>;
+    'demo-bookings': DemoBookingsSelect<false> | DemoBookingsSelect<true>;
     'totp-attempts': TotpAttemptsSelect<false> | TotpAttemptsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
@@ -1157,10 +1161,27 @@ export interface NewsFeedBlock {
   /**
    * Leave empty for all news.
    */
-  category?: ('course' | 'competitions' | 'clubhouse' | 'membership' | 'academy' | 'club') | null;
+  category?: (string | null) | Category;
   id?: string | null;
   blockName?: string | null;
   blockType: 'newsFeed';
+}
+/**
+ * The club’s categories, used to sort news (and anything else that gets categories later). They show on the website in the order they were added.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  name: string;
+  /**
+   * Filled in from the name. Used in links such as /news?category=competitions. Renaming a category does not change it.
+   */
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1192,7 +1213,10 @@ export interface News {
    * Shown on the article. A future date keeps it hidden until then.
    */
   publishedAt: string;
-  category: 'course' | 'competitions' | 'clubhouse' | 'membership' | 'academy' | 'club';
+  /**
+   * Add or change categories under Website → Categories.
+   */
+  category: string | Category;
   /**
    * One or two sentences, shown on cards and under the title.
    */
@@ -2649,6 +2673,31 @@ export interface HomepageRequest {
   createdAt: string;
 }
 /**
+ * Demo calls booked on the Book a demo page. Mark one cancelled and its time is offered again.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "demo-bookings".
+ */
+export interface DemoBooking {
+  id: string;
+  status: 'booked' | 'done' | 'cancelled';
+  /**
+   * Year-month-day.
+   */
+  date: string;
+  time: string;
+  slotKey?: string | null;
+  name: string;
+  role?: string | null;
+  club: string;
+  email: string;
+  alertSentAt?: string | null;
+  confirmationSentAt?: string | null;
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "totp-attempts".
  */
@@ -3375,6 +3424,17 @@ export interface NewsSelect<T extends boolean = true> {
   imageCaption?: T;
   author?: T;
   body?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories_select".
+ */
+export interface CategoriesSelect<T extends boolean = true> {
+  tenant?: T;
+  name?: T;
   slug?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -4607,6 +4667,25 @@ export interface HomepageRequestsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "demo-bookings_select".
+ */
+export interface DemoBookingsSelect<T extends boolean = true> {
+  status?: T;
+  date?: T;
+  time?: T;
+  slotKey?: T;
+  name?: T;
+  role?: T;
+  club?: T;
+  email?: T;
+  alertSentAt?: T;
+  confirmationSentAt?: T;
+  notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "totp-attempts_select".
  */
 export interface TotpAttemptsSelect<T extends boolean = true> {
@@ -4682,7 +4761,7 @@ export interface MarketingSetting {
   id: string;
   branding?: {
     /**
-     * Shown in the menu, the footer and the homepage animation. Use a transparent PNG or WebP at least 800px wide, in light colours: it sits on the dark green. Empty: the built-in A1.Studios logo.
+     * Shown in the menu, the footer and the homepage animation. Use a transparent PNG or WebP at least 800px wide, in light colours: it sits on the dark green. Empty: the built-in A1.Engine logo.
      */
     logo?: (string | null) | MarketingMedia;
     /**
@@ -4742,6 +4821,32 @@ export interface MarketingSetting {
      * Replying to a request’s email answers the club directly.
      */
     inbox?: string | null;
+  };
+  /**
+   * When visitors can book a demo on the Book a demo page, in UK time. Add the hours you are free each weekday; with none, the page offers email instead. Booked times are under Demo bookings.
+   */
+  demoCalls: {
+    /**
+     * One row per block, e.g. Tuesday 10:00 to 12:00. Weekdays only.
+     */
+    hours?:
+      | {
+          weekday: 'mon' | 'tue' | 'wed' | 'thu' | 'fri';
+          from: string;
+          to: string;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Sets how far apart times are. Never shown to visitors.
+     */
+    slotMinutes: number;
+    daysAhead: number;
+    noticeHours: number;
+    /**
+     * Your Google Meet or Zoom room, put in the confirmation email. Once Google is connected, each booking gets its own Meet link instead and this is the backup. Empty: the email says you will send the link.
+     */
+    videoLink?: string | null;
   };
   trust?: {
     /**
@@ -4812,6 +4917,22 @@ export interface MarketingSettingsSelect<T extends boolean = true> {
     | T
     | {
         inbox?: T;
+      };
+  demoCalls?:
+    | T
+    | {
+        hours?:
+          | T
+          | {
+              weekday?: T;
+              from?: T;
+              to?: T;
+              id?: T;
+            };
+        slotMinutes?: T;
+        daysAhead?: T;
+        noticeHours?: T;
+        videoLink?: T;
       };
   trust?:
     | T

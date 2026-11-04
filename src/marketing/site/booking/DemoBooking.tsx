@@ -13,6 +13,9 @@ import {
   weekdayName,
 } from '@/marketing/booking/calendar'
 
+import { BRAND } from '@/brand'
+import { demoInvite } from '@/marketing/booking/invite'
+
 import { Field } from '../controls/controls'
 import { MarketingIcon } from '../MarketingIcon'
 import { MarketingButton } from '../parts'
@@ -35,15 +38,22 @@ const WEEKDAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', '
  * times can be picked. Keyboard: arrow keys move through the days, Enter or Space picks one
  * (Figma: "arrow keys move through days, Enter selects"). The times are radios.
  *
- * `book` makes the booking; until a calendar is connected (open question Q4) the component is
- * only shown on the review page, with sample times, and the live page offers email instead.
+ * `book` makes the booking and returns true, or a sentence to show (the server action in
+ * src/marketing/booking/actions.ts). The review page shows it with sample times and a pretend
+ * booking.
  */
 export const DemoBooking = ({
   open,
   book,
+  minutes = 30,
+  rescheduleHref,
 }: {
   open: OpenDay[]
-  book: (details: BookingDetails, date: string, time: string) => Promise<boolean>
+  book: (details: BookingDetails, date: string, time: string) => Promise<boolean | string>
+  /** How long the call lasts, for the calendar file. */
+  minutes?: number
+  /** Where "Reschedule" goes: an email to the inbox, so a booking is only ever moved by us. */
+  rescheduleHref?: string
 }) => {
   const days = useMemo(() => bookableDays(open), [open])
   const first = [...days.keys()].sort()[0] ?? null
@@ -85,10 +95,12 @@ export const DemoBooking = ({
     if (!day || !time) return
     setBusy(true)
     setProblem(null)
-    const ok = await book(details, day, time).catch(() => false)
+    const result = await book(details, day, time).catch(() => false)
     setBusy(false)
-    if (!ok) {
-      setProblem('That time has just gone. Please pick another.')
+    if (result !== true) {
+      setProblem(
+        typeof result === 'string' ? result : 'That time has just gone. Please pick another.',
+      )
       return
     }
     setStep('booked')
@@ -111,6 +123,23 @@ export const DemoBooking = ({
     requestAnimationFrame(() =>
       gridRef.current?.querySelector<HTMLButtonElement>(`[data-date="${target}"]`)?.focus(),
     )
+  }
+
+  const addToCalendar = () => {
+    if (!day || !time) return
+    const file = demoInvite({
+      date: day,
+      time,
+      minutes,
+      summary: `${BRAND.name} demo call`,
+      description: `Your demo call with ${BRAND.name}, on video. Times are UK time.`,
+      now: new Date(),
+    })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(new Blob([file], { type: 'text/calendar;charset=utf-8' }))
+    link.download = 'demo-call.ics'
+    link.click()
+    URL.revokeObjectURL(link.href)
   }
 
   const current = STEPS.findIndex((s) => s.id === step)
@@ -290,6 +319,22 @@ export const DemoBooking = ({
             {longDay(day).replace(/^\w+ /, `${shortDay(day).split(' ')[0]} `)} at {time}, on video.
             The invite is in your inbox. Bring anyone from the committee.
           </p>
+          <div className="mk-booking-actions">
+            <MarketingButton
+              label="Add to calendar"
+              variant="secondary"
+              arrow={false}
+              onClick={addToCalendar}
+            />
+            {rescheduleHref ? (
+              <MarketingButton
+                label="Reschedule"
+                variant="ghost"
+                arrow={false}
+                href={rescheduleHref}
+              />
+            ) : null}
+          </div>
         </div>
       ) : null}
     </div>

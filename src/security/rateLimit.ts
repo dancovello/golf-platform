@@ -87,6 +87,26 @@ export const HOMEPAGE_REQUESTS_EMAILED_PER_DAY: Limit = {
   max: 10,
   windowSeconds: 24 * 60 * 60,
 }
+/** Demo bookings per visitor, before anything is saved. */
+export const DEMO_BOOKING_VISITOR_LIMIT: Limit = {
+  name: 'demo-booking',
+  max: 5,
+  windowSeconds: 10 * 60,
+}
+/** Demo bookings saved, from everyone together, counted in one step. Matches HOURLY_LIMIT in
+ * src/marketing/booking/submit.ts. */
+export const DEMO_BOOKINGS_PER_HOUR: Limit = {
+  name: 'demo-bookings',
+  max: 20,
+  windowSeconds: 60 * 60,
+}
+/** Demo bookings emailed per day (an alert to the company and a confirmation to the visitor
+ * each, counted as one). Past this they're saved but not emailed. */
+export const DEMO_BOOKINGS_EMAILED_PER_DAY: Limit = {
+  name: 'demo-booking-emails',
+  max: 15,
+  windowSeconds: 24 * 60 * 60,
+}
 /** Security policy reports, from all visitors together: they only go to the log. */
 export const CSP_REPORT_LIMIT: Limit = { name: 'csp-report', max: 60, windowSeconds: 60 }
 

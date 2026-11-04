@@ -88,7 +88,7 @@ const sameClubCheck =
     if (!tenant || refs.length === 0) return data
 
     const errors: { path: string; message: string }[] = []
-    for (const name of ['pages', 'media', 'documents', 'staff', 'courses'] as const) {
+    for (const name of ['pages', 'media', 'documents', 'staff', 'courses', 'categories'] as const) {
       const wanted = [...new Set(refs.filter((r) => r.collection === name).map((r) => r.id))]
       if (wanted.length === 0) continue
       const { docs } = await req.payload.find({
@@ -113,7 +113,9 @@ const sameClubCheck =
                   ? 'Choose one of your own documents.'
                   : name === 'staff'
                     ? 'Choose people from your own team.'
-                    : 'Choose one of your own courses.',
+                    : name === 'categories'
+                      ? 'Choose one of your own categories.'
+                      : 'Choose one of your own courses.',
         })
       }
     }
@@ -149,10 +151,12 @@ export const checkCourseSameClub = sameClubCheck((data) =>
   ),
 )
 
-/** News: the main photo, and the photos and pages in the article. */
+/** News: the category, the main photo, and the photos and pages in the article. */
 export const checkNewsSameClub = sameClubCheck((data) => {
   const id = idOf(data.image)
+  const category = idOf(data.category)
   return [
+    ...(category ? [{ collection: 'categories' as const, id: category, path: 'category' }] : []),
     ...(id ? [{ collection: 'media' as const, id, path: 'image' }] : []),
     ...richTextRefs(data.body, 'body'),
   ]

@@ -49,7 +49,7 @@ Create `club-imports/<club>/site.ts` (see Cottrell's as the example). It's plain
 - `media`, `documents`, `staff`, `courses`: each with a short key
 - `pages`: in menu order, with `parent` for drop-downs, and `layout` in the same shape the editor saves
 - `settings` (branding, menu, footer, contact), `courseStatus`, `news`, `events`
-- References: `@media:key`, `@doc:key`, `@staff:key`, `@course:key`, `@page:slug`. The import fills them in
+- References: `@media:key`, `@doc:key`, `@staff:key`, `@course:key`, `@page:slug`, `@category:slug` (every club starts with course, competitions, clubhouse, membership, academy and club). The import fills them in. A news story's `category` can be just the slug; a Latest news block's must be `@category:slug`
 - Rich text: `{ $rt: [['h2', '…'], ['p', '…'], ['ul', '…', '…'], ['img', '@media:key']] }`
 
 Write photo descriptions that say only what the photo shows. Documents must be PDF or Word `.docx`; convert old `.doc` files with `textutil -convert docx`. Uploads are limited to 50 MB.

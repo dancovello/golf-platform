@@ -2,7 +2,7 @@
 
 import { type KeyboardEvent, useState } from 'react'
 
-import { FLIPPER_STYLES } from '@/marketing/demo/flipper'
+import { FLIPPER_STYLES, flipperFontName } from '@/marketing/demo/flipper'
 
 import { IconButton } from '../controls/controls'
 import { DeviceStage } from './DeviceStage'
@@ -41,6 +41,7 @@ export const BlockFlipper = ({ address }: { address: string }) => {
     >
       <DeviceStage
         src={`/frame/hero/${variant.id}`}
+        warm={FLIPPER_STYLES.map((v) => `/frame/hero/${v.id}`)}
         address={address}
         laptopLabel={`Demo club: the Hero block, ${style} style, on a laptop`}
         phoneLabel="Demo club: the same hero on a phone"
@@ -54,8 +55,8 @@ export const BlockFlipper = ({ address }: { address: string }) => {
               <p className="mk-flipper-label" aria-live="polite">
                 <span className="mk-flipper-name">{variant.label}</span>
                 <span className="mk-flipper-count">
-                  Variant {index + 1} of {count}, with the {variant.headerLabel} header. Swipe, or
-                  use the arrow keys
+                  Variant {index + 1} of {count}, with the {variant.headerLabel} header,{' '}
+                  {flipperFontName(variant.id)} fonts. Swipe, or use the arrow keys
                 </span>
               </p>
             </div>

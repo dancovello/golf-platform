@@ -9,6 +9,7 @@ export type World = {
   editorB: { id: string; email: string }
   pageA: { id: string; title: string }
   pageB: { id: string; title: string }
+  categoryA: { id: string }
   homeA: { id: string }
   settingsA: { id: string }
   settingsB: { id: string }
