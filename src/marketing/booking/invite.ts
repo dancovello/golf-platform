@@ -47,11 +47,11 @@ export const demoInvite = ({
   return [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//A1.Engine//Demo call//EN',
+    'PRODID:-//A1 Engine//Demo call//EN',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     'BEGIN:VEVENT',
-    `UID:${date}-${time.replace(':', '')}@demo.a1studios`,
+    `UID:${date}-${time.replace(':', '')}@demo.a1engine.co`,
     `DTSTAMP:${stamp(now.getTime())}`,
     `DTSTART:${stamp(start)}`,
     `DTEND:${stamp(start + minutes * 60_000)}`,

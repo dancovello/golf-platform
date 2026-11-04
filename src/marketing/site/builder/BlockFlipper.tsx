@@ -5,6 +5,7 @@ import { type KeyboardEvent, useState } from 'react'
 import { FLIPPER_STYLES, flipperFontName } from '@/marketing/demo/flipper'
 
 import { IconButton } from '../controls/controls'
+import { Segmented } from '../controls/interactive'
 import { DeviceStage } from './DeviceStage'
 
 /**
@@ -50,15 +51,27 @@ export const BlockFlipper = ({ address }: { address: string }) => {
         {(laptop) => (
           <div className="mk-flipper-controls" style={{ width: `min(${laptop}px, 100%)` }}>
             <div className="mk-flipper-variant">
-              <IconButton icon="chevron-left" label="Previous variant" onClick={() => flip(-1)} />
-              <IconButton icon="chevron-right" label="Next variant" onClick={() => flip(1)} />
+              <span className="mk-flipper-arrows">
+                <IconButton icon="chevron-left" label="Previous variant" onClick={() => flip(-1)} />
+                <IconButton icon="chevron-right" label="Next variant" onClick={() => flip(1)} />
+              </span>
               <p className="mk-flipper-label" aria-live="polite">
                 <span className="mk-flipper-name">{variant.label}</span>
                 <span className="mk-flipper-count">
                   Variant {index + 1} of {count}, with the {variant.headerLabel} header,{' '}
-                  {flipperFontName(variant.id)} fonts. Swipe, or use the arrow keys
+                  {flipperFontName(variant.id)} fonts.
+                  <span className="mk-flipper-hint"> Swipe, or use the arrow keys</span>
                 </span>
               </p>
+            </div>
+            {/* Phones: pills in place of the arrows, with the description above them. */}
+            <div className="mk-flipper-pills">
+              <Segmented
+                label="Hero variant"
+                options={FLIPPER_STYLES.map((v) => v.label.replace('Hero · ', ''))}
+                value={index}
+                onChange={setIndex}
+              />
             </div>
             <p className="mk-flipper-screens">
               <strong>Right on every screen.</strong> Phones get their own layout, not a squashed

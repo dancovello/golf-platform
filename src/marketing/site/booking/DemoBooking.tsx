@@ -1,6 +1,6 @@
 'use client'
 
-import { type KeyboardEvent, useMemo, useRef, useState } from 'react'
+import { type KeyboardEvent, useEffect, useMemo, useRef, useState } from 'react'
 
 import {
   addDays,
@@ -143,11 +143,24 @@ export const DemoBooking = ({
   }
 
   const current = STEPS.findIndex((s) => s.id === step)
+  const stepsRef = useRef<HTMLOListElement>(null)
+
+  // On a phone the tracker scrolls sideways: keep the step the visitor is on in the middle.
+  useEffect(() => {
+    const list = stepsRef.current
+    const item = list?.children[current] as HTMLElement | undefined
+    if (!list || !item) return
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    list.scrollTo({
+      left: item.offsetLeft - (list.clientWidth - item.offsetWidth) / 2,
+      behavior: reduce ? 'auto' : 'smooth',
+    })
+  }, [current])
   const firstName = details.name.trim().split(/\s+/)[0] ?? ''
 
   return (
     <div className="mk-booking">
-      <ol className="mk-booking-steps">
+      <ol className="mk-booking-steps" ref={stepsRef}>
         {STEPS.map((s, i) => (
           <li
             key={s.id}
