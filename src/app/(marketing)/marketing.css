@@ -2415,6 +2415,32 @@ button.mk-button {
   }
 }
 
+/* Phones: the week's row runs off the screen's edge (so the next card peeks in), and each card's
+ * time, text and picture sit on shared rows so the pictures line up whatever the text length. */
+@media (max-width: 1023px) {
+  .mk-week-moments {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 270px;
+    grid-template-rows: auto auto auto;
+    column-gap: 16px;
+    row-gap: 16px;
+    margin-inline: calc(-1 * var(--mk-gutter));
+    padding-inline: var(--mk-gutter);
+    scroll-padding-inline: var(--mk-gutter);
+    scrollbar-width: none;
+  }
+  .mk-moment {
+    display: grid;
+    grid-row: span 3;
+    grid-template-rows: subgrid;
+    row-gap: 16px;
+  }
+  .mk-moment-preview {
+    align-self: start;
+  }
+}
+
 /* ---- Your content comes with you (289:9518; mobile 297:9687) ---- */
 
 .mk-moves-visual {
@@ -5981,4 +6007,150 @@ html[data-intro='reveal'] .mk-footer {
   text-align: center;
   font-size: 14px;
   color: var(--mk-text-tertiary);
+}
+
+/* Phones: smaller tick points keep the page picture in view, and the tabs run to the screen's
+ * edges. */
+@media (max-width: 1023px) {
+  .mk-roles-points {
+    gap: 10px;
+    padding-top: 8px;
+  }
+  .mk-roles-points li {
+    gap: 10px;
+    font-size: 15px;
+    line-height: 1.45;
+  }
+  .mk-roles-tick {
+    padding-top: 1px;
+  }
+  .mk-roles-tick svg {
+    width: 16px;
+    height: 16px;
+  }
+  .mk-roles-headline {
+    font-size: 28px;
+  }
+  .mk-roles-panel {
+    gap: 24px;
+  }
+  .mk-roles .mk-pill-tabs {
+    max-width: none;
+    margin-inline: calc(-1 * var(--mk-gutter));
+    padding-inline: var(--mk-gutter);
+    scroll-padding-inline: var(--mk-gutter);
+  }
+}
+
+/* Block Flipper controls: arrows on desktop; on phones the description sits above full-width
+ * pills (like the Block Switcher's), and the swipe hint goes. */
+.mk-flipper-pills {
+  display: none;
+}
+@media (max-width: 767px) {
+  .mk-flipper-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .mk-flipper-variant {
+    display: contents;
+  }
+  .mk-flipper-arrows,
+  .mk-flipper-hint {
+    display: none;
+  }
+  .mk-flipper-label {
+    order: 1;
+  }
+  .mk-flipper-pills {
+    display: block;
+    order: 2;
+  }
+  .mk-flipper-pills .mk-segmented {
+    display: flex;
+    width: 100%;
+  }
+  .mk-flipper-pills .mk-segment {
+    flex: 1;
+    padding: 10px 8px;
+    white-space: nowrap;
+  }
+  .mk-flipper-screens {
+    order: 3;
+    max-width: none;
+  }
+}
+
+/* Phones: shorter booking and request forms (less padding, gaps and field height), and the
+ * step tracker is one row that runs to the card's edges, scrolls sideways, and keeps the
+ * current step in view. */
+@media (max-width: 767px) {
+  .mk-booking,
+  .mk-booking-fallback {
+    gap: 16px;
+    padding: 20px;
+  }
+  .mk-booking-body {
+    gap: 16px;
+  }
+  .mk-booking-row {
+    gap: 12px;
+  }
+  .mk-booking-title,
+  .mk-request-title {
+    font-size: 24px;
+  }
+  .mk-booking .mk-field,
+  .mk-request-form .mk-field {
+    gap: 4px;
+  }
+  .mk-booking .mk-field-input,
+  .mk-request-form .mk-field-input {
+    padding: 8px 12px;
+  }
+  .mk-booking-day {
+    height: 36px;
+  }
+  .mk-booking-times legend {
+    margin-bottom: 12px;
+  }
+  .mk-booking-steps {
+    flex-wrap: nowrap;
+    margin-inline: -20px;
+    padding-inline: 20px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .mk-booking-steps li {
+    flex: none;
+    white-space: nowrap;
+  }
+  .mk-request-form,
+  .mk-request-sent {
+    gap: 14px;
+    padding: 20px;
+  }
+}
+
+/* Phones: the demo club's hero shows alongside its chips, not instead of them. */
+@media (max-width: 767px) {
+  .mk-morph[data-scroll-driven='false'] .mk-demo-viewport {
+    max-height: max(260px, calc(100svh - 420px));
+  }
+}
+
+/* Phones: the editor is tighter, and the live card shows the hero's headline (it sits at the
+ * bottom of the hero, which a 280px clip used to cut off). */
+@media (max-width: 767px) {
+  .mk-editor {
+    gap: 16px;
+    padding: 20px;
+  }
+  .mk-live-card .mk-demo-viewport {
+    max-height: none;
+  }
+  .mk-live-card .mk-demo-stage .hero-full {
+    min-height: 340px;
+  }
 }

@@ -46,7 +46,7 @@ export const FounderCard = async ({
             <MarketingButton
               label={`Book a call with ${firstName}`}
               href={bookingLink}
-              variant="secondary"
+              variant="primary"
               arrow={false}
             />
           ) : null}
