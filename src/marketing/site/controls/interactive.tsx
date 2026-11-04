@@ -137,14 +137,18 @@ export const Segmented = ({
   label,
   options,
   defaultIndex = 0,
+  value,
   onChange,
 }: {
   label: string
   options: string[]
   defaultIndex?: number
+  /** Set by a parent that controls which option is chosen (e.g. one that also reacts to a swipe). */
+  value?: number
   onChange?: (index: number) => void
 }) => {
-  const [active, setActive] = useState(defaultIndex)
+  const [own, setActive] = useState(defaultIndex)
+  const active = value ?? own
   const select = (index: number) => {
     setActive(index)
     onChange?.(index)
