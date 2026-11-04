@@ -123,3 +123,23 @@
   color: var(--theme-warning-800);
   font-size: 0.85em;
 }
+
+/* The signed-out screens (sign in, forgot password and so on): the A1 Engine dark green page,
+   with the form on a card and the logo on a green strip across the top of it (Dan, 2026-11-04).
+   The logo is light grey, so it must always sit on the green. */
+.template-minimal {
+  background-color: #091a13;
+}
+.template-minimal .template-minimal__wrap {
+  overflow: hidden;
+  padding: 0 calc(var(--base) * 2) calc(var(--base) * 2);
+  border-radius: var(--style-radius-l, 12px);
+  background-color: var(--theme-bg);
+}
+.template-minimal .login__brand {
+  box-sizing: content-box;
+  margin: 0 calc(var(--base) * -2) calc(var(--base) * 2);
+  padding: calc(var(--base) * 2.5) calc(var(--base) * 2);
+  width: auto;
+  background-color: #091a13;
+}
