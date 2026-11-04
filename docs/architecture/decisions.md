@@ -666,3 +666,43 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - "Request your homepage" stays as a page (it reverses the 21 Oct "no free homepage" wording; docs 19 and 20 are updated to match when the v2 pages land).
 - `confirmationSentAt` stays on the request record for older requests (no data deleted, no migration), and shows in the admin only when set.
 
+
+## 2026-11-03: The live preview points at the block being edited
+
+- **Dan, 3 Nov:** hard to tell which block you're editing when many are open. Now, when you click or type in a block in the page editor, the live preview scrolls to that block (just under the site's header) and outlines it in blue. Typing in another field, such as the title, clears the outline.
+- **How:** the editor (`src/admin/BlockHighlighter.tsx`) tells the preview which block with a message to its own address only; the preview (`src/site/components/BlockHighlight.tsx`) finds the block by an invisible marker placed *after* each block, in the preview only (`RenderBlocks live`). Markers go after, not around, so the preview's layout is the live site's (the hero-over-header styles rely on the first block being the first element). The public site is unchanged.
+- **Limits:** it follows the page's blocks, not rows inside a block (cards, questions): those point at their block. Blocks that draw nothing aren't outlined.
+
+## 2026-11-03: Wireframes in the "Add block" list
+
+- **Dan, 3 Nov:** the block list showed plain placeholders. Each of the 20 page blocks now has a simple wireframe (grey shapes for photos and text, the brand green for buttons and highlights), drawn in `src/blocks/previews.ts` and given to Payload as each block's list picture (`admin.images.thumbnail`). No image files to host and nothing extra to load. `tests/unit/block-previews.spec.ts` fails if a new block is added without one.
+
+## 2026-11-03: "View page" button on the page screen
+
+- **Dan, 3 Nov:** a View page button on the page edit screen. It is Payload's own external-link button beside Save, labelled "View page" (`admin.preview` on Pages, `viewPageURL` in `src/site/livePreview.ts`). It opens in a new tab: the club's real address once the page is published and the club has a web address (production only), otherwise the club's preview of the page, drafts included, which only that club's signed-in editors and the super-admin can open.
+
+## 2026-11-03: Categories: one editable list per club
+
+- **Dan, 3 Nov:** editors couldn't add a news category (the six were fixed in the code), and categories shouldn't be tied to news, as events may want them later. There is now a general **Categories** section (Website group in the admin): one shared list per club, which editors add to, rename and remove. Club-owned like everything else, with the usual isolation tests.
+- **Used by news first.** An article's category and a "Latest news" block's category are now links to that list, not the old fixed choice. Events keep their own fixed list for now; moving them over later means adding a category field and a small migration, not a new section.
+- **Starter list.** Every new club gets Course news, Competitions, Clubhouse, Membership, Academy and Club news (`src/collections/defaultCategories.ts`, created by the club's creation hook). The migration gave every existing club the same six and pointed each article and news block at the matching one, before dropping the old columns. The guard's approved list records it; **it needs Dan's `approved-destructive-migration` label** because it drops those columns.
+- **Web addresses.** Each category has a short address (`course`, `competitions`…) made from its name when it is created. Renaming doesn't change it, so existing `/news?category=course` links keep working.
+- **Order** on the website is the order they were added. There is no reordering yet (kept simple on purpose).
+- **Safety.** A category that articles still use can't be removed (the message says to move them first). An article or news block can only use the club's own categories (checked on save, like photos and pages). Removing a whole club removes its categories after its news.
+- **Scripts.** The demo club, the canary clubs and the club importer look categories up by address; content files can say `"category": "@category:competitions"` (a plain `"competitions"` still works for news).
+- **Not updated automatically:** the search index's small category label on a news result refreshes when that article is next saved, not when a category is renamed.
+
+## 2026-11-03: Company domain a1engine.co
+
+- **Dan, 3 Nov:** bought `a1engine.co` through Vercel, so Vercel also manages its DNS and issues the certificates. No records need sending to anyone.
+- **Addresses (Vercel → Domains, Production):** `a1engine.co` is the main company address, `www.a1engine.co` forwards to it, and `app.a1engine.co` is the admin. Production sets `MARKETING_HOSTS=a1engine.co,www.a1engine.co` and `ADMIN_URL=https://app.a1engine.co`. Staging and previews keep their own addresses.
+- **In the code:** `BRAND.domain` in `src/brand.ts` is now `a1engine.co`. The company email is `daniel@a1engine.co`, on Dan's existing Google Workspace account with `a1engine.co` added as a domain (Google's mail, spam-protection and signing records are in Vercel's DNS).
+- **Still to do:** verify `a1engine.co` as the sending domain in Resend and set `EMAIL_FROM_ADDRESS`; check whether the marketing forms need `a1engine.co` on the Turnstile widget (the free widget lists 10 addresses); point the uptime monitor at `app.a1engine.co/health`. Nothing is public until the held main → production release.
+
+## 2026-11-03: The first production release since 23 Oct stopped at the privacy gate
+
+- **What happened:** Dan merged the release PR (#253, `main` into `production`). The Release workflow stopped at its first step, "The repository must be private (production only)", because the repository was public (it had been public again since 27 Oct). The backup, dry run, database changes and deploy were skipped, so production was not changed. The 28 Oct release (#207) stopped the same way.
+- **Fix:** Dan made the repository private on 3 Nov, so production releases can run. The rule itself is unchanged (22 and 27 Oct): production releases only while the repository is private. Staging may release either way.
+- **A re-run does not help.** "Re-run failed jobs" and "Re-run all jobs" replay the original event, including the repository details recorded at that moment, so the gate still saw "public" after the repository was made private. After making the repository private, release with a **new** merge into `production` (a release PR with at least one change in it).
+- **Where this leaves it:** `production` and `main` had the same content after #253 merged, so a release PR had nothing in it. This note is that change. The pending database changes, including `20261103_124458_categories`, are applied by the release that follows.
+- **GitHub Actions minutes:** while private, runs draw on the 3,000 free minutes a month (`docs/operations/ci-minutes.md`). Dan chose not to pay for extra.

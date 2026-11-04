@@ -1,13 +1,28 @@
 import config from '@payload-config'
 import { getPayload, type Where } from 'payload'
 
-import { NEWS_CATEGORIES, newsCategoryLabel } from '@/collections/newsCategories'
-
 import { type BlockContext, loadBlockContext } from './blocks/resolve'
 import { loadClubMedia, type SiteMedia } from './blocks/media'
 import { siteToday } from './today'
 import { clubCached } from './cache'
 import { idOf } from '@/blocks/types'
+
+/** One of a club's categories (Categories in the admin), in the order they were added. */
+export type SiteCategory = { id: string; name: string; slug: string }
+
+const clubCategoriesFresh = async (tenantID: string): Promise<SiteCategory[]> => {
+  const payload = await getPayload({ config })
+  const { docs } = await payload.find({
+    collection: 'categories',
+    where: { tenant: { equals: tenantID } },
+    sort: 'createdAt',
+    select: { name: true, slug: true },
+    limit: 100,
+    depth: 0,
+    overrideAccess: true,
+  })
+  return docs.map((d) => ({ id: String(d.id), name: d.name, slug: d.slug }))
+}
 
 /** A news article as cards and lists show it. */
 export type SiteNewsCard = {
@@ -38,7 +53,7 @@ type NewsDoc = {
   slug?: string | null
   title: string
   excerpt?: string | null
-  category: string
+  category: unknown
   publishedAt: string
   image?: unknown
   imageCaption?: string | null
@@ -70,6 +85,7 @@ export const newsForSitemap = async (tenantID: string) => {
 
 const toCards = async (tenantID: string, docs: NewsDoc[]): Promise<SiteNewsCard[]> => {
   const payload = await getPayload({ config })
+  const categories = await clubCategories(tenantID)
   const photos = await loadClubMedia(
     payload,
     tenantID,
@@ -79,12 +95,13 @@ const toCards = async (tenantID: string, docs: NewsDoc[]): Promise<SiteNewsCard[
     .filter((d) => d.slug)
     .map((d) => {
       const image = photos.get(idOf(d.image) ?? '') ?? null
+      const category = categories.find((c) => c.id === idOf(d.category))
       return {
         slug: String(d.slug),
         title: d.title,
         excerpt: d.excerpt?.trim() || null,
-        category: d.category,
-        categoryLabel: newsCategoryLabel(d.category),
+        category: category?.slug ?? '',
+        categoryLabel: category?.name ?? 'News',
         publishedAt: d.publishedAt,
         image: image?.mimeType.startsWith('image/') ? image : null,
       }
@@ -101,8 +118,10 @@ const CARD_FIELDS = {
 } as const
 
 /** The latest published articles, optionally in one category (news blocks). */
-const latestNewsFresh = async (tenantID: string, limit: number, category?: string | null) => {
+const latestNewsFresh = async (tenantID: string, limit: number, categoryID?: string | null) => {
   const payload = await getPayload({ config })
+  // A category that isn't one of this club's shows all news.
+  const category = (await clubCategories(tenantID)).find((c) => c.id === categoryID)?.id
   const { docs } = await payload.find({
     collection: 'news',
     where: { and: [...live(tenantID), ...(category ? [{ category: { equals: category } }] : [])] },
@@ -121,12 +140,13 @@ const newsArchiveFresh = async (
   { category, q, page }: { category: string | null; q: string | null; page: number },
 ) => {
   const payload = await getPayload({ config })
-  const known = NEWS_CATEGORIES.some((c) => c.value === category) ? category : null
+  const categories = await clubCategories(tenantID)
+  const chosen = categories.find((c) => c.slug === category)
   const words = (q ?? '').trim().slice(0, 60)
   const where: Where = {
     and: [
       ...live(tenantID),
-      ...(known ? [{ category: { equals: known } }] : []),
+      ...(chosen ? [{ category: { equals: chosen.id } }] : []),
       ...(words
         ? [{ or: [{ title: { like: words } }, { excerpt: { like: words } }] } as Where]
         : []),
@@ -143,7 +163,8 @@ const newsArchiveFresh = async (
     overrideAccess: true,
   })
   return {
-    category: known,
+    category: chosen?.slug ?? null,
+    categories,
     q: words || null,
     cards: await toCards(tenantID, result.docs as NewsDoc[]),
     page: result.page ?? 1,
@@ -234,6 +255,8 @@ const loadNewsPostFresh = async (
 
 // Cached per club (src/site/cache.ts). Which articles are live depends on today's date, so at
 // most 5 minutes.
+/** The club's categories, for filters, labels and the news block. */
+export const clubCategories = clubCached('clubCategories', clubCategoriesFresh)
 /** The latest published articles, optionally in one category (news blocks). */
 export const latestNews = clubCached('latestNews', latestNewsFresh, { today: true })
 /** One page of the archive, filtered by category and search words. */

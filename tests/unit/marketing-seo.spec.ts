@@ -13,8 +13,8 @@ import {
 
 describe('marketing site for search engines', () => {
   it('uses the main company address, or the brand domain until one is set', () => {
-    expect(marketingOrigin(['brandname.golf', 'www.brandname.golf'])).toBe('https://brandname.golf')
-    expect(marketingOrigin([])).toBe('https://brandname.golf')
+    expect(marketingOrigin(['a1engine.co', 'www.a1engine.co'])).toBe('https://a1engine.co')
+    expect(marketingOrigin([])).toBe('https://a1engine.co')
   })
 
   it('welcomes search engines on production only, and points them at the sitemap', () => {

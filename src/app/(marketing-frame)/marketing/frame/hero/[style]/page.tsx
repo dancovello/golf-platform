@@ -2,7 +2,12 @@ import type { CSSProperties } from 'react'
 import { notFound } from 'next/navigation'
 
 import { fontSetVariables } from '@/app/(frontend)/fonts'
-import { FLIPPER_CLUB, FLIPPER_STYLES, flipperHero } from '@/marketing/demo/flipper'
+import {
+  FLIPPER_CLUB,
+  FLIPPER_FONT_SETS,
+  FLIPPER_STYLES,
+  flipperHero,
+} from '@/marketing/demo/flipper'
 import { demoClubSite, demoContext } from '@/marketing/demo/clubs'
 import { Hero, heroIsFullBleed, heroShading } from '@/site/blocks/Hero'
 import { SiteHeader } from '@/site/components/SiteHeader'
@@ -20,7 +25,7 @@ export default async function HeroFrame({ params }: { params: Promise<{ style: s
   if (!variant) notFound()
   const theme = {
     ...brandCSSVariables(FLIPPER_CLUB.brand),
-    ...fontSetVariables(FLIPPER_CLUB.fontSet),
+    ...fontSetVariables(FLIPPER_FONT_SETS[variant.id]),
   } as CSSProperties
   const club = demoClubSite(FLIPPER_CLUB, variant.header)
   const block = flipperHero(variant.id)

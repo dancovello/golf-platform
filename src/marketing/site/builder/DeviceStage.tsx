@@ -12,6 +12,7 @@ import {
 import { DEVICES } from '@/marketing/demo/flipper'
 
 import { BrowserChrome } from '../parts'
+import { SwapFrame } from './SwapFrame'
 
 const LAPTOP = DEVICES.find((d) => d.id === 'desktop')!
 const PHONE = DEVICES.find((d) => d.id === 'mobile')!
@@ -23,8 +24,9 @@ const phoneShare = (room: number) => (room < 600 ? 0.36 : 0.26)
 /** Browser bar (40) + the phone hanging 24 below the window + air above. */
 const CHROME = 40
 const PHONE_DROP = 24
-/** The controls under the devices, with the gap above them. */
-const CONTROLS = 96
+/** The controls under the devices, with the gap above them. The Block Switcher's are the tallest:
+ * a line of text, then the design and club pickers (about 180px at the widths this matters at). */
+const CONTROLS = 200
 const MAX_LAPTOP = 960
 
 type Size = { laptop: number; phone: number }
@@ -48,6 +50,7 @@ const fit = (room: number, screenHeight: number): Size => {
  */
 export const DeviceStage = ({
   src,
+  warm,
   address,
   laptopLabel,
   phoneLabel,
@@ -55,6 +58,8 @@ export const DeviceStage = ({
   children,
 }: {
   src: string
+  /** Other pages to load quietly in the background, so a later change is instant. */
+  warm?: string[]
   address: string
   laptopLabel: string
   phoneLabel: string
@@ -126,13 +131,10 @@ export const DeviceStage = ({
           >
             <BrowserChrome address={address} />
             <div className="mk-flipper-viewport" style={{ height: laptopHeight }}>
-              <iframe
-                key={`${src}-laptop`}
+              <SwapFrame
                 src={src}
+                warm={warm}
                 title={laptopLabel}
-                aria-hidden="true"
-                tabIndex={-1}
-                loading="lazy"
                 style={{
                   width: LAPTOP.width,
                   height: Math.ceil(laptopHeight / laptopScale),
@@ -147,13 +149,10 @@ export const DeviceStage = ({
             aria-label={phoneLabel}
           >
             <div className="mk-phone-screen">
-              <iframe
-                key={`${src}-phone`}
+              <SwapFrame
                 src={src}
+                warm={warm}
                 title={phoneLabel}
-                aria-hidden="true"
-                tabIndex={-1}
-                loading="lazy"
                 style={{
                   width: PHONE.width,
                   height: PHONE_HEIGHT,

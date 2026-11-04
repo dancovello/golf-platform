@@ -1287,8 +1287,7 @@ button.mk-button {
   height: 64px;
   padding: 0 16px 0 20px;
 }
-.mk-nav-links,
-.mk-nav-desktop-only {
+.mk-nav-links {
   display: none;
 }
 .mk-nav-actions {
@@ -1358,9 +1357,6 @@ button.mk-button {
     flex: 1;
     align-items: center;
     gap: 4px;
-  }
-  .mk-nav-desktop-only {
-    display: contents;
   }
   .mk-nav-menu-button {
     display: none;
@@ -1861,6 +1857,14 @@ button.mk-button {
 .mk-morph-frames {
   width: 100%;
 }
+/* Phones: the frame and its three stacked chips together must fit the window below the nav
+ * (Dan, 26 Oct). At 375×812 they came to 759px against 748px, so the gap between them is the
+ * chips' own 8px. */
+@media (max-width: 767px) {
+  .mk-morph[data-scroll-driven='false'] .mk-morph-sticky {
+    gap: 8px;
+  }
+}
 /* Pinned 88px from the top, with the chips (39px + 24px gap) and browser bar (42px) under the
  * hero: the frame narrows so all of it fits on the screen. */
 .mk-morph[data-scroll-driven='true'] .mk-morph-frames {
@@ -2225,9 +2229,6 @@ button.mk-button {
 .mk-week {
   position: relative;
 }
-.mk-week-track {
-  display: none;
-}
 .mk-week-moments {
   display: flex;
   gap: 16px;
@@ -2355,20 +2356,21 @@ button.mk-button {
     position: sticky;
     top: max(88px, calc(50svh - 190px));
   }
-  .mk-week-track {
-    position: absolute;
-    top: 11px;
-    left: 0;
-    display: block;
-    width: 100%;
+  /* The line only fills the gap after each time and badge, up to the next moment's dot, so it
+   * never runs through the words. Moments already passed colour it in as the visitor scrolls. */
+  .mk-moment-time::after {
+    content: '';
+    flex: 1;
     height: 1px;
+    margin-right: -40px;
     background: var(--mk-border-track);
+    transition: background-color 300ms var(--mk-ease-move);
   }
-  .mk-week-progress {
-    display: block;
-    height: 1px;
-    background: linear-gradient(90deg, rgb(235 192 122 / 0%), var(--mk-accent-dawn));
-    transition: width 300ms var(--mk-ease-move);
+  .mk-moment:last-child .mk-moment-time::after {
+    margin-right: 0;
+  }
+  .mk-moment[data-state='past'] .mk-moment-time::after {
+    background: var(--mk-accent-dawn);
   }
   .mk-week-moments {
     position: relative;
@@ -2562,7 +2564,7 @@ button.mk-button {
 
 /* Reduced motion: the week and the morph show their final state without movement. */
 @media (prefers-reduced-motion: reduce) {
-  .mk-week-progress,
+  .mk-moment-time::after,
   .mk-moment-preview,
   .mk-morph-frame[data-active='true'] {
     transition: none;
@@ -3486,6 +3488,16 @@ button.mk-button {
   grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
   gap: 8px;
 }
+/* In the booking panel the times fill the row equally, as in the Figma frame. */
+.mk-booking-times .mk-slot > span {
+  display: flex;
+  width: 100%;
+}
+.mk-booking-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
 .mk-booking-tick {
   display: inline-flex;
   align-items: center;
@@ -3557,6 +3569,7 @@ button.mk-button {
 }
 .mk-flipper-window {
   position: absolute;
+  z-index: 0;
   top: 0;
   left: 0;
   max-width: 100%;
@@ -3569,6 +3582,7 @@ button.mk-button {
 }
 .mk-phone {
   position: absolute;
+  z-index: 1;
   right: 0;
   bottom: 0;
   margin: 0;
@@ -5573,6 +5587,10 @@ html[data-intro='reveal'] .mk-footer {
   text-align: center;
   pointer-events: none;
 }
+.mk-intro-mark[data-kind='logo'] {
+  /* 50px of extra space under the logo, lifting it away from the ball. */
+  padding-bottom: 50px;
+}
 .mk-intro-logo {
   display: inline-flex;
   align-items: center;
@@ -5624,8 +5642,6 @@ html[data-intro='reveal'] .mk-footer {
  * 351:1818, Step Card 351:1829, Objection Card 351:1833, Role Tabs 351:2029) ---- */
 
 .mk-assure {
-  /* 64px under whatever sits above it (the hero's devices, a block switcher): Figma 357:5456. */
-  margin-top: 64px;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 24px 32px;
@@ -5642,6 +5658,10 @@ html[data-intro='reveal'] .mk-footer {
   .mk-assure {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
+}
+/* 64px under whatever sits above it (the hero's devices, a block switcher): Figma 357:5456. */
+.mk-stack > :not(.mk-header) + .mk-assure {
+  margin-top: 64px;
 }
 .mk-assure-item {
   display: flex;
@@ -5709,9 +5729,9 @@ html[data-intro='reveal'] .mk-footer {
   gap: 14px;
   align-items: flex-start;
   margin: 0;
-  font-size: 19px;
+  font-size: 16px;
   line-height: 1.55;
-  letter-spacing: -0.038px;
+  letter-spacing: -0.016px;
 }
 .mk-cmp-icon {
   display: inline-flex;

@@ -11,7 +11,7 @@ test('a published page shows on the company domain; a draft doesn’t', async ({
   expect(response?.status()).toBe(200)
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('One clear price')
   await expect(page.getByText(MARKETING_ONLY)).toBeVisible()
-  await expect(page).toHaveTitle('E2E pricing | A1.Studios')
+  await expect(page).toHaveTitle('E2E pricing | A1.Engine')
   await expect(page.locator('meta[name="description"]')).toHaveAttribute(
     'content',
     'One price for your club, shown in full.',
@@ -56,5 +56,12 @@ test('the super-admin sees it in the admin', async ({ superAdminPage }) => {
   await superAdminPage.goto('/admin/collections/marketing-pages?limit=50')
   await expect(superAdminPage.getByText('E2E pricing').first()).toBeVisible()
   await superAdminPage.goto('/admin/globals/marketing-settings')
-  await expect(superAdminPage.getByLabel('Price a month (£)')).toHaveValue('149')
+  // The form is long and Payload only draws a field once it scrolls into view, so scroll down
+  // until the price appears.
+  const price = superAdminPage.getByLabel('Price a month (£)')
+  await expect(async () => {
+    await superAdminPage.mouse.wheel(0, 600)
+    await expect(price).toBeVisible({ timeout: 500 })
+  }).toPass({ timeout: 20_000 })
+  await expect(price).toHaveValue('149')
 })

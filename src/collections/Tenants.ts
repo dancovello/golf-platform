@@ -13,6 +13,7 @@ import { clubOwnedCollections, type ClubOwnedSlug } from '../tenancy'
 import { demoExpiry, newDemoToken } from '../site/demo'
 import { hostProblem, normaliseHost } from '../site/hosts'
 import { DEFAULT_BRAND } from '../theme/colour'
+import { DEFAULT_CATEGORIES } from './defaultCategories'
 import { DEFAULT_FONT_SET } from '../theme/fontSets'
 
 /** New clubs get a web-safe short name from their name unless one is given. */
@@ -180,6 +181,15 @@ export const Tenants: CollectionConfig = {
           overrideAccess: true,
           req,
         })
+        // The starter categories, in order (one at a time, so they keep that order).
+        for (const category of DEFAULT_CATEGORIES) {
+          await req.payload.create({
+            collection: 'categories',
+            data: { ...category, tenant: doc.id },
+            overrideAccess: true,
+            req,
+          })
+        }
         return doc
       },
     ],

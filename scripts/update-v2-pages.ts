@@ -12,7 +12,8 @@
  *   published, or has unpublished changes, is skipped and listed.
  * - "Website builder" (/website-builder) becomes "How it works" (/how-it-works). The old address
  *   stops working: there is no page forwarding yet.
- * - Pages that don't exist yet are added as drafts, for you to publish in the admin.
+ * - Pages that don't exist yet are added and published (How it works, Who it's for, Request
+ *   your homepage), so the links to them work straight away. Any other is added as a draft.
  * Running it against PRODUCTION needs Dan's explicit approval.
  */
 import { ask, chooseDatabase, connect, fail } from './lib/prompts'
@@ -83,11 +84,11 @@ const main = async () => {
   const builder = saved.get('website-builder')
   const howItWorks = saved.get('how-it-works')
   if (builder && !howItWorks) replace(builder, 'how-it-works', ' and rename it to /how-it-works')
-  else if (!howItWorks) steps.push(addStep(payload, 'how-it-works', starter, starterPageData))
+  else if (!howItWorks) steps.push(addStep(payload, 'how-it-works', starter, starterPageData, true))
   else if (builder) skipped.push('website-builder: /how-it-works already exists. Left alone.')
 
   for (const slug of ['who-its-for', 'request-your-homepage']) {
-    if (!saved.has(slug)) steps.push(addStep(payload, slug, starter, starterPageData))
+    if (!saved.has(slug)) steps.push(addStep(payload, slug, starter, starterPageData, true))
     else skipped.push(`${slug}: already exists. Left alone.`)
   }
 
@@ -106,7 +107,9 @@ const main = async () => {
     await step.run()
     console.log(`Done: ${step.text}`)
   }
-  console.log('\nFinished. New pages are drafts: publish them in the admin when you are happy.')
+  console.log(
+    '\nFinished. The new v2 pages are published. Any other new page is a draft: publish it in the admin.',
+  )
   process.exit(0)
 }
 
@@ -116,17 +119,18 @@ const addStep = (
   slug: string,
   starter: (slug: string) => Starter['STARTER_PAGES'][number] | undefined,
   starterPageData: Starter['starterPageData'],
+  publish = false,
 ) => {
   const page = starter(slug)
   if (!page) return fail(`The starter copy has no "${slug}" page.`)
   return {
-    text: `${slug}: add as a draft`,
+    text: `${slug}: add${publish ? ' and publish' : ' as a draft'}`,
     run: async () => {
       await payload.create({
         collection: 'marketing-pages',
-        draft: true,
+        draft: !publish,
         overrideAccess: true,
-        data: { _status: 'draft', ...starterPageData(page) } as never,
+        data: { _status: publish ? 'published' : 'draft', ...starterPageData(page) } as never,
       })
     },
   }

@@ -54,7 +54,7 @@ beforeAll(async () => {
     data: {
       title: 'Twilight series returns',
       status: 'published',
-      category: 'club',
+      category: w.categoryA.id,
       publishedAt: daysFromNow(-2),
       tenant,
     } as never,
@@ -64,7 +64,7 @@ beforeAll(async () => {
     data: {
       title: 'Twilight prices for next year',
       status: 'published',
-      category: 'club',
+      category: w.categoryA.id,
       publishedAt: daysFromNow(10),
       tenant,
     } as never,

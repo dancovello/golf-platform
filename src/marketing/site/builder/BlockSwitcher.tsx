@@ -2,7 +2,12 @@
 
 import { useState } from 'react'
 
-import { SWITCHER_BLOCK, SWITCHER_CLUBS, SWITCHER_DESIGNS } from '@/marketing/demo/switcher'
+import {
+  SWITCHER_BLOCK,
+  SWITCHER_CLUBS,
+  SWITCHER_DESIGNS,
+  switcherFontName,
+} from '@/marketing/demo/switcher'
 
 import { Segmented, TenantChips } from '../controls/interactive'
 import { DeviceStage } from './DeviceStage'
@@ -19,11 +24,15 @@ export const BlockSwitcher = () => {
 
   const chosenDesign = SWITCHER_DESIGNS[design]
   const chosenClub = SWITCHER_CLUBS[club]
+  const addresses = SWITCHER_CLUBS.flatMap((c) =>
+    SWITCHER_DESIGNS.map((d) => `/frame/two-column/${c.id}/${d.id}`),
+  )
 
   return (
     <div className="mk-flipper mk-switcher" data-fit-screen="">
       <DeviceStage
         src={`/frame/two-column/${chosenClub.id}/${chosenDesign.id}`}
+        warm={addresses}
         address={chosenClub.domain}
         laptopLabel={`Demo club: the ${SWITCHER_BLOCK} block, ${chosenDesign.name} design, on a laptop`}
         phoneLabel={`Demo club: the same block on a phone`}
@@ -37,7 +46,8 @@ export const BlockSwitcher = () => {
               <span className="mk-flipper-name">{SWITCHER_BLOCK}</span>
               <span className="mk-flipper-count">
                 Design {design + 1} of {SWITCHER_DESIGNS.length} · {chosenDesign.name} ·{' '}
-                {chosenClub.name}’s colours and fonts
+                {chosenClub.name}’s colours · {switcherFontName(chosenClub.id, chosenDesign.id)}{' '}
+                fonts
               </span>
             </p>
             <div className="mk-switcher-pickers">

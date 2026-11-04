@@ -42,8 +42,10 @@ test('Block Flipper: a laptop and a phone flip together, at their real widths', 
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto(site())
   const flipper = page.getByRole('group', { name: 'Hero block variants' })
-  const laptop = flipper.locator('.mk-flipper-window iframe')
-  const phone = flipper.locator('.mk-phone iframe')
+  // Each screen keeps a second, hidden frame loading the next page ahead (SwapFrame), so the
+  // one a visitor sees is the one that is not faded out.
+  const laptop = flipper.locator('.mk-flipper-window iframe:not([style*="opacity: 0"])')
+  const phone = flipper.locator('.mk-phone iframe:not([style*="opacity: 0"])')
   await expect(laptop).toHaveAttribute('src', '/frame/hero/heritage')
   await expect(phone).toHaveAttribute('src', '/frame/hero/heritage')
   await expect(flipper.locator('.mk-flipper-label')).toContainText('Variant 1 of 3')
@@ -59,7 +61,7 @@ test('Block Flipper: a laptop and a phone flip together, at their real widths', 
   await expect(flipper.getByRole('radio')).toHaveCount(0)
   expect(await laptop.evaluate((el) => (el as HTMLIFrameElement).style.width)).toBe('1366px')
   expect(await phone.evaluate((el) => (el as HTMLIFrameElement).style.width)).toBe('390px')
-  await expect(page.frameLocator('.mk-phone iframe').locator('.hero')).toBeVisible()
+  await expect(phone.contentFrame().locator('.hero')).toBeVisible()
 })
 
 test('the hero frame: the real Hero block, inert, only for known styles', async ({ page }) => {
@@ -129,24 +131,28 @@ test('the hole carousel moves on by itself, and the showcase shows four live fea
 
   const cards = page.locator('.mk-showcase-card')
   await expect(cards.locator('.mk-showcase-text h3')).toHaveText([
-    'The course report, first thing',
-    'Fixtures members can find',
-    'Search that answers',
-    'Change a fee once',
+    'Green fees',
+    'Competitions',
+    'Site search',
+    'Course status',
   ])
-  // Each picture uses the words the club site has: the status rows, the event dates, the
-  // search (empty until a question is typed) and the rate table.
-  await expect(cards.nth(0)).toContainText('Cut & rolled')
+  // Each picture uses the words the club site has: the rate table, the event dates, the
+  // search (empty until a question is typed) and the status rows.
+  await expect(cards.nth(0).locator('.mk-li-table')).toContainText('18 holes')
   await expect(cards.nth(1)).toContainText('Captain’s Day')
   await expect(cards.nth(2).locator('.mk-li-field')).toBeAttached()
-  await expect(cards.nth(3).locator('.mk-li-table')).toContainText('18 holes')
+  await expect(cards.nth(3)).toContainText('Cut & rolled')
 })
 
 test('phones: no sideways scroll, flipper fits the screen', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto(site())
-  const window = await page.locator('.mk-flipper-window').boundingBox()
-  expect(window!.width).toBeLessThanOrEqual(350)
+  // The page has more than one (the Block Switcher and the Block Flipper): every one fits.
+  const windows = page.locator('.mk-flipper-window')
+  expect(await windows.count()).toBeGreaterThan(0)
+  for (const window of await windows.all()) {
+    expect((await window.boundingBox())!.width).toBeLessThanOrEqual(350)
+  }
   const overflow = await page.evaluate(
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
   )

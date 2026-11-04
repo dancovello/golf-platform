@@ -7,6 +7,7 @@ import { createSuperAdmin } from '@/accounts/createSuperAdmin'
 import config from '@/payload.config'
 import type {
   AgreementAcceptance,
+  Category,
   ClubSetting,
   Course,
   CourseStatus,
@@ -39,6 +40,17 @@ export const enrolTwoFactor = (payload: Payload, id: string) =>
 
 export type LoggedInUser = User & { collection: 'users'; _strategy?: string }
 
+/** One of a club's starter categories (every new club gets them), by web address. */
+export const categoryOf = async (payload: Payload, tenant: string, slug = 'club') => {
+  const { docs } = await payload.find({
+    collection: 'categories',
+    where: { and: [{ tenant: { equals: tenant } }, { slug: { equals: slug } }] },
+    limit: 1,
+    overrideAccess: true,
+  })
+  return docs[0]!
+}
+
 export type World = {
   payload: Payload
   clubA: Tenant
@@ -63,6 +75,8 @@ export type World = {
   statusB: CourseStatus
   newsA: News
   newsB: News
+  categoryA: Category
+  categoryB: Category
   agreementA: AgreementAcceptance
   agreementB: AgreementAcceptance
   eventA: Event
@@ -101,6 +115,7 @@ export const resetDatabase = async (payload: Payload) => {
   await wipe('staff')
   await wipe('courses')
   await wipe('news')
+  await wipe('categories')
   await wipe('agreement-acceptances')
   await wipe('events')
   await wipe('enquiries')
@@ -110,6 +125,7 @@ export const resetDatabase = async (payload: Payload) => {
   await wipe('marketing-pages')
   await wipe('marketing-media')
   await wipe('homepage-requests')
+  await wipe('demo-bookings')
   // Settings screens have one record; removing it brings back the defaults.
   await payload.db.drizzle.execute(sql`DELETE FROM marketing_settings`)
   // Rate-limit counts, so one test file's sends don't count against the next one's limits.
@@ -256,7 +272,7 @@ export const seedWorld = async (): Promise<World> => {
         title: 'Club A news',
         publishedAt: new Date().toISOString(),
         status: 'published',
-        category: 'club',
+        category: (await categoryOf(payload, clubA.id)).id,
         tenant: clubA.id,
       },
     }),
@@ -267,10 +283,12 @@ export const seedWorld = async (): Promise<World> => {
         publishedAt: new Date().toISOString(),
         slug: 'club-a-news',
         status: 'published',
-        category: 'club',
+        category: (await categoryOf(payload, clubB.id)).id,
         tenant: clubB.id,
       },
     }),
+    categoryA: await categoryOf(payload, clubA.id),
+    categoryB: await categoryOf(payload, clubB.id),
     // Both clubs have accepted the data processing agreement, so editors can save settings.
     agreementA: await acceptAgreement(payload, clubA.id, 'Alice Secretary'),
     agreementB: await acceptAgreement(payload, clubB.id, 'Bob Secretary'),

@@ -3,7 +3,7 @@ import { beforeAll, describe, expect, it } from 'vitest'
 import type { News } from '@/payload-types'
 import { latestNews, loadNewsPost, NEWS_PER_PAGE, newsArchive } from '@/site/news'
 
-import { seedWorld, type World } from './helpers/seed'
+import { categoryOf, seedWorld, type World } from './helpers/seed'
 
 let w: World
 
@@ -15,7 +15,7 @@ const addNews = (data: Partial<News>, tenant = w.clubA.id) =>
     data: {
       title: 'An article',
       status: 'published',
-      category: 'club',
+      category: w.categoryA.id,
       publishedAt: daysAgo(1),
       ...data,
       tenant,
@@ -28,7 +28,7 @@ beforeAll(async () => {
   for (let i = 1; i <= 7; i++) {
     await addNews({
       title: `Course update ${i}`,
-      category: i <= 3 ? 'course' : 'competitions',
+      category: (await categoryOf(w.payload, w.clubA.id, i <= 3 ? 'course' : 'competitions')).id,
       excerpt: i === 2 ? 'Greens are being hollow tined this week.' : null,
       publishedAt: daysAgo(i + 1),
     })
@@ -157,7 +157,8 @@ describe('the Latest news block', () => {
       'Course update 2',
       'Course update 3',
     ])
-    const competitions = await latestNews(w.clubA.id, 6, 'competitions')
+    const competitionsID = (await categoryOf(w.payload, w.clubA.id, 'competitions')).id
+    const competitions = await latestNews(w.clubA.id, 6, competitionsID)
     expect(competitions.every((c) => c.category === 'competitions')).toBe(true)
     expect(competitions).toHaveLength(4)
     expect((await latestNews(w.clubB.id, 6)).map((c) => c.title)).toEqual(['Club B news'])

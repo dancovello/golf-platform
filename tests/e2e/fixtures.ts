@@ -4,32 +4,59 @@ import {
   expect,
   type FrameLocator,
   type Page,
+  type Response,
 } from '@playwright/test'
 
 import { clubBSecrets, loadWorld, STATE_DIR, type World } from './world'
 
 type Leak = { url: string; secret: string }
 
+/** How long to wait for one response's body before treating it as abandoned by the browser. */
+const BODY_WAIT_MS = 20_000
+
+const ABANDONED = Symbol('abandoned')
+
+/**
+ * A response's text, or ABANDONED if it hasn't arrived in `waitMs`. When a test moves to the
+ * next screen while a request is still coming in, the browser can drop it without the body
+ * ever finishing or failing, and `response.text()` then waits forever. On GitHub's slower
+ * machines that held the end of the admin security-policy test until its 180 second limit
+ * (3 Nov 2026). A body the browser dropped was never shown to the editor.
+ */
+const readBody = (response: Response, waitMs: number) => {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const gone = new Promise<typeof ABANDONED>((resolve) => {
+    timer = setTimeout(() => resolve(ABANDONED), waitMs)
+  })
+  return Promise.race([response.text().catch(() => ''), gone]).finally(() => clearTimeout(timer))
+}
+
 /**
  * Watches every response the app sends to the browser during a test (pages, data requests,
  * server-component payloads) and fails the test if any of them contains a club B secret.
  * Static script and style files are skipped: they're built once and can't hold club data.
+ * `onAbandoned` hears about each body that never arrived, so a skipped check is not silent.
  */
-const watchForLeaks = (page: Page, secrets: string[], echoed: Set<string>) => {
+export const watchForLeaks = (
+  page: Page,
+  secrets: string[],
+  echoed: Set<string>,
+  onAbandoned: (url: string) => void = () => {},
+  waitMs = BODY_WAIT_MS,
+) => {
   const leaks: Leak[] = []
   const pending: Promise<void>[] = []
   page.on('response', (response) => {
     const url = response.url()
     if (!url.startsWith('http://localhost') || /\/_next\/static\//.test(url)) return
+    // Redirects and aborted requests have no body: readBody turns that into an empty text.
     pending.push(
-      response
-        .text()
-        .then((body) => {
-          for (const secret of secrets) {
-            if (body.includes(secret) && !echoed.has(secret)) leaks.push({ url, secret })
-          }
-        })
-        .catch(() => {}), // redirects and aborted requests have no body
+      readBody(response, waitMs).then((body) => {
+        if (body === ABANDONED) return onAbandoned(url)
+        for (const secret of secrets) {
+          if (body.includes(secret) && !echoed.has(secret)) leaks.push({ url, secret })
+        }
+      }),
     )
   })
   return async () => {
@@ -103,7 +130,9 @@ export const test = base.extend<Fixtures>({
       await skipIntro(await browser.newContext({ storageState: `${STATE_DIR}/editorA.json` })),
     )
     const page = await context.newPage()
-    const leaksSoFar = watchForLeaks(page, clubBSecrets(world), echoed)
+    const leaksSoFar = watchForLeaks(page, clubBSecrets(world), echoed, (url) =>
+      base.info().annotations.push({ type: 'leak-check-skipped', description: url }),
+    )
     await use(page)
     expect(await leaksSoFar(), 'club B data reached club A’s editor').toEqual([])
     await context.close()

@@ -106,6 +106,14 @@ export async function up() { await db.execute(sql\`DROP TABLE "pages";\`) }`
     // Migrations audit 4 and 5: the website's account may no longer change the list of
     // applied changes (it only ever narrows rights).
     '20261023_120000_app_role_limits.ts': ['REVOKE'],
+    // Categories: the fixed news list moves into each club's own categories. Every article and
+    // "Latest news" block is pointed at its club's matching category first (the UPDATEs); only
+    // then are the old columns and list types dropped. Needs Dan's approval label on the PR.
+    '20261103_124458_categories.ts': [
+      ...Array(3).fill('DROP COLUMN'),
+      ...Array(3).fill('UPDATE … SET'),
+      ...Array(3).fill('DROP TYPE'),
+    ],
   }
 
   it('every merged migration only adds things, apart from the ones Dan approved', () => {

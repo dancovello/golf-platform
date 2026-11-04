@@ -31,7 +31,7 @@ export default async function TwoColumnFrame({
   const club = SWITCHER_CLUBS.find((c) => c.id === clubID)!
   const theme = {
     ...brandCSSVariables(club.brand),
-    ...fontSetVariables(SWITCHER_FONT_SETS[clubID]),
+    ...fontSetVariables(SWITCHER_FONT_SETS[clubID][design]),
   } as CSSProperties
   return (
     <div className="club-theme frame" style={theme} inert aria-hidden="true">
