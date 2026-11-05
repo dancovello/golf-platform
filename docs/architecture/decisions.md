@@ -724,3 +724,10 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **The "Watch on YouTube / Vimeo" link is removed** from every video. The address is still worked out by `parseVideoURL` (its `watchURL`) but not shown.
 - **Not done here:** custom branded player controls (B-21, needs research and a security review), and Featured layout variants and a button (B-04).
 - **Migration** `20261105_230301_video_layout`: one new column (with its draft copy), default "auto". Additive.
+
+## 2026-11-05: Video style A: layouts, description and button (Bearwood review B-04)
+
+- **Three layouts for the featured video**, chosen per block ("Layout (style A)"): *Standard* (as before: heading above, video below), *Full width* (heading, description and button centred above a full-width video) and *Half and half* (the video runs to the edge of the page on the left or right, the text beside it, centred on the video; like Two-Column "Split"). Existing blocks stay Standard.
+- **A description and one optional button** (to a page, a built-in page or a web address) on the featured video. "A document" as a destination comes with the document-link change (PR for B-17) and can be switched on here once that has merged.
+- **Phones:** half and half stacks (video, then text). Nothing about how the video loads changed: it still plays in place and nothing is requested from YouTube or Vimeo before it is pressed.
+- **Migration** `20261105_231351_video_featured_layouts`: new columns (layout, video side, description, button) and their draft copies. Additive.

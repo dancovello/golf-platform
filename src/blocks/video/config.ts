@@ -1,6 +1,7 @@
 import type { Block } from 'payload'
 
-import { collectArrayRefs, imageField, styleField } from '../shared'
+import { linkField } from '../../fields/link'
+import { collectArrayRefs, collectRefs, imageField, styleField } from '../shared'
 import type { BlockDefinition } from '../types'
 import { validateVideoURL } from './embed'
 
@@ -21,6 +22,38 @@ const config: Block = {
       },
       { label: 'B · Gallery: several videos, each opens in a pop-up window', value: 'grid' },
     ]),
+    {
+      name: 'featuredLayout',
+      label: 'Layout (style A)',
+      type: 'select',
+      defaultValue: 'standard',
+      options: [
+        { label: 'Standard: heading above, video below', value: 'standard' },
+        {
+          label: 'Full width: heading, description and button centred above a full-width video',
+          value: 'wide',
+        },
+        {
+          label: 'Half and half: the video runs to the edge of the page, text beside it',
+          value: 'split',
+        },
+      ],
+      admin: { condition: (_d, sibling) => sibling?.style === 'featured' },
+    },
+    {
+      name: 'videoSide',
+      label: 'Video on the',
+      type: 'radio',
+      defaultValue: 'left',
+      options: [
+        { label: 'Left', value: 'left' },
+        { label: 'Right', value: 'right' },
+      ],
+      admin: {
+        condition: (_d, sibling) =>
+          sibling?.style === 'featured' && sibling?.featuredLayout === 'split',
+      },
+    },
     {
       name: 'layout',
       label: 'Layout (style B)',
@@ -44,6 +77,21 @@ const config: Block = {
       maxLength: 40,
     },
     { name: 'heading', label: 'Heading', type: 'text', required: true, maxLength: 60 },
+    {
+      name: 'intro',
+      label: 'Description (style A, optional)',
+      type: 'textarea',
+      maxLength: 240,
+      admin: { condition: (_d, sibling) => sibling?.style === 'featured' },
+    },
+    {
+      ...linkField({
+        name: 'button',
+        label: 'Button (style A, optional)',
+        required: false,
+      }),
+      admin: { condition: (_d, sibling) => sibling?.style === 'featured' },
+    },
     {
       name: 'videos',
       label: 'Videos',
@@ -92,5 +140,8 @@ const config: Block = {
 
 export const video: BlockDefinition = {
   config,
-  refs: (block, path) => collectArrayRefs(block, path, 'videos', { images: ['poster'] }),
+  refs: (block, path) => [
+    ...collectRefs(block, path, { links: ['button'] }),
+    ...collectArrayRefs(block, path, 'videos', { images: ['poster'] }),
+  ],
 }
