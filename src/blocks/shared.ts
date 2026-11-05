@@ -44,9 +44,11 @@ export const collectRefs = (
     if (id) refs.push({ collection: 'media', id, path: `${path}.${key}` })
   }
   for (const key of links) {
-    const l = (block[key] ?? {}) as { type?: string; page?: unknown }
+    const l = (block[key] ?? {}) as { type?: string; page?: unknown; document?: unknown }
     const id = linksToPage(l.type) ? idOf(l.page) : null
     if (id) refs.push({ collection: 'pages', id, path: `${path}.${key}.page` })
+    const doc = l.type === 'document' ? idOf(l.document) : null
+    if (doc) refs.push({ collection: 'documents', id: doc, path: `${path}.${key}.document` })
   }
   return refs
 }

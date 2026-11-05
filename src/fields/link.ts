@@ -25,8 +25,9 @@ export const builtInLink = (value: unknown): { kind: 'page'; slug: string } | nu
   BUILT_IN_PAGES.some((p) => p.value === value) ? { kind: 'page', slug: value as string } : null
 
 /** Whether a stored link goes to one of the club's CMS pages (rather than a web address or a
- * built-in page). The default type is "page". */
-export const linksToPage = (type: unknown) => type !== 'url' && type !== 'builtIn'
+ * built-in page or a document). The default type is "page". */
+export const linksToPage = (type: unknown) =>
+  type !== 'url' && type !== 'builtIn' && type !== 'document'
 
 type LinkOptions = {
   name: string
@@ -36,6 +37,9 @@ type LinkOptions = {
   /** The text may be left blank for one of the club's pages or a built-in page: the site
    * then uses that page's name (src/site/loadClub.ts). A web address still needs its text. */
   textFromPage?: boolean
+  /** Also offers "A document" (one of the club's uploaded files), which opens in a new tab.
+   * Only for links on page blocks: the site header, footer and templates don't read it. */
+  allowDocument?: boolean
 }
 
 /** The text a link to a built-in page shows when its own text is left blank. */
@@ -47,6 +51,7 @@ export const linkField = ({
   withLabel = true,
   required = true,
   textFromPage = false,
+  allowDocument = false,
 }: LinkOptions): GroupField => ({
   name,
   label,
@@ -84,6 +89,7 @@ export const linkField = ({
             { label: 'One of our pages', value: 'page' },
             { label: 'News, Events or Contact', value: 'builtIn' },
             { label: 'A web address', value: 'url' },
+            ...(allowDocument ? [{ label: 'A document', value: 'document' }] : []),
           ],
         },
       ],
@@ -97,6 +103,22 @@ export const linkField = ({
       validate: (value: unknown, { siblingData }: { siblingData: { type?: string } }) =>
         !required || !linksToPage(siblingData?.type) || value ? true : 'Choose a page.',
     },
+    ...(allowDocument
+      ? ([
+          {
+            name: 'document',
+            label: 'Document',
+            type: 'relationship',
+            relationTo: 'documents',
+            admin: {
+              condition: (_data, sibling) => sibling?.type === 'document',
+              description: 'Opens the file in a new tab. Add files under Documents.',
+            },
+            validate: (value: unknown, { siblingData }: { siblingData: { type?: string } }) =>
+              siblingData?.type !== 'document' || value ? true : 'Choose a document.',
+          },
+        ] as Field[])
+      : []),
     {
       name: 'builtIn',
       label: 'Built-in page',

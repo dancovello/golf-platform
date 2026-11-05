@@ -49,14 +49,24 @@ const config: Block = {
       },
     },
     {
-      ...linkField({ name: 'action', label: 'Button (optional)', required: false }),
+      ...linkField({
+        name: 'action',
+        label: 'Button (optional)',
+        required: false,
+        allowDocument: true,
+      }),
       admin: {
         ...onlyFor('directory', 'featured'),
         description: 'e.g. "General enquiries" (B) or "Book a lesson" (C).',
       },
     },
     {
-      ...linkField({ name: 'viewAll', label: '"All" link (optional)', required: false }),
+      ...linkField({
+        name: 'viewAll',
+        label: '"All" link (optional)',
+        required: false,
+        allowDocument: true,
+      }),
       admin: { ...onlyFor('featured'), description: 'e.g. "All professionals".' },
     },
   ],

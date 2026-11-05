@@ -738,3 +738,10 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Dependabot** is monthly, at most 2 open pull requests. **Isolation fuzz run** is weekly (Mondays) instead of nightly; every pull request still runs the isolation suite.
 - Dan removes `block-regression` from the required checks on `main` (GitHub → Settings → Branches).
 - **Browser tests (same day):** `browser-tests` runs on pull requests only, not on merges to `main`; the `marketing-*` specs are skipped when a pull request touches nothing the marketing site shares with the club sites (`ci.yml`, `marketing_paths`).
+
+## 2026-11-05: A document as a link destination, and buttons on the text block (Bearwood review B-17)
+
+- **"A document" is a new "Goes to" choice** on every link and button inside a page block (hero, card grid, two-column, rate table, team, membership and the text block's new buttons). It opens the file in a new tab. It is **not** offered on the site header, footer, announcement bar, events or contact templates: those read links separately and still take a page, a built-in page or a web address.
+- **Same club only.** A document link is looked up within the club like every other reference: the page's same-club check lists it, the website looks it up with the club's tenant, and a document from another club (or one that was deleted) simply drops the link. Deleting a document empties the link (the database sets it to blank).
+- **Text block buttons:** up to four, each with its own text and destination, under the text. The first is solid (accent on a brand-colour background), the rest outline.
+- **Migration** `20261109_143637_document_links`: additive only (new "document" choice on each link's type list, a nullable document column beside each link, and one new table, with its draft copy, for the text block's buttons).

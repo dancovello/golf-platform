@@ -1,5 +1,6 @@
 import type { RichTextBlock } from '@/payload-types'
 
+import { Button } from '../components/Button'
 import { OnThisPage } from './OnThisPage'
 import type { BlockContext } from './resolve'
 import { headingsOf, RichTextContent } from './RichTextContent'
@@ -25,6 +26,27 @@ export const RichText = ({
   const background = block.background ?? (style === 'editorial' ? 'subtle' : 'canvas')
   const surface = background === 'brand' ? ' on-brand' : background === 'subtle' ? ' on-subtle' : ''
 
+  const onBrand = background === 'brand'
+  const links = (block.buttons ?? []).flatMap((b) => {
+    const l = ctx.link(b.link)
+    return l ? [l] : []
+  })
+  const buttons =
+    links.length > 0 ? (
+      <div className="rt-buttons">
+        {links.map((l, i) => (
+          <Button
+            key={i}
+            label={l.label}
+            link={l.link}
+            base={base}
+            style={i === 0 ? (onBrand ? 'accent' : 'solid') : 'outline'}
+            onDark={onBrand}
+          />
+        ))}
+      </div>
+    ) : null
+
   if (style === 'editorial') {
     const note =
       block.noteTitle || block.noteText ? (
@@ -47,6 +69,7 @@ export const RichText = ({
               afterSecondParagraph={note}
             />
           </div>
+          {buttons}
         </div>
       </section>
     )
@@ -56,8 +79,11 @@ export const RichText = ({
     <section className={`blk rt rt-${style}${showContents ? ' has-toc' : ''}${surface}`}>
       <div className="blk-container rt-layout">
         {showContents ? <OnThisPage headings={headings} /> : null}
-        <div className="rt-prose">
-          <RichTextContent value={block.content} ctx={ctx} base={base} />
+        <div className="rt-body">
+          <div className="rt-prose">
+            <RichTextContent value={block.content} ctx={ctx} base={base} />
+          </div>
+          {buttons}
         </div>
       </div>
     </section>

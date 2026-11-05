@@ -84,23 +84,37 @@ const config: Block = {
       admin: { condition: (_data, sibling) => sibling?.style === 'resort' },
     },
     {
-      ...linkField({ name: 'primaryButton', label: 'Main button (optional)', required: false }),
+      ...linkField({
+        name: 'primaryButton',
+        label: 'Main button (optional)',
+        required: false,
+        allowDocument: true,
+      }),
       admin: {
         condition: (_data, sibling) => sibling?.style !== 'bookingLed',
         description: 'Leave the text empty for no button.',
       },
     },
     {
-      ...linkField({ name: 'secondaryLink', label: 'Second link (optional)', required: false }),
+      ...linkField({
+        name: 'secondaryLink',
+        label: 'Second link (optional)',
+        required: false,
+        allowDocument: true,
+      }),
       admin: { condition: (_data, sibling) => sibling?.style !== 'bookingLed' },
     },
   ],
 }
 
 const linkRef = (link: unknown, path: string): BlockRef[] => {
-  const l = (link ?? {}) as { type?: string; page?: unknown }
+  const l = (link ?? {}) as { type?: string; page?: unknown; document?: unknown }
   const id = linksToPage(l.type) ? idOf(l.page) : null
-  return id ? [{ collection: 'pages', id, path: `${path}.page` }] : []
+  const doc = l.type === 'document' ? idOf(l.document) : null
+  return [
+    ...(id ? [{ collection: 'pages' as const, id, path: `${path}.page` }] : []),
+    ...(doc ? [{ collection: 'documents' as const, id: doc, path: `${path}.document` }] : []),
+  ]
 }
 
 export const hero: BlockDefinition = {

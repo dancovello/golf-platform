@@ -118,6 +118,7 @@ const config: Block = {
           label: 'Apply or enquire link',
           withLabel: false,
           required: false,
+          allowDocument: true,
         }),
       ],
     },
@@ -140,7 +141,12 @@ const config: Block = {
       fields: [{ name: 'label', label: 'Row', type: 'text', required: true, maxLength: 40 }],
     },
     {
-      ...linkField({ name: 'action', label: 'Header button (optional)', required: false }),
+      ...linkField({
+        name: 'action',
+        label: 'Header button (optional)',
+        required: false,
+        allowDocument: true,
+      }),
       admin: { ...onlyFor('compare'), description: 'e.g. "Book a tour".' },
     },
     {
@@ -151,7 +157,7 @@ const config: Block = {
       fields: [
         { name: 'heading', label: 'Heading', type: 'text', maxLength: 40 },
         { name: 'text', label: 'Text (optional)', type: 'textarea', maxLength: 200 },
-        linkField({ name: 'link', label: 'Button', required: false }),
+        linkField({ name: 'link', label: 'Button', required: false, allowDocument: true }),
         {
           name: 'note',
           label: 'Small print (optional)',

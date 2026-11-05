@@ -162,7 +162,12 @@ const config: Block = {
     },
     { name: 'footnote', label: 'Footnote (optional)', type: 'textarea', maxLength: 240 },
     {
-      ...linkField({ name: 'button', label: 'Button (optional)', required: false }),
+      ...linkField({
+        name: 'button',
+        label: 'Button (optional)',
+        required: false,
+        allowDocument: true,
+      }),
       admin: { description: 'Leave empty to use the club’s "Book a tee time" button.' },
     },
     {

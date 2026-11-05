@@ -218,3 +218,17 @@
 .rt.on-brand .rt-prose .rt-note {
   color: var(--color-text-primary);
 }
+
+/* Buttons under the text (the block's "Buttons" field). Kept outside .rt-prose, whose link
+   styling (underline) must not reach them. */
+.rt-body {
+  min-width: 0;
+  width: 100%;
+  max-width: 680px;
+}
+.rt-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-16);
+  margin-top: var(--space-32);
+}
