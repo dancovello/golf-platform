@@ -460,6 +460,10 @@ export interface TwoColumnBlock {
  */
 export interface RichTextBlock {
   style: 'article' | 'contents' | 'editorial';
+  /**
+   * Leave empty for the style’s usual look: a soft tint for style C, the page background for A and B.
+   */
+  background?: ('canvas' | 'subtle' | 'brand') | null;
   eyebrow?: string | null;
   /**
    * Headings, paragraphs, lists, quotes, links and photos. Style B lists every main heading (H2) in "On this page" once there are three or more. Style C shows the first paragraph larger.
@@ -572,6 +576,7 @@ export interface RateTableBlock {
  */
 export interface GalleryBlock {
   style: 'masonry' | 'grid' | 'viewer';
+  background?: ('brand' | 'plain') | null;
   eyebrow?: string | null;
   heading: string;
   images?:
@@ -776,6 +781,10 @@ export interface LogoStripBlock {
   eyebrow?: string | null;
   heading?: string | null;
   intro?: string | null;
+  /**
+   * Shows every logo in rows on the brand colour instead of scrolling. Style C also stays still on its own when there are fewer than 9 logos.
+   */
+  still?: boolean | null;
   /**
    * Style A shows up to 6. PNG or WebP with a transparent background works best.
    */
@@ -3046,6 +3055,7 @@ export interface TwoColumnBlockSelect<T extends boolean = true> {
  */
 export interface RichTextBlockSelect<T extends boolean = true> {
   style?: T;
+  background?: T;
   eyebrow?: T;
   content?: T;
   noteTitle?: T;
@@ -3123,6 +3133,7 @@ export interface RateTableBlockSelect<T extends boolean = true> {
  */
 export interface GalleryBlockSelect<T extends boolean = true> {
   style?: T;
+  background?: T;
   eyebrow?: T;
   heading?: T;
   images?:
@@ -3254,6 +3265,7 @@ export interface LogoStripBlockSelect<T extends boolean = true> {
   eyebrow?: T;
   heading?: T;
   intro?: T;
+  still?: T;
   partners?:
     | T
     | {
