@@ -13,6 +13,7 @@ import { ADMIN_BRAND_NAME, ADMIN_FAVICON } from './admin/adminBrand'
 import { guardTenantSelection } from './admin/guardTenantSelection'
 import { superAdminTwoFactor } from './auth/superAdminTwoFactor'
 import { encryptTotpSecrets } from './auth/totpSecretEncryption'
+import { guardPool, POOL_SETTINGS } from './db/poolGuard'
 import { emailAdapter } from './email/adapter'
 import { collections } from './collections'
 import { globals } from './globals'
@@ -118,6 +119,7 @@ export default buildConfig({
   db: postgresAdapter({
     pool: {
       connectionString: requireEnv('DATABASE_URL'),
+      ...POOL_SETTINGS,
     },
     // Schema auto-sync ("push") is for local development only. Every other environment,
     // including tests and CI, changes the schema through committed migrations.
@@ -133,6 +135,10 @@ export default buildConfig({
     // website's own account can't); locally, schema auto-sync needs it first.
     extensions: process.env.NODE_ENV === 'development' ? ['pg_trgm'] : [],
   }),
+  // A dropped idle database connection must not crash the site (src/db/poolGuard.ts).
+  onInit: async (payload) => {
+    guardPool((payload.db as unknown as { pool?: Parameters<typeof guardPool>[0] }).pool)
+  },
   telemetry: false,
   // Makes the smaller photo copies (src/collections/Media.ts).
   sharp,
