@@ -114,6 +114,10 @@ export async function up() { await db.execute(sql\`DROP TABLE "pages";\`) }`
       ...Array(3).fill('UPDATE … SET'),
       ...Array(3).fill('DROP TYPE'),
     ],
+    // Document categories (B-25): documents take their category from the club's list. Each
+    // document is pointed at its category (the UPDATEs: one for the old name, one fallback to
+    // "other"). Nothing is dropped; the old column stays. Approved by Dan, 5 Nov 2026.
+    '20261105_224500_document_categories.ts': Array(2).fill('UPDATE … SET'),
   }
 
   it('every merged migration only adds things, apart from the ones Dan approved', () => {
