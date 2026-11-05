@@ -6,6 +6,7 @@ import { cache } from 'react'
 import { heroIsFullBleed, heroShading } from '@/site/blocks/Hero'
 import { RenderBlocks } from '@/site/blocks/RenderBlocks'
 import { ClubShell } from '@/site/ClubShell'
+import { clubIcon } from '@/site/clubIcon'
 import { LiveRefresh } from '@/site/components/LiveRefresh'
 import { PageNotFound } from '@/site/components/PageNotFound'
 import { ContactPage } from '@/site/contact/ContactPage'
@@ -250,7 +251,7 @@ const describe = (
   site: ResolvedSite,
   { title, path, image }: { title: string; path: string; image?: string | null },
 ): Metadata => {
-  const meta: Metadata = { title }
+  const meta: Metadata = { title, ...clubIcon(site) }
   if (!site.origin) return meta
   const url = `${site.origin}${path === '/' ? '' : path}` || site.origin
   return {
@@ -318,6 +319,7 @@ export const searchMetadata = (site: ResolvedSite, query: Query): Metadata => {
   const { q } = readFilters(query)
   return {
     title: q ? `Search: ${q} | ${site.club.name}` : `Search | ${site.club.name}`,
+    ...clubIcon(site),
     robots: { index: false, follow: true },
   }
 }

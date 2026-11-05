@@ -51,6 +51,9 @@ test('club pages run with nothing blocked', async ({ page }) => {
     expect(policy, path).toContain("'strict-dynamic'")
     expect(policy, path).toMatch(/'nonce-[A-Za-z0-9+/=]+'/)
     await page.waitForLoadState('networkidle')
+    // Every page names its own tab icon, so the browser never asks for /favicon.ico (which has
+    // nothing to serve here, and on the platform's address is forwarded to another address).
+    await expect(page.locator('link[rel~="icon"]').first(), path).toHaveAttribute('href', /.+/)
     expect(await reports(), path).toEqual([])
   }
 })
