@@ -142,3 +142,20 @@
     border-color: var(--color-border-on-inverse);
   }
 }
+
+/* Card rows on wide screens (see cardRows.ts): 4 cards as 2 + 2, 5 cards as 2 + 3, so a card is
+   never alone on its row. Written with three classes so they win over each block's own columns. */
+@media (min-width: 1024px) {
+  :is(.cg-grid, .mb-tiers, .dl-cards).cards-2x2.cols-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  :is(.cg-grid, .mb-tiers, .dl-cards).cards-5.cols-3 {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+  :is(.cg-grid, .mb-tiers, .dl-cards).cards-5.cols-3 > * {
+    grid-column: span 2;
+  }
+  :is(.cg-grid, .mb-tiers, .dl-cards).cards-5.cols-3 > :nth-child(-n + 2) {
+    grid-column: span 3;
+  }
+}
