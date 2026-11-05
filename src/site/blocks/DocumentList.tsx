@@ -4,6 +4,7 @@ import { DOCUMENT_CATEGORIES } from '@/collections/documentCategories'
 
 import { Download, FileIcon } from '../components/Icons'
 import { siteToday } from '../today'
+import { cardRows } from './cardRows'
 import { DocumentLibrary } from './DocumentLibrary'
 import {
   categoryName,
@@ -93,7 +94,7 @@ export const DocumentList = ({
       <section className="blk dl dl-cards-block on-subtle">
         <div className="blk-container">
           {header}
-          <ul className="dl-cards">
+          <ul className={`dl-cards ${cardRows(docs.length, false)}`}>
             {docs.map((d) => (
               <li key={d.id}>
                 <a className="dl-card" href={d.url} aria-label={downloadLabel(d)} {...NEW_TAB}>
