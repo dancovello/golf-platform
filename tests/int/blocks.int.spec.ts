@@ -179,6 +179,38 @@ describe('quote', () => {
   })
 })
 
+describe('video', () => {
+  const video = (url: string, poster: string) => ({
+    blockType: 'video',
+    style: 'grid',
+    heading: 'Films',
+    videos: [{ url, poster, title: 'Hole 1' }],
+  })
+
+  it("refuses club B's poster picture", async () => {
+    const error = await save([video('https://youtu.be/aqz-KE-bpKQ', w.mediaB.id)]).catch(
+      (e: unknown) => e,
+    )
+    expect(errorPaths(error)).toContain('layout.0.videos.0.poster')
+  })
+
+  it('accepts YouTube and Vimeo addresses with the club’s own poster', async () => {
+    await expect(save([video('https://youtu.be/aqz-KE-bpKQ', w.mediaA.id)])).resolves.toBeTruthy()
+    await expect(save([video('https://vimeo.com/76979871', w.mediaA.id)])).resolves.toBeTruthy()
+  })
+
+  it('refuses any other address, so nothing else can be framed on the page', async () => {
+    for (const url of [
+      'https://evil.example/video',
+      'javascript:alert(1)',
+      'https://www.youtube.com.evil.example/watch?v=aqz-KE-bpKQ',
+    ]) {
+      const error = await save([video(url, w.mediaA.id)]).catch((e: unknown) => e)
+      expect(errorPaths(error)).toContain('layout.0.videos.0.url')
+    }
+  })
+})
+
 describe('course record', () => {
   const record = { blockType: 'courseRecord', holderName: 'N', score: 64, year: 2019 }
 

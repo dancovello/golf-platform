@@ -32,6 +32,18 @@ describe('content security policy', () => {
     expect(directive(policy, 'connect-src')).toContain('https://*.google-analytics.com')
   })
 
+  it('club sites may frame only YouTube’s no-cookie player and Vimeo’s player, and no other video site', () => {
+    const frames = directive(buildPolicy('site', 'n', env), 'frame-src')
+    expect(frames).toContain('https://www.youtube-nocookie.com')
+    expect(frames).toContain('https://player.vimeo.com')
+    expect(frames).not.toContain('https://www.youtube.com')
+    expect(frames).not.toMatch(/\*/)
+    // The marketing site and the platform's own pages have no video player.
+    for (const kind of ['marketing', 'platform'] as const) {
+      expect(directive(buildPolicy(kind, 'n', env), 'frame-src')).not.toMatch(/youtube|vimeo/)
+    }
+  })
+
   it('only the admin may upload straight to storage', () => {
     expect(buildPolicy('site', 'n', env)).not.toContain('r2.cloudflarestorage.com')
     expect(directive(buildPolicy('admin', 'n', env), 'connect-src')).toContain(
@@ -71,5 +83,25 @@ describe('content security policy', () => {
     // Pictures from the photo domain (the marketing Media block uses the same storage).
     expect(directive(policy, 'img-src')).toContain('https://pub-123.r2.dev')
     expect(directive(policy, 'frame-ancestors')).toBe("frame-ancestors 'self'")
+  })
+
+  it('the marketing site gets Google Analytics only when it has its own ID', () => {
+    const withID = buildPolicy('marketing', 'm1', { ...env, MARKETING_GA_ID: 'G-LQXZHBBCGP' })
+    for (const name of ['script-src', 'img-src', 'connect-src']) {
+      expect(directive(withID, name)).toContain('https://*.googletagmanager.com')
+      expect(directive(withID, name)).toContain('https://*.google-analytics.com')
+    }
+    // Still no map, and the other page kinds are unchanged.
+    expect(withID).not.toContain('openstreetmap')
+    // Not set, or not an ID: as strict as before (staging, previews).
+    for (const value of [undefined, '', 'not-an-id', 'GTM-522LKHRT']) {
+      expect(buildPolicy('marketing', 'm1', { ...env, MARKETING_GA_ID: value })).not.toContain(
+        'google',
+      )
+    }
+    // The ID is only for the marketing site: the API and platform pages stay without Google.
+    expect(
+      buildPolicy('platform', 'p1', { ...env, MARKETING_GA_ID: 'G-LQXZHBBCGP' }),
+    ).not.toContain('google')
   })
 })

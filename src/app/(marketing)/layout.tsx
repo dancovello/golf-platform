@@ -3,6 +3,7 @@ import { headers } from 'next/headers'
 import React from 'react'
 
 import { BRAND } from '@/brand'
+import { marketingGAId } from '@/marketing/analytics'
 import { mediaUrl } from '@/marketing/branding'
 import { marketingSettings } from '@/marketing/settings'
 import { marketingOrigin } from '@/marketing/seo'
@@ -10,6 +11,7 @@ import { Footer } from '@/marketing/site/chrome/Footer'
 import { Nav } from '@/marketing/site/chrome/Nav'
 import { introGateScript } from '@/marketing/intro/gateScript'
 import { InlineScript } from '@/site/components/InlineScript'
+import { CookieConsent } from '@/site/privacy/CookieConsent'
 
 import { silka, silkaDisplay } from './fonts'
 import './marketing.css'
@@ -43,6 +45,7 @@ export default async function MarketingLayout({ children }: { children: React.Re
   // The homepage decides whether its golf ball intro plays before anything appears
   // (src/marketing/intro/gateScript.ts). The proxy passes on the address the visitor asked for.
   const isHome = (await headers()).get('x-pathname') === '/'
+  const gaID = marketingGAId()
   return (
     // suppressHydrationWarning: the intro script sets data-intro on <html> before React starts.
     <html
@@ -62,6 +65,10 @@ export default async function MarketingLayout({ children }: { children: React.Re
         <Nav />
         {children}
         <Footer />
+        {/* Nothing from Google loads until the visitor accepts (same banner as the club sites). */}
+        {gaID ? (
+          <CookieConsent gaID={gaID} storageKey="cookie-consent:marketing" privacyHref="/privacy" />
+        ) : null}
       </body>
     </html>
   )
