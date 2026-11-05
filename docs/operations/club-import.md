@@ -90,6 +90,8 @@ Same idea, a second private file outside the project: `~/.golf-platform/producti
 | `MEDIA_S3_ENDPOINT`, `MEDIA_PUBLIC_URL` | Cloudflare → R2 → `golf-platform-media-production` (same pages as staging) |
 | `MEDIA_S3_ACCESS_KEY_ID`, `MEDIA_S3_SECRET_ACCESS_KEY` | A separate R2 token with Object Read & Write on `golf-platform-media-production` only |
 
+**The import checks the two files against each other** before it connects, and stops if they share a database server (Neon's pooled and direct addresses count as the same) or the same photo bucket or public photo address. It only says server and bucket names, never passwords. This exists because on 5 Nov 2026 the production file held staging's database address by mistake, and a "production" import landed in staging's database. The check can only compare when both files exist, so before the first production run also look at the host the run prints: it must not be staging's.
+
 Delete the file again if you'd rather not keep production's keys on this Mac between runs.
 
 ### 5. Build it on staging
