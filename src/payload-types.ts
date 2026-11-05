@@ -595,6 +595,10 @@ export interface GalleryBlock {
  */
 export interface VideoBlock {
   style: 'featured' | 'grid';
+  /**
+   * On phones, two or more videos always swipe like a carousel (unless "Always a grid").
+   */
+  layout?: ('auto' | 'grid' | 'carousel') | null;
   eyebrow?: string | null;
   heading: string;
   /**
@@ -3125,6 +3129,7 @@ export interface GalleryBlockSelect<T extends boolean = true> {
  */
 export interface VideoBlockSelect<T extends boolean = true> {
   style?: T;
+  layout?: T;
   eyebrow?: T;
   heading?: T;
   videos?:

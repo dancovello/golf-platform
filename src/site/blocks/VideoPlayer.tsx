@@ -10,19 +10,16 @@ export type VideoItem = {
   caption: string | null
   provider: 'youtube' | 'vimeo'
   embedURL: string
-  watchURL: string
   poster: { src: string; srcSet: string | null; position: string }
   width: number | null
   height: number | null
 }
 
-const SITE_NAMES = { youtube: 'YouTube', vimeo: 'Vimeo' }
-
 /**
  * One video. Shows the club's own picture and a play button, and loads the YouTube or Vimeo
  * player only when the visitor presses play (the same idea as the map): nothing is requested
- * from either site before then, so no tracking until the visitor chooses. "Watch on …" is a
- * plain link, so it still works if the player can't load.
+ * from either site before then, so no tracking until the visitor chooses. This one plays in
+ * place (the featured style); a gallery of videos uses VideoGallery's pop-up instead.
  */
 export const VideoPlayer = ({ item, large }: { item: VideoItem; large: boolean }) => {
   const [playing, setPlaying] = useState(false)
@@ -67,15 +64,6 @@ export const VideoPlayer = ({ item, large }: { item: VideoItem; large: boolean }
       <figcaption className="vd-caption">
         <span className={large ? 't-heading-s vd-title' : 't-label-m vd-title'}>{item.title}</span>
         {item.caption ? <span className="t-body-s vd-text">{item.caption}</span> : null}
-        <a
-          className="t-label-s vd-link"
-          href={item.watchURL}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Watch on {SITE_NAMES[item.provider]}
-          <span className="sr-only"> (opens in a new tab)</span>
-        </a>
       </figcaption>
     </figure>
   )

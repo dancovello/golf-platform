@@ -5,12 +5,8 @@
   list-style: none;
 }
 .vd-featured {
-  max-width: 960px;
-}
-.vd-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-32) var(--space-24);
+  /* The whole width of the block's container (it used to stop at 960px). */
+  max-width: none;
 }
 .vd-item {
   margin: 0;
@@ -63,7 +59,7 @@
   background: var(--color-action-accent);
   color: var(--color-action-accent-text, #fff);
 }
-.vd-grid .vd-play {
+.vd-gallery .vd-play {
   width: 56px;
   height: 56px;
 }
@@ -79,14 +75,6 @@
 .vd-text {
   color: var(--color-text-secondary);
 }
-.vd-link {
-  color: var(--color-text-secondary);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-.vd-link:hover {
-  color: var(--color-text-primary);
-}
 .sr-only {
   position: absolute;
   width: 1px;
@@ -95,15 +83,7 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
-@media (max-width: 1023px) {
-  .vd-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
 @media (max-width: 639px) {
-  .vd-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
   .vd-play {
     width: 56px;
     height: 56px;
@@ -113,4 +93,132 @@
   .vd-poster img {
     transition: none;
   }
+}
+
+/* Gallery (style B). Phones: a swipe carousel, unless "Always a grid" (one column). From 768px:
+   a grid of up to 3 across, or a carousel of 3 (2 on tablets) when there are more than 3 videos
+   ("Automatic") or "Always a carousel" was chosen. */
+.vd-gallery {
+  display: flex;
+  gap: var(--space-24);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.vd-gallery::-webkit-scrollbar {
+  display: none;
+}
+.vd-gallery-item {
+  flex: 0 0 82%;
+  min-width: 0;
+  scroll-snap-align: start;
+}
+.vd-pager {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+  margin-top: var(--space-24);
+}
+.vd-pager button {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+.vd-pager button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+@media (max-width: 767px) {
+  .vd-layout-grid .vd-gallery {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    overflow: visible;
+  }
+  .vd-layout-grid .vd-pager {
+    display: none;
+  }
+}
+@media (min-width: 768px) {
+  .vd-wide-carousel .vd-gallery-item {
+    flex-basis: calc((100% - var(--space-24)) / 2);
+  }
+  .vd-wide-grid .vd-gallery {
+    display: grid;
+    overflow: visible;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    row-gap: var(--space-32);
+  }
+  .vd-wide-grid.vd-across-1 .vd-gallery {
+    grid-template-columns: minmax(0, 560px);
+  }
+  .vd-wide-grid.vd-across-2 .vd-gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .vd-wide-grid .vd-pager {
+    display: none;
+  }
+}
+@media (min-width: 768px) {
+  .vd-wide-carousel.vd-across-1 .vd-pager,
+  .vd-wide-carousel.vd-across-2 .vd-pager {
+    display: none;
+  }
+}
+@media (min-width: 1024px) {
+  .vd-wide-carousel .vd-gallery-item {
+    flex-basis: calc((100% - 2 * var(--space-24)) / 3);
+  }
+  .vd-wide-carousel.vd-few .vd-pager {
+    display: none;
+  }
+}
+
+/* The pop-up that plays a gallery video. */
+.vd-dialog {
+  width: min(1100px, calc(100vw - 2 * var(--space-24)));
+  max-height: calc(100dvh - 2 * var(--space-24));
+  padding: var(--space-16) var(--space-16) var(--space-24);
+  border: 0;
+  background: var(--color-surface-canvas);
+  color: var(--color-text-primary);
+}
+.vd-dialog::backdrop {
+  background: var(--color-overlay-lightbox);
+}
+.vd-dialog-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-16);
+  margin-bottom: var(--space-12);
+}
+.vd-dialog-title {
+  margin: 0;
+}
+.vd-dialog-close {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: var(--size-control);
+  height: var(--size-control);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+.vd-dialog-frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: #000;
 }

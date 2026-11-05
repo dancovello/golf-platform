@@ -715,3 +715,12 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Alerts:** "Email me about every new issue" was added; Sentry's two default alerts remain. Tested with two fake errors from a local script (tagged `test`, then resolved); the email arrived.
 - **Uptime:** Sentry's one free monitor now watches `https://app.a1engine.co/health` every 5 minutes (down after 3 failures), connected to the new alert. This closes the "point the uptime monitor at `app.a1engine.co/health`" item in the 3 Nov domain entry. The email on an outage has not been tested.
 - **Not yet proven:** an error from the live site itself reaching Sentry. The first real one will show it; a protected test route could be planned if wanted sooner.
+
+## 2026-11-05: Video block: pop-up window, grid or carousel, full width (Bearwood review B-03, B-08, B-09, B-18, B-20)
+
+- **Style A (Featured)** still plays in place, now the full width of the block's container (it stopped at 960px, about two thirds of the page on a wide screen).
+- **Style B is now a gallery:** pressing a picture opens the video in a pop-up window (a native dialog: Esc, the cross or a press outside closes it, focus returns to the picture, and closing stops the video). Nothing loads from YouTube or Vimeo until a picture is pressed, as before. The pop-up uses the same player address and the same `frame-src` rule, so there is no CSP change.
+- **Layout choice (style B):** "Automatic" (default; existing blocks): up to 3 videos are a grid from 768px wide, more than 3 are a carousel (3 in view, 2 on tablets); on phones two or more always swipe. "Always a grid" (one column on phones) and "Always a carousel" are the other two.
+- **The "Watch on YouTube / Vimeo" link is removed** from every video. The address is still worked out by `parseVideoURL` (its `watchURL`) but not shown.
+- **Not done here:** custom branded player controls (B-21, needs research and a security review), and Featured layout variants and a button (B-04).
+- **Migration** `20261105_230301_video_layout`: one new column (with its draft copy), default "auto". Additive.

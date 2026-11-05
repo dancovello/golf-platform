@@ -15,9 +15,28 @@ const config: Block = {
   interfaceName: 'VideoBlock',
   fields: [
     styleField([
-      { label: 'A · Featured: one large player (uses the first video)', value: 'featured' },
-      { label: 'B · Grid: several videos, each plays where it is', value: 'grid' },
+      {
+        label: 'A · Featured: one large player, plays in place (uses the first video)',
+        value: 'featured',
+      },
+      { label: 'B · Gallery: several videos, each opens in a pop-up window', value: 'grid' },
     ]),
+    {
+      name: 'layout',
+      label: 'Layout (style B)',
+      type: 'select',
+      defaultValue: 'auto',
+      options: [
+        { label: 'Automatic: a grid for up to 3 videos, a carousel for more', value: 'auto' },
+        { label: 'Always a grid', value: 'grid' },
+        { label: 'Always a carousel', value: 'carousel' },
+      ],
+      admin: {
+        condition: (_d, sibling) => sibling?.style === 'grid',
+        description:
+          'On phones, two or more videos always swipe like a carousel (unless "Always a grid").',
+      },
+    },
     {
       name: 'eyebrow',
       label: 'Small line above the heading (optional)',

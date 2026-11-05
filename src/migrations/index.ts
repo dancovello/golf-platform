@@ -70,6 +70,7 @@ import * as migration_20261103_014302_v2_pages_fields from './20261103_014302_v2
 import * as migration_20261103_101844_demo_booking_calendar from './20261103_101844_demo_booking_calendar';
 import * as migration_20261103_124458_categories from './20261103_124458_categories';
 import * as migration_20261105_115818_video_block from './20261105_115818_video_block';
+import * as migration_20261105_230301_video_layout from './20261105_230301_video_layout';
 
 export const migrations = [
   {
@@ -430,6 +431,11 @@ export const migrations = [
   {
     up: migration_20261105_115818_video_block.up,
     down: migration_20261105_115818_video_block.down,
-    name: '20261105_115818_video_block'
+    name: '20261105_115818_video_block',
+  },
+  {
+    up: migration_20261105_230301_video_layout.up,
+    down: migration_20261105_230301_video_layout.down,
+    name: '20261105_230301_video_layout'
   },
 ];
