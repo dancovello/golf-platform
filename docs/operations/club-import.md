@@ -42,10 +42,10 @@ Dan's rule (5 Nov 2026): every demo club is built on **production** as a **demo 
 
 ### 2. Look at the photos (don't skip this)
 
-Descriptions can't be written from file names. Make numbered contact sheets (`montage` from ImageMagick, 20 photos each) and look at every one.
+Make numbered contact sheets (`montage` from ImageMagick, 20 photos each) and look at every one, to choose which photos suit which pages. Descriptions can't be written from file names.
 
-- **Leave out photos with identifiable people** from a public demo: couples, guests, children, visiting players. We don't have their consent or the club's confirmation. Staff portraits that sit on the club's own staff pages are fine. List the excluded photos on the ask-the-club list as "needs consent".
-- Write one plain description per photo you use, saying only what the photo shows, from what you actually saw. The club checks them.
+- **Include photos with people.** A demo is the club's real, whole site for them to confirm before it goes live (Dan's decision, 5 Nov 2026: Bearwood's people photos were first left out, then put back, to avoid changing things later). The club already publishes these photos on its own website, and the demo link is unguessable and hidden from search engines. On the ask-the-club list, ask the club to confirm they are happy for the photos of guests, couples and children to be on their site, as a normal sign-off question.
+- **Descriptions are optional** (the platform no longer needs one per photo). Write a plain description, saying only what the photo shows and only from what you saw, for photos that matter to a page (the hero, key pages, staff). Leave the rest blank; the club can add them in the admin over time, which also helps search. Name a person only where the club's own page names them.
 - Keep a table of photo number to description (Bearwood: `photos.json`) and refer to photos by key in `site.ts`.
 - Logos: if only a white logo exists, a navy copy can be made for the demo; say so on the ask list and ask for the real one.
 
@@ -74,7 +74,7 @@ Create `club-imports/<club>/site.ts` (see Cottrell's or Bearwood's as examples).
 - Rich text: `{ $rt: [['h2', '…'], ['p', '…'], ['ul', '…', '…'], ['img', '@media:key']] }`
 
 Rules the first runs found:
-- **Reserved addresses.** A page can't be called `contact` (the platform has its own Contact page). Link to it with the built-in link, and turn the club's department emails into the contact form's topics (membership, events, lessons, general), each with its own inbox.
+- **Reserved addresses.** A page can't have the address `contact`, `news`, `events`, `privacy` or `search`: every club already has a built-in page there, and a custom page would never be shown because the built-in one always wins. The built-in **Contact page at `/contact` is the club's contact page**: it has the enquiry form with topic routing, reply time, office hours, an editable introduction, and the address and phone from the footer. Link to it with the built-in link (the menu label can say anything, such as "Get in touch"), and turn the club's department emails into the form's topics (membership, events, lessons, general), each with its own inbox. Nothing changes at go-live: the address stays `/contact`.
 - **Field limits stop the import:** hero and block small lines (eyebrows) 40 characters, headings 60, card titles 30, card descriptions 100, two-column text 700. Check lengths before running.
 - **Video block:** every video needs its own poster photo. If you have no photo per video (for example 18 holes), reuse one general photo rather than imply a photo shows a hole it doesn't.
 - **Policies** need a last-reviewed date; if the club's document only says "October 2024", file it under Other instead of inventing a day.
@@ -148,9 +148,18 @@ After it finishes, check the **live** domain, not just the log (the log reports 
 - the security header allows only YouTube's no-cookie player and Vimeo's player for frames
 - the Contact page says "This is a demo"
 
-### 8. Show it to the club
+### 8. Show it to the club, and going live
 
-Send the demo link. Don't show the club's site to anyone outside the company until the club agrees. To extend a demo or switch it off, see `docs/operations/prospect-demos.md`, including the go-live checklist (switch Public demo off first, so search engines can index the live site).
+Send the demo link. Don't show the club's site to anyone outside the company until the club agrees. To extend a demo or switch it off, see `docs/operations/prospect-demos.md`.
+
+**A demo is the real site.** The local trial in step 5 is only a rehearsal on a throwaway database that is dropped afterwards; nothing is ever converted from it. The demo on production is already in the real production database, so going live copies no content and keeps any edits made in the admin:
+1. Switch **Public demo** off (the demo link stops working and search engines may index the site)
+2. Connect the club's domain once its DNS is set up (`docs/operations/connect-club-domain.md`)
+3. Check the live site is indexable
+4. Create the club's editor accounts (only possible once the demo is off)
+5. Tell the club the old demo link has stopped
+
+**Old addresses.** Pages here have flat addresses (`/careers`), while an old site may use nested ones (`/contact/careers-join-the-team/`). Before going live, make a list of the old site's addresses against the new ones, and check they redirect; a club that ranks on Google would otherwise lose it. We have not found a redirects feature yet (see the gaps list).
 
 ### 9. Hand over the three files
 
@@ -170,3 +179,5 @@ Still open:
 - Calendar files (`.ics`) can't be uploaded as documents
 - A club with no latitude and longitude gets no map
 - Button text on a pale accent colour can have poor contrast; check the club's colours
+- No redirects from a club's old addresses to the new ones (not found in the page settings; to check before the first go-live)
+- No "photos with no description" to-do view per club (the Description column exists in the media list)
