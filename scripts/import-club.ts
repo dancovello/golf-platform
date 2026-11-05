@@ -24,6 +24,7 @@ import { homedir } from 'node:os'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
+import { parseEnvText, sharedSettings } from './lib/importTargets'
 import { ask, chooseDatabase, connect, fail } from './lib/prompts'
 
 const LOCAL_HOSTS = ['localhost', '127.0.0.1', '::1']
@@ -65,17 +66,28 @@ const readSettings = async (target: Target, slug: string) => {
   } catch {
     fail(`There is no ${file} yet. See docs/operations/club-import.md, step 4.`)
   }
-  const values: Record<string, string> = {}
-  for (const line of text.split(/\r?\n/)) {
-    const at = line.indexOf('=')
-    if (at < 1 || line.trimStart().startsWith('#')) continue
-    values[line.slice(0, at).trim()] = line
-      .slice(at + 1)
-      .trim()
-      .replace(/^(['"])(.*)\1$/, '$2')
-  }
+  const values = parseEnvText(text)
   const missing = ['DATABASE_URL', ...STORAGE].filter((name) => !values[name])
   if (missing.length) fail(`${file} still needs: ${missing.join(', ')}`)
+  // Staging and production must not share a database or photo storage. Checked before anything
+  // is set or connected, so a wrong connection string can't write to the other environment.
+  const otherName: Target = target === 'production' ? 'staging' : 'production'
+  let otherText = ''
+  try {
+    otherText = readFileSync(resolve(SETTINGS_FOLDER, SETTINGS_FILE[otherName]), 'utf8')
+  } catch {
+    // No other file yet: nothing to compare with.
+  }
+  if (otherText) {
+    const other = parseEnvText(otherText)
+    const problems =
+      target === 'production' ? sharedSettings(other, values) : sharedSettings(values, other)
+    if (problems.length) {
+      fail(
+        `${file} and ${SETTINGS_FILE[otherName]} point at the same place, so this could write to the wrong environment:\n- ${problems.join('\n- ')}\nFix the ${target} file (docs/operations/club-import.md, steps 4 and 4b).`,
+      )
+    }
+  }
   for (const [name, value] of Object.entries(values)) process.env[name] = value
 
   const url = new URL(values.DATABASE_URL)
