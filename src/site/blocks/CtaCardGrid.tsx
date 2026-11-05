@@ -48,7 +48,8 @@ export const CtaCardGrid = ({
   if (cards.length === 0) return null
   const viewAll = style === 'editorial' ? ctx.link(block.viewAll) : null
   const columns = style === 'index' && cards.length === 4 ? 4 : 3
-  const rows = cardRows(cards.length + (viewAll ? 1 : 0), style === 'index')
+  // Only real cards count: the "View all" tile is hidden on wide screens (a header button there).
+  const rows = cardRows(cards.length, style === 'index')
 
   const img = (card: Card, sizes: string) => (
     // eslint-disable-next-line @next/next/no-img-element -- sized copies via srcset from R2
