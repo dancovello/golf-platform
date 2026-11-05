@@ -190,6 +190,7 @@ export interface Page {
         | RichTextBlock
         | RateTableBlock
         | GalleryBlock
+        | VideoBlock
         | DocumentListBlock
         | MapBlock
         | PullQuoteBlock
@@ -587,6 +588,36 @@ export interface GalleryBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'gallery';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "VideoBlock".
+ */
+export interface VideoBlock {
+  style: 'featured' | 'grid';
+  eyebrow?: string | null;
+  heading: string;
+  /**
+   * Upload the film to YouTube or Vimeo first, then paste its address here. You choose the picture shown before it plays.
+   */
+  videos?:
+    | {
+        url: string;
+        /**
+         * Landscape, at least 1600 pixels wide. Choose your own: YouTube’s automatic picture is often a blurry frame.
+         */
+        poster: string | Media;
+        /**
+         * e.g. "Hole 1". Read out to screen-reader users.
+         */
+        title: string;
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'video';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2869,6 +2900,7 @@ export interface PagesSelect<T extends boolean = true> {
         richText?: T | RichTextBlockSelect<T>;
         rateTable?: T | RateTableBlockSelect<T>;
         gallery?: T | GalleryBlockSelect<T>;
+        video?: T | VideoBlockSelect<T>;
         documentList?: T | DocumentListBlockSelect<T>;
         map?: T | MapBlockSelect<T>;
         pullQuote?: T | PullQuoteBlockSelect<T>;
@@ -3082,6 +3114,26 @@ export interface GalleryBlockSelect<T extends boolean = true> {
         image?: T;
         caption?: T;
         album?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "VideoBlock_select".
+ */
+export interface VideoBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  videos?:
+    | T
+    | {
+        url?: T;
+        poster?: T;
+        title?: T;
+        caption?: T;
         id?: T;
       };
   id?: T;

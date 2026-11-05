@@ -115,6 +115,13 @@ const pictures: Record<string, string> = {
     heading(64, 76, 90) +
     lines(64, 104, 140, 3),
 
+  video:
+    photo(90, 50, 420, 236) +
+    `<circle cx="300" cy="168" r="34" fill="${BRAND}"/>` +
+    '<path d="M288 150 L288 186 L318 168 Z" fill="#fff"/>' +
+    heading(90, 312, 200) +
+    rect(90, 336, 140, 7, TEXT, 3),
+
   pullQuote:
     `<text x="60" y="190" font-family="Georgia,serif" font-size="150" fill="${BRAND}" opacity=".35">“</text>` +
     heading(130, 130, 380) +

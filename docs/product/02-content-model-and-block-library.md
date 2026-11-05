@@ -81,7 +81,7 @@ Nearly every club needs the same handful of pages (Home, The Course, Visitors & 
 ### Media
 - **Image Carousel/Slider** — homepage or gallery slider, swipe-enabled. (Swinley Forest, Little Aston)
 - **Gallery Grid + Lightbox** — tag/album-based photo grid, full-screen viewing. (Appleby, Cleeve Hill)
-- **Video Embed** — promo films, course flyovers. (Prestbury, Sutton Coldfield)
+- **Video Embed** — promo films, course flyovers. (Prestbury, Sutton Coldfield). **Built (5 Nov 2026) as the Video block:** YouTube or Vimeo address only, the club's own poster picture, nothing loads from the video site until a visitor presses play (YouTube's no-cookie address, Vimeo with do-not-track). Style A one large player; style B a grid of up to 24. No video files are stored, so no storage cost. The hero's silent loop still uses an uploaded file.
 - **Virtual Tour/360°/Webcam** — embedded 360° tour or live webcam. (Trevose, Kington, St Enodoc)
 
 ### Booking & integration

@@ -7,6 +7,7 @@ import type { ClubSite } from '../loadClub'
 import { CtaCardGrid } from './CtaCardGrid'
 import { DocumentList } from './DocumentList'
 import { Gallery } from './Gallery'
+import { Video } from './Video'
 import { Hero } from './Hero'
 import { MapBlock } from './MapBlock'
 import { RateTable } from './RateTable'
@@ -33,6 +34,7 @@ import './twoColumn.css'
 import './richText.css'
 import './rateTable.css'
 import './gallery.css'
+import './video.css'
 import './documentList.css'
 import './map.css'
 import './pullQuote.css'
@@ -114,6 +116,8 @@ const drawBlock = (
       )
     case 'gallery':
       return <Gallery key={block.id ?? i} block={block} ctx={ctx} />
+    case 'video':
+      return <Video key={block.id ?? i} block={block} ctx={ctx} />
     case 'documentList':
       return <DocumentList key={block.id ?? i} block={block} ctx={ctx} base={base} />
     case 'map':

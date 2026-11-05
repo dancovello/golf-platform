@@ -53,6 +53,9 @@ const GOOGLE_ANALYTICS = [
 ]
 // The interactive map (loads when the visitor asks for it).
 const OPENSTREETMAP = 'https://www.openstreetmap.org'
+// Videos kept on YouTube or Vimeo (src/blocks/video). They load only when a visitor presses
+// play. YouTube's "no cookie" address, Vimeo's player: nothing else may be framed.
+const VIDEO_PLAYERS = ['https://www.youtube-nocookie.com', 'https://player.vimeo.com']
 // Vercel's comment toolbar on staging and pull-request previews, never on production
 // (Dan, 2026-10-21; Vercel's documented list).
 const VERCEL_TOOLBAR = {
@@ -117,7 +120,12 @@ export const buildPolicy = (kind: PolicyKind, nonce: string, env: Env = process.
       ...(dev ? ['ws:'] : []),
     ],
     // The admin's live preview frames the club's page on the same address.
-    'frame-src': ["'self'", TURNSTILE, ...club([OPENSTREETMAP]), ...extra(VERCEL_TOOLBAR.frame)],
+    'frame-src': [
+      "'self'",
+      TURNSTILE,
+      ...club([OPENSTREETMAP, ...VIDEO_PLAYERS]),
+      ...extra(VERCEL_TOOLBAR.frame),
+    ],
     'worker-src': ["'self'", 'blob:'],
     'object-src': ["'none'"],
     'base-uri': ["'self'"],

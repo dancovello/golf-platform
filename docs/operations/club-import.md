@@ -25,7 +25,7 @@ How we build a new club's site from their current website, so they see a finishe
 - List every page from the sitemap (`/sitemap.xml`, `/wp-sitemap.xml` or `/sitemap_index.xml`).
 - WordPress sites also have a data feed (`/wp-json/wp/v2/pages`, `/posts`, `/media`) with cleaner text and photo descriptions.
 - Save each page's HTML, then turn it into plain text with its images, links and documents listed.
-- Download the photos, documents and any videos you'll use. Look out for:
+- Download the photos, documents and any videos you'll use. **Videos on YouTube or Vimeo are not downloaded: use the Video block** (paste the address, add a poster photo). Only videos stored on the club's own server need downloading, and the club should be asked to move those to YouTube or Vimeo. Look out for:
   - Email addresses hidden by Cloudflare (`data-cfemail`): decode them
   - Prices and fixtures held in images or PDFs: read them, and turn them into price tables
   - Embedded documents (Google or Office viewers): the real file is in the viewer link

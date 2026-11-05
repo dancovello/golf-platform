@@ -32,6 +32,18 @@ describe('content security policy', () => {
     expect(directive(policy, 'connect-src')).toContain('https://*.google-analytics.com')
   })
 
+  it('club sites may frame only YouTube’s no-cookie player and Vimeo’s player, and no other video site', () => {
+    const frames = directive(buildPolicy('site', 'n', env), 'frame-src')
+    expect(frames).toContain('https://www.youtube-nocookie.com')
+    expect(frames).toContain('https://player.vimeo.com')
+    expect(frames).not.toContain('https://www.youtube.com')
+    expect(frames).not.toMatch(/\*/)
+    // The marketing site and the platform's own pages have no video player.
+    for (const kind of ['marketing', 'platform'] as const) {
+      expect(directive(buildPolicy(kind, 'n', env), 'frame-src')).not.toMatch(/youtube|vimeo/)
+    }
+  })
+
   it('only the admin may upload straight to storage', () => {
     expect(buildPolicy('site', 'n', env)).not.toContain('r2.cloudflarestorage.com')
     expect(directive(buildPolicy('admin', 'n', env), 'connect-src')).toContain(
