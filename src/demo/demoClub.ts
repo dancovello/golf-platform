@@ -1630,6 +1630,40 @@ export const buildDemoClub = async (payload: Payload) => {
       heading: 'The club through the seasons',
       images: galleryImages,
     },
+    {
+      blockType: 'video',
+      style: 'featured',
+      eyebrow: 'Film',
+      heading: 'A short film from the club',
+      videos: [
+        {
+          url: 'https://www.youtube.com/watch?v=aqz-KE-bpKQ',
+          poster: dusk.id,
+          title: 'The club at dusk',
+          caption: 'Kept on YouTube, played here',
+        },
+      ],
+    },
+    {
+      blockType: 'video',
+      style: 'grid',
+      eyebrow: 'Fly-through',
+      heading: 'Hole by hole',
+      videos: [
+        {
+          url: 'https://www.youtube.com/watch?v=aqz-KE-bpKQ',
+          poster: photos[0].id,
+          title: 'Hole 1',
+        },
+        { url: 'https://youtu.be/aqz-KE-bpKQ', poster: photos[1].id, title: 'Hole 2' },
+        {
+          url: 'https://vimeo.com/1084537',
+          poster: photos[2].id,
+          title: 'Hole 3',
+          caption: 'Vimeo works the same way',
+        },
+      ],
+    },
   ])
 
   const milestones = [

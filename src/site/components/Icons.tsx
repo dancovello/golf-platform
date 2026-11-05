@@ -126,3 +126,9 @@ export const Info = ({ size = 16 }: IconProps) => (
     <path d="M12 11v5M12 8h.01" />
   </svg>
 )
+
+export const Play = ({ size = 24 }: IconProps) => (
+  <svg {...base(size)}>
+    <path d="M8 5.5v13l11-6.5z" fill="currentColor" />
+  </svg>
+)
