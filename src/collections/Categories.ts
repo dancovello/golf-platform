@@ -17,17 +17,27 @@ const defaultSlug: CollectionBeforeValidateHook = ({ data }) => {
   return data
 }
 
-/** A category that articles still use can't be removed: they would be left with none. */
+/** A category that articles or documents still use can't be removed: they would be left with none. */
 const keepCategoriesInUse: CollectionBeforeDeleteHook = async ({ id, req }) => {
-  const { totalDocs } = await req.payload.count({
-    collection: 'news',
-    where: { category: { equals: id } },
-    overrideAccess: true,
-    req,
-  })
-  if (totalDocs > 0) {
+  const count = (collection: 'news' | 'documents') =>
+    req.payload.count({
+      collection,
+      where: { category: { equals: id } },
+      overrideAccess: true,
+      req,
+    })
+  const [{ totalDocs: articles }, { totalDocs: documents }] = await Promise.all([
+    count('news'),
+    count('documents'),
+  ])
+  const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`
+  const using = [
+    ...(articles > 0 ? [plural(articles, 'article', 'articles')] : []),
+    ...(documents > 0 ? [plural(documents, 'document', 'documents')] : []),
+  ]
+  if (using.length > 0) {
     throw publicError(
-      `${totalDocs === 1 ? 'An article uses' : `${totalDocs} articles use`} this category. Move ${totalDocs === 1 ? 'it' : 'them'} to another category first.`,
+      `${using.join(' and ')} use${articles + documents === 1 ? 's' : ''} this category. Move ${articles + documents === 1 ? 'it' : 'them'} to another category first.`,
       400,
       undefined,
       true,
@@ -36,7 +46,7 @@ const keepCategoriesInUse: CollectionBeforeDeleteHook = async ({ id, req }) => {
 }
 
 // Club-owned (src/tenancy.ts): the club is required and editors only see their own list.
-// One shared list per club; news uses it first, and events or anything else can later.
+// One shared list per club, used by news and by documents (and anything else later).
 export const Categories: CollectionConfig = {
   slug: 'categories',
   labels: { singular: 'Category', plural: 'Categories' },

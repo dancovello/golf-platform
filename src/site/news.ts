@@ -162,9 +162,20 @@ const newsArchiveFresh = async (
     depth: 0,
     overrideAccess: true,
   })
+  // The club's list is shared with documents, so a pill only shows for a category that has
+  // live news (an empty one would be a dead end), plus the one being looked at.
+  const { docs: filed } = await payload.find({
+    collection: 'news',
+    where: { and: live(tenantID) },
+    select: { category: true },
+    pagination: false,
+    depth: 0,
+    overrideAccess: true,
+  })
+  const withNews = new Set(filed.map((d) => idOf(d.category)))
   return {
     category: chosen?.slug ?? null,
-    categories,
+    categories: categories.filter((c) => withNews.has(c.id) || c.id === chosen?.id),
     q: words || null,
     cards: await toCards(tenantID, result.docs as NewsDoc[]),
     page: result.page ?? 1,

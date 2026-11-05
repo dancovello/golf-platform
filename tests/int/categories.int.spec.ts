@@ -20,7 +20,7 @@ const add = (name: string, tenant = w.clubA.id, slug?: string) =>
   })
 
 describe('a club’s categories', () => {
-  it('every new club starts with the six it always had, in order', async () => {
+  it('every new club starts with the starter list (news and documents), in order', async () => {
     const found = await clubCategories(w.clubA.id)
     expect(found.map((c) => c.slug)).toEqual(DEFAULT_CATEGORIES.map((c) => c.slug))
     expect(found.map((c) => c.name)).toEqual(DEFAULT_CATEGORIES.map((c) => c.name))

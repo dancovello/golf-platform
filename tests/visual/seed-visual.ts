@@ -585,10 +585,26 @@ for (const [slug, p] of Object.entries(palettes)) {
     },
   ])
 
-  const doc = (title: string, category: string, lastReviewed?: string) =>
+  const categoryIDs = new Map(
+    (
+      await payload.find({
+        collection: 'categories',
+        where: { tenant: { equals: club.id } },
+        limit: 100,
+        depth: 0,
+        overrideAccess: true,
+      })
+    ).docs.map((c) => [c.slug, c.id]),
+  )
+  const doc = async (title: string, category: string, lastReviewed?: string) =>
     payload.create({
       collection: 'documents',
-      data: { title, category, lastReviewed, tenant: club.id } as never,
+      data: {
+        title,
+        category: categoryIDs.get(category === 'course' ? 'course-scorecards' : category),
+        lastReviewed,
+        tenant: club.id,
+      } as never,
       file: pdfFile(`${title.toLowerCase().replace(/\W+/g, '-')}.pdf`),
     })
   const libraryDocs = [

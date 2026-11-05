@@ -244,12 +244,20 @@ export const seedWorld = async (): Promise<World> => {
     mediaB: await media('Club B photo', clubB.id),
     docA: await payload.create({
       collection: 'documents',
-      data: { title: 'Club A local rules', category: 'course', tenant: clubA.id },
+      data: {
+        title: 'Club A local rules',
+        category: (await categoryOf(payload, clubA.id, 'course-scorecards')).id,
+        tenant: clubA.id,
+      },
       file: pdfFile('local-rules.pdf'),
     }),
     docB: await payload.create({
       collection: 'documents',
-      data: { title: 'Club B local rules', category: 'course', tenant: clubB.id },
+      data: {
+        title: 'Club B local rules',
+        category: (await categoryOf(payload, clubB.id, 'course-scorecards')).id,
+        tenant: clubB.id,
+      },
       file: pdfFile('local-rules.pdf'),
     }),
     staffA: await payload.create({

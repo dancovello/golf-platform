@@ -2,6 +2,7 @@ import type { Payload } from 'payload'
 
 import { HOLE_CARD, HOLE_TIPS } from './courseCard'
 import { categoryIds } from '../collections/categoryIds'
+import { LEGACY_DOCUMENT_CATEGORY_SLUGS } from '../collections/defaultCategories'
 import { demoPDF, portrait, scene, type SceneOptions } from './pictures'
 import { rt } from './richText'
 import { siteBase } from '../site/preview'
@@ -216,7 +217,11 @@ export const buildDemoClub = async (payload: Payload) => {
   const document = (title: string, category: string, lastReviewed?: string) =>
     create<{ id: ID }>(
       'documents',
-      { title, category, ...(lastReviewed ? { lastReviewed } : {}) },
+      {
+        title,
+        category: categories.get(LEGACY_DOCUMENT_CATEGORY_SLUGS[category] ?? category),
+        ...(lastReviewed ? { lastReviewed } : {}),
+      },
       {
         data: demoPDF(),
         mimetype: 'application/pdf',
