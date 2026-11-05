@@ -3,6 +3,7 @@ import type { CtaCardGridBlock } from '@/payload-types'
 import { Button } from '../components/Button'
 import { ArrowRight } from '../components/Icons'
 import { linkTarget, siteHref } from '../components/links'
+import { cardRows } from './cardRows'
 import type { BlockContext, ResolvedLink } from './resolve'
 import { SwipeRow } from './SwipeRow'
 
@@ -47,6 +48,8 @@ export const CtaCardGrid = ({
   if (cards.length === 0) return null
   const viewAll = style === 'editorial' ? ctx.link(block.viewAll) : null
   const columns = style === 'index' && cards.length === 4 ? 4 : 3
+  // Only real cards count: the "View all" tile is hidden on wide screens (a header button there).
+  const rows = cardRows(cards.length, style === 'index')
 
   const img = (card: Card, sizes: string) => (
     // eslint-disable-next-line @next/next/no-img-element -- sized copies via srcset from R2
@@ -146,7 +149,7 @@ export const CtaCardGrid = ({
       <div className="blk-container">
         {header}
         {style === 'editorial' ? (
-          <SwipeRow className={`cg-grid cols-${columns}`} label={block.heading}>
+          <SwipeRow className={`cg-grid ${rows}`} label={block.heading}>
             {[
               ...cardEls,
               ...(viewAll
@@ -165,7 +168,7 @@ export const CtaCardGrid = ({
             ]}
           </SwipeRow>
         ) : (
-          <div className={`cg-grid cols-${columns}`}>{cardEls}</div>
+          <div className={`cg-grid ${rows}`}>{cardEls}</div>
         )}
       </div>
     </section>
