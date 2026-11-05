@@ -68,6 +68,7 @@
 .cg-immersive {
   aspect-ratio: 4 / 5;
   overflow: hidden;
+  isolation: isolate;
   border-radius: var(--radius-sm);
   color: var(--color-text-on-inverse);
 }
@@ -78,9 +79,14 @@
 .cg-scrim {
   position: absolute;
   inset: 0;
+  /* Light at the top, darker towards the copy at the bottom. Multiplied onto the photo, so it
+     deepens the colours instead of greying them. The copy sits in the lower third, where the
+     shade is never less than the photo's own (--photo-shade), so its text still reads. */
+  mix-blend-mode: multiply;
   background: linear-gradient(
     180deg,
-    var(--color-overlay-clear) 35%,
+    color-mix(in srgb, var(--image-shade) 6%, transparent) 0%,
+    color-mix(in srgb, var(--image-shade) var(--photo-shade), transparent) 55%,
     color-mix(in srgb, var(--image-shade) max(78%, var(--photo-shade)), transparent) 100%
   );
 }
@@ -124,20 +130,30 @@
   aspect-ratio: 1 / 1;
 }
 .cg-row {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-12);
+  /* The number (left) and arrow (right) share the first line; the title has the full width. */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'number arrow'
+    'title title';
+  align-items: center;
+  row-gap: var(--space-4);
   padding-top: var(--space-12);
   border-top: 1px solid var(--color-border-strong);
   transition: border-color 200ms ease-out;
 }
 .cg-number {
+  grid-area: number;
   color: var(--color-text-secondary);
   font-variant-numeric: tabular-nums;
 }
+.cg-row .cg-title {
+  grid-area: title;
+  margin: 0;
+}
 .cg-arrow {
-  margin-left: auto;
-  align-self: center;
+  grid-area: arrow;
+  justify-self: end;
   transition: transform 200ms ease-out;
 }
 .cg-index .cg-description {
@@ -193,6 +209,14 @@
   .cg-glass {
     right: var(--space-16);
     bottom: var(--space-16);
+  }
+  /* The strip is short, so its copy covers most of the photo: keep the full shade there. */
+  .cg-scrim {
+    background: linear-gradient(
+      180deg,
+      var(--color-overlay-clear) 35%,
+      color-mix(in srgb, var(--image-shade) max(78%, var(--photo-shade)), transparent) 100%
+    );
   }
   /* C: numbered list */
   .cg-index .cg-media,

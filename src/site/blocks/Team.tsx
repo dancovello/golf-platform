@@ -6,6 +6,7 @@ import { ArrowRight } from '../components/Icons'
 import { Paragraphs, TextLink } from './parts'
 import { ProtectedEmail } from './ProtectedEmail'
 import type { BlockContext, SitePerson } from './resolve'
+import { TeamFeatured } from './TeamFeatured'
 import { TeamGrid } from './TeamGrid'
 import { ContactLinks, Portrait } from './teamShared'
 
@@ -85,56 +86,59 @@ export const Team = ({
     const lead = ctx.person(block.featured)
     if (!lead) return null
     const others = people.filter((p) => p.id !== lead.id).slice(0, 4)
-    const email = lead.email
+    const panel = (person: SitePerson) => {
+      const email = person.email
+      return (
+        <>
+          <Portrait person={person} shape="card" sizes="(max-width: 1023px) 100vw, 360px" />
+          <div className="team-featured-text">
+            <p className="t-data-label team-featured-tag">{person.role}</p>
+            <h3 className="t-heading-l">{person.name}</h3>
+            <div className="team-bio">
+              <Paragraphs text={person.bio} className="t-body-l" />
+            </div>
+            {action || email ? (
+              <div className="team-featured-actions">
+                {action ? (
+                  <Button label={action.label} link={action.link} base={base} style="solid" arrow />
+                ) : null}
+                {email ? (
+                  <ProtectedEmail
+                    user={email.user}
+                    domain={email.domain}
+                    className="btn btn-link t-label-button"
+                  >
+                    Email {person.name.trim().split(/\s+/)[0]} <ArrowRight />
+                  </ProtectedEmail>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+        </>
+      )
+    }
+    const row = (person: SitePerson) => (
+      <>
+        <Portrait person={person} shape="avatar" />
+        <div className="team-row-text">
+          <p className="t-data-sans team-row-name">{person.name}</p>
+          <p className="t-body-s team-row-role">{person.role}</p>
+        </div>
+      </>
+    )
+    const everyone = [lead, ...others]
     const viewAll = ctx.link(block.viewAll)
     return (
       <section className="blk team team-featured">
         <div className="blk-container">
           <div className="blk-header">{heading}</div>
-          <div className="team-featured-layout">
-            <div className="team-featured-main">
-              <Portrait person={lead} shape="card" sizes="(max-width: 1023px) 100vw, 360px" />
-              <div className="team-featured-text">
-                <p className="t-data-label team-featured-tag">{lead.role}</p>
-                <h3 className="t-heading-l">{lead.name}</h3>
-                <div className="team-bio">
-                  <Paragraphs text={lead.bio} className="t-body-l" />
-                </div>
-                {action || email ? (
-                  <div className="team-featured-actions">
-                    {action ? (
-                      <Button
-                        label={action.label}
-                        link={action.link}
-                        base={base}
-                        style="solid"
-                        arrow
-                      />
-                    ) : null}
-                    {email ? (
-                      <ProtectedEmail
-                        user={email.user}
-                        domain={email.domain}
-                        className="btn btn-link t-label-button"
-                      >
-                        Email {lead.name.trim().split(/\s+/)[0]} <ArrowRight />
-                      </ProtectedEmail>
-                    ) : null}
-                  </div>
-                ) : null}
-              </div>
-            </div>
-            {others.length > 0 || viewAll ? (
-              <div className="team-featured-side">
-                <ul className="team-side-list">
-                  {others.map((p) => (
-                    <PersonRow key={p.id} person={p} />
-                  ))}
-                </ul>
-                <TextLink link={viewAll} base={base} />
-              </div>
-            ) : null}
-          </div>
+          <TeamFeatured
+            ids={everyone.map((p) => p.id)}
+            panels={Object.fromEntries(everyone.map((p) => [p.id, panel(p)]))}
+            rows={Object.fromEntries(everyone.map((p) => [p.id, row(p)]))}
+            names={Object.fromEntries(everyone.map((p) => [p.id, p.name]))}
+            footer={viewAll ? <TextLink link={viewAll} base={base} /> : null}
+          />
         </div>
       </section>
     )

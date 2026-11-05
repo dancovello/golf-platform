@@ -317,6 +317,24 @@
   flex-direction: column;
   align-items: flex-start;
 }
+/* A person in the list is a button: pressing them brings them to the lead spot. */
+.team-row-button {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.team-row-button:hover .team-row-name {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
 
 @media (max-width: 1023px) {
   .team-grid {
