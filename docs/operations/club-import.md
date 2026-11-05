@@ -55,7 +55,7 @@ Write `REVIEW.md` covering:
 - What they have: pages, news, documents, photos, videos, courses and people
 - A proposed site map and homepage, built on good practice, not a copy of their layout
 - Where each of their pages goes, and which blocks it uses
-- Branding: logo (light and dark versions), the closest of our font sets, and their colours (check white text on their accent colour has enough contrast)
+- Branding: logo (light and dark versions), the closest of our font sets, and their colours. **Use the club's colours exactly as they are** (read from their stylesheet, logo or print material), even if they cause problems. Then check the readable-text contrast of their main combinations (for example white text on their accent colour, aiming for at least 4.5 to 1 for normal text) and **flag any that fail in the review**, with the numbers. Don't quietly change a club's colours: Dan raises it with the club and shows them in person what a better colour looks like, and the club chooses
 - **Conflicts in their own content.** Example: two different capacities for the same room. Pick the official source, and say which
 - **Gaps:** things we won't invent (a map position, prices, opening hours)
 - **Platform gaps:** things their content needed that we can't hold yet
@@ -178,6 +178,6 @@ Still open:
 - No Matterport or other virtual tour embed
 - Calendar files (`.ics`) can't be uploaded as documents
 - A club with no latitude and longitude gets no map
-- Button text on a pale accent colour can have poor contrast; check the club's colours
+- Button text on a pale accent colour can have poor contrast. We bring the club's colours over as they are and flag the problem in the review (Bearwood's green `#68be50` with white text is about 2.3 to 1); the colour is changed only if the club agrees after seeing the difference
 - No redirects from a club's old addresses to the new ones (not found in the page settings; to check before the first go-live)
 - No "photos with no description" to-do view per club (the Description column exists in the media list)
