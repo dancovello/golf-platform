@@ -21,6 +21,7 @@ const PAGES = [
 const COMPONENTS = [
   '.mk-morph-sticky',
   '.mk-edit-live',
+  '.mk-edit-card',
   '.mk-week',
   '.mk-moves-visual',
   '.mk-flipper',
@@ -62,7 +63,12 @@ for (const screen of SCREENS) {
             if (box.width === 0 && box.height === 0) return [] // a hidden frame
             const name = el.className.toString().split(' ')[0]
             const issues: string[] = []
-            if (box.height > window.innerHeight - 64)
+            // Below 1024px the editor demo stacks its two cards (editor, then live preview), and
+            // the phone amend (4 Nov) made the preview show the hero's whole headline. The pair
+            // cannot fit one screen, so each card is checked on its own (.mk-edit-card is in the
+            // list above); the pair still has to fit the width.
+            const stackedPair = el.matches('.mk-edit-live') && window.innerWidth < 1024
+            if (!stackedPair && box.height > window.innerHeight - 64)
               issues.push(`${name} is ${Math.round(box.height)}px tall`)
             if (box.left < edge - 1 || box.right > width - edge + 1)
               issues.push(`${name} runs from ${Math.round(box.left)} to ${Math.round(box.right)}px`)
