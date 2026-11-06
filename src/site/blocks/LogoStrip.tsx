@@ -11,6 +11,12 @@ import { NEW_TAB } from '../components/links'
 type Partner = { name: string; url: string | null; logo: string | null }
 
 /**
+ * A marquee only scrolls when one set of logos is wider than a big screen (9 slots of 180 plus
+ * gaps is about 2,050px). With fewer, a loop would show gaps and repeats, so they sit still.
+ */
+const MARQUEE_MIN_LOGOS = 9
+
+/**
  * Partner / Logo Strip (docs/design/11), three styles: A Row (≤6), B Grid (ruled, beside an
  * intro), C Marquee (slow loop on the brand colour; pauses on hover/focus; still for reduced
  * motion). Logos sit in equal 180×72 boxes in one tone of the text colour (a CSS mask), full
@@ -60,6 +66,14 @@ export const LogoStrip = ({ block, ctx }: { block: LogoStripBlock; ctx: BlockCon
           inner
         )}
       </li>
+    )
+  }
+
+  if (style === 'marquee' && shown.length < MARQUEE_MIN_LOGOS) {
+    return (
+      <section className="ls ls-marquee on-brand" aria-label={block.eyebrow ?? 'Partners'}>
+        <ul className="ls-marquee-still">{shown.map((p, i) => slot(p, i))}</ul>
+      </section>
     )
   }
 
