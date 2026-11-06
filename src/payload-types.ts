@@ -595,8 +595,25 @@ export interface GalleryBlock {
  */
 export interface VideoBlock {
   style: 'featured' | 'grid';
+  featuredLayout?: ('standard' | 'wide' | 'split') | null;
+  videoSide?: ('left' | 'right') | null;
+  /**
+   * On phones, two or more videos always swipe like a carousel (unless "Always a grid").
+   */
+  layout?: ('auto' | 'grid' | 'carousel') | null;
   eyebrow?: string | null;
   heading: string;
+  intro?: string | null;
+  button?: {
+    label?: string | null;
+    type?: ('page' | 'builtIn' | 'url') | null;
+    page?: (string | null) | Page;
+    builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+    /**
+     * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+     */
+    url?: string | null;
+  };
   /**
    * Upload the film to YouTube or Vimeo first, then paste its address here. You choose the picture shown before it plays.
    */
@@ -3125,8 +3142,21 @@ export interface GalleryBlockSelect<T extends boolean = true> {
  */
 export interface VideoBlockSelect<T extends boolean = true> {
   style?: T;
+  featuredLayout?: T;
+  videoSide?: T;
+  layout?: T;
   eyebrow?: T;
   heading?: T;
+  intro?: T;
+  button?:
+    | T
+    | {
+        label?: T;
+        type?: T;
+        page?: T;
+        builtIn?: T;
+        url?: T;
+      };
   videos?:
     | T
     | {

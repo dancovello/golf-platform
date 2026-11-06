@@ -14,7 +14,7 @@ export type VideoProvider = 'youtube' | 'vimeo'
 export type ParsedVideo = {
   provider: VideoProvider
   id: string
-  /** The page where the video lives, for the "Watch on …" link. */
+  /** The page where the video lives. Not shown on the site any more (the "Watch on …" link was removed); kept for tools. */
   watchURL: string
   /** The address the player loads from. Autoplays, because the visitor has just pressed play. */
   embedURL: string
