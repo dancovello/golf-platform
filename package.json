@@ -33,7 +33,7 @@
     "import-club-production": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/import-club.ts production"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "3.1159.0",
+    "@aws-sdk/client-s3": "3.1162.0",
     "@payloadcms/db-postgres": "3.92.1",
     "@payloadcms/email-resend": "3.92.1",
     "@payloadcms/live-preview-react": "3.92.1",
