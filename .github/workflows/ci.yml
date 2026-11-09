@@ -142,6 +142,8 @@ jobs:
       code: ${{ steps.changes.outputs.code }}
       # 'true' unless this is a pull request into main that leaves src/migrations/ alone.
       migrations: ${{ steps.changes.outputs.migrations }}
+      # 'true' unless this is a pull request into main that touches nothing the marketing site uses.
+      marketing: ${{ steps.changes.outputs.marketing }}
     env:
       GITLEAKS_VERSION: 8.30.1
       GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
@@ -170,6 +172,7 @@ jobs:
           if [ "$EVENT" != "pull_request" ] || [ "$BASE_REF" = "production" ]; then
             echo "code=true" >> "$GITHUB_OUTPUT"
             echo "migrations=true" >> "$GITHUB_OUTPUT"
+            echo "marketing=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           # The checkout is GitHub's merge of this pull request; its first parent is the base.
@@ -178,6 +181,11 @@ jobs:
           code=$(printf '%s\n' "$changed" | grep -vE '^(docs/|\.claude/)|\.md$' | grep -v '^$' || true)
           if [ -n "$code" ]; then echo "code=true"; else echo "code=false"; fi >> "$GITHUB_OUTPUT"
           if printf '%s\n' "$changed" | grep -q '^src/migrations/'; then echo "migrations=true"; else echo "migrations=false"; fi >> "$GITHUB_OUTPUT"
+          # The marketing site shares code with the club sites (blocks, theme, site renderers, demos),
+          # so anything there counts. Admin, collections, accounts, search, imports and CI-only
+          # changes don't, and their pull requests skip the marketing-* browser specs.
+          marketing_paths='^src/(marketing|site|blocks|theme|demo|brand\.ts|proxy\.ts|security|email|fields|globals|media|privacy|app/\((marketing|frontend))|^tests/e2e/(marketing|fixtures|setup|world|seed)|^(package\.json|pnpm-lock\.yaml|playwright\.config\.ts|next\.config|public/|\.github/)'
+          if printf '%s\n' "$changed" | grep -qE "$marketing_paths"; then echo "marketing=true"; else echo "marketing=false"; fi >> "$GITHUB_OUTPUT"
           echo "Changed files:"; printf '%s\n' "$changed"
 
   dependency-scan:
@@ -282,7 +290,10 @@ jobs:
   browser-tests:
     needs: secret-scan
     # Not on drafts: they run when the pull request is marked ready for review.
-    if: needs.secret-scan.outputs.code == 'true' && !github.event.pull_request.draft
+    # Pull requests only: the pull request already ran this on exactly what lands in main, and
+    # branch protection needs it up to date with main (CI minutes, 9 Nov). tenant-isolation still
+    # runs on every merge.
+    if: needs.secret-scan.outputs.code == 'true' && github.event_name == 'pull_request' && !github.event.pull_request.draft
     runs-on: ubuntu-latest
     timeout-minutes: 25
     services:
@@ -341,6 +352,8 @@ jobs:
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm exec playwright test --project=chromium
         env:
+          # The marketing-* specs only run when the change touches something the marketing site uses.
+          SKIP_MARKETING_SPECS: ${{ needs.secret-scan.outputs.marketing != 'true' && '1' || '' }}
           APP_DATABASE_URL: postgres://golf_app:ci-only-golf-app@localhost:5432/golf_test
       - name: Keep the browser test report if anything failed
         if: failure()
