@@ -19,7 +19,7 @@ export const currentMenuIndex = (menu: MenuItem[], base: string, currentPath: st
 }
 
 export const isExternal = (link: SiteLink | null) =>
-  link?.kind === 'url' && /^https?:\/\//i.test(link.href)
+  link?.kind === 'url' && (link.file === true || /^https?:\/\//i.test(link.href))
 
 /** The hidden "Opens in a new tab" note each club page carries (ClubShell); new-tab links
  * point screen readers at it, so no link's visible text changes. */

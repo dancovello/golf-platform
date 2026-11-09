@@ -352,6 +352,7 @@ export const blockContextFrom = (data: BlockData): BlockContext => {
         page?: unknown
         url?: string
         builtIn?: unknown
+        document?: unknown
       }
       const label = raw.label?.trim() || fallbackLabel
       if (!label) return null
@@ -361,6 +362,10 @@ export const blockContextFrom = (data: BlockData): BlockContext => {
       if (raw.type === 'builtIn') {
         const builtIn = builtInLink(raw.builtIn)
         return builtIn ? { label, link: builtIn } : null
+      }
+      if (raw.type === 'document') {
+        const doc = pick(data.documents, raw.document)
+        return doc ? { label, link: { kind: 'url', href: doc.url, file: true } } : null
       }
       const slug = pick(data.pages, raw.page)
       return slug ? { label, link: { kind: 'page', slug } } : null

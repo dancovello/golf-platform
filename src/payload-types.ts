@@ -272,8 +272,12 @@ export interface HeroBlock {
    */
   primaryButton?: {
     label?: string | null;
-    type?: ('page' | 'builtIn' | 'url') | null;
+    type?: ('page' | 'builtIn' | 'url' | 'document') | null;
     page?: (string | null) | Page;
+    /**
+     * Opens the file in a new tab. Add files under Documents.
+     */
+    document?: (string | null) | Document;
     builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
     /**
      * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
@@ -282,8 +286,12 @@ export interface HeroBlock {
   };
   secondaryLink?: {
     label?: string | null;
-    type?: ('page' | 'builtIn' | 'url') | null;
+    type?: ('page' | 'builtIn' | 'url' | 'document') | null;
     page?: (string | null) | Page;
+    /**
+     * Opens the file in a new tab. Add files under Documents.
+     */
+    document?: (string | null) | Document;
     builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
     /**
      * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
@@ -368,6 +376,35 @@ export interface Media {
   };
 }
 /**
+ * Word and PDF files carry hidden details, such as the author’s name. Before uploading, check them in the file’s properties (in Word: File, then Info, then Inspect Document).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documents".
+ */
+export interface Document {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  title: string;
+  category: 'course' | 'policies' | 'forms' | 'minutes' | 'visitors' | 'other';
+  /**
+   * Required for policies. Shown on the site; flagged after 12 months.
+   */
+  lastReviewed?: string | null;
+  prefix?: string | null;
+  _objectKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "CtaCardGridBlock".
  */
@@ -378,8 +415,12 @@ export interface CtaCardGridBlock {
   intro?: string | null;
   viewAll?: {
     label?: string | null;
-    type?: ('page' | 'builtIn' | 'url') | null;
+    type?: ('page' | 'builtIn' | 'url' | 'document') | null;
     page?: (string | null) | Page;
+    /**
+     * Opens the file in a new tab. Add files under Documents.
+     */
+    document?: (string | null) | Document;
     builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
     /**
      * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
@@ -396,8 +437,12 @@ export interface CtaCardGridBlock {
         eyebrow?: string | null;
         image: string | Media;
         link?: {
-          type?: ('page' | 'builtIn' | 'url') | null;
+          type?: ('page' | 'builtIn' | 'url' | 'document') | null;
           page?: (string | null) | Page;
+          /**
+           * Opens the file in a new tab. Add files under Documents.
+           */
+          document?: (string | null) | Document;
           builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
           /**
            * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
@@ -442,8 +487,12 @@ export interface TwoColumnBlock {
     | null;
   link?: {
     label?: string | null;
-    type?: ('page' | 'builtIn' | 'url') | null;
+    type?: ('page' | 'builtIn' | 'url' | 'document') | null;
     page?: (string | null) | Page;
+    /**
+     * Opens the file in a new tab. Add files under Documents.
+     */
+    document?: (string | null) | Document;
     builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
     /**
      * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
@@ -483,6 +532,28 @@ export interface RichTextBlock {
     };
     [k: string]: unknown;
   };
+  /**
+   * Shown under the text. Each can go to a page, a web address or a document (an application form, a PDF).
+   */
+  buttons?:
+    | {
+        link: {
+          label: string;
+          type?: ('page' | 'builtIn' | 'url' | 'document') | null;
+          page?: (string | null) | Page;
+          /**
+           * Opens the file in a new tab. Add files under Documents.
+           */
+          document?: (string | null) | Document;
+          builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+          /**
+           * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+           */
+          url?: string | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
   noteTitle?: string | null;
   noteText?: string | null;
   id?: string | null;
@@ -549,8 +620,12 @@ export interface RateTableBlock {
    */
   button?: {
     label?: string | null;
-    type?: ('page' | 'builtIn' | 'url') | null;
+    type?: ('page' | 'builtIn' | 'url' | 'document') | null;
     page?: (string | null) | Page;
+    /**
+     * Opens the file in a new tab. Add files under Documents.
+     */
+    document?: (string | null) | Document;
     builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
     /**
      * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
@@ -666,35 +741,6 @@ export interface DocumentListBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'documentList';
-}
-/**
- * Word and PDF files carry hidden details, such as the author’s name. Before uploading, check them in the file’s properties (in Word: File, then Info, then Inspect Document).
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "documents".
- */
-export interface Document {
-  id: string;
-  tenant?: (string | null) | Tenant;
-  title: string;
-  category: 'course' | 'policies' | 'forms' | 'minutes' | 'visitors' | 'other';
-  /**
-   * Required for policies. Shown on the site; flagged after 12 months.
-   */
-  lastReviewed?: string | null;
-  prefix?: string | null;
-  _objectKey?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -865,8 +911,12 @@ export interface TeamBlock {
    */
   action?: {
     label?: string | null;
-    type?: ('page' | 'builtIn' | 'url') | null;
+    type?: ('page' | 'builtIn' | 'url' | 'document') | null;
     page?: (string | null) | Page;
+    /**
+     * Opens the file in a new tab. Add files under Documents.
+     */
+    document?: (string | null) | Document;
     builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
     /**
      * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
@@ -878,8 +928,12 @@ export interface TeamBlock {
    */
   viewAll?: {
     label?: string | null;
-    type?: ('page' | 'builtIn' | 'url') | null;
+    type?: ('page' | 'builtIn' | 'url' | 'document') | null;
     page?: (string | null) | Page;
+    /**
+     * Opens the file in a new tab. Add files under Documents.
+     */
+    document?: (string | null) | Document;
     builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
     /**
      * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
@@ -973,8 +1027,12 @@ export interface MembershipBlock {
         availability?: string | null;
         recommended?: boolean | null;
         link?: {
-          type?: ('page' | 'builtIn' | 'url') | null;
+          type?: ('page' | 'builtIn' | 'url' | 'document') | null;
           page?: (string | null) | Page;
+          /**
+           * Opens the file in a new tab. Add files under Documents.
+           */
+          document?: (string | null) | Document;
           builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
           /**
            * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
@@ -1002,8 +1060,12 @@ export interface MembershipBlock {
    */
   action?: {
     label?: string | null;
-    type?: ('page' | 'builtIn' | 'url') | null;
+    type?: ('page' | 'builtIn' | 'url' | 'document') | null;
     page?: (string | null) | Page;
+    /**
+     * Opens the file in a new tab. Add files under Documents.
+     */
+    document?: (string | null) | Document;
     builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
     /**
      * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
@@ -1015,8 +1077,12 @@ export interface MembershipBlock {
     text?: string | null;
     link?: {
       label?: string | null;
-      type?: ('page' | 'builtIn' | 'url') | null;
+      type?: ('page' | 'builtIn' | 'url' | 'document') | null;
       page?: (string | null) | Page;
+      /**
+       * Opens the file in a new tab. Add files under Documents.
+       */
+      document?: (string | null) | Document;
       builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
       /**
        * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
@@ -2964,6 +3030,7 @@ export interface HeroBlockSelect<T extends boolean = true> {
         label?: T;
         type?: T;
         page?: T;
+        document?: T;
         builtIn?: T;
         url?: T;
       };
@@ -2973,6 +3040,7 @@ export interface HeroBlockSelect<T extends boolean = true> {
         label?: T;
         type?: T;
         page?: T;
+        document?: T;
         builtIn?: T;
         url?: T;
       };
@@ -2994,6 +3062,7 @@ export interface CtaCardGridBlockSelect<T extends boolean = true> {
         label?: T;
         type?: T;
         page?: T;
+        document?: T;
         builtIn?: T;
         url?: T;
       };
@@ -3009,6 +3078,7 @@ export interface CtaCardGridBlockSelect<T extends boolean = true> {
           | {
               type?: T;
               page?: T;
+              document?: T;
               builtIn?: T;
               url?: T;
             };
@@ -3043,6 +3113,7 @@ export interface TwoColumnBlockSelect<T extends boolean = true> {
         label?: T;
         type?: T;
         page?: T;
+        document?: T;
         builtIn?: T;
         url?: T;
       };
@@ -3058,6 +3129,21 @@ export interface RichTextBlockSelect<T extends boolean = true> {
   background?: T;
   eyebrow?: T;
   content?: T;
+  buttons?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              label?: T;
+              type?: T;
+              page?: T;
+              document?: T;
+              builtIn?: T;
+              url?: T;
+            };
+        id?: T;
+      };
   noteTitle?: T;
   noteText?: T;
   id?: T;
@@ -3112,6 +3198,7 @@ export interface RateTableBlockSelect<T extends boolean = true> {
         label?: T;
         type?: T;
         page?: T;
+        document?: T;
         builtIn?: T;
         url?: T;
       };
@@ -3323,6 +3410,7 @@ export interface TeamBlockSelect<T extends boolean = true> {
         label?: T;
         type?: T;
         page?: T;
+        document?: T;
         builtIn?: T;
         url?: T;
       };
@@ -3332,6 +3420,7 @@ export interface TeamBlockSelect<T extends boolean = true> {
         label?: T;
         type?: T;
         page?: T;
+        document?: T;
         builtIn?: T;
         url?: T;
       };
@@ -3373,6 +3462,7 @@ export interface MembershipBlockSelect<T extends boolean = true> {
           | {
               type?: T;
               page?: T;
+              document?: T;
               builtIn?: T;
               url?: T;
             };
@@ -3391,6 +3481,7 @@ export interface MembershipBlockSelect<T extends boolean = true> {
         label?: T;
         type?: T;
         page?: T;
+        document?: T;
         builtIn?: T;
         url?: T;
       };
@@ -3405,6 +3496,7 @@ export interface MembershipBlockSelect<T extends boolean = true> {
               label?: T;
               type?: T;
               page?: T;
+              document?: T;
               builtIn?: T;
               url?: T;
             };
