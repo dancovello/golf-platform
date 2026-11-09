@@ -54,6 +54,14 @@ export const Media: CollectionConfig = {
     filenameCompoundIndex: ['filename', 'prefix'],
     // The original is re-saved without the phone's hidden details (src/media/cleanOriginal.ts).
     resizeOptions: cleanOriginal,
+    // ...and saved as WebP, which is far smaller than the JPEG or PNG a camera or editor makes
+    // (Dan, 5 Nov 2026: Bearwood's imported photos came to over 500MB). Same quality as the
+    // copies below; the transparent parts of a logo stay fully clean. SVG and videos are
+    // untouched. Photos uploaded before this change: scripts/convert-photos-to-webp.ts.
+    formatOptions: {
+      format: 'webp' as const,
+      options: { quality: 88, smartSubsample: true, alphaQuality: 100 },
+    },
     // Copies of every photo at set widths, so phones don't download the full-size file and big
     // high-resolution screens get a sharp one (3200 covers a full-width photo on a 1600px-wide
     // retina screen). WebP, never larger than the original. Quality 88 with sharp colour edges:
