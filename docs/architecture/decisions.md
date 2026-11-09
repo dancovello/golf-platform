@@ -227,7 +227,7 @@ Dan, 2026-10-20: the site must stay legible whatever colours a club picks, and t
 - **Every text colour is chosen by an AA contrast check (4.5:1)** against the surface it sits on: the page, the brand colour, the accent, or a shaded photo. It uses the designed colour if it passes, then the club's other text colour, then white or black (Dan chose this over refusing to save). The save check that refused low-contrast palettes is gone. The two Figma palettes pass everywhere, so they look exactly as before.
 - **Photos are measured on upload** (brightest areas and average colour, with `sharp`, which Payload already uses). Text over a photo gets at least the shading that brings it to 4.5:1 over the photo's brightest areas, so very bright photos look darker than before. Photos uploaded earlier are measured from their public file the first time a page shows them (stored straight to the record, no upload hooks). The release job is untouched and still can't reach media. New `media.tone_bright` and `media.tone_average` columns (migration `20261020_092237_media_tone`, add-only).
 - **Logos are chosen by measured colour**, at 3:1 on the real background: the slot meant for it, then the other slot, then the logo shown in white or black. The transparent header swaps logos when it turns solid on scroll.
-- **Check:** axe contrast over every block and template page for three test clubs, one with a pale brand colour (`tests/visual/contrast.spec.ts`, CI job block-regression), plus 2,000 random palettes in the unit tests.
+- **Check:** axe contrast over every block and template page for three test clubs, one with a pale brand colour (`tests/visual/contrast.spec.ts`; no longer run in CI since 9 Nov, run it by hand with `pnpm exec playwright test --project=visual`), plus 2,000 random palettes in the unit tests.
 
 ## 2026-10-20: Branding palettes, header, menus and dashboard
 
@@ -731,3 +731,9 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **A description and one optional button** (to a page, a built-in page or a web address) on the featured video. "A document" as a destination comes with the document-link change (PR for B-17) and can be switched on here once that has merged.
 - **Phones:** half and half stacks (video, then text). Nothing about how the video loads changed: it still plays in place and nothing is requested from YouTube or Vimeo before it is pressed.
 - **Migration** `20261105_231351_video_featured_layouts`: new columns (layout, video side, description, button) and their draft copies. Additive.
+
+## 9 Nov 2026: CI trimmed to save GitHub Actions minutes
+- **Removed the block picture check** (CI job `block-regression`, the "Update block pictures" workflow, the approved pictures). It failed on every deliberate style change and cost about a quarter of each run (6–16 minutes). The text-contrast check (`tests/visual/contrast.spec.ts`) stays in the repo but no longer runs in CI.
+- **Migration dry run** now runs only when a pull request changes `src/migrations/`. Releases still run it in full.
+- **Dependabot** is monthly, at most 2 open pull requests. **Isolation fuzz run** is weekly (Mondays) instead of nightly; every pull request still runs the isolation suite.
+- Dan removes `block-regression` from the required checks on `main` (GitHub → Settings → Branches).

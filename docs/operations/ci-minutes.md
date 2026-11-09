@@ -56,3 +56,12 @@ The `security-review` check (free Semgrep scan, `docs/operations/security-review
 ## How to check the real number
 
 GitHub → your profile picture → **Settings** → **Billing and plans** → **Usage** → filter by **Actions**. It shows minutes used this month against the 3,000.
+
+## 9 Nov update: trimmed again
+
+Still running out of minutes, so on 9 Nov:
+
+- **`block-regression` removed** (6–16 minutes a run, about a quarter of each run's billed time) along with the "Update block pictures" workflow. The contrast check it also ran (`tests/visual/contrast.spec.ts`) is no longer in CI; run it by hand with `pnpm exec playwright test --project=visual`.
+- **`migration-dry-run` only runs when `src/migrations/` changes** (about 1.5 minutes saved on most pull requests). The release workflow still does its own dry run.
+- **Dependabot monthly, 2 open pull requests at most**, and the **isolation fuzz run weekly**.
+- Measured on four recent pull requests, `test` now takes 6–10 minutes (not 3) and `browser-tests` 8–11: the next places to look.

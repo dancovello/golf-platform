@@ -11,7 +11,7 @@ Every block is **one block with a Design style choice (A / B / C)** from the Fig
 ## Order
 1. ✅ 5.1 Foundations: branding, font sets, logo, header + menu, footer, photo library (R2)
 2. ✅ 5.3a Hero block (three styles) and photo sizes
-3. ✅ 5.3b Picture check (block-regression CI job)
+3. ✅ 5.3b Picture check (block-regression CI job; removed 9 Nov, see decisions.md)
 4. ✅ Core blocks: CTA Card Grid · Two-Column Image + Text · Rich Text · Rate / Pricing Table ·
    Gallery · Document List · Map / Location
 5. ✅ Golf and story blocks: Pull-Quote · Timeline · Partner / Logo Strip · FAQ · Team / Staff ·
