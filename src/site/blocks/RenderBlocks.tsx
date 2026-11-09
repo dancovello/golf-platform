@@ -117,7 +117,7 @@ const drawBlock = (
     case 'gallery':
       return <Gallery key={block.id ?? i} block={block} ctx={ctx} />
     case 'video':
-      return <Video key={block.id ?? i} block={block} ctx={ctx} />
+      return <Video key={block.id ?? i} block={block} ctx={ctx} base={base} />
     case 'documentList':
       return <DocumentList key={block.id ?? i} block={block} ctx={ctx} base={base} />
     case 'map':

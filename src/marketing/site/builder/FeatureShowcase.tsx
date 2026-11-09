@@ -61,10 +61,6 @@ const CourseStatus = () => (
         </div>
       </dl>
     </div>
-    <p className="mk-li-toast is-late">
-      <Dot />
-      Shown on your homepage
-    </p>
   </>
 )
 

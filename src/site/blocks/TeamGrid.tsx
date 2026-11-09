@@ -9,14 +9,17 @@ import { ContactLinks, Portrait } from './teamShared'
 
 const CARD_SIZES = '(max-width: 767px) 50vw, (max-width: 1023px) 33vw, 282px'
 
-const NameAndRole = ({ person }: { person: SitePerson }) => (
+const NameAndRole = ({ person, reserveTag }: { person: SitePerson; reserveTag: boolean }) => (
   <div className="team-card-text">
+    {person.qualification ? (
+      <span className="t-data-label team-tag">{person.qualification}</span>
+    ) : reserveTag ? (
+      // Keeps every name on the same line when only some people have a pill.
+      <span className="team-tag-space" aria-hidden="true" />
+    ) : null}
     <h3 className="t-heading-m team-name">{person.name}</h3>
     <p className="team-role-row">
       <span className="t-label-s team-role">{person.role}</span>
-      {person.qualification ? (
-        <span className="t-data-label team-tag">{person.qualification}</span>
-      ) : null}
     </p>
   </div>
 )
@@ -29,6 +32,7 @@ const NameAndRole = ({ person }: { person: SitePerson }) => (
 export const TeamGrid = ({ people }: { people: SitePerson[] }) => {
   const dialog = useRef<HTMLDialogElement>(null)
   const profiles = people.filter((p) => p.bio)
+  const reserveTag = people.some((p) => p.qualification)
   const [index, setIndex] = useState<number | null>(null)
   const open = index === null ? null : (profiles[index] ?? null)
 
@@ -52,12 +56,12 @@ export const TeamGrid = ({ people }: { people: SitePerson[] }) => {
                 aria-haspopup="dialog"
               >
                 <Portrait person={person} shape="card" sizes={CARD_SIZES} />
-                <NameAndRole person={person} />
+                <NameAndRole person={person} reserveTag={reserveTag} />
               </button>
             ) : (
               <>
                 <Portrait person={person} shape="card" sizes={CARD_SIZES} />
-                <NameAndRole person={person} />
+                <NameAndRole person={person} reserveTag={reserveTag} />
               </>
             )}
           </li>

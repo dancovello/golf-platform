@@ -8,9 +8,6 @@ Each has a safe default so building isn't blocked. The default is what ships unt
 
 | # | Question | Needed by | Default until answered |
 |---|---|---|---|
-| Q2 | **VAT registered?** Decides how every price is written | Phase 5 (Pricing) | "+ VAT" from one setting (`priceVatLabel`) |
-| Q3 | **Second course price.** The calculator has a one/two courses stepper | Phase 5 (Pricing) | Price from settings, flagged in the claims register |
-| Q4 | **Demo booking calendar.** Which calendar, and your real weekday availability | Phase 5 (Book a demo) | **Decided 3 Nov 2026: our own calendar** (free, no new service). Built: hours, slot length, notice and video link in Settings → Demo calls; bookings under Demo bookings; two emails (to you, and a confirmation to the visitor). **Still needed from Dan:** enter your free hours and video link in the admin. With no hours the page shows the email fallback |
 | Q5 | **Colour copy on Website builder.** See the finding below | Phase 6 (Website builder) | Reworded to describe the swap (D12) |
 | Q6 | **Neon plan.** The Trust page's "restore to any point in the last 7 days" needs the Launch plan (about £5–£20 a month) | Phase 6 (Trust, held) | Value from settings; not published until confirmed |
 | Q7 | **Changelog at launch?** | Phase 6 | Built, unpublished, kept out of nav and footer |
@@ -21,13 +18,11 @@ Each has a safe default so building isn't blocked. The default is what ships unt
 | N1 | **Company name and domain** | Phase 10 (go live) | "Brandname" and `hello@brandname.golf`, in one file |
 | N2 | **Docs 15 and 18** (golf ball; marketing review and claims) | Doc 18: claims register. Doc 15: phase 7 | Register seeded from the hand-off's list only |
 | N3 | **`golf_ball.glb` and `golf-ball-generator.py`** | Phase 7 | Ball file supplied 27 Oct 2026 (in `src/marketing/intro/assets/`). Generator script not needed so far |
-| N4 | **Company privacy policy, cookie notice and terms** wording | Phase 6 | Pages built as drafts with a [[placeholder]] line; they can't be published until it's replaced, and the footer hides their links until then |
+| N4 | **Company terms and cookie notice.** The privacy policy is approved by Dan's solicitor (9 Nov). The cookie notice must show after the golf ball intro (B1 in `docs/plans/launch-checklist-2026-11-09.md`). Terms wording still open | Phase 6 | Drafts with a [[placeholder]] line until replaced; footer hides their links until then |
 | N5 | **Image licences** for the hero, two-column and accessibility photos | Phase 4 | Clearly licensed stock or demo pictures, captioned as demo clubs |
 | N7 | **Old page addresses.** The Switching page and FAQ promise old page addresses forward to the new ones (softened for now: D8). Today the platform forwards a club's *extra domains* (e.g. without `www`), but not old page addresses like `/about-us.php`. Build page forwarding, or soften the copy? | Phase 5 (Switching) | Claim held back until decided |
 | N8 | **"Alt text required."** For club photos, the description is optional (your decision, 17 Oct); the library marks missing ones "Needs description". The marketing site's own Media block will require it. | Before any copy says it | Not claimed for club sites |
 | N9 | **Search in the nav.** Figma's nav has a Search button, but the marketing site has no search for it to open. Add site search later, or remove it from Figma? | Phase 8 | Left out |
-| N10 | **Leaving: exporting a club's content.** The Pricing FAQ (Figma) says a leaving club takes "pages and news as Markdown, every photo and PDF in its original file, and form entries as CSV". No self-service export exists. Build one, or do it by hand on request? | Before Pricing ships | Wording kept; we do it by hand (a script) if a club leaves |
-| N11 | **Data processing agreement.** The FAQ and Trust promise to send one before a club signs. A draft exists in the admin (`src/agreement/text.ts`), awaiting your solicitor. Is it ready to send? | Before Pricing ships | Wording kept, flagged in the claims register |
 | N12 | **Where homepage requests are emailed.** Set an address in Company website → Settings → Requests. Turnstile's widget also needs the company domain added in Cloudflare | Before Switching ships | Requests are saved in the admin; nothing is emailed to you |
 
 ### Finding for Q5 (from the code, 2026-10-21)
@@ -77,3 +72,8 @@ Places where the build differs from Figma to meet WCAG 2.2 AA. Update Figma or t
 | Q1 | Run the marketing site inside the platform? | Yes (decision A) | 2026-10-21 |
 | — | Committee summary A4 | Removed. Not built | 2026-10-21 |
 | N6 | Vercel functions in London? | Yes: `regions: ["lhr1"]` in `vercel.json`. "Stored in London" still waits on photo storage (R2 is Western Europe, not the UK; see the claims register) | 2026-10-22 |
+| Q2 | VAT registered? | No. No VAT wording anywhere; show the monthly cost | 2026-11-09 |
+| Q3 | Second course price | Moot: the course selector is removed; course count is in Dan's own setup fee, kept off the site | 2026-11-09 |
+| Q4 | Demo booking calendar | Own calendar, Dan has set his timings | 2026-11-09 |
+| N10 | Exporting a club's content | No export. A club that stops paying loses its site | 2026-11-09 |
+| N11 | Data processing agreement | Approved by Dan; his details filled in (a sole trader, trading as A1 Engine); version 2026-11-09 | 2026-11-09 |

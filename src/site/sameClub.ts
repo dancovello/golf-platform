@@ -151,6 +151,12 @@ export const checkCourseSameClub = sameClubCheck((data) =>
   ),
 )
 
+/** Documents: the category. */
+export const checkDocumentSameClub = sameClubCheck((data) => {
+  const category = idOf(data.category)
+  return category ? [{ collection: 'categories' as const, id: category, path: 'category' }] : []
+})
+
 /** News: the category, the main photo, and the photos and pages in the article. */
 export const checkNewsSameClub = sameClubCheck((data) => {
   const id = idOf(data.image)

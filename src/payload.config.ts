@@ -10,9 +10,11 @@ import { fileURLToPath } from 'url'
 
 import { isSuperAdmin } from './access/roles'
 import { ADMIN_BRAND_NAME, ADMIN_FAVICON } from './admin/adminBrand'
+import { fixGlobalViewRedirect } from './admin/fixGlobalViewRedirect'
 import { guardTenantSelection } from './admin/guardTenantSelection'
 import { superAdminTwoFactor } from './auth/superAdminTwoFactor'
 import { encryptTotpSecrets } from './auth/totpSecretEncryption'
+import { guardPool, POOL_SETTINGS } from './db/poolGuard'
 import { emailAdapter } from './email/adapter'
 import { collections } from './collections'
 import { globals } from './globals'
@@ -118,6 +120,7 @@ export default buildConfig({
   db: postgresAdapter({
     pool: {
       connectionString: requireEnv('DATABASE_URL'),
+      ...POOL_SETTINGS,
     },
     // Schema auto-sync ("push") is for local development only. Every other environment,
     // including tests and CI, changes the schema through committed migrations.
@@ -133,6 +136,10 @@ export default buildConfig({
     // website's own account can't); locally, schema auto-sync needs it first.
     extensions: process.env.NODE_ENV === 'development' ? ['pg_trgm'] : [],
   }),
+  // A dropped idle database connection must not crash the site (src/db/poolGuard.ts).
+  onInit: async (payload) => {
+    guardPool((payload.db as unknown as { pool?: Parameters<typeof guardPool>[0] }).pool)
+  },
   telemetry: false,
   // Makes the smaller photo copies (src/collections/Media.ts).
   sharp,
@@ -194,6 +201,8 @@ export default buildConfig({
     }),
     // Keeps the club list from loading before the two-factor code is entered.
     guardTenantSelection,
+    // Plugin 3.93.0 bug: editors were bounced from Club Settings to the admin home page.
+    fixGlobalViewRedirect,
     // Two-factor login. Required for super-admins; optional for club editors, who may sign in
     // with a password only (decisions.md, 22 Oct). Must come after the plugins that add
     // collections: it wraps every access rule, so anyone who has set two-factor up gets nothing

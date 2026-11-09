@@ -4,9 +4,9 @@ import { ValidationError } from 'payload'
 import { clubContentCreate, loggedIn } from '../access/roles'
 import { uploadFolder } from '../media/folders'
 import { randomServerUploadName } from '../media/uploadGuards'
-import { DOCUMENT_CATEGORIES } from './documentCategories'
 import { clubBannerField } from '../tenancy'
 import { searchHooks } from '../search/hooks'
+import { checkDocumentSameClub } from '../site/sameClub'
 
 /** Files a club can offer for download: PDF and Word. Checked by their real contents. */
 export const DOCUMENT_TYPES = [
@@ -16,14 +16,23 @@ export const DOCUMENT_TYPES = [
 
 const folder = uploadFolder('documents')
 
+/** The starter category whose documents must show when they were last reviewed (doc 05). */
+const POLICIES_SLUG = 'policies'
+
 /** Doc 05: policies must show when they were last reviewed. */
-const policiesNeedReviewDate: CollectionBeforeValidateHook = ({
+const policiesNeedReviewDate: CollectionBeforeValidateHook = async ({
   collection,
   data,
   originalDoc,
+  req,
 }) => {
   const merged = { ...originalDoc, ...data }
-  if (merged.category === 'policies' && !merged.lastReviewed) {
+  const categoryID = typeof merged.category === 'object' ? merged.category?.id : merged.category
+  if (!categoryID || merged.lastReviewed) return data
+  const category = await req.payload
+    .findByID({ collection: 'categories', id: categoryID, depth: 0, req, overrideAccess: true })
+    .catch(() => null)
+  if (category?.slug === POLICIES_SLUG) {
     throw new ValidationError({
       collection: collection.slug,
       errors: [
@@ -50,7 +59,7 @@ export const Documents: CollectionConfig = {
   access: { create: clubContentCreate, read: loggedIn, update: loggedIn, delete: loggedIn },
   hooks: {
     beforeOperation: [folder.assignFolder, randomServerUploadName],
-    beforeValidate: [policiesNeedReviewDate],
+    beforeValidate: [checkDocumentSameClub, policiesNeedReviewDate],
     ...searchHooks,
   },
   upload: {
@@ -67,10 +76,13 @@ export const Documents: CollectionConfig = {
         {
           name: 'category',
           label: 'Category',
-          type: 'select',
+          type: 'relationship',
+          relationTo: 'categories',
           required: true,
-          defaultValue: 'other',
-          options: DOCUMENT_CATEGORIES,
+          admin: {
+            description:
+              'The club’s categories, shared with news. Add or change them under Website → Categories. Policies need a "last reviewed" date.',
+          },
         },
         {
           name: 'lastReviewed',

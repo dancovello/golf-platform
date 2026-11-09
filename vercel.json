@@ -15,6 +15,10 @@
     {
       "path": "/cron/canary",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/cron/database-check",
+      "schedule": "0 * * * *"
     }
   ]
 }

@@ -118,6 +118,16 @@
 .ls-marquee:focus-within .ls-marquee-track {
   animation-play-state: paused;
 }
+/* Too few logos to scroll: the same brand-colour band, logos centred and still. */
+.ls-marquee-still {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-24) var(--space-48);
+  max-width: var(--size-container);
+  margin: 0 auto;
+  padding: 0 var(--space-40);
+}
 @keyframes ls-scroll {
   to {
     transform: translateX(calc(-50% - var(--space-24)));
@@ -143,6 +153,13 @@
 @media (max-width: 767px) {
   .ls-row-block {
     padding: var(--space-48) 20px;
+  }
+  .ls-marquee-still {
+    padding: 0 20px;
+    gap: var(--space-24);
+  }
+  .ls-marquee-still .ls-slot {
+    width: calc(50% - var(--space-12));
   }
   /* Row: two-up, centred (docs/design/13) */
   .ls-row .ls-slot {

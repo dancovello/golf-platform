@@ -37,6 +37,17 @@ const config: Block = {
       admin: { condition: (_d, sibling) => sibling?.style === 'grid' },
     },
     {
+      name: 'still',
+      label: 'Keep still (don’t scroll)',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        condition: (_d, sibling) => sibling?.style === 'marquee',
+        description:
+          'Shows every logo in rows on the brand colour instead of scrolling. Style C also stays still on its own when there are fewer than 9 logos.',
+      },
+    },
+    {
       name: 'partners',
       label: 'Logos',
       type: 'array',

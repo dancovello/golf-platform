@@ -9,6 +9,7 @@ import { sql } from '@payloadcms/db-postgres'
 import type { Payload } from 'payload'
 import { beforeAll, describe, expect, it } from 'vitest'
 
+import { DEFAULT_CATEGORIES } from '@/collections/defaultCategories'
 import { clubOwnedCollections, type ClubOwnedSlug } from '@/tenancy'
 
 import { pdfFile, pngFile } from '../shared/media'
@@ -78,7 +79,7 @@ const fixtures: Record<ClubOwnedSlug, Fixture> = {
   },
   documents: {
     ids: (w) => ({ a: w.docA.id, b: w.docB.id }),
-    newRecord: (tenant) => ({ title: 'Planted', category: 'forms', tenant }),
+    newRecord: (tenant) => ({ title: 'Planted', category: w.categoryA.id, tenant }),
     change: { title: 'Changed' },
     read: (doc) => (doc as { title?: unknown }).title,
     editorsCanCreate: true,
@@ -176,12 +177,14 @@ describe.each(slugs)('%s: editor A gets nothing from club B', (slug) => {
     const list = await p().find({ collection: slug, ...asEditorA(), limit: 0 })
     const ids = list.docs.map((d) => d.id)
     if (slug === 'categories') {
-      // Every club starts with six categories, so there are several: none of them club B's.
+      // Every club starts with the starter categories, so there are several: none of them club B's.
       const { b } = f.ids(w)
       expect(ids).toContain(a)
       expect(ids).not.toContain(b)
-      expect(ids).toHaveLength(6)
-      expect((await p().count({ collection: slug, ...asEditorA() })).totalDocs).toBe(6)
+      expect(ids).toHaveLength(DEFAULT_CATEGORIES.length)
+      expect((await p().count({ collection: slug, ...asEditorA() })).totalDocs).toBe(
+        DEFAULT_CATEGORIES.length,
+      )
       return
     }
     expect(ids).toEqual([a])

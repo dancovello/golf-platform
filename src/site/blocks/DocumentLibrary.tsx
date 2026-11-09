@@ -19,7 +19,13 @@ export const DocumentLibrary = ({ docs, heading }: { docs: DocRow[]; heading: st
     [docs, q],
   )
   const shown = category ? matching.filter((d) => d.category === category) : matching
-  const categories = [...new Map(docs.map((d) => [d.category, d.categoryName])).entries()]
+  const categories = [
+    ...new Map(
+      [...docs]
+        .sort((a, b) => a.categoryOrder - b.categoryOrder)
+        .map((d) => [d.category, d.categoryName]),
+    ).entries(),
+  ]
 
   return (
     <>

@@ -79,10 +79,14 @@ test('a bulk upload saves every photo, without needing descriptions', async ({
   await openReady(page, '/admin/collections/media')
   // Its own file names, so other tests uploading at the same time don't affect the result.
   const names = [`bulk-${Date.now()}-one.png`, `bulk-${Date.now()}-two.png`]
+  // Photos are saved as WebP (src/collections/Media.ts), so the saved file is "….webp": look
+  // it up by the name without its ending.
   const saved = async (name: string) =>
     (
       (await (
-        await page.request.get(`/api/media?limit=0&where[filename][like]=${name}`)
+        await page.request.get(
+          `/api/media?limit=0&where[filename][like]=${name.replace(/\.png$/, '')}`,
+        )
       ).json()) as { totalDocs: number }
     ).totalDocs
   await page.getByRole('button', { name: 'Bulk Upload' }).click()
@@ -108,9 +112,9 @@ test('the photo library shows thumbnails, and marks photos without a description
   await expect(page).toHaveURL(/\/admin\/collections\/media\/[0-9a-f-]{36}/)
 
   await openReady(page, '/admin/collections/media')
-  const row = page.getByRole('row').filter({ hasText: 'no-words.png' })
+  const row = page.getByRole('row').filter({ hasText: 'no-words' })
   // The photo itself, not a generic file icon.
-  await expect(row.getByRole('img', { name: /no-words\.png/ })).toHaveAttribute(
+  await expect(row.getByRole('img', { name: /no-words/ })).toHaveAttribute(
     'src',
     /^http:\/\/127\.0\.0\.1:8333\/.*\.webp(\?|$)/,
   )

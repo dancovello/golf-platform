@@ -1,6 +1,7 @@
 import type { Block } from 'payload'
 
-import { styleField } from '../shared'
+import { linkField } from '../../fields/link'
+import { collectArrayRefs, styleField } from '../shared'
 import type { BlockDefinition } from '../types'
 import { clubRichText, richTextRefs } from './lexical'
 
@@ -23,6 +24,20 @@ const config: Block = {
       },
     ]),
     {
+      name: 'background',
+      label: 'Background (optional)',
+      type: 'select',
+      options: [
+        { label: 'Page background', value: 'canvas' },
+        { label: 'Soft tint', value: 'subtle' },
+        { label: 'Brand colour', value: 'brand' },
+      ],
+      admin: {
+        description:
+          'Leave empty for the style’s usual look: a soft tint for style C, the page background for A and B.',
+      },
+    },
+    {
       name: 'eyebrow',
       label: 'Small line above (style C, optional)',
       type: 'text',
@@ -41,6 +56,19 @@ const config: Block = {
       },
     },
     {
+      name: 'buttons',
+      label: 'Buttons (optional)',
+      type: 'array',
+      maxRows: 4,
+      labels: { singular: 'Button', plural: 'Buttons' },
+      admin: {
+        initCollapsed: true,
+        description:
+          'Shown under the text. Each can go to a page, a web address or a document (an application form, a PDF).',
+      },
+      fields: [linkField({ name: 'link', label: 'Button', allowDocument: true })],
+    },
+    {
       type: 'row',
       admin: onlyEditorial,
       fields: [
@@ -53,5 +81,8 @@ const config: Block = {
 
 export const richText: BlockDefinition = {
   config,
-  refs: (block, path) => richTextRefs(block.content, `${path}.content`),
+  refs: (block, path) => [
+    ...richTextRefs(block.content, `${path}.content`),
+    ...collectArrayRefs(block, path, 'buttons', { links: ['link'] }),
+  ],
 }

@@ -272,8 +272,12 @@ export interface HeroBlock {
    */
   primaryButton?: {
     label?: string | null;
-    type?: ('page' | 'builtIn' | 'url') | null;
+    type?: ('page' | 'builtIn' | 'url' | 'document') | null;
     page?: (string | null) | Page;
+    /**
+     * Opens the file in a new tab. Add files under Documents.
+     */
+    document?: (string | null) | Document;
     builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
     /**
      * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
@@ -282,8 +286,12 @@ export interface HeroBlock {
   };
   secondaryLink?: {
     label?: string | null;
-    type?: ('page' | 'builtIn' | 'url') | null;
+    type?: ('page' | 'builtIn' | 'url' | 'document') | null;
     page?: (string | null) | Page;
+    /**
+     * Opens the file in a new tab. Add files under Documents.
+     */
+    document?: (string | null) | Document;
     builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
     /**
      * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
@@ -368,6 +376,55 @@ export interface Media {
   };
 }
 /**
+ * Word and PDF files carry hidden details, such as the author’s name. Before uploading, check them in the file’s properties (in Word: File, then Info, then Inspect Document).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documents".
+ */
+export interface Document {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  title: string;
+  /**
+   * The club’s categories, shared with news. Add or change them under Website → Categories. Policies need a "last reviewed" date.
+   */
+  category: string | Category;
+  /**
+   * Required for policies. Shown on the site; flagged after 12 months.
+   */
+  lastReviewed?: string | null;
+  prefix?: string | null;
+  _objectKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * The club’s categories, used to sort news (and anything else that gets categories later). They show on the website in the order they were added.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  name: string;
+  /**
+   * Filled in from the name. Used in links such as /news?category=competitions. Renaming a category does not change it.
+   */
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "CtaCardGridBlock".
  */
@@ -378,8 +435,12 @@ export interface CtaCardGridBlock {
   intro?: string | null;
   viewAll?: {
     label?: string | null;
-    type?: ('page' | 'builtIn' | 'url') | null;
+    type?: ('page' | 'builtIn' | 'url' | 'document') | null;
     page?: (string | null) | Page;
+    /**
+     * Opens the file in a new tab. Add files under Documents.
+     */
+    document?: (string | null) | Document;
     builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
     /**
      * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
@@ -396,8 +457,12 @@ export interface CtaCardGridBlock {
         eyebrow?: string | null;
         image: string | Media;
         link?: {
-          type?: ('page' | 'builtIn' | 'url') | null;
+          type?: ('page' | 'builtIn' | 'url' | 'document') | null;
           page?: (string | null) | Page;
+          /**
+           * Opens the file in a new tab. Add files under Documents.
+           */
+          document?: (string | null) | Document;
           builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
           /**
            * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
@@ -442,8 +507,12 @@ export interface TwoColumnBlock {
     | null;
   link?: {
     label?: string | null;
-    type?: ('page' | 'builtIn' | 'url') | null;
+    type?: ('page' | 'builtIn' | 'url' | 'document') | null;
     page?: (string | null) | Page;
+    /**
+     * Opens the file in a new tab. Add files under Documents.
+     */
+    document?: (string | null) | Document;
     builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
     /**
      * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
@@ -460,6 +529,10 @@ export interface TwoColumnBlock {
  */
 export interface RichTextBlock {
   style: 'article' | 'contents' | 'editorial';
+  /**
+   * Leave empty for the style’s usual look: a soft tint for style C, the page background for A and B.
+   */
+  background?: ('canvas' | 'subtle' | 'brand') | null;
   eyebrow?: string | null;
   /**
    * Headings, paragraphs, lists, quotes, links and photos. Style B lists every main heading (H2) in "On this page" once there are three or more. Style C shows the first paragraph larger.
@@ -479,6 +552,28 @@ export interface RichTextBlock {
     };
     [k: string]: unknown;
   };
+  /**
+   * Shown under the text. Each can go to a page, a web address or a document (an application form, a PDF).
+   */
+  buttons?:
+    | {
+        link: {
+          label: string;
+          type?: ('page' | 'builtIn' | 'url' | 'document') | null;
+          page?: (string | null) | Page;
+          /**
+           * Opens the file in a new tab. Add files under Documents.
+           */
+          document?: (string | null) | Document;
+          builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+          /**
+           * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+           */
+          url?: string | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
   noteTitle?: string | null;
   noteText?: string | null;
   id?: string | null;
@@ -545,8 +640,12 @@ export interface RateTableBlock {
    */
   button?: {
     label?: string | null;
-    type?: ('page' | 'builtIn' | 'url') | null;
+    type?: ('page' | 'builtIn' | 'url' | 'document') | null;
     page?: (string | null) | Page;
+    /**
+     * Opens the file in a new tab. Add files under Documents.
+     */
+    document?: (string | null) | Document;
     builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
     /**
      * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
@@ -572,6 +671,7 @@ export interface RateTableBlock {
  */
 export interface GalleryBlock {
   style: 'masonry' | 'grid' | 'viewer';
+  background?: ('brand' | 'plain') | null;
   eyebrow?: string | null;
   heading: string;
   images?:
@@ -595,8 +695,25 @@ export interface GalleryBlock {
  */
 export interface VideoBlock {
   style: 'featured' | 'grid';
+  featuredLayout?: ('standard' | 'wide' | 'split') | null;
+  videoSide?: ('left' | 'right') | null;
+  /**
+   * On phones, two or more videos always swipe like a carousel (unless "Always a grid").
+   */
+  layout?: ('auto' | 'grid' | 'carousel') | null;
   eyebrow?: string | null;
   heading: string;
+  intro?: string | null;
+  button?: {
+    label?: string | null;
+    type?: ('page' | 'builtIn' | 'url') | null;
+    page?: (string | null) | Page;
+    builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+    /**
+     * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+     */
+    url?: string | null;
+  };
   /**
    * Upload the film to YouTube or Vimeo first, then paste its address here. You choose the picture shown before it plays.
    */
@@ -644,35 +761,6 @@ export interface DocumentListBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'documentList';
-}
-/**
- * Word and PDF files carry hidden details, such as the author’s name. Before uploading, check them in the file’s properties (in Word: File, then Info, then Inspect Document).
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "documents".
- */
-export interface Document {
-  id: string;
-  tenant?: (string | null) | Tenant;
-  title: string;
-  category: 'course' | 'policies' | 'forms' | 'minutes' | 'visitors' | 'other';
-  /**
-   * Required for policies. Shown on the site; flagged after 12 months.
-   */
-  lastReviewed?: string | null;
-  prefix?: string | null;
-  _objectKey?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -760,6 +848,10 @@ export interface LogoStripBlock {
   heading?: string | null;
   intro?: string | null;
   /**
+   * Shows every logo in rows on the brand colour instead of scrolling. Style C also stays still on its own when there are fewer than 9 logos.
+   */
+  still?: boolean | null;
+  /**
    * Style A shows up to 6. PNG or WebP with a transparent background works best.
    */
   partners?:
@@ -839,8 +931,12 @@ export interface TeamBlock {
    */
   action?: {
     label?: string | null;
-    type?: ('page' | 'builtIn' | 'url') | null;
+    type?: ('page' | 'builtIn' | 'url' | 'document') | null;
     page?: (string | null) | Page;
+    /**
+     * Opens the file in a new tab. Add files under Documents.
+     */
+    document?: (string | null) | Document;
     builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
     /**
      * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
@@ -852,8 +948,12 @@ export interface TeamBlock {
    */
   viewAll?: {
     label?: string | null;
-    type?: ('page' | 'builtIn' | 'url') | null;
+    type?: ('page' | 'builtIn' | 'url' | 'document') | null;
     page?: (string | null) | Page;
+    /**
+     * Opens the file in a new tab. Add files under Documents.
+     */
+    document?: (string | null) | Document;
     builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
     /**
      * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
@@ -947,8 +1047,12 @@ export interface MembershipBlock {
         availability?: string | null;
         recommended?: boolean | null;
         link?: {
-          type?: ('page' | 'builtIn' | 'url') | null;
+          type?: ('page' | 'builtIn' | 'url' | 'document') | null;
           page?: (string | null) | Page;
+          /**
+           * Opens the file in a new tab. Add files under Documents.
+           */
+          document?: (string | null) | Document;
           builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
           /**
            * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
@@ -976,8 +1080,12 @@ export interface MembershipBlock {
    */
   action?: {
     label?: string | null;
-    type?: ('page' | 'builtIn' | 'url') | null;
+    type?: ('page' | 'builtIn' | 'url' | 'document') | null;
     page?: (string | null) | Page;
+    /**
+     * Opens the file in a new tab. Add files under Documents.
+     */
+    document?: (string | null) | Document;
     builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
     /**
      * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
@@ -989,8 +1097,12 @@ export interface MembershipBlock {
     text?: string | null;
     link?: {
       label?: string | null;
-      type?: ('page' | 'builtIn' | 'url') | null;
+      type?: ('page' | 'builtIn' | 'url' | 'document') | null;
       page?: (string | null) | Page;
+      /**
+       * Opens the file in a new tab. Add files under Documents.
+       */
+      document?: (string | null) | Document;
       builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
       /**
        * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
@@ -1076,6 +1188,10 @@ export interface Course {
         yardsRed?: number | null;
         yardsBlue?: number | null;
         image?: (string | null) | Media;
+        /**
+         * A YouTube or Vimeo address. It plays in the hole’s pop-up; the card still shows the photo.
+         */
+        video?: string | null;
         /**
          * One or two sentences.
          */
@@ -1196,23 +1312,6 @@ export interface NewsFeedBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'newsFeed';
-}
-/**
- * The club’s categories, used to sort news (and anything else that gets categories later). They show on the website in the order they were added.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories".
- */
-export interface Category {
-  id: string;
-  tenant?: (string | null) | Tenant;
-  name: string;
-  /**
-   * Filled in from the name. Used in links such as /news?category=competitions. Renaming a category does not change it.
-   */
-  slug: string;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1961,7 +2060,7 @@ export interface MarketingSectionHeaderBlock {
    */
   title: string;
   /**
-   * One or two sentences that back the title up. Under thirty-five words. Use {price}, {vat}, {term} (months) and {notice} (days) for values from Settings, so they always match.
+   * One or two sentences that back the title up. Under thirty-five words. Use {price}, {term} (months) and {notice} (days) for values from Settings, so they always match.
    */
   subhead?: string | null;
   align: 'left' | 'center';
@@ -2127,7 +2226,7 @@ export interface MarketingFeatureCardsBlock {
 export interface MarketingCtaBandBlock {
   title: string;
   /**
-   * Use {price}, {vat}, {term} (months) and {notice} (days) for values from Settings, so they always match.
+   * Use {price}, {term} (months) and {notice} (days) for values from Settings, so they always match.
    */
   subhead?: string | null;
   primary?: {
@@ -2318,9 +2417,12 @@ export interface MarketingFounderBlock {
 export interface MarketingPricingBlock {
   title: string;
   /**
-   * Use {price}, {vat}, {term} (months) and {notice} (days) for values from Settings, so they always match.
+   * Use {price}, {term} (months) and {notice} (days) for values from Settings, so they always match.
    */
   terms?: string | null;
+  /**
+   * Not used: there is no course selector.
+   */
   coursesText?: string | null;
   comingNext?:
     | {
@@ -2336,7 +2438,7 @@ export interface MarketingPricingBlock {
       }[]
     | null;
   /**
-   * Use {price}, {vat}, {term} (months) and {notice} (days) for values from Settings, so they always match.
+   * Use {price}, {term} (months) and {notice} (days) for values from Settings, so they always match.
    */
   footnote?: string | null;
   id?: string | null;
@@ -2351,7 +2453,7 @@ export interface MarketingFaqBlock {
   title: string;
   body?: string | null;
   /**
-   * Answer yes or no first where you can. Use {price}, {vat}, {term} (months) and {notice} (days) for values from Settings, so they always match.
+   * Answer yes or no first where you can. Use {price}, {term} (months) and {notice} (days) for values from Settings, so they always match.
    */
   items: {
     question: string;
@@ -2938,6 +3040,7 @@ export interface HeroBlockSelect<T extends boolean = true> {
         label?: T;
         type?: T;
         page?: T;
+        document?: T;
         builtIn?: T;
         url?: T;
       };
@@ -2947,6 +3050,7 @@ export interface HeroBlockSelect<T extends boolean = true> {
         label?: T;
         type?: T;
         page?: T;
+        document?: T;
         builtIn?: T;
         url?: T;
       };
@@ -2968,6 +3072,7 @@ export interface CtaCardGridBlockSelect<T extends boolean = true> {
         label?: T;
         type?: T;
         page?: T;
+        document?: T;
         builtIn?: T;
         url?: T;
       };
@@ -2983,6 +3088,7 @@ export interface CtaCardGridBlockSelect<T extends boolean = true> {
           | {
               type?: T;
               page?: T;
+              document?: T;
               builtIn?: T;
               url?: T;
             };
@@ -3017,6 +3123,7 @@ export interface TwoColumnBlockSelect<T extends boolean = true> {
         label?: T;
         type?: T;
         page?: T;
+        document?: T;
         builtIn?: T;
         url?: T;
       };
@@ -3029,8 +3136,24 @@ export interface TwoColumnBlockSelect<T extends boolean = true> {
  */
 export interface RichTextBlockSelect<T extends boolean = true> {
   style?: T;
+  background?: T;
   eyebrow?: T;
   content?: T;
+  buttons?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              label?: T;
+              type?: T;
+              page?: T;
+              document?: T;
+              builtIn?: T;
+              url?: T;
+            };
+        id?: T;
+      };
   noteTitle?: T;
   noteText?: T;
   id?: T;
@@ -3085,6 +3208,7 @@ export interface RateTableBlockSelect<T extends boolean = true> {
         label?: T;
         type?: T;
         page?: T;
+        document?: T;
         builtIn?: T;
         url?: T;
       };
@@ -3106,6 +3230,7 @@ export interface RateTableBlockSelect<T extends boolean = true> {
  */
 export interface GalleryBlockSelect<T extends boolean = true> {
   style?: T;
+  background?: T;
   eyebrow?: T;
   heading?: T;
   images?:
@@ -3125,8 +3250,21 @@ export interface GalleryBlockSelect<T extends boolean = true> {
  */
 export interface VideoBlockSelect<T extends boolean = true> {
   style?: T;
+  featuredLayout?: T;
+  videoSide?: T;
+  layout?: T;
   eyebrow?: T;
   heading?: T;
+  intro?: T;
+  button?:
+    | T
+    | {
+        label?: T;
+        type?: T;
+        page?: T;
+        builtIn?: T;
+        url?: T;
+      };
   videos?:
     | T
     | {
@@ -3224,6 +3362,7 @@ export interface LogoStripBlockSelect<T extends boolean = true> {
   eyebrow?: T;
   heading?: T;
   intro?: T;
+  still?: T;
   partners?:
     | T
     | {
@@ -3281,6 +3420,7 @@ export interface TeamBlockSelect<T extends boolean = true> {
         label?: T;
         type?: T;
         page?: T;
+        document?: T;
         builtIn?: T;
         url?: T;
       };
@@ -3290,6 +3430,7 @@ export interface TeamBlockSelect<T extends boolean = true> {
         label?: T;
         type?: T;
         page?: T;
+        document?: T;
         builtIn?: T;
         url?: T;
       };
@@ -3331,6 +3472,7 @@ export interface MembershipBlockSelect<T extends boolean = true> {
           | {
               type?: T;
               page?: T;
+              document?: T;
               builtIn?: T;
               url?: T;
             };
@@ -3349,6 +3491,7 @@ export interface MembershipBlockSelect<T extends boolean = true> {
         label?: T;
         type?: T;
         page?: T;
+        document?: T;
         builtIn?: T;
         url?: T;
       };
@@ -3363,6 +3506,7 @@ export interface MembershipBlockSelect<T extends boolean = true> {
               label?: T;
               type?: T;
               page?: T;
+              document?: T;
               builtIn?: T;
               url?: T;
             };
@@ -3590,6 +3734,7 @@ export interface CoursesSelect<T extends boolean = true> {
         yardsRed?: T;
         yardsBlue?: T;
         image?: T;
+        video?: T;
         tip?: T;
         id?: T;
       };
@@ -4855,13 +5000,13 @@ export interface MarketingSetting {
   pricing: {
     monthlyPrice: number;
     /**
-     * Shown next to every price. Open question Q2.
+     * Not used: the company is not VAT registered.
      */
-    vatLabel: string;
+    vatLabel?: string | null;
     minimumTermMonths: number;
     noticeDays: number;
     /**
-     * Empty: the calculator hides the second course. Open question Q3.
+     * Not used: there is no course selector (course count is in the setup fee).
      */
     secondCoursePrice?: number | null;
   };

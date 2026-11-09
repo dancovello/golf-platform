@@ -109,7 +109,12 @@ for (const [title, category, lastReviewed] of [
   libraryDocs.push(
     await w.payload.create({
       collection: 'documents',
-      data: { title, category, lastReviewed, tenant: w.clubA.id } as never,
+      data: {
+        title,
+        category: (await categoryOf(w.payload, w.clubA.id, category)).id,
+        lastReviewed,
+        tenant: w.clubA.id,
+      } as never,
       file: pdfFile(`${title.toLowerCase().replace(/\W+/g, '-')}.pdf`),
     }),
   )

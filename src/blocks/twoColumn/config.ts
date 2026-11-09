@@ -84,7 +84,7 @@ const config: Block = {
         },
       ],
     },
-    linkField({ name: 'link', label: 'Link (optional)', required: false }),
+    linkField({ name: 'link', label: 'Link (optional)', required: false, allowDocument: true }),
   ],
 }
 

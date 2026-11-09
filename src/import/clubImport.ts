@@ -3,6 +3,7 @@ import { basename, extname, resolve } from 'node:path'
 import type { Payload } from 'payload'
 
 import { categoryIds } from '../collections/categoryIds'
+import { LEGACY_DOCUMENT_CATEGORY_SLUGS } from '../collections/defaultCategories'
 import { rt } from '../demo/richText'
 import { demoBase } from '../site/demo'
 
@@ -201,7 +202,19 @@ export const importClub = async (
   }
   log(`${Object.keys(content.media).length} photos and videos`)
   for (const [key, { file, ...data }] of Object.entries(content.documents ?? {})) {
-    ids.set(`@doc:${key}`, (await create('documents', data, file)).id)
+    // Older content files name the category plainly ("policies"); newer ones can use
+    // "@category:policies". Documents share the club's list with news.
+    const category = LEGACY_DOCUMENT_CATEGORY_SLUGS[data.category] ?? data.category
+    ids.set(
+      `@doc:${key}`,
+      (
+        await create(
+          'documents',
+          { ...data, category: category.startsWith('@') ? category : `@category:${category}` },
+          file,
+        )
+      ).id,
+    )
   }
   for (const [key, data] of Object.entries(content.staff ?? {})) {
     ids.set(`@staff:${key}`, (await create('staff', data)).id)

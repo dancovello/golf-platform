@@ -32,6 +32,8 @@ const DEMO = /^\/demo(\/|$)/
 const MARKETING = '/marketing'
 const PLATFORM_PATHS =
   /^\/(admin|api|preview|demo|health|accounts-by-administrator|cron|csp-report|robots\.txt|_vercel|__nextjs[\w-]*)(\/|$)/
+/** Icon files browsers look for on their own. */
+const ICON_FILES = /^\/(favicon\.ico|apple-touch-icon(-precomposed)?\.png)$/
 const INTERNAL_ONLY = /^\/(sites|marketing)(\/|$)/
 /** Marketing review pages (super-admin only): on the platform's own address, never the company's. */
 const REVIEW = /^\/dev(\/|$)/
@@ -155,6 +157,11 @@ export function proxy(request: NextRequest) {
   // previews), never indexed.
   // The marketing review pages (/dev/…, super-admin only) stay here, where the admin's login is.
   if (REVIEW.test(pathname)) return marketing(request, headers, pathname, search, false)
+
+  // Browsers ask for these by themselves when a page names no icon. Forwarding them to the
+  // company's domain would cross addresses, which the security policy reports as a blocked
+  // image (Sentry, 2026-11-05); a plain "not found" is the honest answer here.
+  if (ICON_FILES.test(pathname)) return notFound()
 
   if (!PLATFORM_PATHS.test(pathname)) {
     const [main] = marketingHosts()

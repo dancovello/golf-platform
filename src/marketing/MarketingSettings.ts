@@ -159,10 +159,8 @@ export const MarketingSettings: GlobalConfig = {
               name: 'vatLabel',
               label: 'VAT wording',
               type: 'text',
-              required: true,
               maxLength: 20,
-              defaultValue: '+ VAT',
-              admin: { description: 'Shown next to every price. Open question Q2.' },
+              admin: { hidden: true, description: 'Not used: the company is not VAT registered.' },
             },
           ],
         },
@@ -189,11 +187,13 @@ export const MarketingSettings: GlobalConfig = {
         },
         {
           name: 'secondCoursePrice',
-          label: 'Second course, a month (£, optional)',
+          label: 'Unused price (kept for saved data)',
           type: 'number',
           min: 0,
           admin: {
-            description: 'Empty: the calculator hides the second course. Open question Q3.',
+            hidden: true,
+            description:
+              'Not used: there is no course selector (course count is in the setup fee).',
           },
         },
       ],

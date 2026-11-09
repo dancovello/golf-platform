@@ -1,3 +1,4 @@
+import { parseVideoURL } from '@/blocks/video/embed'
 import type { Payload } from 'payload'
 
 import { layoutRefs } from '@/blocks'
@@ -16,7 +17,12 @@ export type ResolvedLink = { label: string; link: SiteLink }
 export type SiteDocument = {
   id: string
   title: string
+  /** The category's ID. */
   category: string
+  /** The category's name as the club wrote it (Categories in the admin). */
+  categoryName: string
+  /** Where the category sits in the club's list (the order they were added), for grouping. */
+  categoryOrder: number
   url: string
   /** e.g. "PDF" or "DOCX" */
   type: string
@@ -57,6 +63,58 @@ export type SitePerson = {
   bio: string | null
   email: EmailParts | null
   phone: string | null
+}
+
+/** Documents by ID, only the club's own, each with its category's name and place in the list. */
+const loadClubDocuments = async (
+  payload: Payload,
+  tenantID: string,
+  ids: string[],
+): Promise<Map<string, SiteDocument>> => {
+  if (ids.length === 0) return new Map()
+  const [{ docs }, { docs: categories }] = await Promise.all([
+    payload.find({
+      // No `select`: a file's address is worked out from its folder and stored name.
+      collection: 'documents',
+      where: { and: [{ id: { in: ids } }, { tenant: { equals: tenantID } }] },
+      limit: ids.length,
+      depth: 0,
+      overrideAccess: true,
+    }),
+    payload.find({
+      collection: 'categories',
+      where: { tenant: { equals: tenantID } },
+      sort: 'createdAt',
+      select: { name: true },
+      limit: 200,
+      depth: 0,
+      overrideAccess: true,
+    }),
+  ])
+  const places = new Map(
+    categories.map((c, i) => [String(c.id), { name: String(c.name), order: i }]),
+  )
+  return new Map(
+    docs
+      .filter((d) => typeof d.url === 'string' && TYPE_NAMES[d.mimeType ?? ''])
+      .map((d) => {
+        const category = places.get(idOf(d.category) ?? '')
+        return [
+          String(d.id),
+          {
+            id: String(d.id),
+            title: String(d.title),
+            category: idOf(d.category) ?? '',
+            categoryName: category?.name ?? 'Other',
+            categoryOrder: category?.order ?? places.size,
+            url: String(d.url),
+            type: TYPE_NAMES[d.mimeType ?? ''],
+            size: formatSize(d.filesize),
+            lastReviewed: d.lastReviewed ? String(d.lastReviewed) : null,
+          },
+        ]
+      }),
+  )
 }
 
 /** Team members by ID, only if they belong to this club, with their (same-club) photos. */
@@ -121,6 +179,8 @@ export type SiteHole = {
   /** Yards from each of the course's tees, in the same order as `tees` (null if not set). */
   yards: (number | null)[]
   image: SiteMedia | null
+  /** The safe player address for the hole's video, when it has one. */
+  video: string | null
   tip: string | null
 }
 
@@ -168,6 +228,7 @@ const loadClubCourses = async (
           ladiesStrokeIndex: h.ladiesStrokeIndex ?? null,
           yards: tees.map((t) => h[yardsField(t.colour)] ?? null),
           image: image?.mimeType.startsWith('image/') ? image : null,
+          video: parseVideoURL(h.video)?.embedURL ?? null,
           tip: h.tip?.trim() || null,
         }
       })
@@ -285,36 +346,7 @@ export const loadBlockData = async (
             overrideAccess: true,
           })
           .then(({ docs }) => new Map(docs.map((d) => [String(d.id), String(d.slug)]))),
-    documentIDs.length === 0
-      ? Promise.resolve(new Map<string, SiteDocument>())
-      : payload
-          .find({
-            // No `select`: a file's address is worked out from its folder and stored name.
-            collection: 'documents',
-            where: { and: [{ id: { in: documentIDs } }, { tenant: { equals: tenantID } }] },
-            limit: documentIDs.length,
-            depth: 0,
-            overrideAccess: true,
-          })
-          .then(
-            ({ docs }) =>
-              new Map(
-                docs
-                  .filter((d) => typeof d.url === 'string' && TYPE_NAMES[d.mimeType ?? ''])
-                  .map((d) => [
-                    String(d.id),
-                    {
-                      id: String(d.id),
-                      title: String(d.title),
-                      category: String(d.category ?? 'other'),
-                      url: String(d.url),
-                      type: TYPE_NAMES[d.mimeType ?? ''],
-                      size: formatSize(d.filesize),
-                      lastReviewed: d.lastReviewed ? String(d.lastReviewed) : null,
-                    },
-                  ]),
-              ),
-          ),
+    loadClubDocuments(payload, tenantID, documentIDs),
     loadClubStaff(payload, tenantID, staffIDs),
     loadClubCourses(payload, tenantID, courseIDs),
     showsStatus ? loadClubCourseStatus(payload, tenantID) : Promise.resolve(null),
@@ -352,6 +384,7 @@ export const blockContextFrom = (data: BlockData): BlockContext => {
         page?: unknown
         url?: string
         builtIn?: unknown
+        document?: unknown
       }
       const label = raw.label?.trim() || fallbackLabel
       if (!label) return null
@@ -361,6 +394,10 @@ export const blockContextFrom = (data: BlockData): BlockContext => {
       if (raw.type === 'builtIn') {
         const builtIn = builtInLink(raw.builtIn)
         return builtIn ? { label, link: builtIn } : null
+      }
+      if (raw.type === 'document') {
+        const doc = pick(data.documents, raw.document)
+        return doc ? { label, link: { kind: 'url', href: doc.url, file: true } } : null
       }
       const slug = pick(data.pages, raw.page)
       return slug ? { label, link: { kind: 'page', slug } } : null

@@ -1,17 +1,10 @@
 import type { DocumentListBlock } from '@/payload-types'
 
-import { DOCUMENT_CATEGORIES } from '@/collections/documentCategories'
-
 import { Download, FileIcon } from '../components/Icons'
 import { siteToday } from '../today'
+import { cardRows } from './cardRows'
 import { DocumentLibrary } from './DocumentLibrary'
-import {
-  categoryName,
-  type DocRow,
-  downloadLabel,
-  isOverdue,
-  reviewedDate,
-} from './documentsShared'
+import { type DocRow, downloadLabel, isOverdue, reviewedDate } from './documentsShared'
 import { TextLink } from './parts'
 import type { BlockContext } from './resolve'
 import { NEW_TAB } from '../components/links'
@@ -39,7 +32,6 @@ export const DocumentList = ({
       ? [
           {
             ...doc,
-            categoryName: categoryName(doc.category),
             reviewed: reviewedDate(doc.lastReviewed, style === 'cards' ? 'short' : 'long'),
             overdue: isOverdue(doc, today),
           },
@@ -93,7 +85,7 @@ export const DocumentList = ({
       <section className="blk dl dl-cards-block on-subtle">
         <div className="blk-container">
           {header}
-          <ul className="dl-cards">
+          <ul className={`dl-cards ${cardRows(docs.length, false)}`}>
             {docs.map((d) => (
               <li key={d.id}>
                 <a className="dl-card" href={d.url} aria-label={downloadLabel(d)} {...NEW_TAB}>
@@ -128,11 +120,13 @@ export const DocumentList = ({
     )
   }
 
-  // A · Grouped, in the fixed category order
-  const groups = DOCUMENT_CATEGORIES.map((c) => ({
-    name: c.label,
-    docs: docs.filter((d) => d.category === c.value),
-  })).filter((g) => g.docs.length > 0)
+  // A · Grouped, in the order the club's categories were added
+  const groups = [...new Set(docs.map((d) => d.category))]
+    .map((category) => {
+      const inGroup = docs.filter((d) => d.category === category)
+      return { name: inGroup[0]!.categoryName, order: inGroup[0]!.categoryOrder, docs: inGroup }
+    })
+    .sort((a, b) => a.order - b.order)
   return (
     <section className="blk dl dl-grouped">
       <div className="blk-container">

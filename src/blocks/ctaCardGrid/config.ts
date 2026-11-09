@@ -45,6 +45,7 @@ const config: Block = {
         name: 'viewAll',
         label: '"View all" button (style A, optional)',
         required: false,
+        allowDocument: true,
       }),
       admin: { condition: (_d, sibling) => sibling?.style === 'editorial' },
     },
@@ -73,7 +74,7 @@ const config: Block = {
           required: true,
           filterOptions: { mimeType: { in: IMAGE_TYPES } },
         },
-        linkField({ name: 'link', label: 'Goes to', withLabel: false }),
+        linkField({ name: 'link', label: 'Goes to', withLabel: false, allowDocument: true }),
       ],
     },
   ],
@@ -84,9 +85,11 @@ export const ctaCardGrid: BlockDefinition = {
   refs: (block, path) => {
     const refs: BlockRef[] = []
     const page = (link: unknown, at: string) => {
-      const l = (link ?? {}) as { type?: string; page?: unknown }
+      const l = (link ?? {}) as { type?: string; page?: unknown; document?: unknown }
       const id = linksToPage(l.type) ? idOf(l.page) : null
       if (id) refs.push({ collection: 'pages', id, path: `${at}.page` })
+      const doc = l.type === 'document' ? idOf(l.document) : null
+      if (doc) refs.push({ collection: 'documents', id: doc, path: `${at}.document` })
     }
     page(block.viewAll, `${path}.viewAll`)
     const cards = Array.isArray(block.cards) ? (block.cards as Record<string, unknown>[]) : []

@@ -108,6 +108,14 @@
   padding: 0;
   list-style: none;
 }
+@media (min-width: 1024px) {
+  .dl-cards.cols-1 {
+    grid-template-columns: minmax(0, 420px);
+  }
+  .dl-cards.cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
 .dl-card {
   display: flex;
   flex-direction: column;

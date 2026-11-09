@@ -2,6 +2,7 @@ import type { MembershipBlock } from '@/payload-types'
 
 import { Button } from '../components/Button'
 import { Check } from '../components/Icons'
+import { cardRows } from './cardRows'
 import { Paragraphs } from './parts'
 import type { BlockContext, ResolvedLink } from './resolve'
 import { SwipeRow } from './SwipeRow'
@@ -238,11 +239,11 @@ export const Membership = ({
         <p className="mb-price">
           {price ? (
             <>
-              <span className="t-heading-l">{price}</span>
+              <span className="t-heading-l mb-amount">{price}</span>
               {t.period ? <span className="t-label-s mb-period">{t.period}</span> : null}
             </>
           ) : (
-            <span className="t-heading-m">{ON_APPLICATION}</span>
+            <span className="t-body-m mb-on-application">{ON_APPLICATION}</span>
           )}
         </p>
         {t.description ? <p className="t-body-s mb-description">{t.description}</p> : null}
@@ -274,7 +275,7 @@ export const Membership = ({
     <section className="blk mb mb-cards">
       <div className="blk-container">
         {header}
-        <SwipeRow className={`mb-tiers cols-${Math.min(tiers.length, 4)}`} label={block.heading}>
+        <SwipeRow className={`mb-tiers ${cardRows(tiers.length, true)}`} label={block.heading}>
           {cards}
         </SwipeRow>
         {note}

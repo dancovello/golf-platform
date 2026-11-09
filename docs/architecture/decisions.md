@@ -227,7 +227,7 @@ Dan, 2026-10-20: the site must stay legible whatever colours a club picks, and t
 - **Every text colour is chosen by an AA contrast check (4.5:1)** against the surface it sits on: the page, the brand colour, the accent, or a shaded photo. It uses the designed colour if it passes, then the club's other text colour, then white or black (Dan chose this over refusing to save). The save check that refused low-contrast palettes is gone. The two Figma palettes pass everywhere, so they look exactly as before.
 - **Photos are measured on upload** (brightest areas and average colour, with `sharp`, which Payload already uses). Text over a photo gets at least the shading that brings it to 4.5:1 over the photo's brightest areas, so very bright photos look darker than before. Photos uploaded earlier are measured from their public file the first time a page shows them (stored straight to the record, no upload hooks). The release job is untouched and still can't reach media. New `media.tone_bright` and `media.tone_average` columns (migration `20261020_092237_media_tone`, add-only).
 - **Logos are chosen by measured colour**, at 3:1 on the real background: the slot meant for it, then the other slot, then the logo shown in white or black. The transparent header swaps logos when it turns solid on scroll.
-- **Check:** axe contrast over every block and template page for three test clubs, one with a pale brand colour (`tests/visual/contrast.spec.ts`, CI job block-regression), plus 2,000 random palettes in the unit tests.
+- **Check:** axe contrast over every block and template page for three test clubs, one with a pale brand colour (`tests/visual/contrast.spec.ts`; no longer run in CI since 9 Nov, run it by hand with `pnpm exec playwright test --project=visual`), plus 2,000 random palettes in the unit tests.
 
 ## 2026-10-20: Branding palettes, header, menus and dashboard
 
@@ -715,3 +715,75 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Alerts:** "Email me about every new issue" was added; Sentry's two default alerts remain. Tested with two fake errors from a local script (tagged `test`, then resolved); the email arrived.
 - **Uptime:** Sentry's one free monitor now watches `https://app.a1engine.co/health` every 5 minutes (down after 3 failures), connected to the new alert. This closes the "point the uptime monitor at `app.a1engine.co/health`" item in the 3 Nov domain entry. The email on an outage has not been tested.
 - **Not yet proven:** an error from the live site itself reaching Sentry. The first real one will show it; a protected test route could be planned if wanted sooner.
+
+## 2026-11-05: Video block: pop-up window, grid or carousel, full width (Bearwood review B-03, B-08, B-09, B-18, B-20)
+
+- **Style A (Featured)** still plays in place, now the full width of the block's container (it stopped at 960px, about two thirds of the page on a wide screen).
+- **Style B is now a gallery:** pressing a picture opens the video in a pop-up window (a native dialog: Esc, the cross or a press outside closes it, focus returns to the picture, and closing stops the video). Nothing loads from YouTube or Vimeo until a picture is pressed, as before. The pop-up uses the same player address and the same `frame-src` rule, so there is no CSP change.
+- **Layout choice (style B):** "Automatic" (default; existing blocks): up to 3 videos are a grid from 768px wide, more than 3 are a carousel (3 in view, 2 on tablets); on phones two or more always swipe. "Always a grid" (one column on phones) and "Always a carousel" are the other two.
+- **The "Watch on YouTube / Vimeo" link is removed** from every video. The address is still worked out by `parseVideoURL` (its `watchURL`) but not shown.
+- **Not done here:** custom branded player controls (B-21, needs research and a security review), and Featured layout variants and a button (B-04).
+- **Migration** `20261105_230301_video_layout`: one new column (with its draft copy), default "auto". Additive.
+
+## 2026-11-05: Video style A: layouts, description and button (Bearwood review B-04)
+
+- **Three layouts for the featured video**, chosen per block ("Layout (style A)"): *Standard* (as before: heading above, video below), *Full width* (heading, description and button centred above a full-width video) and *Half and half* (the video runs to the edge of the page on the left or right, the text beside it, centred on the video; like Two-Column "Split"). Existing blocks stay Standard.
+- **A description and one optional button** (to a page, a built-in page or a web address) on the featured video. "A document" as a destination comes with the document-link change (PR for B-17) and can be switched on here once that has merged.
+- **Phones:** half and half stacks (video, then text). Nothing about how the video loads changed: it still plays in place and nothing is requested from YouTube or Vimeo before it is pressed.
+- **Migration** `20261105_231351_video_featured_layouts`: new columns (layout, video side, description, button) and their draft copies. Additive.
+
+## 9 Nov 2026: CI trimmed to save GitHub Actions minutes
+- **Removed the block picture check** (CI job `block-regression`, the "Update block pictures" workflow, the approved pictures). It failed on every deliberate style change and cost about a quarter of each run (6–16 minutes). The text-contrast check (`tests/visual/contrast.spec.ts`) stays in the repo but no longer runs in CI.
+- **Migration dry run** now runs only when a pull request changes `src/migrations/`. Releases still run it in full.
+- **Dependabot** is monthly, at most 2 open pull requests. **Isolation fuzz run** is weekly (Mondays) instead of nightly; every pull request still runs the isolation suite.
+- Dan removes `block-regression` from the required checks on `main` (GitHub → Settings → Branches).
+- **Browser tests (same day):** `browser-tests` runs on pull requests only, not on merges to `main`; the `marketing-*` specs are skipped when a pull request touches nothing the marketing site shares with the club sites (`ci.yml`, `marketing_paths`).
+
+## 2026-11-05: A document as a link destination, and buttons on the text block (Bearwood review B-17)
+
+- **"A document" is a new "Goes to" choice** on every link and button inside a page block (hero, card grid, two-column, rate table, team, membership and the text block's new buttons). It opens the file in a new tab. It is **not** offered on the site header, footer, announcement bar, events or contact templates: those read links separately and still take a page, a built-in page or a web address.
+- **Same club only.** A document link is looked up within the club like every other reference: the page's same-club check lists it, the website looks it up with the club's tenant, and a document from another club (or one that was deleted) simply drops the link. Deleting a document empties the link (the database sets it to blank).
+- **Text block buttons:** up to four, each with its own text and destination, under the text. The first is solid (accent on a brand-colour background), the rest outline.
+- **Migration** `20261109_143637_document_links`: additive only (new "document" choice on each link's type list, a nullable document column beside each link, and one new table, with its draft copy, for the text block's buttons).
+
+## 2026-11-05: Documents use the club's Categories list (Bearwood review B-25)
+
+- **One list for news and documents (Dan's choice).** A document's category is now picked from the club's Categories (Website → Categories), the same list news uses, instead of a fixed set of six. The picker is not filtered, so a document can be filed under "Club news" if an editor chooses to.
+- **Starter list:** new clubs start with the six news categories plus the six document ones (Course & scorecards, Policies, Forms, Minutes, Visitors, Other). The old "course" document category became `course-scorecards`, because "Course news" already owns the address `course`.
+- **Migration `20261109_150000_document_categories`** adds the six document categories to every existing club (skipping an address the club already has, e.g. its own "policies"), points every document at its category and makes the column required. Tried on a throwaway database with documents in every old category and one club with its own "policies": all converted, none crossed clubs, and the rollback restores the old values. **The old `category` column is left in place** (nothing reads it, it has a default) so nothing is deleted; dropping it is a separate change needing the `approved-destructive-migration` label.
+- **Policies still need a "last reviewed" date**, now checked against the category named "policies" (by address), so a club that renames it keeps the rule and one that deletes it loses it.
+- **News pills:** because the list is shared, the news archive only shows a category pill when it has live news (plus the one being viewed). Without that, every club's news page would gain Policies, Forms and the rest as dead-end tabs.
+- **The Document List** groups and tabs by the club's categories, in the order they were added.
+
+## 2026-11-09: Payload 3.93.0 (security release) and a workaround for a plugin bug
+- **Payload 3.93.0 and all its packages** (db-postgres, email-resend, live-preview-react, next, plugin-multi-tenant, richtext-lexical, storage-s3, translations, ui). Payload flags this release as containing vital security updates (among them enforcing read access on block content in queries and constraining global-view redirects to a user's own clubs).
+- **Bug found by our own isolation tests:** in plugin-multi-tenant 3.93.0 the Club Settings redirect misreads the names of the accounts' club list, so every club editor looked as if they had no clubs and was bounced to the admin home page (super-admins were fine). Nothing leaked; editors simply couldn't open Club Settings.
+- **Workaround:** `src/admin/fixGlobalViewRedirect.ts` passes the redirect the two field names it actually reads. Harmless once the plugin is fixed; delete it then. Covered by a unit test and by the existing "Club Settings opens club A's own settings" browser test.
+
+## 2026-11-09: Launch decisions on prices, leaving and cookies (Dan)
+
+- **VAT:** Dan is not VAT registered, so no "+ VAT" wording. The site shows the monthly cost only.
+- **Setup fee and courses:** the setup fee is Dan's own per-club arrangement and stays off the site. The one/two courses selector in the pricing calculator is to be removed, because course count is reflected in that fee.
+- **Leaving:** no content export. A club that stops paying loses its site; this is a subscription service. Marketing wording must say this plainly and must not promise Markdown, CSV or original-file exports.
+- **Cookie notice:** appears after the golf ball intro, never over it.
+- **Settled:** suppliers' data terms accepted by Dan; privacy policy approved by his solicitor; demo call timings set; real logo is in the golf ball.
+- The full to-do list is `docs/plans/launch-checklist-2026-11-09.md`.
+
+## 2026-11-09: Hourly database check, not every 5 minutes (Dan's choice)
+- **Why:** the Sentry uptime monitor (`/health`, every 5 minutes) only proves the app answers. A database outage would have gone unreported while no one was visiting.
+- **Choice:** `/cron/database-check` runs hourly from Vercel's scheduler and sends one fatal Sentry report when the database doesn't answer within 15 seconds. Putting the database into `/health` instead would mean a query every 5 minutes, which stops Neon's database from ever sleeping: about $19 (roughly £15) a month extra on production at the smallest size, from Neon's Launch price of $0.106 per CU-hour. That can move to the 5-minute check nearer launch, when visitors keep the database awake anyway.
+- **`/health` is unchanged**, so the release workflow's health check behaves as before.
+
+## 2026-11-09 (later): Launch wording built
+
+- **Cookie notice after the intro:** the shared banner (`src/site/privacy/CookieConsent.tsx`) now waits while `<html data-intro>` is set and appears when the golf ball intro ends or gives up. Club sites have no intro, so their banner is unchanged.
+- **No VAT wording, no course selector.** The `{vat}` token now fills with nothing (saved text that still has it loses it). The VAT wording, second-course price and courses text settings are hidden and unused; they were not dropped, because dropping a column is a destructive migration. Migration `20261109_201550_launch_wording` only changes the pricing small-print default and makes the VAT field optional.
+- **Setup fee:** kept, with no number, worded as depending on the size and needs of the club. A new FAQ answer, "What does the setup fee cover?".
+- **Leaving:** FAQ is now "What happens if we cancel?", worded like any subscription. No export is promised.
+- **Pages already saved in a database keep their old text** (starter pages only apply when first added) until edited in the admin or updated by a script with Dan's go-ahead. The old footnote "Prices exclude VAT" and FAQ "What happens if we leave?" are the ones to change.
+
+## 2026-11-09: Data processing agreement finalised (Dan)
+
+- **Provider:** Daniel Covello, a sole trader (not a registered company), trading as A1 Engine, 41 Clarence Embankment, Cardiff; contact daniel@a1engine.co. There is no company number.
+- **Approved:** Dan says the wording is approved and the liability clause is agreed, so the "Draft" notice is off (`AGREEMENT_APPROVED = true`) and the version is `2026-11-09`. Any club that accepted the old draft version is asked to accept again.
+- **Sub-processors:** Vercel is London (functions region `lhr1`). Neon: Standard Contractual Clauses with the UK Addendum, and Sentry: Data Privacy Framework with the SCCs and UK Addendum as a fallback, both as their own DPAs describe them. Resend's row points to Resend's DPA, because its transfer safeguard was not confirmed.

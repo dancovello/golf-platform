@@ -24,7 +24,10 @@ import { addressCached, clubCached } from './cache'
 import { idOf } from '@/blocks/types'
 
 /** A link on the public site: one of the club's pages (by slug) or a checked web address. */
-export type SiteLink = { kind: 'page'; slug: string } | { kind: 'url'; href: string }
+export type SiteLink =
+  | { kind: 'page'; slug: string }
+  /** `file`: one of the club's documents, which opens in a new tab. */
+  | { kind: 'url'; href: string; file?: boolean }
 /**
  * One top-level menu item. With two or more `children` it opens a drop-down (spec 17); with
  * fewer it's a plain link to `link`.

@@ -15,6 +15,17 @@ const config: Block = {
       { label: 'C · Viewer: one large photo at a time, with thumbnails', value: 'viewer' },
     ]),
     {
+      name: 'background',
+      label: 'Background (style C)',
+      type: 'radio',
+      defaultValue: 'brand',
+      options: [
+        { label: 'Brand colour', value: 'brand' },
+        { label: 'Page background', value: 'plain' },
+      ],
+      admin: { condition: (_d, sibling) => sibling?.style === 'viewer' },
+    },
+    {
       name: 'eyebrow',
       label: 'Small line above the heading (optional)',
       type: 'text',

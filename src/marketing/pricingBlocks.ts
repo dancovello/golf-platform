@@ -4,7 +4,7 @@ import { maxWords, noTypedPrices, TOKEN_HELP } from './fields'
 
 /**
  * Pricing page blocks (Figma "Pricing — Desktop" 185:3821, "Pricing — Mobile" 274:9185).
- * The calculator's numbers all come from Settings; the copy may use {price}, {vat}, {term} and
+ * The calculator's numbers all come from Settings; the copy may use {price}, {term} and
  * {notice}.
  */
 
@@ -39,6 +39,7 @@ const pricing: Block = {
       type: 'text',
       maxLength: 100,
       defaultValue: 'Each course gets its own guide, scorecard and hole-by-hole pages.',
+      admin: { hidden: true, description: 'Not used: there is no course selector.' },
     },
     {
       name: 'comingNext',
@@ -64,7 +65,7 @@ const pricing: Block = {
       maxLength: 200,
       validate: noTypedPrices,
       defaultValue:
-        'Prices exclude VAT. Plus a one-off setup fee. {notice} days’ notice after the first {term} months.',
+        'Plus a one-off setup fee, which depends on the size and needs of your club. {notice} days’ notice after the first {term} months.',
       admin: { description: TOKEN_HELP },
     },
   ],
