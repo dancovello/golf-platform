@@ -75,6 +75,7 @@ import * as migration_20261105_231351_video_featured_layouts from './20261105_23
 import * as migration_20261109_143237_block_backgrounds from './20261109_143237_block_backgrounds';
 import * as migration_20261109_143637_document_links from './20261109_143637_document_links';
 import * as migration_20261109_150000_document_categories from './20261109_150000_document_categories';
+import * as migration_20261109_165615_hole_video from './20261109_165615_hole_video';
 
 export const migrations = [
   {
@@ -461,5 +462,10 @@ export const migrations = [
     up: migration_20261109_150000_document_categories.up,
     down: migration_20261109_150000_document_categories.down,
     name: '20261109_150000_document_categories',
+  },
+  {
+    up: migration_20261109_165615_hole_video.up,
+    down: migration_20261109_165615_hole_video.down,
+    name: '20261109_165615_hole_video'
   },
 ];

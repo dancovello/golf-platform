@@ -1,3 +1,4 @@
+import { parseVideoURL } from '@/blocks/video/embed'
 import type { Payload } from 'payload'
 
 import { layoutRefs } from '@/blocks'
@@ -178,6 +179,8 @@ export type SiteHole = {
   /** Yards from each of the course's tees, in the same order as `tees` (null if not set). */
   yards: (number | null)[]
   image: SiteMedia | null
+  /** The safe player address for the hole's video, when it has one. */
+  video: string | null
   tip: string | null
 }
 
@@ -225,6 +228,7 @@ const loadClubCourses = async (
           ladiesStrokeIndex: h.ladiesStrokeIndex ?? null,
           yards: tees.map((t) => h[yardsField(t.colour)] ?? null),
           image: image?.mimeType.startsWith('image/') ? image : null,
+          video: parseVideoURL(h.video)?.embedURL ?? null,
           tip: h.tip?.trim() || null,
         }
       })

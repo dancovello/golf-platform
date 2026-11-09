@@ -2,6 +2,7 @@ import type { CollectionConfig, Field } from 'payload'
 
 import { clubContentCreate, loggedIn } from '../access/roles'
 import { imageField } from '../blocks/shared'
+import { validateVideoURL } from '../blocks/video/embed'
 import { checkCourseSameClub } from '../site/sameClub'
 import { TEE_COLOURS, yardsField } from './courseTees'
 import { clubBannerField } from '../tenancy'
@@ -168,6 +169,19 @@ export const Courses: CollectionConfig = {
         },
         { type: 'row', fields: TEE_COLOURS.map(yards) },
         imageField('image', 'Photo (optional)', false),
+        {
+          name: 'video',
+          label: 'Video (optional)',
+          type: 'text',
+          maxLength: 300,
+          // Empty is fine; anything else must be a YouTube or Vimeo address.
+          validate: (value: unknown) =>
+            typeof value === 'string' && value.trim() !== '' ? validateVideoURL(value) : true,
+          admin: {
+            description:
+              'A YouTube or Vimeo address. It plays in the hole’s pop-up; the card still shows the photo.',
+          },
+        },
         {
           name: 'tip',
           label: 'Playing tip (optional)',
