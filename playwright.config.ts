@@ -44,7 +44,8 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
       dependencies: ['setup'],
     },
-    // The picture check (CI job "block-regression"): pnpm exec playwright test --project=visual
+    // The text-contrast check over every block page. Not run in CI (the picture check was removed
+    // 9 Nov to save minutes); run it by hand: pnpm exec playwright test --project=visual
     {
       name: 'visual-setup',
       testDir: './tests/visual',
@@ -59,14 +60,6 @@ export default defineConfig({
       dependencies: ['visual-setup'],
     },
   ],
-  // Approved pictures, one set, made on Linux (see tests/visual/blocks.spec.ts).
-  snapshotPathTemplate: 'tests/visual/__screenshots__/{arg}{ext}',
-  // Never write approved pictures as a side effect (e.g. a missing one on a Mac): only the
-  // "Update block pictures" workflow makes them, with an explicit --update-snapshots.
-  updateSnapshots: 'none',
-  expect: {
-    toHaveScreenshot: { maxDiffPixelRatio: 0.002 },
-  },
   webServer: {
     // A fresh data cache each run (src/site/cache.ts): the test clubs are re-made with new IDs.
     command: `rm -rf .next/cache/fetch-cache && node_modules/.bin/next start -p ${port}`,
