@@ -41,7 +41,7 @@ Legend: ✅ done · 🔨 build (Claude) · 👤 Dan · ❓ undecided
 | # | Job | Status |
 |---|---|---|
 | D1 | **ICO registration** and the yearly data protection fee (small-business tier). Needed before the first club | ❓ not yet raised |
-| D2 | Data processing agreement: approved by Dan (9 Nov). Claude needs the provider's legal name, company number, registered address and contact email, and the trading name, to fill `src/agreement/text.ts`, then set `AGREEMENT_APPROVED` (and the version) | 👤 send the details |
+| D2 | ✅ Data processing agreement approved by Dan; details filled in 9 Nov (PR pending). Dan is a sole trader, not a registered company. One thing to glance at: Resend's row says "as set out in Resend's data processing agreement" because I could not confirm its transfer safeguard | ✅ |
 | D3 | Marketing site terms of use and cookie policy wording final | Cookie notice: see B1. Terms: ❓ |
 | D4 | GitHub: move production keys into GitHub environments, delete the repo-wide copies (the High finding from the security audit), required checks | 👤 |
 | D5 | Production admin → Settings → Requests: inbox daniel@a1engine.co | 👤 |

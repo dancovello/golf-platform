@@ -781,3 +781,9 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Setup fee:** kept, with no number, worded as depending on the size and needs of the club. A new FAQ answer, "What does the setup fee cover?".
 - **Leaving:** FAQ is now "What happens if we cancel?", worded like any subscription. No export is promised.
 - **Pages already saved in a database keep their old text** (starter pages only apply when first added) until edited in the admin or updated by a script with Dan's go-ahead. The old footnote "Prices exclude VAT" and FAQ "What happens if we leave?" are the ones to change.
+
+## 2026-11-09: Data processing agreement finalised (Dan)
+
+- **Provider:** Daniel Covello, a sole trader (not a registered company), trading as A1 Engine, 41 Clarence Embankment, Cardiff; contact daniel@a1engine.co. There is no company number.
+- **Approved:** Dan says the wording is approved and the liability clause is agreed, so the "Draft" notice is off (`AGREEMENT_APPROVED = true`) and the version is `2026-11-09`. Any club that accepted the old draft version is asked to accept again.
+- **Sub-processors:** Vercel is London (functions region `lhr1`). Neon: Standard Contractual Clauses with the UK Addendum, and Sentry: Data Privacy Framework with the SCCs and UK Addendum as a fallback, both as their own DPAs describe them. Resend's row points to Resend's DPA, because its transfer safeguard was not confirmed.

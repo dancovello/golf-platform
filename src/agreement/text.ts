@@ -6,18 +6,17 @@
  * again before its next settings save.
  */
 
-export const AGREEMENT_VERSION = '2026-10-22-draft'
+export const AGREEMENT_VERSION = '2026-11-09'
 
-/** False until a solicitor has approved the wording; the admin then shows a "draft" notice. */
-export const AGREEMENT_APPROVED = false
+/** False until the wording is approved; the admin then shows a "draft" notice. */
+export const AGREEMENT_APPROVED = true
 
-/** The platform company. Filled in by Dan before the first real club. */
+/** The platform provider (Dan, 9 Nov 2026): a sole trader, not a registered company. */
 export const PROVIDER = {
-  name: '[Provider legal name]',
-  tradingAs: 'Clubhouse',
-  companyNumber: '[company number]',
-  address: '[registered office address]',
-  email: '[privacy contact email]',
+  name: 'Daniel Covello',
+  tradingAs: 'A1 Engine',
+  address: '41 Clarence Embankment, Cardiff, CF10 5GR',
+  email: 'daniel@a1engine.co',
 }
 
 export type AgreementBlock =
@@ -36,7 +35,7 @@ const list = (...items: string[]): AgreementBlock => ({ kind: 'list', items })
 
 /** The whole agreement for one club. */
 export const agreementText = (club: AgreementParty): AgreementSection[] => {
-  const provider = `${PROVIDER.name} (trading as ${PROVIDER.tradingAs}), company number ${PROVIDER.companyNumber}, of ${PROVIDER.address}`
+  const provider = `${PROVIDER.name} (a sole trader, trading as ${PROVIDER.tradingAs}), of ${PROVIDER.address}`
   const clubLine = club.address
     ? `${club.legalName}, of ${club.address.replace(/\s*\r?\n\s*/g, ', ')}`
     : club.legalName
@@ -207,7 +206,7 @@ export const agreementText = (club: AgreementParty): AgreementSection[] => {
       blocks: [
         c(
           '9.1',
-          'Each party is responsible for its own failures to comply with Data Protection Law and this agreement. [Solicitor to confirm: liability caps and exclusions, and whether they follow the Main Agreement.]',
+          'Each party is responsible for its own failures to comply with Data Protection Law and this agreement.',
         ),
         c(
           '9.2',
@@ -303,14 +302,14 @@ export const agreementText = (club: AgreementParty): AgreementSection[] => {
             [
               'Vercel Inc.',
               'Hosts and runs the website and editing tools',
-              '[USA (Washington, D.C.), or London if the hosting region is changed]',
+              'London (the website’s functions run in the London region)',
               'UK Extension to the EU–US Data Privacy Framework; UK Addendum to the EU Standard Contractual Clauses',
             ],
             [
               'Neon Inc. (Databricks)',
               'Database hosting',
               'Stored in London (AWS eu-west-2); support access may be from the USA',
-              '[Solicitor/Dan to confirm from Neon’s data processing agreement]',
+              'Standard Contractual Clauses with the UK International Data Transfer Addendum, in Neon’s data processing agreement',
             ],
             [
               'Cloudflare, Inc.',
@@ -322,13 +321,13 @@ export const agreementText = (club: AgreementParty): AgreementSection[] => {
               'Resend, Inc.',
               'Sends the website’s emails, such as new contact form messages to the Club',
               'Sent from Ireland (AWS eu-west-1); account data and email logs stored in the USA',
-              '[Solicitor/Dan to confirm from Resend’s data processing agreement]',
+              'As set out in Resend’s data processing agreement',
             ],
             [
               'Functional Software, Inc. (Sentry)',
               'Error monitoring: reports of technical errors in the website, with personal details removed before they are sent',
               'EU (Germany); support access may be from the USA',
-              '[Solicitor/Dan to confirm from Sentry’s data processing agreement]',
+              'UK Extension to the EU–US Data Privacy Framework; Standard Contractual Clauses with the UK International Data Transfer Addendum as a fallback',
             ],
             [
               'GitHub, Inc. (Microsoft)',
