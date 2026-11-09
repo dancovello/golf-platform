@@ -760,6 +760,15 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Bug found by our own isolation tests:** in plugin-multi-tenant 3.93.0 the Club Settings redirect misreads the names of the accounts' club list, so every club editor looked as if they had no clubs and was bounced to the admin home page (super-admins were fine). Nothing leaked; editors simply couldn't open Club Settings.
 - **Workaround:** `src/admin/fixGlobalViewRedirect.ts` passes the redirect the two field names it actually reads. Harmless once the plugin is fixed; delete it then. Covered by a unit test and by the existing "Club Settings opens club A's own settings" browser test.
 
+## 2026-11-09: Launch decisions on prices, leaving and cookies (Dan)
+
+- **VAT:** Dan is not VAT registered, so no "+ VAT" wording. The site shows the monthly cost only.
+- **Setup fee and courses:** the setup fee is Dan's own per-club arrangement and stays off the site. The one/two courses selector in the pricing calculator is to be removed, because course count is reflected in that fee.
+- **Leaving:** no content export. A club that stops paying loses its site; this is a subscription service. Marketing wording must say this plainly and must not promise Markdown, CSV or original-file exports.
+- **Cookie notice:** appears after the golf ball intro, never over it.
+- **Settled:** suppliers' data terms accepted by Dan; privacy policy approved by his solicitor; demo call timings set; real logo is in the golf ball.
+- The full to-do list is `docs/plans/launch-checklist-2026-11-09.md`.
+
 ## 2026-11-09: Hourly database check, not every 5 minutes (Dan's choice)
 - **Why:** the Sentry uptime monitor (`/health`, every 5 minutes) only proves the app answers. A database outage would have gone unreported while no one was visiting.
 - **Choice:** `/cron/database-check` runs hourly from Vercel's scheduler and sends one fatal Sentry report when the database doesn't answer within 15 seconds. Putting the database into `/health` instead would mean a query every 5 minutes, which stops Neon's database from ever sleeping: about $19 (roughly £15) a month extra on production at the smallest size, from Neon's Launch price of $0.106 per CU-hour. That can move to the 5-minute check nearer launch, when visitors keep the database awake anyway.
