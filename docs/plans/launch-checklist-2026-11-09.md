@@ -47,7 +47,7 @@ Legend: ✅ done · 🔨 build (Claude) · 👤 Dan · ❓ undecided
 | D5 | Production admin → Settings → Requests: inbox daniel@a1engine.co | 👤 |
 | D6 | Cloudflare Turnstile: add `a1engine.co` to the widget | 👤 |
 | D7 | Vercel Production: `MARKETING_GA_ID`. Google Analytics: retention 14 months, Google signals off | 👤. Only after B1 is true |
-| D8 | Neon Launch plan (7-day history) before the first real club | 👤 |
+| D8 | Neon Launch plan (7-day history) | 👤 Deferred (Dan, 9 Nov): upgrade once there are 2 paying clubs, together with Resend's paid plan |
 | D9 | **First restore drill** with the devops friend (`docs/operations/restore-runbook.md`, record in `restore-drills.md`) | 👤 never done |
 | D10 | Penetration test budget, booked before the first paying clubs | 👤 |
 | D11 | Image licences for the marketing photos, founder photo and short bio, share image | 👤 |
