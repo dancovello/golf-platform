@@ -285,6 +285,15 @@ export const Tenants: CollectionConfig = {
       },
     },
     {
+      // The full link, ready to copy (a display only: nothing is saved).
+      name: 'demoLink',
+      type: 'ui',
+      admin: {
+        condition: (data) => Boolean(data?.demoEnabled),
+        components: { Field: '/admin/DemoLinkField#DemoLinkField' },
+      },
+    },
+    {
       name: 'demoExpiresAt',
       label: 'Demo expires',
       type: 'date',
