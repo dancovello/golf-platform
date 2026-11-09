@@ -737,3 +737,4 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Migration dry run** now runs only when a pull request changes `src/migrations/`. Releases still run it in full.
 - **Dependabot** is monthly, at most 2 open pull requests. **Isolation fuzz run** is weekly (Mondays) instead of nightly; every pull request still runs the isolation suite.
 - Dan removes `block-regression` from the required checks on `main` (GitHub → Settings → Branches).
+- **Browser tests (same day):** `browser-tests` runs on pull requests only, not on merges to `main`; the `marketing-*` specs are skipped when a pull request touches nothing the marketing site shares with the club sites (`ci.yml`, `marketing_paths`).
