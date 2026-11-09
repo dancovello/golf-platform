@@ -26,7 +26,8 @@ describe('photo storage', () => {
     expect(w.mediaA.url).toBe(`${publicURL}/${w.mediaA.prefix}/${w.mediaA.filename}`)
     const res = await fetch(w.mediaA.url!)
     expect(res.status).toBe(200)
-    expect(res.headers.get('content-type')).toBe('image/png')
+    // Photos are stored as WebP (src/collections/Media.ts).
+    expect(res.headers.get('content-type')).toBe('image/webp')
   })
 
   it('the storage itself cannot be listed', async () => {
@@ -35,8 +36,8 @@ describe('photo storage', () => {
   })
 
   it('the same file name in two clubs never clashes (no hint the other club exists)', () => {
-    // Both clubs uploaded "photo.png"; each gets its own random code, never a "-1".
-    for (const m of [w.mediaA, w.mediaB]) expect(m.filename).toMatch(/^[0-9a-z]{6}-photo\.png$/)
+    // Both clubs uploaded "photo.png" (stored as .webp); each gets its own random code, never a "-1".
+    for (const m of [w.mediaA, w.mediaB]) expect(m.filename).toMatch(/^[0-9a-z]{6}-photo\.webp$/)
     expect(w.mediaA.filename).not.toBe(w.mediaB.filename)
   })
 
