@@ -10,6 +10,7 @@ import { fileURLToPath } from 'url'
 
 import { isSuperAdmin } from './access/roles'
 import { ADMIN_BRAND_NAME, ADMIN_FAVICON } from './admin/adminBrand'
+import { fixGlobalViewRedirect } from './admin/fixGlobalViewRedirect'
 import { guardTenantSelection } from './admin/guardTenantSelection'
 import { superAdminTwoFactor } from './auth/superAdminTwoFactor'
 import { encryptTotpSecrets } from './auth/totpSecretEncryption'
@@ -200,6 +201,8 @@ export default buildConfig({
     }),
     // Keeps the club list from loading before the two-factor code is entered.
     guardTenantSelection,
+    // Plugin 3.93.0 bug: editors were bounced from Club Settings to the admin home page.
+    fixGlobalViewRedirect,
     // Two-factor login. Required for super-admins; optional for club editors, who may sign in
     // with a password only (decisions.md, 22 Oct). Must come after the plugins that add
     // collections: it wraps every access rule, so anyone who has set two-factor up gets nothing

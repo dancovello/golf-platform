@@ -754,3 +754,8 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Policies still need a "last reviewed" date**, now checked against the category named "policies" (by address), so a club that renames it keeps the rule and one that deletes it loses it.
 - **News pills:** because the list is shared, the news archive only shows a category pill when it has live news (plus the one being viewed). Without that, every club's news page would gain Policies, Forms and the rest as dead-end tabs.
 - **The Document List** groups and tabs by the club's categories, in the order they were added.
+
+## 2026-11-09: Payload 3.93.0 (security release) and a workaround for a plugin bug
+- **Payload 3.93.0 and all its packages** (db-postgres, email-resend, live-preview-react, next, plugin-multi-tenant, richtext-lexical, storage-s3, translations, ui). Payload flags this release as containing vital security updates (among them enforcing read access on block content in queries and constraining global-view redirects to a user's own clubs).
+- **Bug found by our own isolation tests:** in plugin-multi-tenant 3.93.0 the Club Settings redirect misreads the names of the accounts' club list, so every club editor looked as if they had no clubs and was bounced to the admin home page (super-admins were fine). Nothing leaked; editors simply couldn't open Club Settings.
+- **Workaround:** `src/admin/fixGlobalViewRedirect.ts` passes the redirect the two field names it actually reads. Harmless once the plugin is fixed; delete it then. Covered by a unit test and by the existing "Club Settings opens club A's own settings" browser test.
