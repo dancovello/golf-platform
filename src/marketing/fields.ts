@@ -26,7 +26,7 @@ export const marketingHref: Validate = (value: unknown) => {
  * Kept here, free of app imports, because block definitions load inside the Payload config.
  */
 export const TOKEN_HELP =
-  'Use {price}, {vat}, {term} (months) and {notice} (days) for values from Settings, so they always match.'
+  'Use {price}, {term} (months) and {notice} (days) for values from Settings, so they always match.'
 
 /** Refuses a price typed straight into copy: use {price}. */
 export const noTypedPrices = (value: unknown) =>

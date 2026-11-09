@@ -12,15 +12,16 @@ test('every number on the page comes from the settings', async ({ page }) => {
   await page.goto(site())
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('One club, one price.')
   await expect(page.locator('.mk-header-body').first()).toHaveText(
-    '£149 a month + VAT for your website, on a 12-month term, plus a one-off setup fee agreed with your club. No charge per editor.',
+    '£149 a month for your website, on a 12-month term, plus a one-off setup fee that depends on the size and needs of your club. No charge per editor.',
   )
   await expect(page.locator('.mk-calc-terms')).toHaveText(
     'Billed monthly · 12-month minimum, then rolling',
   )
   await expect(page.locator('.mk-calc-price')).toContainText('£149')
-  await expect(page.locator('.mk-calc-price')).toContainText('/ month + VAT')
+  await expect(page.locator('.mk-calc-price')).toContainText('/ month')
+  await expect(page.locator('.mk-calc-price')).not.toContainText('VAT')
   await expect(page.locator('.mk-calc-footnote')).toHaveText(
-    'Prices exclude VAT. Plus a one-off setup fee. 90 days’ notice after the first 12 months.',
+    'Plus a one-off setup fee, which depends on the size and needs of your club. 90 days’ notice after the first 12 months.',
   )
   // The closing band is the same on every page now (marketing v2) and carries no number.
   await expect(page.locator('.mk-cta-body')).toHaveText(
@@ -47,13 +48,13 @@ test('modules that aren’t live are marked Coming next and never priced', async
   }
 })
 
-test('one course only until a second-course price is set (Q3)', async ({ page }) => {
+test('there is no course selector and no price is typed in the setup fee wording', async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto(site())
-  const courses = page.getByRole('group', { name: 'Courses' })
-  await expect(courses.getByRole('button', { name: 'One more course' })).toBeDisabled()
-  await expect(courses.getByRole('button', { name: 'One fewer course' })).toBeDisabled()
-  await expect(courses.locator('output')).toHaveText('1')
+  await expect(page.getByRole('group', { name: 'Courses' })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'One more course' })).toHaveCount(0)
   // The digits are drawn for the eye; screen readers get the plain price once.
   await expect(page.locator('.mk-calc-amount .mk-visually-hidden')).toHaveText('£149')
   await expect(page.locator('.mk-roll-digits')).toHaveAttribute('aria-hidden', 'true')
@@ -68,12 +69,12 @@ test('committee questions open and close, first one open', async ({ page }) => {
   await expect(page.getByRole('region', { name: 'How long is the contract?' })).toContainText(
     'A 12-month minimum, then it rolls monthly. Either side gives 90 days’ notice.',
   )
-  const leave = page.getByRole('button', { name: 'What happens if we leave?' })
+  const leave = page.getByRole('button', { name: 'What happens if we cancel?' })
   await expect(leave).toHaveAttribute('aria-expanded', 'false')
   await leave.click()
   await expect(leave).toHaveAttribute('aria-expanded', 'true')
-  await expect(page.getByRole('region', { name: 'What happens if we leave?' })).toBeVisible()
-  await expect(page.locator('.mk-faq')).toHaveCount(7)
+  await expect(page.getByRole('region', { name: 'What happens if we cancel?' })).toBeVisible()
+  await expect(page.locator('.mk-faq')).toHaveCount(8)
 })
 
 test('desktop matches Figma: two calculator panels side by side, FAQ in two columns', async ({

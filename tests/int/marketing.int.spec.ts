@@ -123,13 +123,12 @@ describe('the super-admin manages it', () => {
     expect(photo.prefix).toMatch(/^marketing-media\//)
     const settings = await p.findGlobal({ slug: 'marketing-settings', ...asAdmin })
     expect(settings.pricing?.monthlyPrice).toBe(149)
-    expect(settings.pricing?.vatLabel).toBe('+ VAT')
     const updated = await p.updateGlobal({
       slug: 'marketing-settings',
-      data: { pricing: { ...settings.pricing, vatLabel: 'plus VAT' } } as never,
+      data: { pricing: { ...settings.pricing, monthlyPrice: 159 } } as never,
       ...asAdmin,
     })
-    expect(updated.pricing?.vatLabel).toBe('plus VAT')
+    expect(updated.pricing?.monthlyPrice).toBe(159)
   })
 
   it('every marketing photo needs a description', async () => {

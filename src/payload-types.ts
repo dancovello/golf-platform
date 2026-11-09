@@ -2060,7 +2060,7 @@ export interface MarketingSectionHeaderBlock {
    */
   title: string;
   /**
-   * One or two sentences that back the title up. Under thirty-five words. Use {price}, {vat}, {term} (months) and {notice} (days) for values from Settings, so they always match.
+   * One or two sentences that back the title up. Under thirty-five words. Use {price}, {term} (months) and {notice} (days) for values from Settings, so they always match.
    */
   subhead?: string | null;
   align: 'left' | 'center';
@@ -2226,7 +2226,7 @@ export interface MarketingFeatureCardsBlock {
 export interface MarketingCtaBandBlock {
   title: string;
   /**
-   * Use {price}, {vat}, {term} (months) and {notice} (days) for values from Settings, so they always match.
+   * Use {price}, {term} (months) and {notice} (days) for values from Settings, so they always match.
    */
   subhead?: string | null;
   primary?: {
@@ -2417,9 +2417,12 @@ export interface MarketingFounderBlock {
 export interface MarketingPricingBlock {
   title: string;
   /**
-   * Use {price}, {vat}, {term} (months) and {notice} (days) for values from Settings, so they always match.
+   * Use {price}, {term} (months) and {notice} (days) for values from Settings, so they always match.
    */
   terms?: string | null;
+  /**
+   * Not used: there is no course selector.
+   */
   coursesText?: string | null;
   comingNext?:
     | {
@@ -2435,7 +2438,7 @@ export interface MarketingPricingBlock {
       }[]
     | null;
   /**
-   * Use {price}, {vat}, {term} (months) and {notice} (days) for values from Settings, so they always match.
+   * Use {price}, {term} (months) and {notice} (days) for values from Settings, so they always match.
    */
   footnote?: string | null;
   id?: string | null;
@@ -2450,7 +2453,7 @@ export interface MarketingFaqBlock {
   title: string;
   body?: string | null;
   /**
-   * Answer yes or no first where you can. Use {price}, {vat}, {term} (months) and {notice} (days) for values from Settings, so they always match.
+   * Answer yes or no first where you can. Use {price}, {term} (months) and {notice} (days) for values from Settings, so they always match.
    */
   items: {
     question: string;
@@ -4997,13 +5000,13 @@ export interface MarketingSetting {
   pricing: {
     monthlyPrice: number;
     /**
-     * Shown next to every price. Open question Q2.
+     * Not used: the company is not VAT registered.
      */
-    vatLabel: string;
+    vatLabel?: string | null;
     minimumTermMonths: number;
     noticeDays: number;
     /**
-     * Empty: the calculator hides the second course. Open question Q3.
+     * Not used: there is no course selector (course count is in the setup fee).
      */
     secondCoursePrice?: number | null;
   };

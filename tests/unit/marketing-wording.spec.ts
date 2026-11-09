@@ -17,6 +17,9 @@ const BANNED = [
   // The request form and its emails promised a date; none is promised now.
   /promised by/i,
   /on its way/i,
+  // Not VAT registered (9 Nov 2026): no VAT wording, no set setup fee, no course selector.
+  /\+ VAT|plus VAT|exclude VAT/i,
+  /one more course|second course/i,
 ]
 
 const sourceFiles = (dir: string): string[] =>
