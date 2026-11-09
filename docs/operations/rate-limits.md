@@ -57,6 +57,10 @@ Every public endpoint has a limit, at two layers (doc 04 §8): **the app** and *
 - No limit: a small fixed response.
 - Vercel's built-in DDoS protection.
 
+**Hourly database check** (`/cron/database-check`)
+- Doesn't exist without Vercel's scheduler secret.
+- Enforced by a code check.
+
 **Nightly clean-up** (`/cron/clean-up`)
 - Doesn't exist without Vercel's scheduler secret.
 - Enforced by a code check.
