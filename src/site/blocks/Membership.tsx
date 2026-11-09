@@ -239,11 +239,11 @@ export const Membership = ({
         <p className="mb-price">
           {price ? (
             <>
-              <span className="t-heading-l">{price}</span>
+              <span className="t-heading-l mb-amount">{price}</span>
               {t.period ? <span className="t-label-s mb-period">{t.period}</span> : null}
             </>
           ) : (
-            <span className="t-heading-m">{ON_APPLICATION}</span>
+            <span className="t-body-m mb-on-application">{ON_APPLICATION}</span>
           )}
         </p>
         {t.description ? <p className="t-body-s mb-description">{t.description}</p> : null}
