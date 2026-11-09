@@ -759,3 +759,12 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Payload 3.93.0 and all its packages** (db-postgres, email-resend, live-preview-react, next, plugin-multi-tenant, richtext-lexical, storage-s3, translations, ui). Payload flags this release as containing vital security updates (among them enforcing read access on block content in queries and constraining global-view redirects to a user's own clubs).
 - **Bug found by our own isolation tests:** in plugin-multi-tenant 3.93.0 the Club Settings redirect misreads the names of the accounts' club list, so every club editor looked as if they had no clubs and was bounced to the admin home page (super-admins were fine). Nothing leaked; editors simply couldn't open Club Settings.
 - **Workaround:** `src/admin/fixGlobalViewRedirect.ts` passes the redirect the two field names it actually reads. Harmless once the plugin is fixed; delete it then. Covered by a unit test and by the existing "Club Settings opens club A's own settings" browser test.
+
+## 2026-11-09: Launch decisions on prices, leaving and cookies (Dan)
+
+- **VAT:** Dan is not VAT registered, so no "+ VAT" wording. The site shows the monthly cost only.
+- **Setup fee and courses:** the setup fee is Dan's own per-club arrangement and stays off the site. The one/two courses selector in the pricing calculator is to be removed, because course count is reflected in that fee.
+- **Leaving:** no content export. A club that stops paying loses its site; this is a subscription service. Marketing wording must say this plainly and must not promise Markdown, CSV or original-file exports.
+- **Cookie notice:** appears after the golf ball intro, never over it.
+- **Settled:** suppliers' data terms accepted by Dan; privacy policy approved by his solicitor; demo call timings set; real logo is in the golf ball.
+- The full to-do list is `docs/plans/launch-checklist-2026-11-09.md`.
