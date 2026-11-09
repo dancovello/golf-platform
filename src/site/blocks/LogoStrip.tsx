@@ -69,7 +69,7 @@ export const LogoStrip = ({ block, ctx }: { block: LogoStripBlock; ctx: BlockCon
     )
   }
 
-  if (style === 'marquee' && shown.length < MARQUEE_MIN_LOGOS) {
+  if (style === 'marquee' && (block.still || shown.length < MARQUEE_MIN_LOGOS)) {
     return (
       <section className="ls ls-marquee on-brand" aria-label={block.eyebrow ?? 'Partners'}>
         <ul className="ls-marquee-still">{shown.map((p, i) => slot(p, i))}</ul>

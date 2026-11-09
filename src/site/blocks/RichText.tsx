@@ -22,6 +22,9 @@ export const RichText = ({
   const headings = headingsOf(block.content)
   const showContents = style === 'contents' && headings.filter((h) => h.level === 2).length >= 3
 
+  const background = block.background ?? (style === 'editorial' ? 'subtle' : 'canvas')
+  const surface = background === 'brand' ? ' on-brand' : background === 'subtle' ? ' on-subtle' : ''
+
   if (style === 'editorial') {
     const note =
       block.noteTitle || block.noteText ? (
@@ -31,7 +34,7 @@ export const RichText = ({
         </aside>
       ) : null
     return (
-      <section className="blk rt rt-editorial on-subtle">
+      <section className={`blk rt rt-editorial${surface}`}>
         <div className="rt-column">
           {block.eyebrow ? <p className="t-eyebrow blk-eyebrow">{block.eyebrow}</p> : null}
           <div className="rt-prose">
@@ -50,7 +53,7 @@ export const RichText = ({
   }
 
   return (
-    <section className={`blk rt rt-${style}${showContents ? ' has-toc' : ''}`}>
+    <section className={`blk rt rt-${style}${showContents ? ' has-toc' : ''}${surface}`}>
       <div className="blk-container rt-layout">
         {showContents ? <OnThisPage headings={headings} /> : null}
         <div className="rt-prose">

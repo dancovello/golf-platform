@@ -23,6 +23,20 @@ const config: Block = {
       },
     ]),
     {
+      name: 'background',
+      label: 'Background (optional)',
+      type: 'select',
+      options: [
+        { label: 'Page background', value: 'canvas' },
+        { label: 'Soft tint', value: 'subtle' },
+        { label: 'Brand colour', value: 'brand' },
+      ],
+      admin: {
+        description:
+          'Leave empty for the style’s usual look: a soft tint for style C, the page background for A and B.',
+      },
+    },
+    {
       name: 'eyebrow',
       label: 'Small line above (style C, optional)',
       type: 'text',

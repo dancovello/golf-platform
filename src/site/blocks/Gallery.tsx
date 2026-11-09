@@ -27,7 +27,7 @@ export const Gallery = ({ block, ctx }: { block: GalleryBlock; ctx: BlockContext
   const style = block.style ?? 'masonry'
   return (
     <section
-      className={`blk gl gl-${style}-block${style === 'grid' ? ' on-subtle' : ''}${style === 'viewer' ? ' on-brand' : ''}`}
+      className={`blk gl gl-${style}-block${style === 'grid' ? ' on-subtle' : ''}${style === 'viewer' ? (block.background === 'plain' ? ' gl-plain' : ' on-brand') : ''}`}
     >
       <div className="blk-container">
         <div className={`blk-header${style === 'viewer' ? ' is-centred' : ''}`}>

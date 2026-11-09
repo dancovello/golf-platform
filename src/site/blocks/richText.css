@@ -192,3 +192,29 @@
     margin: 0 0 var(--space-24);
   }
 }
+
+/* Brand-colour background (the "Background" option): light text, and the parts that sit on a
+   light card or use the brand colour for text switch to colours that show on the brand colour. */
+.rt.on-brand .rt-prose a:hover {
+  color: var(--color-text-accent);
+}
+.rt.on-brand .rt-prose blockquote {
+  color: inherit;
+}
+.rt.on-brand .rt-prose figcaption,
+.rt.on-brand .rt-toc .rt-toc-title,
+.rt.on-brand .rt-toc-list a {
+  color: var(--color-text-on-inverse-muted);
+}
+.rt.on-brand .rt-toc-list {
+  border-left-color: var(--color-border-on-inverse-subtle);
+}
+.rt.on-brand .rt-toc-list a.is-current {
+  color: var(--color-text-on-inverse);
+}
+.rt.on-brand .rt-dropcap::first-letter {
+  color: var(--color-text-accent);
+}
+.rt.on-brand .rt-prose .rt-note {
+  color: var(--color-text-primary);
+}
