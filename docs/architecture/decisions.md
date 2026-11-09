@@ -773,3 +773,9 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Why:** the Sentry uptime monitor (`/health`, every 5 minutes) only proves the app answers. A database outage would have gone unreported while no one was visiting.
 - **Choice:** `/cron/database-check` runs hourly from Vercel's scheduler and sends one fatal Sentry report when the database doesn't answer within 15 seconds. Putting the database into `/health` instead would mean a query every 5 minutes, which stops Neon's database from ever sleeping: about $19 (roughly £15) a month extra on production at the smallest size, from Neon's Launch price of $0.106 per CU-hour. That can move to the 5-minute check nearer launch, when visitors keep the database awake anyway.
 - **`/health` is unchanged**, so the release workflow's health check behaves as before.
+
+## 2026-11-09: Data processing agreement finalised (Dan)
+
+- **Provider:** Daniel Covello, a sole trader (not a registered company), trading as A1 Engine, 41 Clarence Embankment, Cardiff; contact daniel@a1engine.co. There is no company number.
+- **Approved:** Dan says the wording is approved and the liability clause is agreed, so the "Draft" notice is off (`AGREEMENT_APPROVED = true`) and the version is `2026-11-09`. Any club that accepted the old draft version is asked to accept again.
+- **Sub-processors:** Vercel is London (functions region `lhr1`). Neon: Standard Contractual Clauses with the UK Addendum, and Sentry: Data Privacy Framework with the SCCs and UK Addendum as a fallback, both as their own DPAs describe them. Resend's row points to Resend's DPA, because its transfer safeguard was not confirmed.
