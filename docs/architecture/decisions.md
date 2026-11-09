@@ -773,3 +773,11 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Why:** the Sentry uptime monitor (`/health`, every 5 minutes) only proves the app answers. A database outage would have gone unreported while no one was visiting.
 - **Choice:** `/cron/database-check` runs hourly from Vercel's scheduler and sends one fatal Sentry report when the database doesn't answer within 15 seconds. Putting the database into `/health` instead would mean a query every 5 minutes, which stops Neon's database from ever sleeping: about $19 (roughly £15) a month extra on production at the smallest size, from Neon's Launch price of $0.106 per CU-hour. That can move to the 5-minute check nearer launch, when visitors keep the database awake anyway.
 - **`/health` is unchanged**, so the release workflow's health check behaves as before.
+
+## 2026-11-09 (later): Launch wording built
+
+- **Cookie notice after the intro:** the shared banner (`src/site/privacy/CookieConsent.tsx`) now waits while `<html data-intro>` is set and appears when the golf ball intro ends or gives up. Club sites have no intro, so their banner is unchanged.
+- **No VAT wording, no course selector.** The `{vat}` token now fills with nothing (saved text that still has it loses it). The VAT wording, second-course price and courses text settings are hidden and unused; they were not dropped, because dropping a column is a destructive migration. Migration `20261109_201550_launch_wording` only changes the pricing small-print default and makes the VAT field optional.
+- **Setup fee:** kept, with no number, worded as depending on the size and needs of the club. A new FAQ answer, "What does the setup fee cover?".
+- **Leaving:** FAQ is now "What happens if we cancel?", worded like any subscription. No export is promised.
+- **Pages already saved in a database keep their old text** (starter pages only apply when first added) until edited in the admin or updated by a script with Dan's go-ahead. The old footnote "Prices exclude VAT" and FAQ "What happens if we leave?" are the ones to change.

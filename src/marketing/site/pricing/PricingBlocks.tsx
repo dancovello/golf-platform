@@ -13,13 +13,10 @@ export const Pricing = async ({ block }: { block: MarketingPricingBlock }) => {
     <CalculatorClient
       title={block.title}
       terms={fill(block.terms)}
-      coursesText={block.coursesText ?? ''}
       comingNext={(block.comingNext ?? []).map((m) => ({ title: m.title, body: m.body }))}
       included={(block.included ?? []).map((i) => i.text)}
       footnote={fill(block.footnote)}
       price={settings.pricing?.monthlyPrice ?? 149}
-      secondCourse={settings.pricing?.secondCoursePrice ?? null}
-      vatLabel={settings.pricing?.vatLabel ?? '+ VAT'}
     />
   )
 }

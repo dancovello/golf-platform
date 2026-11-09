@@ -99,13 +99,13 @@ const OBJECTIONS = [
     topic: 'Cost',
     question: '“What will it cost?”',
     answer:
-      'One monthly fee, plus a one-off setup fee agreed with your club. Unlimited editors are included.',
+      'One monthly fee, plus a one-off setup fee that depends on the size and needs of your club. Unlimited editors are included.',
   },
   {
     topic: 'Contract',
     question: '“What happens when our contract ends?”',
     answer:
-      'Renew and nothing changes. If you’d rather move on, you’re free to: the website is leased, not sold, so it comes down when your contract ends.',
+      'Renew and nothing changes. Like any subscription, if you decide to stop, the site stays live until your plan ends. Your domain stays yours.',
   },
   {
     topic: 'Day to day',
@@ -310,21 +310,20 @@ const pricing: StarterPage = {
   slug: 'pricing',
   title: 'Pricing',
   description:
-    'One price per club, with hosting, every live block and unlimited editors included, plus a one-off setup fee agreed with your club.',
+    'One monthly price per club, with hosting, every live block and unlimited editors included, plus a one-off setup fee that depends on your club.',
   layout: [
     {
       blockType: 'mkSectionHeader',
       eyebrow: 'Pricing',
       title: 'One club, one price.',
       subhead:
-        '{price} a month {vat} for your website, on a {term}-month term, plus a one-off setup fee agreed with your club. No charge per editor.',
+        '{price} a month for your website, on a {term}-month term, plus a one-off setup fee that depends on the size and needs of your club. No charge per editor.',
       align: 'center',
     },
     {
       blockType: 'mkPricing',
       title: 'Build your plan',
       terms: 'Billed monthly · {term}-month minimum, then rolling',
-      coursesText: 'Each course gets its own guide, scorecard and hole-by-hole pages.',
       comingNext: [
         {
           title: 'Tee-time bookings',
@@ -340,7 +339,7 @@ const pricing: StarterPage = {
         { text: 'We move your old site across' },
       ],
       footnote:
-        'Prices exclude VAT. Plus a one-off setup fee. {notice} days’ notice after the first {term} months.',
+        'Plus a one-off setup fee, which depends on the size and needs of your club. {notice} days’ notice after the first {term} months.',
     },
     {
       blockType: 'mkFaq',
@@ -357,9 +356,14 @@ const pricing: StarterPage = {
           answer: 'You do. Everything you publish, upload or collect belongs to the club.',
         },
         {
-          question: 'What happens if we leave?',
+          question: 'What happens if we cancel?',
           answer:
-            'Your site stays live for as long as your contract runs. If you decide not to renew, you’re free to move elsewhere, and the site comes down at the end of the term. Your domain was always yours.',
+            'Like any subscription, your site stays live for as long as your plan runs. After the first {term} months you can cancel with {notice} days’ notice, and the site comes down when the plan ends. Your domain stays yours.',
+        },
+        {
+          question: 'What does the setup fee cover?',
+          answer:
+            'We set your club up and move your content across. The fee depends on the size of your club and how much there is to move, and we agree it with you before any work starts.',
         },
         {
           question: 'What do you move across from our old site?',
