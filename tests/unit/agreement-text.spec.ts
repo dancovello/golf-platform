@@ -60,13 +60,11 @@ describe('data processing agreement', () => {
     }
   })
 
-  it('leaves no unfilled gaps except the bracketed ones for Dan and his solicitor', () => {
+  it('has no unfilled gaps now that the agreement is approved', () => {
     expect(text).not.toMatch(/\{\{|\}\}|undefined|null|\[object/)
-    const gaps = [...new Set(text.match(/\[[^\]]+\]/g) ?? [])]
-    for (const gap of gaps) {
-      expect(gap, gap).toMatch(
-        /Provider|company number|registered office|privacy contact|Solicitor|USA|Club legal name/,
-      )
-    }
+    expect(text).not.toMatch(/\[[^\]]+\]/)
+    expect(text).toMatch(/Daniel Covello \(a sole trader, trading as A1 Engine\)/)
+    expect(text).toContain('daniel@a1engine.co')
+    expect(text).not.toMatch(/Solicitor|Clubhouse|company number/)
   })
 })

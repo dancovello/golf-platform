@@ -19,7 +19,8 @@ test('the accept form shows the agreement with the club named in it', async ({
   const text = page.getByRole('region', { name: 'Agreement text' })
   await expect(text).toContainText('Test Club A')
   await expect(text).toContainText('Schedule 3: Sub-processors')
-  await expect(page.getByText('Draft wording, awaiting legal review.')).toBeVisible()
+  await expect(text).toContainText('Daniel Covello (a sole trader, trading as A1 Engine)')
+  await expect(page.getByText('Draft wording, awaiting legal review.')).toHaveCount(0)
   await expect(page.getByLabel('Your full name')).toBeVisible()
   await expect(
     page.getByLabel('I confirm I have authority to accept this agreement on behalf of the club.'),

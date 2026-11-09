@@ -23,7 +23,6 @@ Each has a safe default so building isn't blocked. The default is what ships unt
 | N7 | **Old page addresses.** The Switching page and FAQ promise old page addresses forward to the new ones (softened for now: D8). Today the platform forwards a club's *extra domains* (e.g. without `www`), but not old page addresses like `/about-us.php`. Build page forwarding, or soften the copy? | Phase 5 (Switching) | Claim held back until decided |
 | N8 | **"Alt text required."** For club photos, the description is optional (your decision, 17 Oct); the library marks missing ones "Needs description". The marketing site's own Media block will require it. | Before any copy says it | Not claimed for club sites |
 | N9 | **Search in the nav.** Figma's nav has a Search button, but the marketing site has no search for it to open. Add site search later, or remove it from Figma? | Phase 8 | Left out |
-| N11 | **Data processing agreement.** The FAQ and Trust promise to send one before a club signs. A draft exists in the admin (`src/agreement/text.ts`), awaiting your solicitor. Is it ready to send? | Before Pricing ships | Wording kept, flagged in the claims register |
 | N12 | **Where homepage requests are emailed.** Set an address in Company website → Settings → Requests. Turnstile's widget also needs the company domain added in Cloudflare | Before Switching ships | Requests are saved in the admin; nothing is emailed to you |
 
 ### Finding for Q5 (from the code, 2026-10-21)
@@ -77,3 +76,4 @@ Places where the build differs from Figma to meet WCAG 2.2 AA. Update Figma or t
 | Q3 | Second course price | Moot: the course selector is removed; course count is in Dan's own setup fee, kept off the site | 2026-11-09 |
 | Q4 | Demo booking calendar | Own calendar, Dan has set his timings | 2026-11-09 |
 | N10 | Exporting a club's content | No export. A club that stops paying loses its site | 2026-11-09 |
+| N11 | Data processing agreement | Approved by Dan; his details filled in (a sole trader, trading as A1 Engine); version 2026-11-09 | 2026-11-09 |
