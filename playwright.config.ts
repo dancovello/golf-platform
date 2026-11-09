@@ -40,7 +40,12 @@ export default defineConfig({
       // Timing-sensitive tests (animations, uploads) on a shared CI machine: one more try than
       // the isolation specs get, so a slow moment is not reported as a failure.
       retries: isCI ? 2 : 0,
-      testIgnore: [/tests\/visual\//, ISOLATION_SPECS],
+      testIgnore: [
+        /tests\/visual\//,
+        ISOLATION_SPECS,
+        // CI sets this when a pull request touches nothing the marketing site uses.
+        ...(process.env.SKIP_MARKETING_SPECS ? [/tests\/e2e\/marketing-/] : []),
+      ],
       use: { ...devices['Desktop Chrome'] },
       dependencies: ['setup'],
     },
