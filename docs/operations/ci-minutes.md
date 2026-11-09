@@ -65,3 +65,8 @@ Still running out of minutes, so on 9 Nov:
 - **`migration-dry-run` only runs when `src/migrations/` changes** (about 1.5 minutes saved on most pull requests). The release workflow still does its own dry run.
 - **Dependabot monthly, 2 open pull requests at most**, and the **isolation fuzz run weekly**.
 - Measured on four recent pull requests, `test` now takes 6–10 minutes (not 3) and `browser-tests` 8–11: the next places to look.
+
+### Browser tests, same day (second PR)
+
+- **`browser-tests` no longer runs on merges to `main`** (pull requests only). The pull request already ran it on exactly what lands. `tenant-isolation` still runs on every merge.
+- **The 17 `marketing-*` specs (a third of the tests) are skipped on a pull request that touches nothing the marketing site uses.** The marketing site shares block renderers, theme, demos and site code with the club sites, so a block or theme change still runs them. Admin, collections, accounts, search and CI-only changes skip them. The list is in `ci.yml` (`marketing_paths`). A merge release PR into `production` runs everything.
