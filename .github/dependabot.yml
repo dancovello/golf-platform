@@ -3,8 +3,8 @@ updates:
   - package-ecosystem: npm
     directory: /
     schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
+      interval: monthly
+    open-pull-requests-limit: 2
     ignore:
       # Type definitions must match the Node version we run (24, see .nvmrc).
       - dependency-name: '@types/node'
@@ -18,4 +18,4 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
+      interval: monthly

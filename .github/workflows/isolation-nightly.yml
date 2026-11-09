@@ -1,11 +1,11 @@
-# Nightly randomised tenant-isolation run (job 9, 21 Oct grilling): 10,000 random steps instead
+# Weekly (Mondays) randomised tenant-isolation run (job 9, 21 Oct grilling): 10,000 random steps instead
 # of the 500 every pull request runs (tests/int/isolation-fuzz.int.spec.ts). A failure prints the
-# seed to replay it with, and opens an issue. About 5 minutes of CI a night.
+# seed to replay it with, and opens an issue. About 5 minutes of CI a week (was nightly until 9 Nov).
 name: Isolation (nightly)
 
 on:
   schedule:
-    - cron: '15 2 * * *'
+    - cron: '15 2 * * 1' # Mondays
   workflow_dispatch:
     inputs:
       seed:
