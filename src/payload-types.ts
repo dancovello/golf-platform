@@ -1189,6 +1189,10 @@ export interface Course {
         yardsBlue?: number | null;
         image?: (string | null) | Media;
         /**
+         * A YouTube or Vimeo address. It plays in the hole’s pop-up; the card still shows the photo.
+         */
+        video?: string | null;
+        /**
          * One or two sentences.
          */
         tip?: string | null;
@@ -3727,6 +3731,7 @@ export interface CoursesSelect<T extends boolean = true> {
         yardsRed?: T;
         yardsBlue?: T;
         image?: T;
+        video?: T;
         tip?: T;
         id?: T;
       };

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import { ArrowLeft, ArrowRight } from '../components/Icons'
 import { pad2, TeeDot } from './holeParts'
+import { holeLabel, useHoleDialog } from './HoleDialog'
 import { Photo } from './parts'
 import type { SiteHole, SiteTee } from './resolve'
 
@@ -24,6 +25,7 @@ export const HoleCarousel = ({
   heading: string
 }) => {
   const track = useRef<HTMLDivElement>(null)
+  const { show, dialog } = useHoleDialog(tees)
   const [index, setIndex] = useState(0)
   const count = holes.length
 
@@ -88,6 +90,13 @@ export const HoleCarousel = ({
             {hole.image ? (
               <Photo image={hole.image} sizes="(max-width: 767px) 80vw, 340px" alt="" />
             ) : null}
+            <button
+              type="button"
+              className="hole-hit"
+              aria-haspopup="dialog"
+              aria-label={`${holeLabel(hole)}: open details`}
+              onClick={() => show(hole)}
+            />
             <div className="hole-overlay-top">
               <span className="t-display-xl">{pad2(hole.number)}</span>
               <span className="t-label-s hole-chip">Par {hole.par}</span>
@@ -109,6 +118,7 @@ export const HoleCarousel = ({
           </article>
         ))}
       </div>
+      {dialog}
     </>
   )
 }

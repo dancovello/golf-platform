@@ -313,6 +313,13 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
     why: 'Public Book a demo page with no user; reads only the slot keys, never a visitor’s details',
   },
   {
+    file: 'src/media/convertExisting.ts',
+    fn: 'convertExistingPhotos',
+    uses: 2,
+    club: 'Every club (or the one named): photo addresses and types only, to save older originals as WebP',
+    why: 'One-off, run only by scripts/convert-photos-to-webp.ts from a terminal (production needs Dan’s approval)',
+  },
+  {
     file: 'src/privacy/cleanUp.ts',
     fn: 'deleteOldDemoBookings',
     uses: 1,

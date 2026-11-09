@@ -51,3 +51,4 @@ node_modules/
 
 # Club content copied for imports (the club owns it; never commit)
 club-imports/
+converted-photos-*.json

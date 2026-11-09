@@ -175,6 +175,61 @@
   flex-direction: column;
   gap: var(--space-12);
 }
+/* The hole's video: the photo with a play button, then the player once pressed. */
+.hole-dialog-image.is-video {
+  position: relative;
+  background: var(--color-surface-brand);
+}
+.hole-dialog-poster {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.hole-dialog-poster img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.hole-dialog-poster:focus-visible {
+  outline: 2px solid var(--color-action-accent);
+  outline-offset: -4px;
+}
+.hole-dialog-iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* Carousel cards and guide rows: a see-through button over the whole card opens the pop-up. */
+.hole-overlay,
+.hole-row {
+  position: relative;
+}
+.hole-hit {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.hole-hit:focus-visible {
+  outline: 2px solid var(--color-action-accent);
+  outline-offset: -4px;
+}
+.hole-row:hover .hole-row-title .t-heading-m {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
 .hole-dialog-close {
   position: absolute;
   top: var(--space-12);
