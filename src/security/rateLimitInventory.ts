@@ -105,6 +105,11 @@ export const RATE_LIMITS: Record<string, Protection> = {
       "Only with Vercel's scheduler secret (CRON_SECRET) and the canary account set; otherwise it doesn't exist",
     where: 'Code check in the route',
   },
+  'src/app/(frontend)/cron/database-check/route.ts': {
+    who: 'scheduler',
+    limit: "Only with Vercel's scheduler secret (CRON_SECRET); otherwise it doesn't exist",
+    where: 'Code check in the route',
+  },
   'src/app/(frontend)/cron/clean-up/route.ts': {
     who: 'scheduler',
     limit: "Only with Vercel's scheduler secret (CRON_SECRET); otherwise it doesn't exist",

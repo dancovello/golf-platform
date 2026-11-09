@@ -768,3 +768,8 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Cookie notice:** appears after the golf ball intro, never over it.
 - **Settled:** suppliers' data terms accepted by Dan; privacy policy approved by his solicitor; demo call timings set; real logo is in the golf ball.
 - The full to-do list is `docs/plans/launch-checklist-2026-11-09.md`.
+
+## 2026-11-09: Hourly database check, not every 5 minutes (Dan's choice)
+- **Why:** the Sentry uptime monitor (`/health`, every 5 minutes) only proves the app answers. A database outage would have gone unreported while no one was visiting.
+- **Choice:** `/cron/database-check` runs hourly from Vercel's scheduler and sends one fatal Sentry report when the database doesn't answer within 15 seconds. Putting the database into `/health` instead would mean a query every 5 minutes, which stops Neon's database from ever sleeping: about $19 (roughly £15) a month extra on production at the smallest size, from Neon's Launch price of $0.106 per CU-hour. That can move to the 5-minute check nearer launch, when visitors keep the database awake anyway.
+- **`/health` is unchanged**, so the release workflow's health check behaves as before.
