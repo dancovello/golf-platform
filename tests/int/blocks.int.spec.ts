@@ -4,7 +4,7 @@ import { beforeAll, describe, expect, it } from 'vitest'
 import { pngFile } from '../shared/media'
 import { rt } from '../shared/richText'
 import { loadClubPage } from '@/site/loadClub'
-import { seedWorld, type World } from './helpers/seed'
+import { categoryOf, seedWorld, type World } from './helpers/seed'
 
 // Every block: club A's page can't use club B's photos or pages (src/blocks/*/config.ts refs).
 let w: World
@@ -158,11 +158,12 @@ describe('document list', () => {
   })
 
   it('a policy needs its last-reviewed date', async () => {
+    const policies = await categoryOf(w.payload, w.clubA.id, 'policies')
     await expect(
       w.payload.update({
         collection: 'documents',
         id: w.docA.id,
-        data: { category: 'policies', lastReviewed: null } as never,
+        data: { category: policies.id, lastReviewed: null } as never,
         overrideAccess: false,
         user: w.editorA,
       }),

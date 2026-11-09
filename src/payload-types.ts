@@ -385,7 +385,10 @@ export interface Document {
   id: string;
   tenant?: (string | null) | Tenant;
   title: string;
-  category: 'course' | 'policies' | 'forms' | 'minutes' | 'visitors' | 'other';
+  /**
+   * The club’s categories, shared with news. Add or change them under Website → Categories. Policies need a "last reviewed" date.
+   */
+  category: string | Category;
   /**
    * Required for policies. Shown on the site; flagged after 12 months.
    */
@@ -403,6 +406,23 @@ export interface Document {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+}
+/**
+ * The club’s categories, used to sort news (and anything else that gets categories later). They show on the website in the order they were added.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  name: string;
+  /**
+   * Filled in from the name. Used in links such as /news?category=competitions. Renaming a category does not change it.
+   */
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1288,23 +1308,6 @@ export interface NewsFeedBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'newsFeed';
-}
-/**
- * The club’s categories, used to sort news (and anything else that gets categories later). They show on the website in the order they were added.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories".
- */
-export interface Category {
-  id: string;
-  tenant?: (string | null) | Tenant;
-  name: string;
-  /**
-   * Filled in from the name. Used in links such as /news?category=competitions. Renaming a category does not change it.
-   */
-  slug: string;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

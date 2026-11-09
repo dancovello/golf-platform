@@ -1,11 +1,6 @@
-import { DOCUMENT_CATEGORIES } from '@/collections/documentCategories'
-
 import type { SiteDocument } from './resolve'
 
 // No server-only imports here: DocumentLibrary (browser) uses this file.
-
-export const categoryName = (value: string) =>
-  DOCUMENT_CATEGORIES.find((c) => c.value === value)?.label ?? 'Other'
 
 export const reviewedDate = (iso: string | null, style: 'long' | 'short') =>
   iso
@@ -26,7 +21,6 @@ export const downloadLabel = (doc: SiteDocument) =>
   `Download ${doc.title} (${[doc.type, doc.size].filter(Boolean).join(', ')})`
 
 export type DocRow = SiteDocument & {
-  categoryName: string
   reviewed: string | null
   overdue: boolean
 }

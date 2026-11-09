@@ -123,10 +123,17 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
   },
   {
     file: 'src/collections/Categories.ts',
-    fn: 'keepCategoriesInUse',
+    fn: 'count',
     uses: 1,
-    club: 'The category being deleted: counts the news that uses it (its ID in the where clause)',
+    club: 'The category being deleted: counts the news and the documents that use it (its ID in the where clause; keepCategoriesInUse calls it once for each)',
     why: 'Runs on the delete itself, for whoever is deleting; it must see every article of the club, including drafts the deleter might not be shown',
+  },
+  {
+    file: 'src/collections/Documents.ts',
+    fn: 'policiesNeedReviewDate',
+    uses: 1,
+    club: 'The one category the document is being saved with (its ID); only its address is read, and a category from another club is refused first by the same-club check on the same save',
+    why: 'Validation runs inside the save and also for trusted scripts that have no signed-in user (club import, the demo club), where the normal rules would hide the category and silently skip the rule',
   },
   {
     file: 'src/collections/categoryIds.ts',
@@ -503,8 +510,15 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
   },
   {
     file: 'src/site/blocks/resolve.ts',
-    fn: 'loadBlockData',
+    fn: 'loadClubDocuments',
     uses: 2,
+    club: `${RESOLVED_CLUB}. Both the documents (by ID) and the categories are limited to it`,
+    why: PUBLIC_SITE,
+  },
+  {
+    file: 'src/site/blocks/resolve.ts',
+    fn: 'loadBlockData',
+    uses: 1,
     club: RESOLVED_CLUB,
     why: PUBLIC_SITE,
   },
@@ -541,7 +555,7 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
   {
     file: 'src/site/news.ts',
     fn: 'newsArchiveFresh',
-    uses: 1,
+    uses: 2,
     club: RESOLVED_CLUB,
     why: PUBLIC_SITE,
   },

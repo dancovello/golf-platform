@@ -6,7 +6,6 @@ import { layoutRefs, pageBlocks } from '@/blocks'
 import { idOf } from '@/blocks/types'
 import { loadClubMedia, type SiteMedia } from '@/site/blocks/media'
 import { loadBlockContext } from '@/site/blocks/resolve'
-import { categoryName } from '@/site/blocks/documentsShared'
 import { clubEvents } from '@/site/events'
 import { clubCategories } from '@/site/news'
 import type { SiteLink } from '@/site/loadClub'
@@ -183,7 +182,7 @@ export const buildClubEntries = async (
             kind: 'document',
             sourceID: doc.id,
             title: doc.title,
-            eyebrow: categoryName(doc.category),
+            eyebrow: doc.categoryName,
             excerpt: null,
             body: null,
             link: { kind: 'url', href: doc.url },
