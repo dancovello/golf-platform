@@ -40,6 +40,7 @@ export const demoCourse = (): SiteCourse => ({
     ladiesStrokeIndex: (strokeIndex % 18) + 1,
     yards: [white, yellow, red],
     image: demoPicture(PICTURES[i % PICTURES.length]),
+    video: null,
     tip: HOLE_TIPS[i % HOLE_TIPS.length],
   })),
 })

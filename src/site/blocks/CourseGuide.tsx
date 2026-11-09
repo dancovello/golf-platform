@@ -4,6 +4,7 @@ import { useState } from 'react'
 
 import { ArrowRight } from '../components/Icons'
 import { holeFigures, pad2, TeeYards } from './holeParts'
+import { holeLabel, useHoleDialog } from './HoleDialog'
 import { Photo } from './parts'
 import type { SiteHole, SiteTee } from './resolve'
 
@@ -33,6 +34,7 @@ export const CourseGuide = ({
           { label: `All ${holes.length}`, holes },
         ]
       : [{ label: `All ${holes.length}`, holes }]
+  const { show, dialog } = useHoleDialog(tees)
   const [filter, setFilter] = useState(0)
   const [expanded, setExpanded] = useState(false)
   const shown = filters[filter].holes
@@ -82,6 +84,13 @@ export const CourseGuide = ({
               {hole.tip ? <p className="t-body-m hole-tip">{hole.tip}</p> : null}
             </div>
             <TeeYards hole={hole} tees={tees} />
+            <button
+              type="button"
+              className="hole-hit"
+              aria-haspopup="dialog"
+              aria-label={`${holeLabel(hole)}: open details`}
+              onClick={() => show(hole)}
+            />
           </li>
         ))}
       </ol>
@@ -94,6 +103,7 @@ export const CourseGuide = ({
           Show all {shown.length} holes <ArrowRight />
         </button>
       ) : null}
+      {dialog}
     </>
   )
 }
