@@ -7,7 +7,9 @@ import { marketingGAId } from '@/marketing/analytics'
 import { mediaUrl } from '@/marketing/branding'
 import { marketingSettings } from '@/marketing/settings'
 import { marketingOrigin } from '@/marketing/seo'
+import { publishedMarketingSlugs } from '@/marketing/content'
 import { Footer } from '@/marketing/site/chrome/Footer'
+import { privacyPolicyHref } from '@/marketing/site/chrome/links'
 import { Nav } from '@/marketing/site/chrome/Nav'
 import { introGateScript } from '@/marketing/intro/gateScript'
 import { InlineScript } from '@/site/components/InlineScript'
@@ -46,6 +48,8 @@ export default async function MarketingLayout({ children }: { children: React.Re
   // (src/marketing/intro/gateScript.ts). The proxy passes on the address the visitor asked for.
   const isHome = (await headers()).get('x-pathname') === '/'
   const gaID = marketingGAId()
+  // The banner links to the privacy policy only once that page is published (as the footer does).
+  const privacyHref = gaID ? privacyPolicyHref(await publishedMarketingSlugs()) : null
   return (
     // suppressHydrationWarning: the intro script sets data-intro on <html> before React starts.
     <html
@@ -67,7 +71,11 @@ export default async function MarketingLayout({ children }: { children: React.Re
         <Footer />
         {/* Nothing from Google loads until the visitor accepts (same banner as the club sites). */}
         {gaID ? (
-          <CookieConsent gaID={gaID} storageKey="cookie-consent:marketing" privacyHref="/privacy" />
+          <CookieConsent
+            gaID={gaID}
+            storageKey="cookie-consent:marketing"
+            privacyHref={privacyHref}
+          />
         ) : null}
       </body>
     </html>
