@@ -837,6 +837,12 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Kept 12 months** (Dan, 10 Nov): deleted by the nightly clean-up (`deleteOldAuditEntries`). It holds editors' email addresses, so it counts as personal data (security records, legitimate interests).
 - **Emergency account alert:** if `EMERGENCY_ADMIN_EMAIL` is set in Vercel Production and that account signs in, Sentry emails at once (fatal). Nothing happens while it is unset; set it when the account is created (`docs/operations/incident-plan.md`).
 
+## 2026-11-10: Deleted club content in the audit log (audit fix step 12b)
+
+- **What:** when a signed-in person deletes a page, news article, category, event, team member, course, document, photo or video, or enquiry, the audit log records who, which club and when, plus the item's name (`src/audit/content.ts`). Never the content.
+- **An enquiry is named by its reference,** never by the visitor's name or message.
+- **Only people:** scripts and scheduled jobs (the nightly clean-up of old enquiries, imports, test resets) have no signed-in account and aren't recorded. Deleting a whole club is one "club deleted" entry, not one per item.
+
 ## 2026-11-10: The admin's security policy is enforced (audit fix step 8)
 
 - **What:** `ADMIN_ENFORCED = true` (`src/security/csp.ts`): the admin now blocks what its policy doesn't allow, as club sites and the company site already did.

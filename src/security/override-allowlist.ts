@@ -43,6 +43,13 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
     why: 'Nobody can add audit entries through the admin or the API (create access is false for everyone); only this trusted server code writes them, from hooks and routes that already ran their own checks',
   },
   {
+    file: 'src/audit/content.ts',
+    fn: 'auditContentDeleted',
+    uses: 1,
+    club: "The club the deleted item belonged to (its tenant, from the item itself); reads only that club's name",
+    why: 'The signed-in editor may not be allowed to read the clubs list (only the super-admin can), so the name is read by trusted code to label the audit entry',
+  },
+  {
     file: 'src/audit/hooks.ts',
     fn: 'auditPasswordReset',
     uses: 1,

@@ -113,6 +113,8 @@ const manageDemo: CollectionBeforeChangeHook = ({ data, originalDoc }) => {
  * can't be forgotten. Runs in the same transaction: if any step fails, nothing is removed. */
 const deleteClubWithContent: CollectionBeforeDeleteHook = async ({ id, req }) => {
   const { payload } = req
+  // The club's content goes with it: one "club deleted" entry, not one per item (src/audit/content.ts).
+  req.context.deletingClub = true
   const own = { tenant: { equals: id } }
   for (const collection of ['users', 'agreement-acceptances'] as const) {
     const { totalDocs } = await payload.count({ collection, where: own, overrideAccess: true, req })

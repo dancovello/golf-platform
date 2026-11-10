@@ -34,7 +34,7 @@ The plan for fixing everything found in the production readiness audit of 9 Nove
 | 9 | Sign-in limit per address, written in code; small hardening | M5, m6, m8 | 🔨 Claude | Small | Done 10 Nov (#315) |
 | 10 | Super-admin safety: session time limit, emergency account, incident plan | M13 | 🔨 Claude, 👤 Dan for Q4 | Small | Done 10 Nov (#316); the emergency second account is Dan's decision |
 | 11 | Branded error pages | m2 | 🔨 Claude | Small | Done 10 Nov (#314) |
-| 12 | Audit log: who changed what, when | M6 | 🔨 Claude, 👤 Dan for Q5 | Large | 12a PR open (accounts, sign-in, clubs, super-admin actions); 12b next (deleted club content) |
+| 12 | Audit log: who changed what, when | M6 | 🔨 Claude, 👤 Dan for Q5 | Large | PR open: 12a #319 (accounts, sign-in, clubs, super-admin actions), 12b (deleted club content) |
 | 13 | Faster, cheaper site search | M9 | 🔨 Claude | Medium | Not started |
 | 14 | Nightly clean-up that keeps working as clubs grow | M8 | 🔨 Claude | Medium | Not started |
 | 15 | Load test against staging | Scalability | 🔨 Claude, 👤 Dan approves | Small | Not started |
