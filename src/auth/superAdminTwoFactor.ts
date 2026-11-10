@@ -2,6 +2,7 @@ import type { Access, Config, Endpoint, Plugin } from 'payload'
 
 import { isSuperAdmin } from '../access/roles'
 import { publicError } from '../errors'
+import { allowRequest, TWO_FACTOR_CODE_LIMIT, visitorKey } from '../security/rateLimit'
 import { isFullyAuthenticated } from './fullyAuthenticated'
 
 /**
@@ -42,6 +43,30 @@ const refuseForSuperAdmins = (endpoint: Endpoint): Endpoint => ({
   },
 })
 
+/**
+ * A daily cap on two-factor code attempts per account (TWO_FACTOR_CODE_LIMIT), on top of the
+ * plugin's own 5 guesses per 10 minutes. Counted before the code is checked. With no signed-in
+ * account and no visitor address (scripts, tests) nothing is counted.
+ */
+export const limitCodeAttempts = (endpoint: Endpoint): Endpoint => ({
+  ...endpoint,
+  handler: async (req) => {
+    const user = req.user as { id?: string } | null
+    const who = user?.id ? `user:${user.id}` : visitorKey(req.headers ?? new Headers())
+    if (who !== 'unknown') {
+      const db = (req.payload.db as unknown as { drizzle: Parameters<typeof allowRequest>[0] })
+        .drizzle
+      if (!(await allowRequest(db, TWO_FACTOR_CODE_LIMIT, who))) {
+        return Response.json(
+          { errors: [{ message: 'Too many code attempts today. Try again tomorrow.' }] },
+          { status: 429 },
+        )
+      }
+    }
+    return endpoint.handler(req)
+  },
+})
+
 export const superAdminTwoFactor: Plugin = (config: Config): Config => {
   const collections = (config.collections ?? []).map((collection) => {
     const access = { ...collection.access }
@@ -66,7 +91,12 @@ export const superAdminTwoFactor: Plugin = (config: Config): Config => {
   })
 
   let removeFound = false
+  let verifyFound = false
   const endpoints = (config.endpoints ?? []).map((endpoint) => {
+    if (endpoint.path === '/verify-totp') {
+      verifyFound = true
+      return limitCodeAttempts(endpoint)
+    }
     if (endpoint.path !== '/remove-totp') return endpoint
     removeFound = true
     return refuseForSuperAdmins(endpoint)
@@ -83,7 +113,7 @@ export const superAdminTwoFactor: Plugin = (config: Config): Config => {
     providerFound = true
     return { ...provider, path: OUR_PROVIDER }
   })
-  if (!removeFound || !providerFound) {
+  if (!removeFound || !verifyFound || !providerFound) {
     throw new Error('superAdminTwoFactor: payload-totp not found; it must run after payloadTotp')
   }
   return {

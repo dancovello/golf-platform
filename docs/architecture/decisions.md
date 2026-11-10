@@ -807,3 +807,11 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Two tokens, one job each:** the existing backups token (read and write on the backup bucket only) and a new read-only token on the live bucket.
 - **Not relied on:** R2 object versioning (not confirmed) and server-side copy between buckets (the job downloads and uploads).
 
+## 2026-11-10: Sign-in limit in code, daily two-factor cap, trusted preview address (audit fix step 9)
+
+- **Per-address limit:** 20 sign-in, forgot-password or reset attempts per address in 10 minutes (`SIGN_IN_LIMIT`), in the app's shared database, on top of the account lockout and the Vercel Firewall rule. Not counted where there is no address (scripts, tests): on Vercel every request has one.
+- **Two-factor:** at most 30 code attempts a day per account (`TWO_FACTOR_CODE_LIMIT`), on top of the plugin's 5 guesses per 10 minutes (audit-auth H1).
+- **Live preview:** the preview address is built only from one of the admin's own trusted addresses (`src/auth/trustedOrigins.ts`), so a made-up Host header can't point it elsewhere (finding m6).
+- **Pooled database:** on Vercel, a Neon `DATABASE_URL` without `-pooler` is logged and sent to Sentry as one warning at startup (finding M11). It can't be read from Vercel, so the code checks it.
+- **Pinned:** `three` and `@types/three` are exact versions (finding m8).
+
