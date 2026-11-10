@@ -1,6 +1,7 @@
 import config from '@payload-config'
 import { getPayload } from 'payload'
 
+import { recordAudit } from '@/audit/record'
 import { isSuperAdminWithCode } from '@/auth/fullyAuthenticated'
 import { buildDemoClub, DEMO_NAME } from '@/demo/demoClub'
 import { fromAnotherSite } from '@/security/sameOrigin'
@@ -31,6 +32,7 @@ export async function POST(request: Request) {
   if (new URL(request.url).searchParams.get('check') === '1') return reply('Allowed.')
   try {
     const result = await buildDemoClub(payload)
+    await recordAudit(payload, { action: 'demo-club-built', actor: user, target: DEMO_NAME })
     return reply(`${DEMO_NAME} is ready, with ${result.pages} pages.`, 200, { url: result.url })
   } catch (error) {
     payload.logger.error({ err: error }, 'Building the demo club failed')

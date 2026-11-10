@@ -3,6 +3,7 @@ import { randomBytes } from 'node:crypto'
 import type { Payload, PayloadRequest } from 'payload'
 
 import { allowAccountCreation } from '../access/accountCreation'
+import { recordAudit } from '../audit/record'
 
 import { sendLinkEmail } from './inviteEmail'
 import { adminURL } from './resetEmail'
@@ -59,6 +60,13 @@ export const createPasswordLink = async (
         })
         .catch(() => null)
     : null
+  await recordAudit(payload, {
+    action: kind === 'invite' ? 'editor-invited' : 'password-link-issued',
+    actor: req?.user,
+    clubId: user.tenant ? String(user.tenant) : null,
+    clubName: club?.name,
+    target: user.email,
+  })
   const sent = await sendLinkEmail(payload, {
     to: user.email,
     clubName: club?.name ?? 'club',

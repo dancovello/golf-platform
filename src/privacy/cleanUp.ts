@@ -17,6 +17,7 @@ import { mediaStorageSettings } from '../media/storage'
  * 2. **Homepage requests** from the company website are deleted 12 months after the last
  *    contact (decision F).
  * 3. **Demo bookings** are deleted 12 months after their last change.
+ *    Audit log entries (src/audit/record.ts) are deleted 12 months after they're made.
  * 4. **Uploads that never became a photo or document** (the browser uploaded the file, then
  *    Payload's content check refused the record) are removed from storage after a day.
  *
@@ -104,6 +105,23 @@ export const deleteOldDemoBookings = async (payload: Payload, now = new Date()) 
   return result.docs.length
 }
 
+/** Audit log entries (src/audit/record.ts) are kept 12 months, then deleted. */
+export const AUDIT_LOG_MONTHS = 12
+export const deleteOldAuditEntries = async (payload: Payload, now = new Date()) => {
+  const result = await payload.delete({
+    collection: 'audit-log',
+    where: { createdAt: { less_than: monthsBefore(now, AUDIT_LOG_MONTHS) } },
+    overrideAccess: true,
+    depth: 0,
+  })
+  if (result.errors.length) {
+    payload.logger.error(
+      { errors: result.errors },
+      'Clean-up: some audit log entries could not be deleted',
+    )
+  }
+  return result.docs.length
+}
 export const deleteOldEnquiries = async (payload: Payload, now = new Date()) => {
   const result = await payload.delete({
     collection: 'enquiries',
@@ -202,11 +220,12 @@ export const runCleanUp = async (
   const enquiries = await deleteOldEnquiries(payload, now)
   const homepageRequests = await deleteOldHomepageRequests(payload, now)
   const demoBookings = await deleteOldDemoBookings(payload, now)
+  const auditEntries = await deleteOldAuditEntries(payload, now)
   const uploads = files ? await deleteOrphanUploads(payload, now) : null
   const db = (payload.db as unknown as { drizzle: Parameters<typeof deleteOldCounts>[0] }).drizzle
   const counts = await deleteOldCounts(db, now)
   payload.logger.info(
-    `Clean-up: deleted ${enquiries} enquiries, ${homepageRequests} homepage requests, ${demoBookings} demo bookings and ${counts} old rate-limit counts${uploads ? `, removed ${uploads.removed} unused files` : ''}`,
+    `Clean-up: deleted ${enquiries} enquiries, ${homepageRequests} homepage requests, ${demoBookings} demo bookings, ${auditEntries} audit log entries and ${counts} old rate-limit counts${uploads ? `, removed ${uploads.removed} unused files` : ''}`,
   )
-  return { enquiries, homepageRequests, demoBookings, uploads, counts }
+  return { enquiries, homepageRequests, demoBookings, auditEntries, uploads, counts }
 }

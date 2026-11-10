@@ -12,6 +12,7 @@ An **incident** is anything that stops clubs' websites working, loses or leaks d
 | "Database check failed" in Sentry | Sentry email, hourly check | Club sites can't reach the database |
 | "ISOLATION CANARY" in Sentry | Sentry email | A test club reached another club's data. **Treat as a data leak** |
 | New error in Sentry | Sentry email | Something broke; may be small |
+| "Emergency super-admin account signed in" in Sentry | Sentry email | The offline emergency account was used (only once it exists and `EMERGENCY_ADMIN_EMAIL` is set). If it wasn't you, treat it as a break-in |
 | "Release to … failed", "Media backup failed" | GitHub issue and email | A release or a backup did not finish |
 | A club or visitor tells you | Email or phone | Believe them until proved otherwise |
 
@@ -41,6 +42,7 @@ Write down the time first (what you saw, when). Then:
 
 - **Clubs are told by Dan**, never by a developer or by Claude. Say plainly what happened, what you know, what you're doing and when you'll next update.
 - **If personal data may have been exposed** (visitors' names, emails or messages, or editors' accounts): this is a "personal data breach" in law. Dan, as the clubs' processor under the data processing agreement, tells each affected club **without delay**, so the club can decide whether to report it. A club reports to the ICO within 72 hours of becoming aware, if there is a risk to people. Get advice from a person who knows this area; this plan can't give it.
+- **Check the audit log** (admin → Platform → Audit log): sign-ins, account and password changes, two-factor resets and deleted club content, with who and when, kept 12 months. It answers "who did this?".
 - Keep a short written record (time, what happened, who was told, what was done). The data processing agreement and the privacy policy both promise care of this data.
 
 ## 5. Afterwards
