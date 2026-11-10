@@ -1,6 +1,7 @@
 import type { Access, Config, Endpoint, Plugin } from 'payload'
 
 import { isSuperAdmin } from '../access/roles'
+import { type AuditAction, recordAudit } from '../audit/record'
 import { publicError } from '../errors'
 import { allowRequest, TWO_FACTOR_CODE_LIMIT, visitorKey } from '../security/rateLimit'
 import { isFullyAuthenticated } from './fullyAuthenticated'
@@ -40,6 +41,27 @@ const refuseForSuperAdmins = (endpoint: Endpoint): Endpoint => ({
       throw publicError('Two-factor login can’t be switched off for platform administrators.', 403)
     }
     return endpoint.handler(req)
+  },
+})
+
+/** Writes an audit entry when the endpoint succeeds (src/audit/record.ts). */
+export const auditWhenOk = (endpoint: Endpoint, action: AuditAction): Endpoint => ({
+  ...endpoint,
+  handler: async (req) => {
+    const response = await endpoint.handler(req)
+    if (response.ok) {
+      const user = req.user as { email?: string; tenant?: unknown } | null
+      await recordAudit(req.payload, {
+        action,
+        actor: req.user,
+        clubId:
+          user?.tenant && typeof user.tenant === 'object'
+            ? (user.tenant as { id?: string }).id
+            : (user?.tenant as string | undefined),
+        target: user?.email,
+      })
+    }
+    return response
   },
 })
 
@@ -95,11 +117,12 @@ export const superAdminTwoFactor: Plugin = (config: Config): Config => {
   const endpoints = (config.endpoints ?? []).map((endpoint) => {
     if (endpoint.path === '/verify-totp') {
       verifyFound = true
-      return limitCodeAttempts(endpoint)
+      return limitCodeAttempts(auditWhenOk(endpoint, 'two-factor-code-accepted'))
     }
+    if (endpoint.path === '/setup-totp') return auditWhenOk(endpoint, 'two-factor-set-up')
     if (endpoint.path !== '/remove-totp') return endpoint
     removeFound = true
-    return refuseForSuperAdmins(endpoint)
+    return refuseForSuperAdmins(auditWhenOk(endpoint, 'two-factor-removed'))
   })
 
   let providerFound = false

@@ -19,6 +19,7 @@ import {
 
 import { CACHED_LOADERS } from '@/site/cache'
 // Imported so their cached loaders register themselves.
+import '@/search/query'
 import '@/site/events'
 import '@/site/loadClub'
 import '@/site/news'

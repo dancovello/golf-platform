@@ -2,6 +2,7 @@ import config from '@payload-config'
 import { sql } from '@payloadcms/db-postgres'
 import { getPayload } from 'payload'
 
+import { clubCached } from '@/site/cache'
 import type { SiteLink } from '@/site/loadClub'
 import { siteToday } from '@/site/today'
 
@@ -118,25 +119,46 @@ const countKinds = async (db: Executor, matched: ReturnType<typeof sql>) => {
 const SUGGEST_MAX_WORDS = 3
 
 /**
+ * Every word a visitor can find in a club's content today: the vocabulary "Did you mean" picks
+ * from. Splitting all of a club's text into words took about 150 ms for a club with 900 items,
+ * and grows with the club, on every search that found nothing (audit fix plan step 13, finding
+ * M9). So it's done once and cached per club for at most 5 minutes (src/site/cache.ts), and
+ * cleared whenever the club's content changes. At most 40,000 words, so the cached list stays
+ * small.
+ */
+const loadClubWords = async (tenantID: string): Promise<string[]> => {
+  const payload = await getPayload({ config })
+  const db = (payload.db as unknown as { drizzle: Executor }).drizzle
+  const now = siteToday().toISOString()
+  const { rows } = await db.execute(sql`
+    SELECT DISTINCT lower(w) AS word
+    FROM search_entries,
+      regexp_split_to_table(
+        title || ' ' || coalesce(excerpt, '') || ' ' || coalesce(body, ''), '[^[:alnum:]]+'
+      ) AS w
+    WHERE tenant_id = ${tenantID} AND length(w) > 2
+      AND (visible_from IS NULL OR visible_from <= ${now}::timestamptz)
+      AND (visible_until IS NULL OR visible_until > ${now}::timestamptz)
+    ORDER BY word
+    LIMIT 40000`)
+  return (rows as { word: string }[]).map((r) => r.word)
+}
+export const clubSearchWords = clubCached('searchWords', loadClubWords, { today: true })
+
+/**
  * "Did you mean …": each searched word swapped for the closest word in the club's content.
  * Only words a visitor can already find count, never scheduled news (search audit, finding 1).
- * One query for all the words together, so the club's text is read once, not once per word
- * (finding 2).
+ * One query for all the words together, against the club's cached word list (about 5 ms; it
+ * used to re-read all the club's text, about 150 ms for a club with 900 items).
  */
 const suggestion = async (db: Executor, tenantID: string, words: string[]) => {
   if (words.length === 0 || words.length > SUGGEST_MAX_WORDS) return null
-  const now = siteToday().toISOString()
-  // Words are letters and numbers only (searchWords), so joining them with spaces is safe.
+  const vocabulary = await clubSearchWords(tenantID)
+  if (vocabulary.length === 0) return null
+  // The list goes in as one JSON text value; words are letters and numbers only.
   const { rows } = await db.execute(sql`
     WITH club_words AS (
-      SELECT DISTINCT lower(w) AS word
-      FROM search_entries,
-        regexp_split_to_table(
-          title || ' ' || coalesce(excerpt, '') || ' ' || coalesce(body, ''), '[^[:alnum:]]+'
-        ) AS w
-      WHERE tenant_id = ${tenantID} AND length(w) > 2
-        AND (visible_from IS NULL OR visible_from <= ${now}::timestamptz)
-        AND (visible_until IS NULL OR visible_until > ${now}::timestamptz)
+      SELECT jsonb_array_elements_text(${JSON.stringify(vocabulary)}::jsonb) AS word
     ), wanted AS (
       SELECT q, n FROM unnest(string_to_array(${words.join(' ')}, ' ')) WITH ORDINALITY AS t(q, n)
     )

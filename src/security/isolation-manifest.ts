@@ -80,6 +80,12 @@ export const COLLECTIONS: Manifest = {
       test: 'club editors can’t read, change or delete them, and nobody creates them by hand',
     },
   ],
+  'audit-log': [
+    {
+      file: 'tests/int/audit-log.int.spec.ts',
+      test: 'club editors can’t read, create, change or delete entries; nobody changes or deletes one',
+    },
+  ],
   'demo-bookings': [
     {
       file: 'tests/int/demo-bookings.int.spec.ts',
@@ -426,6 +432,13 @@ const cacheCovers: Cover[] = [
   { file: CACHE, test: "publishing at club A clears club A's cache, never club B's" },
 ]
 export const CACHED: Manifest = {
+  searchWords: [
+    {
+      file: CACHE,
+      test: 'the search suggestion words are cached per club and hold only that club’s words',
+    },
+    ...cacheCovers,
+  ],
   clubByHost: [{ file: CACHE, test: "changing a club's web addresses clears the address lookups" }],
   clubIDBySlug: [
     {
