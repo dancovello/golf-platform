@@ -815,3 +815,9 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Pooled database:** on Vercel, a Neon `DATABASE_URL` without `-pooler` is logged and sent to Sentry as one warning at startup (finding M11). It can't be read from Vercel, so the code checks it.
 - **Pinned:** `three` and `@types/three` are exact versions (finding m8).
 
+## 2026-11-10: Super-admin sessions end after 12 hours; incident plan (audit fix step 10)
+
+- **12 hours:** a super-admin's session is no longer renewed 12 hours after sign-in (editors keep 8), so an admin left open asks for the password and two-factor code again (audit-auth H2, finding M13). Code: `src/auth/sessionLimit.ts`.
+- **Incident plan:** `docs/operations/incident-plan.md`, one page: how you find out, the first ten minutes, being locked out, telling clubs (including a personal data breach), afterwards.
+- **Open (Dan):** an offline emergency second super-admin account. Not created.
+

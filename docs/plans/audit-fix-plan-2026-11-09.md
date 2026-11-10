@@ -31,9 +31,9 @@ The plan for fixing everything found in the production readiness audit of 9 Nove
 | 6 | First restore drill, database and files | C1 | 👤 Dan + devops friend, Claude prepares | Half day | Not started |
 | 7 | Monitoring each club's own address, and showing when an email alert wasn't sent | M7, M3 | 🔨 Claude, 👤 Dan adds monitors | Small | Not started |
 | 8 | Switch on the admin's script protection | M4 (part 1) | 🔨 Claude | Small, then a watch week | Not ready: the admin's reports aren't clean (see step 8) |
-| 9 | Sign-in limit per address, written in code; small hardening | M5, m6, m8 | 🔨 Claude | Small | PR open |
-| 10 | Super-admin safety: session time limit, emergency account, incident plan | M13 | 🔨 Claude, 👤 Dan for Q4 | Small | Not started |
-| 11 | Branded error pages | m2 | 🔨 Claude | Small | PR open |
+| 9 | Sign-in limit per address, written in code; small hardening | M5, m6, m8 | 🔨 Claude | Small | Done 10 Nov (#315) |
+| 10 | Super-admin safety: session time limit, emergency account, incident plan | M13 | 🔨 Claude, 👤 Dan for Q4 | Small | PR open (emergency account: Dan's decision) |
+| 11 | Branded error pages | m2 | 🔨 Claude | Small | Done 10 Nov (#314) |
 | 12 | Audit log: who changed what, when | M6 | 🔨 Claude, 👤 Dan for Q5 | Large | Not started |
 | 13 | Faster, cheaper site search | M9 | 🔨 Claude | Medium | Not started |
 | 14 | Nightly clean-up that keeps working as clubs grow | M8 | 🔨 Claude | Medium | Not started |
