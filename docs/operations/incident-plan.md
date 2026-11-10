@@ -36,7 +36,7 @@ Write down the time first (what you saw, when). Then:
 
 - **Lost phone, no two-factor code:** `pnpm reset-two-factor` (run by whoever has production access, with Dan's go-ahead). It clears the secret so you set it up again at the next sign-in.
 - **Forgot the password:** the "Forgot password?" link works only where email is set up (it is, on production). Otherwise a new link needs another super-admin or a script.
-- **No other super-admin:** `pnpm create-super-admin` is the only way to make one (needs production access, and Dan's explicit go-ahead). **Today there is one super-admin account, so a lost account means a script and a person with production access.** An offline second account would remove that risk: see the open decision at the bottom.
+- **No other super-admin:** `pnpm create-super-admin` is the only way to make one (needs production access, and Dan's explicit go-ahead). If the main account is lost, sign in with the emergency account (last section). The offline emergency account (last section) removes that risk.
 
 ## 4. Telling people
 
@@ -61,6 +61,6 @@ Write down the time first (what you saw, when). Then:
 | Read logs and Sentry, find the cause, prepare a fix | Claude Code, in a chat in this project |
 | Anything on production data (scripts, restores) | Only with Dan's explicit go-ahead in that session |
 
-## Open decision (Dan)
+## The emergency account
 
-**An emergency second super-admin account, kept offline.** Today a lost super-admin account (phone gone and recovery impossible) needs a script run with production access. A second super-admin whose details are written down and stored offline (not in the password manager the first account lives in) would let you get back in alone. Trade-off: it is a second way in, so it needs its own two-factor and a strong password, and it's only used in an emergency. Not created yet.
+An emergency second super-admin account exists (created 10 Nov 2026, kept offline: its email, password and authenticator recovery details are written down and stored away from the password manager that holds the main account). `EMERGENCY_ADMIN_EMAIL` is set in Vercel Production, so any sign-in on it emails Dan through Sentry at once (proved 10 Nov). Use it only to get back in; then reset what you need and sign out.
