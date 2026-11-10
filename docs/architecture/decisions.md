@@ -844,6 +844,12 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Watch:** the "Security policy would block / blocked" Sentry issue should stop growing within a day. If something real is blocked, it appears there. Going back is one line (`ADMIN_ENFORCED`), but while report-only every script is reported again.
 - **Still open from the same audit finding (headers audit, finding 1 step 2):** club previews are served from the admin's own address; moving them to their own address needs the platform domain.
 
+## 2026-11-10: The nightly clean-up works in batches (audit fix step 14, finding M8)
+
+- **Before:** the unused-files check loaded every photo and document record into memory, then listed the whole storage bucket, inside a 60-second limit. That works for a few clubs and times out as they grow.
+- **Now:** it reads the bucket one page at a time (1,000 files) and checks only that page's folders against the database with one query, so memory and time stay flat however many clubs and files there are. The route's limit is 120 seconds, and the scan stops at 90 seconds with a warning (log and Sentry) instead of being cut off; whatever it didn't reach is checked on another night.
+- **Unchanged safety rules:** files must be a day old, only the platform's own random-folder format is touched, nothing is removed past the nightly limit of 200 (it fails loudly instead), and only on production.
+
 ## 2026-11-10: "Did you mean" uses a cached word list (audit fix step 13, finding M9)
 
 - **Measured first** (benchmark club: 900 items, 1.9 MB of text, local Postgres): a normal search about 10 to 15 ms in the database; the suggestion query about 147 ms on every search that found nothing, growing with the club's text.

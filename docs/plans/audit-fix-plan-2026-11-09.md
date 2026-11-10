@@ -36,7 +36,7 @@ The plan for fixing everything found in the production readiness audit of 9 Nove
 | 11 | Branded error pages | m2 | 🔨 Claude | Small | Done 10 Nov (#314) |
 | 12 | Audit log: who changed what, when | M6 | 🔨 Claude, 👤 Dan for Q5 | Large | 12a PR open (accounts, sign-in, clubs, super-admin actions); 12b next (deleted club content) |
 | 13 | Faster, cheaper site search | M9 | 🔨 Claude | Medium | PR open |
-| 14 | Nightly clean-up that keeps working as clubs grow | M8 | 🔨 Claude | Medium | Not started |
+| 14 | Nightly clean-up that keeps working as clubs grow | M8 | 🔨 Claude | Medium | PR open |
 | 15 | Load test against staging | Scalability | 🔨 Claude, 👤 Dan approves | Small | Not started |
 | 16 | Dan's legal and business jobs | C5, m10 | 👤 Dan | Ongoing | Not started |
 | 17 | Later, after the first clubs (v1.1) | M10, M4 (part 2), m3, m4, m5, m7, m9 | Both | Various | Not started |
