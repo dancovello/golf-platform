@@ -34,6 +34,8 @@ Sentry is listed in Schedule 3 of the data processing agreement (version `2026-1
 
 ### Uptime: why `app.a1engine.co` and why Sentry
 
+- **Release check (added 10 Nov 2026):** the release workflow checks `/health/database` on the new version, which connects to the database as the website's own account and reads the clubs table, so a version that can't use its database fails the release instead of going out. It is not used by the 5-minute uptime monitor, which stays on `/health` so Neon can still sleep when idle; one database question per server every 10 seconds at most, however many calls arrive.
+
 The check uses the admin address, `app.a1engine.co/health`, because the main address `a1engine.co/health` gives a 404. The old `.vercel.app` address sits behind Vercel's login, so an outside check would have reported the site as down all the time.
 
 **Why not Better Stack, as planned?** Its free tier says "free for personal projects". UptimeRobot's free plan was limited to non-commercial use in 2024, and it's unclear whether that changed. One check on production is enough while no club is live. **Before several clubs are live**, choose a paid uptime plan (roughly £5–£20 a month) that can check each club's home page.

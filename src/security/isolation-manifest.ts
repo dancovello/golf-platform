@@ -307,6 +307,12 @@ export const ROUTES: Manifest = {
     },
   ],
   'src/app/(frontend)/health/route.ts': [{ file: API, test: 'platform files hold no club data' }],
+  'src/app/(frontend)/health/database/route.ts': [
+    {
+      file: 'tests/int/health-database.int.spec.ts',
+      test: 'fails when the database' + " doesn't answer, and says nothing about why",
+    },
+  ],
   'src/app/(frontend)/robots.txt/route.ts': [
     { file: API, test: 'platform files hold no club data' },
   ],

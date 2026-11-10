@@ -102,6 +102,11 @@ export const RATE_LIMITS: Record<string, Protection> = {
     where: 'App, shared database (CSP_REPORT_LIMIT, src/security/rateLimit.ts)',
   },
   'src/app/(frontend)/health/route.ts': FILE,
+  'src/app/(frontend)/health/database/route.ts': {
+    who: 'anyone',
+    limit: 'One database question per instance every 10 seconds, however many calls arrive',
+    where: 'App, in memory (REUSE_MS, src/monitoring/databaseHealth.ts)',
+  },
   'src/app/(frontend)/robots.txt/route.ts': FILE,
   'src/app/(frontend)/accounts-by-administrator/page.tsx': FILE,
   'src/app/(frontend)/cron/canary/route.ts': {

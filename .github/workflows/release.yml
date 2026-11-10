@@ -10,7 +10,7 @@
 #   3. migrate    the same changes applied to the real database, with the owner account (only
 #                 GitHub has it; the website itself uses the limited golf_app account)
 #   4. deploy     Vercel builds and publishes the new code (Vercel never changes the database)
-#   5. check      /health must answer "ok" on the new deployment
+#   5. check      /health/database must answer "ok" on the new deployment
 #
 # If any step fails, the last job opens a GitHub issue (GitHub emails Dan about it).
 # docs/operations/restore-runbook.md covers rolling back.
@@ -193,11 +193,11 @@ jobs:
           # on to curl itself, and `--deployment` with a token reaches the wrong site, so neither
           # is used here: the full address of the new deployment is passed instead.
           for attempt in 1 2 3 4 5; do
-            body=$(npx --yes "$VERCEL_CLI" curl "${DEPLOY_URL}/health" --yes -- --silent 2>/dev/null || true)
+            body=$(npx --yes "$VERCEL_CLI" curl "${DEPLOY_URL}/health/database" --yes -- --silent 2>/dev/null || true)
             if echo "$body" | grep -q '"status":"ok"'; then echo "Healthy" >> "$GITHUB_STEP_SUMMARY"; exit 0; fi
             sleep 10
           done
-          echo "The new deployment did not answer /health. See docs/operations/restore-runbook.md." | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "The new deployment did not answer /health/database (the new version could not use its database). See docs/operations/restore-runbook.md." | tee -a "$GITHUB_STEP_SUMMARY"
           exit 1
 
   # A failed release stops before changing anything that hasn't been checked, but nobody would
