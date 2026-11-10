@@ -27,7 +27,7 @@ The plan for fixing everything found in the production readiness audit of 9 Nove
 | 2 | Spam protection on the demo booking form | M2 | 🔨 Claude | Small | PR open |
 | 3 | A health check that proves the database answers, used by the release and the uptime monitor | M1, M7 | 🔨 Claude | Small | Not started |
 | 4 | Safer releases: automatic rollback when the new version fails its check | M1 | 🔨 Claude | Medium | Not started |
-| 5 | A second copy of club photos and documents; clean-up stops deleting for good | C2 | 🔨 Claude, 👤 Dan for Q3 | Medium | Not started |
+| 5 | A second copy of club photos and documents; clean-up stops deleting for good | C2 | 🔨 Claude, 👤 Dan for Q3 | Medium | PR open |
 | 6 | First restore drill, database and files | C1 | 👤 Dan + devops friend, Claude prepares | Half day | Not started |
 | 7 | Monitoring each club's own address, and showing when an email alert wasn't sent | M7, M3 | 🔨 Claude, 👤 Dan adds monitors | Small | Not started |
 | 8 | Switch on the admin's script protection | M4 (part 1) | 🔨 Claude | Small, then a watch week | Not started |
@@ -81,9 +81,17 @@ If a new version fails its health check, put the previous version back automatic
 **Done when:** a staging release with a deliberately broken health check rolls itself back, and the guard's tests cover the two-release rule.
 
 ### Step 5. A second copy of photos and documents (C2)
-Claude researches what R2 offers (versioning, bucket locks, copying between buckets), then proposes the cheapest option that survives a deleted bucket or a leaked key (Q3). Separately, change the nightly clean-up so it moves unused files to a holding folder for 30 days instead of deleting them.
-Also set a rule in Cloudflare that deletes backup files after 30 days. The company privacy policy says encrypted backups are deleted within 35 days (`docs/marketing-site/privacy-policy-company.md`), and nothing deletes them automatically today (not confirmed).
-**Done when:** a deleted test file can be got back, and the clean-up's tests show nothing is deleted outright.
+**Decided by Dan, 10 Nov:** database backups are kept **7 days**, then deleted. The live photo bucket is **930 MB** (so the copy is inside Cloudflare's 10 GB free allowance).
+
+- **Nightly copy (built, PR open):** `.github/workflows/media-backup.yml` copies every new file from `golf-platform-media-production` into `golf-platform-backups/media/production/`. A file removed from the live bucket is moved to `media/removed/`, and a lifecycle rule deletes it 7 days later (a file removed by mistake can be got back for a week). A safety brake stops the run, and opens a GitHub issue, if more than 200 files look removed or the live bucket looks empty.
+- **The nightly clean-up stays as it is**: its existing brake (never more than 200 files a night) plus the copy is enough, so the "holding folder" idea is dropped.
+- **Dan's jobs in Cloudflare and GitHub (after the PR is merged):**
+  1. Create an R2 token with **Object Read only** on `golf-platform-media-production`, and save its key and secret in the `release-production` environment as `R2_MEDIA_READ_ACCESS_KEY_ID` and `R2_MEDIA_READ_SECRET_ACCESS_KEY`.
+  2. On the bucket `golf-platform-backups` → Settings → Object lifecycle rules, add three rules: delete objects with prefix `production/` after 7 days, `staging/` after 7 days, and `media/removed/` after 7 days. **No rule on `media/production/`**: those are the live copies.
+  3. Run the workflow once by hand and check it passes.
+- **The privacy policy** says backups are deleted "within 35 days"; with 7 days that stays true, so it needs no change.
+
+**Done when:** the nightly job has run green on real data, a removed test file is found under `media/removed/`, and the lifecycle rules are in place. Restoring from the copy is practised in step 6 (runbook section 7).
 
 ### Step 6. First restore drill (C1)
 Dan and the devops friend follow `docs/operations/restore-runbook.md`; Claude prepares a short script for the day and adds a section for restoring files from step 5. Record the result, including how long it took, in `restore-drills.md`. Also: a second, safe place for the backup decryption key that Dan can reach without the devops friend.

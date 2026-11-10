@@ -800,3 +800,10 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **What:** the same three checks as the Homepage Request Form: a hidden "website" box, the page's signed time check (a booking within 3 seconds of the page opening is a robot; valid 24 hours), and Cloudflare's check (action `booking`). A robot caught by the first two is told "booked", but nothing is saved or sent. Cloudflare failing or unreachable books nothing. The existing limits and slot checks run after.
 - **Code:** `src/marketing/booking/proof.ts`, `submit.ts`, `actions.ts`; the form is `src/marketing/site/booking/DemoBooking.tsx`. `submitDemoBooking` now requires the proof, so nothing can call it without the checks.
 
+## 2026-11-10: A nightly second copy of photos and documents; database backups kept 7 days (audit fix step 5)
+
+- **Dan's decisions:** database backups are kept 7 days, not 30. The live photo bucket is about 930 MB, inside Cloudflare's 10 GB free allowance, so the copy costs nothing for now.
+- **Copy:** nightly (03:00 UTC) from `golf-platform-media-production` to `golf-platform-backups/media/production/`. A file that has gone from the live bucket is moved to `media/removed/` and deleted by a lifecycle rule after 7 days. Stops and opens an issue if more than 200 files look removed or the live bucket looks empty. Code: `scripts/lib/mediaMirror.ts`, `scripts/media-backup.ts`.
+- **Two tokens, one job each:** the existing backups token (read and write on the backup bucket only) and a new read-only token on the live bucket.
+- **Not relied on:** R2 object versioning (not confirmed) and server-side copy between buckets (the job downloads and uploads).
+
