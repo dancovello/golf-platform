@@ -28,6 +28,22 @@ export const logPoolError = (error: Error) => {
   console.warn(`[db] idle database connection dropped and discarded: ${error.message}`)
 }
 
+/**
+ * Whether the website's database address is Neon's pooled one. On Vercel many site instances
+ * share one database; without the pooled address each opens its own connections and a busy
+ * moment can use them all up. Returns a sentence when the address is a Neon one that isn't
+ * pooled, else null (other databases, local work and anything unparseable stay quiet).
+ */
+export const unpooledWarning = (connectionString: string | undefined): string | null => {
+  try {
+    const host = new URL(connectionString ?? '').hostname
+    if (!host.endsWith('.neon.tech') || host.includes('-pooler')) return null
+    return 'DATABASE_URL is a Neon address without "-pooler": under heavy traffic the site could run out of database connections. Use the pooled address (Neon → Connect → Connection pooling on).'
+  } catch {
+    return null
+  }
+}
+
 /** Safe to call twice on the same pool. */
 export const guardPool = (pool: PoolLike | undefined, onError = logPoolError) => {
   if (!pool) return false

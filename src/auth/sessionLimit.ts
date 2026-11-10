@@ -14,37 +14,43 @@ import { BRAND } from '../brand'
 /**
  * Safeguards that come with password-only club editors (decisions.md, 22 Oct).
  *
- * 1. **Editor sessions end after 8 hours.** Payload renews a session each time the admin
+ * 1. **Sessions end after a set time.** Payload renews a session each time the admin
  *    refreshes it, so on its own a session can last for ever. After 8 hours from login an
  *    editor's session is no longer renewed: it's deleted, which signs them out on their next
- *    request. Super-admins (who have two-factor) keep Payload's normal renewal.
+ *    request. Super-admins (who have two-factor and reach every club) get 12 hours, so an
+ *    open admin left on a laptop asks for the password and code again (audit-auth H2, step 10).
  * 2. **An email when a password changes**, by the account's own form, an emailed link or a
  *    platform link, so someone else changing it doesn't go unnoticed. Sent only where email is
  *    set up.
  */
 export const EDITOR_SESSION_HOURS = 8
+export const SUPER_ADMIN_SESSION_HOURS = 12
+
+/** How long a session may last for this account. */
+export const sessionHoursFor = (user: unknown) =>
+  isSuperAdmin(user) ? SUPER_ADMIN_SESSION_HOURS : EDITOR_SESSION_HOURS
 
 type Session = { id: string; createdAt: string | Date; expiresAt: string | Date }
 
-/** Whether a session started more than 8 hours ago. */
-export const sessionTooOld = (session: Pick<Session, 'createdAt'>, now = new Date()) =>
-  now.getTime() - new Date(session.createdAt).getTime() > EDITOR_SESSION_HOURS * 60 * 60 * 1000
+/** Whether a session started more than `hours` ago (8 unless said otherwise: an editor's). */
+export const sessionTooOld = (
+  session: Pick<Session, 'createdAt'>,
+  now = new Date(),
+  hours = EDITOR_SESSION_HOURS,
+) => now.getTime() - new Date(session.createdAt).getTime() > hours * 60 * 60 * 1000
 
-export const endLongEditorSessions: CollectionBeforeOperationHook = async ({
-  args,
-  operation,
-  req,
-}) => {
+export const endLongSessions: CollectionBeforeOperationHook = async ({ args, operation, req }) => {
   if (operation !== 'refresh') return args
   const user = req.user as { id: string; _sid?: string } | null
-  if (!user || isSuperAdmin(user) || !user._sid) return args
+  if (!user || !user._sid) return args
   const stored = (await req.payload.db.findOne({
     collection: 'users',
     where: { id: { equals: user.id } },
     req,
   })) as { sessions?: Session[] } | null
   const session = stored?.sessions?.find((s) => s.id === user._sid)
-  if (!session || !sessionTooOld(session)) return args
+  const hours = sessionHoursFor(user)
+  if (!session || !sessionTooOld(session, new Date(), hours)) return args
   await req.payload.db.updateOne({
     collection: 'users',
     id: user.id,
@@ -52,7 +58,7 @@ export const endLongEditorSessions: CollectionBeforeOperationHook = async ({
     req,
     returning: false,
   })
-  throw publicError('Your session has ended after 8 hours. Please log in again.', 401)
+  throw publicError(`Your session has ended after ${hours} hours. Please log in again.`, 401)
 }
 
 const sendPasswordChanged = async (payload: Payload, email: unknown) => {
