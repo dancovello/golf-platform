@@ -180,6 +180,44 @@ describe('unused uploads are removed from storage', () => {
     expect(await stored(otherKey)).toBe(true)
   })
 
+  it('checks the bucket a small page at a time, and still removes every unused file and keeps every real one', async () => {
+    const photos = []
+    for (const name of ['p1', 'p2', 'p3']) {
+      photos.push(
+        await w.payload.create({
+          collection: 'media',
+          data: { alt: name, tenant: w.clubA.id },
+          file: pngFile(`${name}.png`),
+        }),
+      )
+    }
+    // Several files in one unused folder, so a folder's files can fall on different pages.
+    const folder = `media/${randomUUID()}`
+    const orphans = [`${folder}/a.png`, `${folder}/b.png`, `${folder}/c.png`]
+    for (let i = 0; i < 5; i++) orphans.push(`media/${randomUUID()}/o${i}.png`)
+    for (const key of orphans) {
+      await s3.send(new PutObjectCommand({ Bucket: bucket, Key: key, Body: 'x' }))
+    }
+    const later = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
+    // Two files per page of the listing.
+    const result = await deleteOrphanUploads(w.payload, later, 1_000_000, { pageSize: 2 })
+    expect(result.outOfTime).toBe(false)
+    expect(result.removed).toBeGreaterThanOrEqual(orphans.length)
+    for (const key of orphans) expect(await stored(key)).toBe(false)
+    for (const photo of photos) expect(await stored(`${photo.prefix}/${photo.filename}`)).toBe(true)
+  })
+
+  it('stops with a warning, removing nothing it has not checked, when it runs out of time', async () => {
+    const orphanKey = `media/${randomUUID()}/slow.png`
+    await s3.send(new PutObjectCommand({ Bucket: bucket, Key: orphanKey, Body: 'x' }))
+    const later = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
+    const warn = vi.spyOn(w.payload.logger, 'warn').mockImplementation(() => undefined as never)
+    const result = await deleteOrphanUploads(w.payload, later, 1_000_000, { scanMs: -1 })
+    expect(result).toMatchObject({ removed: 0, scanned: 0, outOfTime: true })
+    expect(await stored(orphanKey)).toBe(true)
+    expect(warn).toHaveBeenCalledWith(expect.stringMatching(/ran out of time/))
+  })
+
   it('removes nothing past the nightly limit, so a wrong database can never empty storage', async () => {
     for (const name of ['a', 'b', 'c']) {
       const key = `media/${randomUUID()}/${name}.png`

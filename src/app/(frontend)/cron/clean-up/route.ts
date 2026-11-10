@@ -7,7 +7,7 @@ import { sentryEnabled } from '@/monitoring/sentry'
 
 export const dynamic = 'force-dynamic'
 // Deleting a year's worth of old enquiries and checking storage can take a little while.
-export const maxDuration = 60
+export const maxDuration = 120
 
 /** Vercel's scheduler sends "Authorization: Bearer <CRON_SECRET>" (vercel.json). */
 const fromScheduler = (request: Request) => {

@@ -117,60 +117,99 @@ export const deleteOldEnquiries = async (payload: Payload, now = new Date()) => 
   return result.docs.length
 }
 
-/** Every folder a photo or document record points at. */
-const knownFolders = async (payload: Payload) => {
-  const folders = new Set<string>()
+/** Of these folders, the ones a photo or document record points at. */
+const knownFolders = async (payload: Payload, folders: string[]) => {
+  const known = new Set<string>()
   for (const collection of ['media', 'documents'] as const) {
     const { docs } = await payload.find({
       collection,
+      where: { prefix: { in: folders } },
       select: { prefix: true },
       pagination: false,
       depth: 0,
       overrideAccess: true,
     })
     for (const doc of docs as { prefix?: string | null }[]) {
-      if (doc.prefix) folders.add(doc.prefix)
+      if (doc.prefix) known.add(doc.prefix)
     }
   }
-  return folders
+  return known
 }
+
+/** Files looked at per page of the storage listing; also how many folders are checked against the
+ * database at once. */
+export const ORPHAN_PAGE_SIZE = 1000
+/** Stops looking this long after starting, so the nightly run can't be cut off half way through
+ * (the route's time limit is 120 seconds). Anything not reached is looked at on another night. */
+export const ORPHAN_SCAN_MS = 90_000
 
 /**
  * Removes stored files whose folder no photo or document points at, once they're a day old.
  * Only touches folders in the exact random-folder format the platform creates
  * (src/media/folders.ts); anything else in the bucket is left alone.
+ *
+ * Works one page of the storage listing at a time (1,000 files): each page's folders are checked
+ * against the database with one query, so memory and time stay flat however many clubs and files
+ * there are (audit fix plan step 14, finding M8). It used to load every photo and document record
+ * and keep the whole bucket listing in memory.
  */
 export const deleteOrphanUploads = async (
   payload: Payload,
   now = new Date(),
   max = ORPHAN_MAX_PER_RUN,
+  { pageSize = ORPHAN_PAGE_SIZE, scanMs = ORPHAN_SCAN_MS } = {},
 ) => {
   const { bucket, config } = mediaStorageSettings()
   const s3 = new S3Client(config)
-  const known = await knownFolders(payload)
+  const started = Date.now()
   const due: string[] = []
   let skipped = 0
-
+  let scanned = 0
+  let outOfTime = false
   for (const root of ['media', 'documents']) {
     const pattern = folderPattern(root)
     let token: string | undefined
     do {
+      if (Date.now() - started > scanMs) {
+        outOfTime = true
+        break
+      }
       const page = await s3.send(
-        new ListObjectsV2Command({ Bucket: bucket, Prefix: `${root}/`, ContinuationToken: token }),
+        new ListObjectsV2Command({
+          Bucket: bucket,
+          Prefix: `${root}/`,
+          ContinuationToken: token,
+          MaxKeys: pageSize,
+        }),
       )
+      // This page's files that are in the platform's folder format and old enough.
+      const old: { key: string; folder: string }[] = []
       for (const object of page.Contents ?? []) {
+        scanned++
         const key = object.Key ?? ''
         const folder = key.split('/').slice(0, 2).join('/')
-        if (!pattern.test(folder) || known.has(folder)) continue
+        if (!pattern.test(folder)) continue
         const age = now.getTime() - (object.LastModified?.getTime() ?? now.getTime())
         if (age < ORPHAN_MIN_AGE_MS) continue
+        old.push({ key, folder })
+      }
+      const folders = [...new Set(old.map((o) => o.folder))]
+      const known = folders.length > 0 ? await knownFolders(payload, folders) : new Set<string>()
+      for (const { key, folder } of old) {
+        if (known.has(folder)) continue
         if (due.length < max) due.push(key)
         else skipped++
       }
       token = page.IsTruncated ? page.NextContinuationToken : undefined
     } while (token)
+    if (outOfTime) break
   }
-
+  if (outOfTime) {
+    const message = `Clean-up: ran out of time after looking at ${scanned} stored files; the rest are looked at on another night`
+    payload.logger.warn(message)
+    if (sentryEnabled())
+      Sentry.captureMessage('Clean-up ran out of time looking at stored files', 'warning')
+  }
   if (skipped) {
     const message = `Clean-up: ${due.length + skipped} unused files found, more than the ${max} allowed in one night. Removed none; please check the database is the right one.`
     payload.logger.error(message)
@@ -178,7 +217,7 @@ export const deleteOrphanUploads = async (
       Sentry.captureMessage(message, 'error')
       await Sentry.flush(2000)
     }
-    return { removed: 0, skipped: due.length + skipped }
+    return { removed: 0, skipped: due.length + skipped, scanned, outOfTime }
   }
   for (let i = 0; i < due.length; i += 1000) {
     await s3.send(
@@ -188,7 +227,7 @@ export const deleteOrphanUploads = async (
       }),
     )
   }
-  return { removed: due.length, skipped }
+  return { removed: due.length, skipped, scanned, outOfTime }
 }
 
 /**
