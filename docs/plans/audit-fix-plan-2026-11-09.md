@@ -82,6 +82,7 @@ If a new version fails its health check, put the previous version back automatic
 
 ### Step 5. A second copy of photos and documents (C2)
 Claude researches what R2 offers (versioning, bucket locks, copying between buckets), then proposes the cheapest option that survives a deleted bucket or a leaked key (Q3). Separately, change the nightly clean-up so it moves unused files to a holding folder for 30 days instead of deleting them.
+Also set a rule in Cloudflare that deletes backup files after 30 days. The company privacy policy says encrypted backups are deleted within 35 days (`docs/marketing-site/privacy-policy-company.md`), and nothing deletes them automatically today (not confirmed).
 **Done when:** a deleted test file can be got back, and the clean-up's tests show nothing is deleted outright.
 
 ### Step 6. First restore drill (C1)
