@@ -29,6 +29,10 @@
   display: grid;
   gap: var(--space-24);
 }
+.mb-tiers {
+  /* Room for the "Most popular" tab, which sits half above the top edge of its card. */
+  padding-top: var(--space-12);
+}
 .mb-tiers.cols-1 {
   grid-template-columns: minmax(0, 420px);
 }
@@ -44,28 +48,55 @@
 .mb-tiers > [role='listitem'] {
   display: flex;
 }
+/* A is a quiet, generous card: a short gold rule, the name in the display face, who it is for,
+   then a hairline-framed price, the list and the button. The recommended card is the brand
+   colour with a "Most popular" tab on its top edge. */
 .mb-tier {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--space-24);
+  gap: var(--space-32);
   width: 100%;
-  padding: var(--space-40) var(--space-32);
+  padding: var(--space-48) var(--space-40) var(--space-40);
   border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
   background: var(--color-surface-raised);
+  transition:
+    transform 250ms ease-out,
+    box-shadow 250ms ease-out,
+    border-color 250ms ease-out;
+}
+.mb-tier:hover {
+  transform: translateY(-4px);
+  border-color: var(--color-border-strong);
+  box-shadow: 0 18px 40px color-mix(in srgb, var(--color-text-primary) 8%, transparent);
 }
 .mb-tier.is-recommended {
   border-color: var(--color-surface-brand);
   background: var(--color-surface-brand);
   color: var(--color-text-on-inverse);
 }
-.mb .mb-tier-top {
+.mb-tier-head {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
   gap: var(--space-12);
 }
+.mb .mb-rule {
+  display: block;
+  width: 40px;
+  height: 2px;
+  margin-bottom: var(--space-12);
+  background: var(--color-action-accent);
+}
+.mb .mb-tier-title {
+  margin: 0;
+}
 .mb .mb-popular {
-  padding: var(--space-4) var(--space-12);
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: var(--space-4) var(--space-16);
   border-radius: var(--radius-full);
   background: var(--color-action-accent);
   color: var(--color-action-on-accent);
@@ -75,21 +106,29 @@
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: var(--space-8);
+  gap: var(--space-8) var(--space-12);
+  min-height: calc(var(--type-heading-l) * 0.85);
   margin: 0;
+  padding: var(--space-24) 0;
+  border-top: 1px solid var(--color-border-subtle);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.mb-tier.is-recommended .mb-price {
+  border-color: var(--color-border-on-inverse-subtle);
 }
 .mb .mb-period {
   color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 /* The price is told apart from the category name by its typeface (the plain text face against
-   the name's display face) as well as its size; "On application" is quiet text, not a heading.
-   The row keeps the price's height so a mix of priced and unpriced cards still lines up. */
-.mb .mb-price {
-  min-height: calc(var(--type-heading-l) * 1.3);
-}
+   the name's display face); "On application" is quiet text, not a heading. */
 .mb .mb-amount {
   font-family: var(--font-body);
-  font-weight: 500;
+  font-size: calc(var(--type-heading-l) * 0.8);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums;
 }
 .mb .mb-on-application {
@@ -105,14 +144,10 @@
 .mb .mb-benefits {
   display: flex;
   flex-direction: column;
-  gap: var(--space-12);
+  gap: var(--space-16);
   margin: 0;
-  padding: var(--space-24) 0 0;
-  border-top: 1px solid var(--color-border-subtle);
+  padding: 0;
   list-style: none;
-}
-.mb-tier.is-recommended .mb-benefits {
-  border-top-color: var(--color-border-on-inverse-subtle);
 }
 .mb .mb-benefits li {
   display: flex;
@@ -121,8 +156,8 @@
 }
 .mb .mb-benefits svg {
   flex: none;
-  margin-top: 1px;
-  color: var(--color-text-brand);
+  margin-top: 2px;
+  color: var(--color-action-accent);
 }
 .mb-tier.is-recommended .mb-benefits svg {
   color: var(--color-text-accent);
@@ -131,6 +166,14 @@
   justify-content: space-between;
   width: 100%;
   margin-top: auto;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mb-tier {
+    transition: none;
+  }
+  .mb-tier:hover {
+    transform: none;
+  }
 }
 
 /* B: compare. Label column 280, tier columns equal, recommended column tinted. */
@@ -200,18 +243,27 @@
   align-items: start;
 }
 .mb-categories {
+  /* One shared grid: name and text, availability and button each line up down the list, so the
+     availability pills share one right-hand edge whatever the length of the names. */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content max-content;
+  column-gap: var(--space-32);
   margin: 0;
   padding: 0;
   border-top: 1px solid var(--color-border-strong);
   list-style: none;
 }
 .mb-category {
-  display: flex;
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-32);
   padding: var(--space-24) 0;
   border-bottom: 1px solid var(--color-border-subtle);
+}
+.mb .mb-availability {
+  display: flex;
+  justify-content: flex-end;
 }
 .mb .mb-category-text {
   display: flex;
@@ -292,17 +344,24 @@
 
 @media (max-width: 767px) {
   .mb-tier {
-    padding: var(--space-24);
+    padding: var(--space-40) var(--space-24) var(--space-32);
     height: 100%;
   }
   .mb-compare .blk-header .btn {
     align-self: stretch;
     justify-content: center;
   }
+  .mb-categories {
+    display: block;
+  }
   .mb-category {
+    display: flex;
     flex-direction: column;
     align-items: stretch;
-    gap: var(--space-24);
+    gap: var(--space-16);
+  }
+  .mb .mb-availability {
+    justify-content: flex-start;
   }
   .mb-category .btn {
     justify-content: center;

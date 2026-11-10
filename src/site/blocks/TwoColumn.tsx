@@ -1,10 +1,11 @@
 import type { TwoColumnBlock } from '@/payload-types'
 
+import { Button } from '../components/Button'
 import { isImage, Paragraphs, Photo, TextLink } from './parts'
 import type { BlockContext } from './resolve'
 
 /**
- * Two-Column Image + Text (docs/design/10), three styles: A Split (edge-to-edge 50/50, canvas
+ * Two-Column Image + Text (docs/design/10), three styles, each with an optional button and text link: A Split (edge-to-edge 50/50, canvas
  * or brand panel), B Collage (4:5 photo with an overlapping 4:3 inset), C Key facts (photo,
  * copy and up to three facts). Photo on the left or right.
  */
@@ -21,6 +22,7 @@ export const TwoColumn = ({
   if (!isImage(image)) return null
   const inset = block.style === 'collage' ? ctx.media(block.insetImage) : null
   const link = ctx.link(block.link)
+  const button = ctx.link(block.button)
   const style = block.style ?? 'split'
   const right = block.imageSide === 'right'
   const brand = style === 'split' && block.tone === 'brand'
@@ -42,9 +44,19 @@ export const TwoColumn = ({
           ))}
         </dl>
       ) : null}
-      {link ? (
-        <div className="tc-link">
-          <TextLink link={link} base={base} onDark={brand} />
+      {button || link ? (
+        <div className="tc-actions">
+          {button ? (
+            <Button
+              label={button.label}
+              link={button.link}
+              base={base}
+              style={brand ? 'accent' : 'solid'}
+              onDark={brand}
+              arrow
+            />
+          ) : null}
+          {link ? <TextLink link={link} base={base} onDark={brand} /> : null}
         </div>
       ) : null}
     </div>

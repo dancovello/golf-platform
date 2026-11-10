@@ -85,11 +85,32 @@
   opacity: 1;
 }
 
-/* B · Grid: 1:1, 4 columns, gap 16, "Load more" */
+/* B · Grid: 1:1 photos, 4 across (3 on a tablet, 2 on a phone), gap 16, "Load more". Rows are
+   centred and every photo is the same size; a short last row is evened out with the one above
+   it (see rowSizes in GalleryView). One or two photos are shown slightly larger. */
 .gl-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: var(--space-16);
+}
+.gl-grid > li {
+  flex: 0 0 calc((100% - 3 * var(--space-16)) / 4);
+  min-width: 0;
+}
+.gl-grid > .gl-break {
+  display: none;
+  flex: 0 0 100%;
+  height: 0;
+  margin-top: calc(-1 * var(--space-16));
+}
+@media (min-width: 1024px) {
+  .gl-grid > .gl-break-wide {
+    display: block;
+  }
+  .gl-grid.gl-few > li {
+    flex-basis: calc((100% - 2 * var(--space-16)) / 3);
+  }
 }
 .gl-grid .gl-item img {
   aspect-ratio: 1 / 1;
@@ -217,8 +238,16 @@
   .gl-masonry {
     columns: 2;
   }
-  .gl-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  .gl-grid > li {
+    flex-basis: calc((100% - 2 * var(--space-16)) / 3);
+  }
+  .gl-grid.gl-few > li {
+    flex-basis: calc((100% - 2 * var(--space-16)) / 3);
+  }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .gl-grid > .gl-break-mid {
+    display: block;
   }
 }
 @media (max-width: 767px) {
@@ -239,8 +268,11 @@
     flex: none;
   }
   .gl-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-8);
+  }
+  .gl-grid > li,
+  .gl-grid.gl-few > li {
+    flex-basis: calc((100% - var(--space-8)) / 2);
   }
   /* Phones: swipe and the counter instead of arrows and thumbnails */
   .vw.is-dialog {
@@ -278,4 +310,24 @@
 }
 .gl-plain .vw-caption {
   color: var(--color-text-secondary);
+}
+
+/* Viewer on the page (style C): the photo and the thumbnails fit in one screen, with the count
+   centred between them. */
+.gl-viewer-block {
+  padding-top: var(--space-64);
+  padding-bottom: var(--space-64);
+}
+.gl-viewer-block .blk-header {
+  margin-bottom: var(--space-32);
+}
+.vw:not(.is-dialog) {
+  gap: var(--space-12);
+}
+.vw:not(.is-dialog) .vw-img {
+  max-height: clamp(280px, calc(100svh - 440px), 640px);
+}
+.vw-count-inline {
+  margin: 0;
+  text-align: center;
 }

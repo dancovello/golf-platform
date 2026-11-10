@@ -33,6 +33,31 @@ const config: Block = {
     { name: 'heading', label: 'Heading', type: 'text', required: true, maxLength: 60 },
     { name: 'intro', label: 'Introduction (optional)', type: 'textarea', maxLength: 240 },
     {
+      name: 'features',
+      label: 'Table rows (style B): what you compare',
+      type: 'array',
+      maxRows: 12,
+      labels: { singular: 'Row', plural: 'Rows' },
+      admin: {
+        ...onlyFor('compare'),
+        description:
+          'Start here. Each row is one thing you compare, e.g. "Playing days" or "Locker". Then, in each category below, fill in "Table values" in the same order: value 1 goes beside row 1, value 2 beside row 2, and so on.',
+      },
+      validate: (rows: unknown, { siblingData }: { siblingData?: unknown }) => {
+        const data = (siblingData ?? {}) as {
+          style?: string
+          tiers?: { values?: { value?: string | null }[] | null }[] | null
+        }
+        const typedValues = (data.tiers ?? []).some((t) =>
+          (t.values ?? []).some((v) => v?.value?.trim()),
+        )
+        return data.style === 'compare' && typedValues && !(Array.isArray(rows) && rows.length)
+          ? 'The categories have table values, but there are no table rows for them to appear beside. Add a row (e.g. "Playing days") for each value.'
+          : true
+      },
+      fields: [{ name: 'label', label: 'Row', type: 'text', required: true, maxLength: 40 }],
+    },
+    {
       name: 'tiers',
       label: 'Categories',
       type: 'array',
@@ -89,14 +114,14 @@ const config: Block = {
         },
         {
           name: 'values',
-          label: 'Table values (style B)',
+          label: 'Table values (style B): one per table row, in order',
           type: 'array',
           maxRows: 12,
           labels: { singular: 'Value', plural: 'Values' },
           admin: {
             ...blockIs('compare'),
             description:
-              'One per table row, in the same order. Type "yes" for a tick; leave empty for not included.',
+              'Value 1 appears beside table row 1 (set at the top of this block), value 2 beside row 2, and so on. Type "yes" for a tick; leave empty for a dash. Nothing shows until the table rows exist.',
           },
           fields: [{ name: 'value', label: 'Value', type: 'text', maxLength: 20 }],
         },
@@ -130,15 +155,6 @@ const config: Block = {
       admin: {
         description: 'Defaults: "Apply for membership" (A), "Apply" (B), "Enquire" (C).',
       },
-    },
-    {
-      name: 'features',
-      label: 'Table rows (style B)',
-      type: 'array',
-      maxRows: 12,
-      labels: { singular: 'Row', plural: 'Rows' },
-      admin: { ...onlyFor('compare'), description: 'e.g. "Playing days", "Locker".' },
-      fields: [{ name: 'label', label: 'Row', type: 'text', required: true, maxLength: 40 }],
     },
     {
       ...linkField({
