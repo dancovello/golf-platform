@@ -14,6 +14,31 @@ export type GalleryItem = ViewerItem & {
 const PAGE = 12
 
 /**
+ * Where a row ends when `count` photos sit `across` to a row: full rows, but a short last row
+ * is evened out with the row above it (7 across 4 is 4 + 3, 6 is 3 + 3, 5 is 3 + 2), so a photo
+ * is never alone and every photo keeps the same size. Returns the sizes of the rows.
+ */
+export const rowSizes = (count: number, across: number): number[] => {
+  if (count <= across) return [count]
+  const full = Math.floor(count / across)
+  const rest = count % across
+  const rows = Array<number>(full).fill(across)
+  if (rest === 0) return rows
+  if (across <= 2) return [...rows, rest]
+  const both = across + rest
+  rows.pop()
+  return [...rows, Math.ceil(both / 2), Math.floor(both / 2)]
+}
+
+/** The photo numbers (from 1) after which a row ends, ignoring the last row. */
+const breaksFor = (count: number, across: number): Set<number> => {
+  const ends = new Set<number>()
+  let sum = 0
+  for (const size of rowSizes(count, across).slice(0, -1)) ends.add((sum += size))
+  return ends
+}
+
+/**
  * Gallery (docs/design/11): A Masonry (natural shapes, album filters), B Grid (1:1, 12 at a time
  * with "Load more"), C Viewer (on the page). In A and B every photo is a button that opens the
  * full-screen viewer at that photo.
@@ -60,8 +85,8 @@ export const GalleryView = ({
           ))}
         </div>
       ) : null}
-      <ul className={`gl-${style}`}>
-        {visible.map((item, i) => (
+      <ul className={`gl-${style}${style === 'grid' && visible.length <= 2 ? ' gl-few' : ''}`}>
+        {visible.flatMap((item, i) => [
           <li key={`${item.src}-${i}`}>
             <button
               type="button"
@@ -88,8 +113,20 @@ export const GalleryView = ({
                 <Expand />
               </span>
             </button>
-          </li>
-        ))}
+          </li>,
+          ...(style === 'grid'
+            ? (
+                [
+                  ['gl-break-wide', 4],
+                  ['gl-break-mid', 3],
+                ] as const
+              ).flatMap(([cls, across]) =>
+                breaksFor(visible.length, across).has(i + 1)
+                  ? [<li key={`${cls}-${i}`} className={`gl-break ${cls}`} aria-hidden="true" />]
+                  : [],
+              )
+            : []),
+        ])}
       </ul>
       {style === 'grid' && filtered.length > PAGE ? (
         <div className="gl-more">

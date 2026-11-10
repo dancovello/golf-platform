@@ -111,16 +111,16 @@ export const Viewer = ({
         touchX.current = null
       }}
     >
-      <div className="vw-top">
-        <p className="t-label-s vw-count" aria-live="polite">
-          {pad(index + 1)} / {pad(count)}
-        </p>
-        {onClose ? (
+      {onClose ? (
+        <div className="vw-top">
+          <p className="t-label-s vw-count" aria-live="polite">
+            {pad(index + 1)} / {pad(count)}
+          </p>
           <button type="button" className="vw-close" aria-label="Close" onClick={onClose}>
             <Close />
           </button>
-        ) : null}
-      </div>
+        </div>
+      ) : null}
       <div className="vw-stage">
         {count > 1 ? (
           <button
@@ -157,6 +157,12 @@ export const Viewer = ({
           </button>
         ) : null}
       </div>
+      {onClose ? null : (
+        // On the page the count sits centred between the photo and the thumbnails.
+        <p className="t-label-s vw-count vw-count-inline" aria-live="polite">
+          {pad(index + 1)} / {pad(count)}
+        </p>
+      )}
       {count > 1 ? (
         <div ref={thumbs} className="vw-thumbs">
           {items.map((t, i) => (
