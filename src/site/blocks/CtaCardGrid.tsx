@@ -3,6 +3,7 @@ import type { CtaCardGridBlock } from '@/payload-types'
 import { Button } from '../components/Button'
 import { ArrowRight } from '../components/Icons'
 import { linkTarget, siteHref } from '../components/links'
+import { CardCarousel } from './CardCarousel'
 import { cardRows } from './cardRows'
 import type { BlockContext, ResolvedLink } from './resolve'
 import { SwipeRow } from './SwipeRow'
@@ -18,7 +19,7 @@ type Card = {
 /**
  * CTA Card Grid (docs/design/09), three styles. The whole card is one link; arrows inside it
  * are decoration. No "Explore" label (Dan, 2026-10-17): it looked like a separate link. Phones: A swipes (with a "View all" card last),
- * B stacks as image strips, C stacks as a numbered list (docs/design/13).
+ * B stacks as image strips (from 4 cards it is a carousel instead), C stacks as a numbered list (docs/design/13).
  */
 export const CtaCardGrid = ({
   block,
@@ -167,6 +168,8 @@ export const CtaCardGrid = ({
                 : []),
             ]}
           </SwipeRow>
+        ) : style === 'immersive' && cardEls.length >= 4 ? (
+          <CardCarousel label={block.heading}>{cardEls}</CardCarousel>
         ) : (
           <div className={`cg-grid ${rows}`}>{cardEls}</div>
         )}
