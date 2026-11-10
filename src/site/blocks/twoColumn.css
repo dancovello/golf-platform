@@ -24,7 +24,11 @@
 .tc-body p {
   margin: 0;
 }
-.tc-copy .tc-link {
+.tc-copy .tc-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-16) var(--space-32);
   margin-top: var(--space-32);
 }
 

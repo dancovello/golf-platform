@@ -84,12 +84,23 @@ const config: Block = {
         },
       ],
     },
-    linkField({ name: 'link', label: 'Link (optional)', required: false, allowDocument: true }),
+    linkField({
+      name: 'button',
+      label: 'Button (optional)',
+      required: false,
+      allowDocument: true,
+    }),
+    linkField({
+      name: 'link',
+      label: 'Text link (optional)',
+      required: false,
+      allowDocument: true,
+    }),
   ],
 }
 
 export const twoColumn: BlockDefinition = {
   config,
   refs: (block, path) =>
-    collectRefs(block, path, { images: ['image', 'insetImage'], links: ['link'] }),
+    collectRefs(block, path, { images: ['image', 'insetImage'], links: ['button', 'link'] }),
 }

@@ -507,6 +507,20 @@ export interface TwoColumnBlock {
         id?: string | null;
       }[]
     | null;
+  button?: {
+    label?: string | null;
+    type?: ('page' | 'builtIn' | 'url' | 'document') | null;
+    page?: (string | null) | Page;
+    /**
+     * Opens the file in a new tab. Add files under Documents.
+     */
+    document?: (string | null) | Document;
+    builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+    /**
+     * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+     */
+    url?: string | null;
+  };
   link?: {
     label?: string | null;
     type?: ('page' | 'builtIn' | 'url' | 'document') | null;
@@ -3155,6 +3169,16 @@ export interface TwoColumnBlockSelect<T extends boolean = true> {
         label?: T;
         value?: T;
         id?: T;
+      };
+  button?:
+    | T
+    | {
+        label?: T;
+        type?: T;
+        page?: T;
+        document?: T;
+        builtIn?: T;
+        url?: T;
       };
   link?:
     | T
