@@ -7,10 +7,9 @@ import { expect, openReady, test } from './fixtures'
 // machines (2026-10-21).
 test.describe.configure({ mode: 'default' })
 
-// The content security policy (src/security/csp.ts, src/proxy.ts). Club sites are enforced;
-// the admin is report-only for now. These visit every kind of club page, and the main admin
-// screens, and fail if the browser reports anything blocked (or, in the admin, anything that
-// would have been).
+// The content security policy (src/security/csp.ts, src/proxy.ts). Club sites and the admin are
+// enforced. These visit every kind of club page, and the main admin screens, and fail if the
+// browser reports anything blocked.
 
 /** Collects the browser's own reports of anything the policy blocked or would block. */
 const watchPolicy = async (page: Page) => {
@@ -102,10 +101,16 @@ test('each page view gets its own code, and a visitor can’t choose it', async 
   expect(await second.text()).not.toContain('chosen-by-visitor')
 })
 
-test('the admin is report-only for now', async ({ request }) => {
-  const headers = (await request.get('/admin/login')).headers()
-  expect(headers['content-security-policy-report-only']).toContain("'strict-dynamic'")
-  expect(headers['content-security-policy']).not.toContain("'strict-dynamic'")
+test('the admin’s policy is enforced, and its own scripts carry the code', async ({ request }) => {
+  const response = await request.get('/admin/login')
+  const headers = response.headers()
+  expect(headers['content-security-policy']).toContain("'strict-dynamic'")
+  expect(headers['content-security-policy-report-only'] ?? '').not.toContain("'strict-dynamic'")
+  // Next.js only puts the code on the page's own scripts while the policy is enforced; in
+  // report-only mode none carried it and every script was reported (10 Nov 2026).
+  const scripts = (await response.text()).match(/<script\b[^>]*>/g) ?? []
+  expect(scripts.length).toBeGreaterThan(0)
+  expect(scripts.filter((tag) => !tag.includes('nonce="'))).toEqual([])
 })
 
 test('nothing on the main admin screens that the policy would block', async ({
