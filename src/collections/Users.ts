@@ -8,6 +8,12 @@ import type {
 import { ValidationError } from 'payload'
 
 import { enforceAccountCreationRules, noAccountsInDemoClubs } from '../access/accountCreation'
+import {
+  auditAccountChange,
+  auditAccountRemoved,
+  auditPasswordReset,
+  auditSignIn,
+} from '../audit/hooks'
 import { editorTenantID, isSuperAdmin } from '../access/roles'
 import { inviteEndpoint, passwordLinkEndpoint } from '../accounts/endpoints'
 import {
@@ -21,10 +27,11 @@ import { resetTwoFactorEndpoint } from '../auth/resetTwoFactor'
 import {
   emailPasswordChange,
   emailPasswordReset,
-  endLongEditorSessions,
+  endLongSessions,
   notePasswordChange,
 } from '../auth/sessionLimit'
 import { publicError } from '../errors'
+import { allowRequest, SIGN_IN_LIMIT, visitorKey } from '../security/rateLimit'
 
 export const MIN_PASSWORD_LENGTH = 12
 
@@ -91,7 +98,26 @@ const enforcePasswordLength: CollectionBeforeValidateHook = ({ collection, data 
  * - Setting a password through a link skips beforeValidate's view of the new password, so the
  *   minimum length is checked here as well.
  */
-const passwordOperationRules: CollectionBeforeOperationHook = ({ args, operation, req }) => {
+const SIGN_IN_TOO_MANY =
+  'Too many sign-in attempts from this address. Please wait 10 minutes and try again.'
+
+/** Sign-in, "forgot password" and "set a new password" all count against one limit per address
+ * (SIGN_IN_LIMIT). Platform-made links don't (they come from a signed-in super-admin). Where
+ * there is no visitor address (scripts, tests, the local API), nothing is counted: on Vercel
+ * every real request has one, set by Vercel itself. */
+const LIMITED_OPERATIONS = new Set(['login', 'forgotPassword', 'resetPassword'])
+
+const passwordOperationRules: CollectionBeforeOperationHook = async ({ args, operation, req }) => {
+  if (LIMITED_OPERATIONS.has(operation) && req.context?.passwordLinkByAdmin !== true) {
+    const visitor = visitorKey(req.headers ?? new Headers())
+    if (visitor !== 'unknown') {
+      const db = (req.payload.db as unknown as { drizzle: Parameters<typeof allowRequest>[0] })
+        .drizzle
+      if (!(await allowRequest(db, SIGN_IN_LIMIT, visitor))) {
+        throw publicError(SIGN_IN_TOO_MANY, 429)
+      }
+    }
+  }
   if (
     operation === 'forgotPassword' &&
     req.context?.passwordLinkByAdmin !== true &&
@@ -157,11 +183,14 @@ export const Users: CollectionConfig = {
   custom: { totp: { disableAccessWrapper: { read: true } } },
   endpoints: [inviteEndpoint, passwordLinkEndpoint, resetTwoFactorEndpoint],
   hooks: {
-    beforeOperation: [passwordOperationRules, endLongEditorSessions],
+    beforeOperation: [passwordOperationRules, endLongSessions],
     beforeValidate: [enforcePasswordLength],
     beforeChange: [enforceAccountCreationRules, noAccountsInDemoClubs, notePasswordChange],
-    afterChange: [emailPasswordChange],
-    afterOperation: [emailPasswordReset],
+    // The audit log (src/audit) is written first: emailPasswordChange clears the flag it reads.
+    afterChange: [auditAccountChange, emailPasswordChange],
+    afterDelete: [auditAccountRemoved],
+    afterLogin: [auditSignIn],
+    afterOperation: [emailPasswordReset, auditPasswordReset],
     // The multi-tenant plugin reads a user's clubs from a `tenants` list. We store exactly one
     // club in `tenant` (enforced by the database) and present it in the plugin's shape.
     afterRead: [

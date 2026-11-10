@@ -6,7 +6,7 @@ import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import { isFullyAuthenticated, isSuperAdminWithCode } from '@/auth/fullyAuthenticated'
-import { sessionTooOld } from '@/auth/sessionLimit'
+import { sessionHoursFor, sessionTooOld } from '@/auth/sessionLimit'
 
 import { ROOT, sourceFiles } from '../shared/sourceScan'
 
@@ -58,5 +58,13 @@ describe('editor sessions end after 8 hours', () => {
   it('a session from this morning is fine; one from more than 8 hours ago is too old', () => {
     expect(sessionTooOld({ createdAt: '2026-10-22T10:30:00Z' }, now)).toBe(false)
     expect(sessionTooOld({ createdAt: '2026-10-22T09:59:00Z' }, now)).toBe(true)
+  })
+
+  it('super-admins get 12 hours, editors 8', () => {
+    expect(sessionHoursFor({ role: 'super-admin' })).toBe(12)
+    expect(sessionHoursFor({ role: 'editor' })).toBe(8)
+    expect(sessionHoursFor(null)).toBe(8)
+    expect(sessionTooOld({ createdAt: '2026-10-22T09:59:00Z' }, now, 12)).toBe(false)
+    expect(sessionTooOld({ createdAt: '2026-10-22T05:59:00Z' }, now, 12)).toBe(true)
   })
 })

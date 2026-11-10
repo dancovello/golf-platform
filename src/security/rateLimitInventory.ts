@@ -47,18 +47,23 @@ const FILE: Protection = {
 export const SIGN_IN_ENDPOINTS: Record<string, Protection> = {
   'POST /api/users/login': {
     who: 'anyone',
-    limit: 'Account locked for 10 minutes after 5 wrong passwords',
-    where: 'Payload (stored on the account, shared); Vercel Firewall rule 2 per address',
+    limit:
+      'Account locked for 10 minutes after 5 wrong passwords; and 20 sign-in, forgot-password or reset attempts per address in 10 minutes',
+    where:
+      'Payload (stored on the account, shared) and the app, shared database (SIGN_IN_LIMIT, src/security/rateLimit.ts); Vercel Firewall rule 2 per address',
   },
   'POST /api/users/forgot-password': {
     who: 'anyone',
-    limit: 'One reset email per account every 15 minutes; refused while email reset is off',
-    where: 'Payload (minRequestInterval, src/collections/Users.ts); Vercel Firewall rule 2',
+    limit:
+      'One reset email per account every 15 minutes; refused while email reset is off; counts in the 20 attempts per address in 10 minutes',
+    where:
+      'Payload (minRequestInterval, src/collections/Users.ts) and the app (SIGN_IN_LIMIT); Vercel Firewall rule 2',
   },
   'POST /api/users/reset-password': {
     who: 'anyone',
-    limit: 'Needs a valid one-time link (random, expires)',
-    where: 'Payload; Vercel Firewall rule 2',
+    limit:
+      'Needs a valid one-time link (random, expires); counts in the 20 attempts per address in 10 minutes',
+    where: 'Payload and the app (SIGN_IN_LIMIT); Vercel Firewall rule 2',
   },
   'POST /api/users/unlock': {
     who: 'anyone',
@@ -106,6 +111,11 @@ export const RATE_LIMITS: Record<string, Protection> = {
     where: 'Code check in the route',
   },
   'src/app/(frontend)/cron/database-check/route.ts': {
+    who: 'scheduler',
+    limit: "Only with Vercel's scheduler secret (CRON_SECRET); otherwise it doesn't exist",
+    where: 'Code check in the route',
+  },
+  'src/app/(frontend)/cron/club-sites/route.ts': {
     who: 'scheduler',
     limit: "Only with Vercel's scheduler secret (CRON_SECRET); otherwise it doesn't exist",
     where: 'Code check in the route',
@@ -168,8 +178,10 @@ export const RATE_LIMITS: Record<string, Protection> = {
   },
   'POST /api/verify-totp': {
     who: 'signed in',
-    limit: 'Locked for 10 minutes after 5 wrong codes (same settings as passwords)',
-    where: 'payload-totp (totp-attempts, stored in the database)',
+    limit:
+      'Locked for 10 minutes after 5 wrong codes (same settings as passwords); and 30 code attempts a day per account',
+    where:
+      'payload-totp (totp-attempts, stored in the database) and the app, shared database (TWO_FACTOR_CODE_LIMIT, src/security/rateLimit.ts)',
   },
   'POST /api/remove-totp': {
     who: 'signed in',

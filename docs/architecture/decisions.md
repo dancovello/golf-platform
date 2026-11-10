@@ -793,3 +793,66 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Why:** the Actions minutes ran out while the repository was private. Nightly backups failed from 6 to 9 Nov, and once the repository was public again the production release (#303) stopped at the "must be private" check.
 - **Decision:** the repository stays public for now, and the release workflow's check is now a warning, not a stop. Supersedes the "Guard" line of 22 Oct.
 - **Next:** CI will be trimmed so the free minutes last a whole month before the repository goes private again (audit fix plan, `docs/plans/audit-fix-plan-2026-11-09.md`).
+
+## 2026-11-10: The demo booking form gets the other forms' spam checks (audit fix step 2)
+
+- **Why:** the booking form was the only public form without bot checks, so a script could fill every open slot and send Google Calendar invitations to made-up addresses.
+- **What:** the same three checks as the Homepage Request Form: a hidden "website" box, the page's signed time check (a booking within 3 seconds of the page opening is a robot; valid 24 hours), and Cloudflare's check (action `booking`). A robot caught by the first two is told "booked", but nothing is saved or sent. Cloudflare failing or unreachable books nothing. The existing limits and slot checks run after.
+- **Code:** `src/marketing/booking/proof.ts`, `submit.ts`, `actions.ts`; the form is `src/marketing/site/booking/DemoBooking.tsx`. `submitDemoBooking` now requires the proof, so nothing can call it without the checks.
+
+## 2026-11-10: A nightly second copy of photos and documents; database backups kept 7 days (audit fix step 5)
+
+- **Dan's decisions:** database backups are kept 7 days, not 30. The live photo bucket is about 930 MB, inside Cloudflare's 10 GB free allowance, so the copy costs nothing for now.
+- **Copy:** nightly (03:00 UTC) from `golf-platform-media-production` to `golf-platform-backups/media/production/`. A file that has gone from the live bucket is moved to `media/removed/` and deleted by a lifecycle rule after 7 days. Stops and opens an issue if more than 200 files look removed or the live bucket looks empty. Code: `scripts/lib/mediaMirror.ts`, `scripts/media-backup.ts`.
+- **Two tokens, one job each:** the existing backups token (read and write on the backup bucket only) and a new read-only token on the live bucket.
+- **Not relied on:** R2 object versioning (not confirmed) and server-side copy between buckets (the job downloads and uploads).
+
+## 2026-11-10: Sign-in limit in code, daily two-factor cap, trusted preview address (audit fix step 9)
+
+- **Per-address limit:** 20 sign-in, forgot-password or reset attempts per address in 10 minutes (`SIGN_IN_LIMIT`), in the app's shared database, on top of the account lockout and the Vercel Firewall rule. Not counted where there is no address (scripts, tests): on Vercel every request has one.
+- **Two-factor:** at most 30 code attempts a day per account (`TWO_FACTOR_CODE_LIMIT`), on top of the plugin's 5 guesses per 10 minutes (audit-auth H1).
+- **Live preview:** the preview address is built only from one of the admin's own trusted addresses (`src/auth/trustedOrigins.ts`), so a made-up Host header can't point it elsewhere (finding m6).
+- **Pooled database:** on Vercel, a Neon `DATABASE_URL` without `-pooler` is logged and sent to Sentry as one warning at startup (finding M11). It can't be read from Vercel, so the code checks it.
+- **Pinned:** `three` and `@types/three` are exact versions (finding m8).
+
+## 2026-11-10: Super-admin sessions end after 12 hours; incident plan (audit fix step 10)
+
+- **12 hours:** a super-admin's session is no longer renewed 12 hours after sign-in (editors keep 8), so an admin left open asks for the password and two-factor code again (audit-auth H2, finding M13). Code: `src/auth/sessionLimit.ts`.
+- **Incident plan:** `docs/operations/incident-plan.md`, one page: how you find out, the first ten minutes, being locked out, telling clubs (including a personal data breach), afterwards.
+- **Open (Dan):** an offline emergency second super-admin account. Not created.
+
+## 2026-11-10: Hourly check of every club's own address; missed email alerts visible (audit fix step 7)
+
+- **Why not Sentry monitors:** the free plan has one uptime monitor, used by the production admin. A paid plan, or a second service, would cost money for no gain over a job we already know how to run.
+- **What:** `/cron/club-sites` (hourly, production only): loads each club's home page; each club that doesn't answer gets its own Sentry issue (fingerprint per address), which emails Dan. Clubs join the check as soon as they have a web address. It skips access rules to read club addresses only (listed in `src/security/override-allowlist.ts`).
+- **Missed email alerts:** the Enquiries list shows "Emailed to the club"; blank means the alert didn't go out (the message is always saved).
+
+## 2026-11-10: The audit log (audit fix step 12a, finding M6)
+
+- **What:** a platform-level collection `audit-log` (`src/collections/AuditLog.ts`, new table, migration `20261110_185248_audit_log`) and one writer, `recordAudit` (`src/audit/record.ts`). Super-admin reads it in the admin (Platform → Audit log); nobody adds, changes or deletes an entry through the admin or API, not even the super-admin.
+- **Recorded (12a):** password sign-in, two-factor code accepted / set up / switched off / reset, accounts created / removed / email changed / password changed or set from a link, password links and invitations, clubs created / changed (name, short name, web addresses, demo) / deleted, the demo club built, marketing starter pages added. 12b adds deleted club content.
+- **Not recorded, on purpose:** failed sign-ins (an attacker could flood the table; the account lockout and the per-address limit already cover them), page text, photos, passwords, codes, IP addresses, and ordinary saves.
+- **Who:** account ID, email and type; "system" for scripts and scheduled jobs. The club is stored as plain text (ID and name), not a link, so deleting a club or account never touches the log.
+- **Can't break the action:** a failed write is logged and sent to Sentry; it never throws and doesn't join the action's database transaction.
+- **Kept 12 months** (Dan, 10 Nov): deleted by the nightly clean-up (`deleteOldAuditEntries`). It holds editors' email addresses, so it counts as personal data (security records, legitimate interests).
+- **Emergency account alert:** if `EMERGENCY_ADMIN_EMAIL` is set in Vercel Production and that account signs in, Sentry emails at once (fatal). Nothing happens while it is unset; set it when the account is created (`docs/operations/incident-plan.md`).
+
+## 2026-11-10: The admin's security policy is enforced (audit fix step 8)
+
+- **What:** `ADMIN_ENFORCED = true` (`src/security/csp.ts`): the admin now blocks what its policy doesn't allow, as club sites and the company site already did.
+- **Why the reports were misleading:** the admin was report-only since 21 Oct, and Sentry collected about 300 "would block" reports. While a policy is report-only, Next.js doesn't put the one-time code on the page's own scripts, so every script was reported. Production's login page had 0 of 20 script tags with a code; the same build enforced had 20 of 20. Enforced, no violation on 13 admin list and settings screens, the edit and create screens or the login screens, and all 98 admin browser tests pass.
+- **Watch:** the "Security policy would block / blocked" Sentry issue should stop growing within a day. If something real is blocked, it appears there. Going back is one line (`ADMIN_ENFORCED`), but while report-only every script is reported again.
+- **Still open from the same audit finding (headers audit, finding 1 step 2):** club previews are served from the admin's own address; moving them to their own address needs the platform domain.
+
+## 2026-11-10: The nightly clean-up works in batches (audit fix step 14, finding M8)
+
+- **Before:** the unused-files check loaded every photo and document record into memory, then listed the whole storage bucket, inside a 60-second limit. That works for a few clubs and times out as they grow.
+- **Now:** it reads the bucket one page at a time (1,000 files) and checks only that page's folders against the database with one query, so memory and time stay flat however many clubs and files there are. The route's limit is 120 seconds, and the scan stops at 90 seconds with a warning (log and Sentry) instead of being cut off; whatever it didn't reach is checked on another night.
+- **Unchanged safety rules:** files must be a day old, only the platform's own random-folder format is touched, nothing is removed past the nightly limit of 200 (it fails loudly instead), and only on production.
+
+## 2026-11-10: "Did you mean" uses a cached word list (audit fix step 13, finding M9)
+
+- **Measured first** (benchmark club: 900 items, 1.9 MB of text, local Postgres): a normal search about 10 to 15 ms in the database; the suggestion query about 147 ms on every search that found nothing, growing with the club's text.
+- **Fix:** each club's list of searchable words is built once and cached for at most 5 minutes (`clubSearchWords`, `src/search/query.ts`, listed in the isolation manifest; cleared when the club's content changes). The suggestion then compares against that list: about 5 to 9 ms. The list is capped at 40,000 words.
+- **Not changed:** the index is still rebuilt on the first search after an edit (decisions of 19 Oct: nothing rebuilds while editors type). Not measured at scale; measure a real big club before changing it.
+

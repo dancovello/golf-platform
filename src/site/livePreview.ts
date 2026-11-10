@@ -1,7 +1,25 @@
 import type { GeneratePreviewURL, LivePreviewConfig, PayloadRequest } from 'payload'
 
+import { trustedOrigins } from '../auth/trustedOrigins'
 import { siteBase } from './preview'
 import { idOf } from '@/blocks/types'
+
+/**
+ * The address the preview is shown on: the one the request came from, but only if it is one of
+ * the admin's own addresses (src/auth/trustedOrigins.ts). A request sent with a made-up Host
+ * header can't point the preview at another site. Null (no preview) if there is no such address.
+ */
+export const previewOrigin = (
+  requested: string,
+  trusted: string[] = trustedOrigins(),
+): string | null => {
+  try {
+    const origin = new URL(requested).origin
+    return trusted.includes(origin) ? origin : null
+  } catch {
+    return null
+  }
+}
 
 /** The address the admin's live preview panel loads: the club's page with `?live=1`, which
  * shows the latest draft to the club's own editors (src/app/(frontend)/preview/...). */
@@ -16,7 +34,8 @@ const previewURL = async (req: PayloadRequest, tenant: unknown, path: string) =>
   const proto =
     req.headers.get('x-forwarded-proto') ?? (host?.startsWith('localhost') ? 'http' : 'https')
   const join = path.includes('?') ? '&' : '?'
-  return `${proto}://${host}${siteBase(club.slug)}${path}${join}live=1`
+  const origin = previewOrigin(`${proto}://${host}`)
+  return origin ? `${origin}${siteBase(club.slug)}${path}${join}live=1` : null
 }
 
 const pageURL = (req: PayloadRequest, tenant: unknown, slug: string | null) =>

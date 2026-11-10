@@ -89,7 +89,8 @@ export const CookieConsent = ({
   gaID: string
   /** Per club, because every club shares one address on staging. */
   storageKey: string
-  privacyHref: string
+  /** Where the privacy policy is. Null when it isn't published yet: the banner then names no link. */
+  privacyHref: string | null
 }) => {
   const [open, setOpen] = useState(false)
   const heading = useRef<HTMLHeadingElement>(null)
@@ -137,7 +138,13 @@ export const CookieConsent = ({
       </h2>
       <p className="t-body-s cc-text">
         We’d like to use Google Analytics cookies to understand how visitors use this site. They
-        only run if you accept. Read more in our <a href={privacyHref}>privacy policy</a>.
+        only run if you accept.
+        {privacyHref ? (
+          <>
+            {' '}
+            Read more in our <a href={privacyHref}>privacy policy</a>.
+          </>
+        ) : null}
       </p>
       <div className="cc-buttons">
         <button

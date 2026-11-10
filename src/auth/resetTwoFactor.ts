@@ -1,5 +1,6 @@
 import type { Endpoint, Payload } from 'payload'
 
+import { recordAudit } from '../audit/record'
 import { isSuperAdminWithCode } from './fullyAuthenticated'
 import { publicError } from '../errors'
 
@@ -7,13 +8,24 @@ import { publicError } from '../errors'
  * Clears an account's two-factor secret, so they set it up again at their next login
  * (lost phone). There are no backup codes in v1 (docs/architecture/decisions.md).
  */
-export const resetTwoFactor = (payload: Payload, userID: string) =>
-  payload.update({
+export const resetTwoFactor = async (payload: Payload, userID: string, actor?: unknown) => {
+  const result = await payload.update({
     collection: 'users',
     id: userID,
     data: { totpSecret: null } as never,
     overrideAccess: true,
   })
+  // Who did it: the signed-in super-admin, or "system" for `pnpm reset-two-factor`.
+  await recordAudit(payload, {
+    action: 'two-factor-reset',
+    actor,
+    clubId: result.tenant
+      ? String(typeof result.tenant === 'object' ? result.tenant.id : result.tenant)
+      : null,
+    target: result.email,
+  })
+  return result
+}
 
 /**
  * POST /api/users/:id/reset-two-factor. A super-admin, with their own code entered, can reset
@@ -35,7 +47,7 @@ export const resetTwoFactorEndpoint: Endpoint = {
     if (!target || target.role !== 'editor') {
       throw publicError('Only a club editor’s two-factor can be reset here.', 400)
     }
-    await resetTwoFactor(req.payload, id)
+    await resetTwoFactor(req.payload, id, req.user)
     return Response.json({
       message:
         'Two-factor reset. They can sign in with their password, and set it up again from their account page.',

@@ -1,0 +1,83 @@
+name: Media backup
+
+# A second copy of the production photos, videos and documents, in the backup bucket
+# (audit fix plan, step 5; code in scripts/lib/mediaMirror.ts). New files are copied; files
+# removed from the live bucket are set aside under media/removed/ and a lifecycle rule in
+# Cloudflare deletes them 7 days later. Restore: docs/operations/restore-runbook.md.
+
+on:
+  schedule:
+    - cron: '0 3 * * *' # 03:00 UTC every night, after the database backup at 02:30
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: media-backup
+  cancel-in-progress: false
+
+env:
+  NEXT_TELEMETRY_DISABLED: '1'
+
+jobs:
+  media-backup:
+    runs-on: ubuntu-latest
+    # The production environment holds the keys, and only main and production may use it.
+    environment: release-production
+    timeout-minutes: 30
+    env:
+      R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+      MEDIA_SOURCE_BUCKET: golf-platform-media-production
+      BACKUP_BUCKET: golf-platform-backups
+      # Read-only on the live photo bucket.
+      R2_MEDIA_READ_ACCESS_KEY_ID: ${{ secrets.R2_MEDIA_READ_ACCESS_KEY_ID }}
+      R2_MEDIA_READ_SECRET_ACCESS_KEY: ${{ secrets.R2_MEDIA_READ_SECRET_ACCESS_KEY }}
+      # Read and write on the backup bucket only (the same token as the database backups).
+      R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Check the secrets are present
+        run: |
+          missing=0
+          for name in R2_ENDPOINT R2_MEDIA_READ_ACCESS_KEY_ID R2_MEDIA_READ_SECRET_ACCESS_KEY R2_ACCESS_KEY_ID R2_SECRET_ACCESS_KEY; do
+            if [ -z "${!name}" ]; then echo "Missing secret for ${name}"; missing=1; fi
+          done
+          exit $missing
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Copy new files, set aside removed ones
+        run: node scripts/media-backup.ts
+
+  report-failure:
+    needs: [media-backup]
+    if: failure()
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    permissions:
+      issues: write
+    steps:
+      - name: Open an issue about the failed media backup
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          title="Media backup failed"
+          body=$(printf 'The nightly copy of the production photos and documents did not finish, so the second copy is out of date.\n\n**Details:** %s\n\nIt retries tomorrow night. Close this issue once a run has succeeded. If it says too many files look removed, check the live bucket first (docs/operations/restore-runbook.md, section 7).' "$RUN_URL")
+          existing=$(gh issue list --state open --search "\"${title}\" in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh issue create --title "$title" --body "$body"
+          fi

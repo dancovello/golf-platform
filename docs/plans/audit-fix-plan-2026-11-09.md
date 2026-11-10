@@ -22,21 +22,21 @@ The plan for fixing everything found in the production readiness audit of 9 Nove
 
 | Step | What | Fixes | Who | Size | Status |
 |---|---|---|---|---|---|
-| 0 | Dan's dashboard jobs, in one sitting | C3, M11 (C4, M3 deferred) | 👤 Dan, Claude writes the checklist | 1 hour | In progress |
-| 1 | Renew or fix the dependency-scan exceptions (two expire 10 Nov) | m1 | 🔨 Claude | Small | Not started |
-| 2 | Spam protection on the demo booking form | M2 | 🔨 Claude | Small | Not started |
+| 0 | Dan's dashboard jobs, in one sitting | C3, M11 (C4, M3 deferred) | 👤 Dan, Claude writes the checklist | 1 hour | Done 10 Nov (database pooling check moves to step 9) |
+| 1 | Renew or fix the dependency-scan exceptions (two expire 10 Nov) | m1 | 🔨 Claude | Small | Done 10 Nov (#307) |
+| 2 | Spam protection on the demo booking form | M2 | 🔨 Claude | Small | PR open |
 | 3 | A health check that proves the database answers, used by the release and the uptime monitor | M1, M7 | 🔨 Claude | Small | Not started |
 | 4 | Safer releases: automatic rollback when the new version fails its check | M1 | 🔨 Claude | Medium | Not started |
-| 5 | A second copy of club photos and documents; clean-up stops deleting for good | C2 | 🔨 Claude, 👤 Dan for Q3 | Medium | Not started |
+| 5 | A second copy of club photos and documents; clean-up stops deleting for good | C2 | 🔨 Claude, 👤 Dan for Q3 | Medium | PR open |
 | 6 | First restore drill, database and files | C1 | 👤 Dan + devops friend, Claude prepares | Half day | Not started |
-| 7 | Monitoring each club's own address, and showing when an email alert wasn't sent | M7, M3 | 🔨 Claude, 👤 Dan adds monitors | Small | Not started |
-| 8 | Switch on the admin's script protection | M4 (part 1) | 🔨 Claude | Small, then a watch week | Not started |
-| 9 | Sign-in limit per address, written in code; small hardening | M5, m6, m8 | 🔨 Claude | Small | Not started |
-| 10 | Super-admin safety: session time limit, emergency account, incident plan | M13 | 🔨 Claude, 👤 Dan for Q4 | Small | Not started |
-| 11 | Branded error pages | m2 | 🔨 Claude | Small | Not started |
-| 12 | Audit log: who changed what, when | M6 | 🔨 Claude, 👤 Dan for Q5 | Large | Not started |
-| 13 | Faster, cheaper site search | M9 | 🔨 Claude | Medium | Not started |
-| 14 | Nightly clean-up that keeps working as clubs grow | M8 | 🔨 Claude | Medium | Not started |
+| 7 | Monitoring each club's own address, and showing when an email alert wasn't sent | M7, M3 | 🔨 Claude, 👤 Dan adds monitors | Small | PR open |
+| 8 | Switch on the admin's script protection | M4 (part 1) | 🔨 Claude | Small, then a watch week | PR open (see step 8) |
+| 9 | Sign-in limit per address, written in code; small hardening | M5, m6, m8 | 🔨 Claude | Small | Done 10 Nov (#315) |
+| 10 | Super-admin safety: session time limit, emergency account, incident plan | M13 | 🔨 Claude, 👤 Dan for Q4 | Small | Done 10 Nov (#316); the emergency second account is Dan's decision |
+| 11 | Branded error pages | m2 | 🔨 Claude | Small | Done 10 Nov (#314) |
+| 12 | Audit log: who changed what, when | M6 | 🔨 Claude, 👤 Dan for Q5 | Large | 12a PR open (accounts, sign-in, clubs, super-admin actions); 12b next (deleted club content) |
+| 13 | Faster, cheaper site search | M9 | 🔨 Claude | Medium | PR open |
+| 14 | Nightly clean-up that keeps working as clubs grow | M8 | 🔨 Claude | Medium | PR open |
 | 15 | Load test against staging | Scalability | 🔨 Claude, 👤 Dan approves | Small | Not started |
 | 16 | Dan's legal and business jobs | C5, m10 | 👤 Dan | Ongoing | Not started |
 | 17 | Later, after the first clubs (v1.1) | M10, M4 (part 2), m3, m4, m5, m7, m9 | Both | Various | Not started |
@@ -81,8 +81,17 @@ If a new version fails its health check, put the previous version back automatic
 **Done when:** a staging release with a deliberately broken health check rolls itself back, and the guard's tests cover the two-release rule.
 
 ### Step 5. A second copy of photos and documents (C2)
-Claude researches what R2 offers (versioning, bucket locks, copying between buckets), then proposes the cheapest option that survives a deleted bucket or a leaked key (Q3). Separately, change the nightly clean-up so it moves unused files to a holding folder for 30 days instead of deleting them.
-**Done when:** a deleted test file can be got back, and the clean-up's tests show nothing is deleted outright.
+**Decided by Dan, 10 Nov:** database backups are kept **7 days**, then deleted. The live photo bucket is **930 MB** (so the copy is inside Cloudflare's 10 GB free allowance).
+
+- **Nightly copy (built, PR open):** `.github/workflows/media-backup.yml` copies every new file from `golf-platform-media-production` into `golf-platform-backups/media/production/`. A file removed from the live bucket is moved to `media/removed/`, and a lifecycle rule deletes it 7 days later (a file removed by mistake can be got back for a week). A safety brake stops the run, and opens a GitHub issue, if more than 200 files look removed or the live bucket looks empty.
+- **The nightly clean-up stays as it is**: its existing brake (never more than 200 files a night) plus the copy is enough, so the "holding folder" idea is dropped.
+- **Dan's jobs in Cloudflare and GitHub (after the PR is merged):**
+  1. Create an R2 token with **Object Read only** on `golf-platform-media-production`, and save its key and secret in the `release-production` environment as `R2_MEDIA_READ_ACCESS_KEY_ID` and `R2_MEDIA_READ_SECRET_ACCESS_KEY`.
+  2. On the bucket `golf-platform-backups` → Settings → Object lifecycle rules, add three rules: delete objects with prefix `production/` after 7 days, `staging/` after 7 days, and `media/removed/` after 7 days. **No rule on `media/production/`**: those are the live copies.
+  3. Run the workflow once by hand and check it passes.
+- **The privacy policy** says backups are deleted "within 35 days"; with 7 days that stays true, so it needs no change.
+
+**Done when:** the nightly job has run green on real data, a removed test file is found under `media/removed/`, and the lifecycle rules are in place. Restoring from the copy is practised in step 6 (runbook section 7).
 
 ### Step 6. First restore drill (C1)
 Dan and the devops friend follow `docs/operations/restore-runbook.md`; Claude prepares a short script for the day and adds a section for restoring files from step 5. Record the result, including how long it took, in `restore-drills.md`. Also: a second, safe place for the backup decryption key that Dan can reach without the devops friend.
@@ -90,11 +99,13 @@ Dan and the devops friend follow `docs/operations/restore-runbook.md`; Claude pr
 
 ### Step 7. Club address monitoring and missed email alerts (M7, M3)
 Claude writes the steps for an uptime monitor per live club address (a real page, not just the admin), checking first whether Sentry's free plan allows enough monitors. In the admin, show a club when a message arrived but its email alert wasn't sent because the daily allowance ran out.
+**Built 10 Nov, differently from planned:** Sentry's free plan has one uptime monitor (already used by the production admin), so each club's own address is checked by a free hourly job instead (`/cron/club-sites`, a Sentry issue per club that doesn't answer). The Enquiries list now shows an "Emailed to the club" column so a missed alert stands out; the message is always saved, and the club home screen already lists new messages.
 **Done when:** each live club has a monitor, and a test shows the "alert not sent" note.
 
 ### Step 8. Admin script protection on (M4, part 1)
 The admin's content security policy has been report-only since October. Check the reports, then switch it to enforced. Watch for a week for anything it blocks that it shouldn't.
-**Done when:** the admin's policy is enforced and a week has passed with no real problem reports.
+**Found 10 Nov:** the reports were misleading, not the admin. While a policy is report-only, Next.js doesn't put the one-time code on the page's own scripts: production's login page had 0 of 20 script tags with a code, while the same build enforced locally had 20 of 20. So every script was reported (about 300 in Sentry). Enforced, no admin screen I tried gave a single violation (13 list and settings screens, the edit and create screens, the login screens), and the 98 existing admin browser tests pass. So the fix is the one-line switch, plus tests that the admin's own scripts carry the code.
+**Done when:** the admin's policy is enforced and a week has passed with no real problem reports in Sentry (the "Security policy blocked" issue should stop growing; if it doesn't, read its newest events).
 
 ### Step 9. Sign-in limit in code, and small hardening (M5, m6, m8)
 - A per-address limit on sign-in, password reset and two-factor code attempts, using the existing shared rate-limit table, so it doesn't depend only on a Vercel dashboard rule. Write the current Vercel Firewall rules into the docs.
@@ -118,6 +129,7 @@ A record of sign-ins, account changes, deletions and anything a super-admin does
 
 ### Step 13. Faster, cheaper search (M9)
 Rebuild a club's search index straight after a save rather than while a visitor waits; keep the "Did you mean" word list per club instead of rebuilding it on every search; add the database index the spelling-tolerance check needs.
+**Measured 10 Nov** on a benchmark club (900 items, 1.9 MB of text): a normal search is about 10 to 15 ms in the database; "Did you mean" (only when nothing is found) was about **147 ms** and grows with the club's text. It now uses a per-club word list cached for 5 minutes: about 5 to 9 ms. The rebuild-on-first-search is left as designed (nothing rebuilds while editors type); its cost wasn't the worst, and rebuilding after every save would add database work.
 **Done when:** the search tests pass and a timing comparison on staging shows the slow cases are faster.
 
 ### Step 14. Clean-up that scales (M8)

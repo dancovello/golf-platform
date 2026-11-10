@@ -31,7 +31,8 @@ export const Enquiries: CollectionConfig = {
   admin: {
     group: 'Messages',
     useAsTitle: 'name',
-    defaultColumns: ['name', 'purpose', 'status', 'reference', 'createdAt'],
+    // "Emailed to the club" is in the list so a message whose alert didn't go out stands out.
+    defaultColumns: ['name', 'purpose', 'status', 'alertSentAt', 'reference', 'createdAt'],
     description:
       'Messages sent from the Contact page on your website. Each new one is also emailed to your club (Club Settings → Contact page says where).',
   },

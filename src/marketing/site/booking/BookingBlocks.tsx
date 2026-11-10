@@ -5,8 +5,11 @@ import { BRAND } from '@/brand'
 import { hasHours, openDays, ukClock } from '@/marketing/booking/availability'
 import { bookDemo } from '@/marketing/booking/actions'
 import { bookingConfig, takenSlots } from '@/marketing/booking/config'
+import { BOOKING_FORM_SCOPE } from '@/marketing/booking/proof'
 import { marketingSettings } from '@/marketing/settings'
 import type { MarketingDemoIntroBlock } from '@/payload-types'
+import { issueFormToken } from '@/site/contact/formToken'
+import { turnstileSiteKey } from '@/site/contact/turnstile'
 
 import { TextLink } from '../controls/controls'
 import { MarketingIcon } from '../MarketingIcon'
@@ -54,6 +57,8 @@ export const DemoIntro = async ({ block }: { block: MarketingDemoIntroBlock }) =
             open={times.open}
             minutes={times.minutes}
             book={bookDemo}
+            token={issueFormToken(BOOKING_FORM_SCOPE)}
+            turnstileSiteKey={turnstileSiteKey()}
             rescheduleHref={reschedule}
           />
         ) : (

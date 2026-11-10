@@ -33,9 +33,9 @@ test('Google Analytics never loads on the admin’s own address', async ({ page 
   expect(await page.locator('script#club-ga').count()).toBe(0)
 })
 
-// Finding 2 (medium). The admin's policy only reports; it blocks nothing (decided 21 Oct,
-// review due 28 Oct). The admin is where one account can reach every club.
-test.fail('the admin’s policy is enforced', async ({ request }) => {
+// Finding 2 (medium). The admin's policy only reported; it blocked nothing. Fixed 10 Nov 2026
+// (audit fix plan, step 8). The admin is where one account can reach every club.
+test('the admin’s policy is enforced', async ({ request }) => {
   const headers = (await request.get('/admin/login')).headers()
   expect(headers['content-security-policy'] ?? '').toContain("'strict-dynamic'")
 })

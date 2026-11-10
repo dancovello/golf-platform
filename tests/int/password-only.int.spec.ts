@@ -5,7 +5,7 @@
 import type { Payload, PayloadRequest } from 'payload'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
-import { endLongEditorSessions } from '@/auth/sessionLimit'
+import { endLongSessions } from '@/auth/sessionLimit'
 
 import { PASSWORD, seedWorld, type World } from './helpers/seed'
 
@@ -31,7 +31,7 @@ const sessionsOf = async (id: string) =>
   ).sessions ?? []
 
 const refresh = (user: { id: string; role?: string | null }, sid: string) =>
-  endLongEditorSessions({
+  endLongSessions({
     args: {},
     operation: 'refresh',
     req: { user: { ...user, _sid: sid }, payload: p } as unknown as PayloadRequest,
@@ -60,7 +60,7 @@ describe('editor sessions end 8 hours after login', () => {
     expect(login.token).toBeTruthy()
   })
 
-  it("super-admins' sessions (with two-factor) are renewed as normal", async () => {
+  it("super-admins' sessions (with two-factor) are renewed for 12 hours, then end", async () => {
     const nineHoursAgo = new Date(Date.now() - 9 * 60 * 60 * 1000).toISOString()
     const sid = 'old-super-admin-session'
     await p.db.updateOne({
@@ -77,6 +77,15 @@ describe('editor sessions end 8 hours after login', () => {
       },
     })
     await expect(refresh(w.superAdmin, sid)).resolves.toBeDefined()
+
+    // 13 hours after login: no longer renewed, and the session is deleted.
+    const thirteenHoursAgo = new Date(Date.now() - 13 * 60 * 60 * 1000).toISOString()
+    const aged = (await sessionsOf(w.superAdmin.id)).map((s) =>
+      s.id === sid ? { ...s, createdAt: thirteenHoursAgo } : s,
+    )
+    await p.db.updateOne({ collection: 'users', id: w.superAdmin.id, data: { sessions: aged } })
+    await expect(refresh(w.superAdmin, sid)).rejects.toThrow(/12 hours/)
+    expect((await sessionsOf(w.superAdmin.id)).map((s) => s.id)).not.toContain(sid)
   })
 })
 

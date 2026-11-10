@@ -11,6 +11,8 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 import { CACHED_LOADERS, clubCached, clubTag, useCacheStoreForTests } from '@/site/cache'
 import { upcomingEvents } from '@/site/events'
 import { loadClubBySlug, loadClubPage } from '@/site/loadClub'
+import { ensureFreshIndex } from '@/search/fresh'
+import { clubSearchWords, searchClub } from '@/search/query'
 import { latestNews } from '@/site/news'
 import { findClubByHost } from '@/site/resolveSite'
 
@@ -129,6 +131,60 @@ describe('cached club data never crosses clubs', () => {
     expect(a?.tenantID).toBe(w.clubA.id)
     expect(b?.tenantID).toBe(w.clubB.id)
     expect(a?.name).not.toBe(b?.name)
+  })
+})
+
+describe('the search suggestion words', () => {
+  const publish = (tenant: string, title: string, slug: string) =>
+    p().create({
+      collection: 'pages',
+      data: { _status: 'published', title, slug, tenant } as never,
+    })
+
+  it('the search suggestion words are cached per club and hold only that club’s words', async () => {
+    await publish(w.clubA.id, 'Quillfeather rules', 'quillfeather-rules')
+    await publish(w.clubB.id, 'Zebracrossing tips', 'zebracrossing-tips')
+    for (const club of [w.clubA, w.clubB]) await ensureFreshIndex(p(), club.id)
+    cache.reset()
+
+    for (let round = 0; round < 2; round++) {
+      const a = await clubSearchWords(w.clubA.id)
+      const b = await clubSearchWords(w.clubB.id)
+      expect(a).toContain('quillfeather')
+      expect(a).not.toContain('zebracrossing')
+      expect(b).toContain('zebracrossing')
+      expect(b).not.toContain('quillfeather')
+    }
+    // Built once for each club, then served from the cache.
+    expect(cache.calls.filter((c) => c === 'searchWords')).toHaveLength(2)
+
+    // "Did you mean" uses each club's own words, and never the other club's.
+    // (The spelling rule may already find it from the title; if not, "Did you mean" must.)
+    const own = async (club: { id: string }, typo: string, word: string) => {
+      const page = await searchClub(club.id, typo)
+      expect(page.total > 0 || page.suggestion === word).toBe(true)
+    }
+    const other = async (club: { id: string }, typo: string) => {
+      const page = await searchClub(club.id, typo)
+      expect(page.total).toBe(0)
+      expect(page.suggestion).toBeNull()
+    }
+    await own(w.clubA, 'quilfeather', 'quillfeather')
+    await other(w.clubB, 'quilfeather')
+    await own(w.clubB, 'zebracrosing', 'zebracrossing')
+    await other(w.clubA, 'zebracrosing')
+  })
+
+  it('changing a club’s content clears its words, and only its words', async () => {
+    await clubSearchWords(w.clubA.id)
+    await clubSearchWords(w.clubB.id)
+    cache.calls.length = 0
+    await publish(w.clubA.id, 'Marmalade menu', 'marmalade-menu')
+    await ensureFreshIndex(p(), w.clubA.id)
+    expect(await clubSearchWords(w.clubA.id)).toContain('marmalade')
+    await clubSearchWords(w.clubB.id)
+    // Club A's words were built again; club B's were still cached.
+    expect(cache.calls.filter((c) => c === 'searchWords')).toHaveLength(1)
   })
 })
 

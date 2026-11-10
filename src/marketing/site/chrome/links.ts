@@ -55,3 +55,10 @@ export const onlyPublished = <T extends { href: string }>(
     const slug = link.href.slice(1).split(/[#?]/)[0] || 'home'
     return published.has(slug)
   })
+
+/**
+ * Where the banner's "privacy policy" link goes: the page, once it's published, otherwise
+ * nowhere, so the banner never sends a visitor to a "page not found".
+ */
+export const privacyPolicyHref = (published: Set<string>): string | null =>
+  published.has('privacy') ? '/privacy' : null
