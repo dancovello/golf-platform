@@ -609,6 +609,10 @@
     width: 400px;
     box-shadow: -16px 0 48px color-mix(in srgb, var(--brand-dark) 20%, transparent);
   }
+  /* The menu on a desktop is a narrow side panel, so its page names are smaller than on a phone. */
+  .sh-drawer .sh-drawer-section {
+    font-size: 22px;
+  }
 }
 .sh-drawer-top {
   display: flex;

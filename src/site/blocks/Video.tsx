@@ -52,7 +52,7 @@ export const Video = ({
         : 'standard'
     const intro = block.intro?.trim()
     const button = ctx.link(block.button)
-    const player = <VideoPlayer item={shown[0]!} large />
+    const player = <VideoPlayer item={shown[0]!} large modal={layout === 'split'} />
     const text = (
       <>
         {block.eyebrow ? <p className="t-eyebrow blk-eyebrow">{block.eyebrow}</p> : null}
