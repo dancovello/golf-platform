@@ -827,3 +827,13 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **What:** `/cron/club-sites` (hourly, production only): loads each club's home page; each club that doesn't answer gets its own Sentry issue (fingerprint per address), which emails Dan. Clubs join the check as soon as they have a web address. It skips access rules to read club addresses only (listed in `src/security/override-allowlist.ts`).
 - **Missed email alerts:** the Enquiries list shows "Emailed to the club"; blank means the alert didn't go out (the message is always saved).
 
+## 2026-11-10: The audit log (audit fix step 12a, finding M6)
+
+- **What:** a platform-level collection `audit-log` (`src/collections/AuditLog.ts`, new table, migration `20261110_185248_audit_log`) and one writer, `recordAudit` (`src/audit/record.ts`). Super-admin reads it in the admin (Platform → Audit log); nobody adds, changes or deletes an entry through the admin or API, not even the super-admin.
+- **Recorded (12a):** password sign-in, two-factor code accepted / set up / switched off / reset, accounts created / removed / email changed / password changed or set from a link, password links and invitations, clubs created / changed (name, short name, web addresses, demo) / deleted, the demo club built, marketing starter pages added. 12b adds deleted club content.
+- **Not recorded, on purpose:** failed sign-ins (an attacker could flood the table; the account lockout and the per-address limit already cover them), page text, photos, passwords, codes, IP addresses, and ordinary saves.
+- **Who:** account ID, email and type; "system" for scripts and scheduled jobs. The club is stored as plain text (ID and name), not a link, so deleting a club or account never touches the log.
+- **Can't break the action:** a failed write is logged and sent to Sentry; it never throws and doesn't join the action's database transaction.
+- **Kept 12 months** (Dan, 10 Nov): deleted by the nightly clean-up (`deleteOldAuditEntries`). It holds editors' email addresses, so it counts as personal data (security records, legitimate interests).
+- **Emergency account alert:** if `EMERGENCY_ADMIN_EMAIL` is set in Vercel Production and that account signs in, Sentry emails at once (fatal). Nothing happens while it is unset; set it when the account is created (`docs/operations/incident-plan.md`).
+

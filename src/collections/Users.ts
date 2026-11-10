@@ -8,6 +8,12 @@ import type {
 import { ValidationError } from 'payload'
 
 import { enforceAccountCreationRules, noAccountsInDemoClubs } from '../access/accountCreation'
+import {
+  auditAccountChange,
+  auditAccountRemoved,
+  auditPasswordReset,
+  auditSignIn,
+} from '../audit/hooks'
 import { editorTenantID, isSuperAdmin } from '../access/roles'
 import { inviteEndpoint, passwordLinkEndpoint } from '../accounts/endpoints'
 import {
@@ -180,8 +186,11 @@ export const Users: CollectionConfig = {
     beforeOperation: [passwordOperationRules, endLongSessions],
     beforeValidate: [enforcePasswordLength],
     beforeChange: [enforceAccountCreationRules, noAccountsInDemoClubs, notePasswordChange],
-    afterChange: [emailPasswordChange],
-    afterOperation: [emailPasswordReset],
+    // The audit log (src/audit) is written first: emailPasswordChange clears the flag it reads.
+    afterChange: [auditAccountChange, emailPasswordChange],
+    afterDelete: [auditAccountRemoved],
+    afterLogin: [auditSignIn],
+    afterOperation: [emailPasswordReset, auditPasswordReset],
     // The multi-tenant plugin reads a user's clubs from a `tenants` list. We store exactly one
     // club in `tenant` (enforced by the database) and present it in the plugin's shape.
     afterRead: [

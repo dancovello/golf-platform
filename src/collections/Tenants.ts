@@ -7,6 +7,7 @@ import type {
 import { ValidationError } from 'payload'
 
 import { editorTenantID, isSuperAdmin, superAdminOnly } from '../access/roles'
+import { auditClubChange, auditClubDeleted } from '../audit/hooks'
 import { publicError } from '../errors'
 import { SLUG, slugify } from '../fields/slug'
 import { clubOwnedCollections, type ClubOwnedSlug } from '../tenancy'
@@ -156,9 +157,11 @@ export const Tenants: CollectionConfig = {
   hooks: {
     beforeValidate: [defaultSlug, tidyDomains, canaryClubsHaveNoAddress, demoClubsAreNotLive],
     beforeDelete: [deleteClubWithContent],
+    afterDelete: [auditClubDeleted],
     beforeChange: [manageDemo],
     // Every club gets its Club Settings and Course status records straight away (one each).
     afterChange: [
+      auditClubChange,
       async ({ doc, operation, req }) => {
         if (operation !== 'create') return doc
         await req.payload.create({

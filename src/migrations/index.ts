@@ -77,6 +77,7 @@ import * as migration_20261109_143637_document_links from './20261109_143637_doc
 import * as migration_20261109_150000_document_categories from './20261109_150000_document_categories';
 import * as migration_20261109_165615_hole_video from './20261109_165615_hole_video';
 import * as migration_20261109_201550_launch_wording from './20261109_201550_launch_wording';
+import * as migration_20261110_185248_audit_log from './20261110_185248_audit_log';
 
 export const migrations = [
   {
@@ -472,6 +473,11 @@ export const migrations = [
   {
     up: migration_20261109_201550_launch_wording.up,
     down: migration_20261109_201550_launch_wording.down,
-    name: '20261109_201550_launch_wording'
+    name: '20261109_201550_launch_wording',
+  },
+  {
+    up: migration_20261110_185248_audit_log.up,
+    down: migration_20261110_185248_audit_log.down,
+    name: '20261110_185248_audit_log'
   },
 ];
