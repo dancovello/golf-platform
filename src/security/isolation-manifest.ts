@@ -85,6 +85,10 @@ export const COLLECTIONS: Manifest = {
       file: 'tests/int/audit-log.int.spec.ts',
       test: 'club editors can’t read, create, change or delete entries; nobody changes or deletes one',
     },
+    {
+      file: 'tests/int/audit-log-content.int.spec.ts',
+      test: 'records each club separately',
+    },
   ],
   'demo-bookings': [
     {

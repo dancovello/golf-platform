@@ -30,6 +30,7 @@ import { trustedOrigins } from './auth/trustedOrigins'
 import { jobs } from './privacy/jobs'
 import { addSearchTables } from './search/schema'
 import { addRateLimitTable } from './security/rateLimitSchema'
+import { withContentAuditing } from './audit/content'
 import { withCacheClearing } from './site/cacheHooks'
 import { clubOwnedCollections } from './tenancy'
 
@@ -88,7 +89,7 @@ export default buildConfig({
   },
   // Copied so Payload adding its own collections at startup never changes our list.
   // Each club's cached site data is cleared when its content changes (src/site/cacheHooks.ts).
-  collections: withCacheClearing([...collections]),
+  collections: withContentAuditing(withCacheClearing([...collections])),
   globals: [...globals],
   editor: lexicalEditor(),
   // Background jobs (decided stack: Payload Jobs Queue). Only the nightly clean-up so far.
