@@ -4,6 +4,7 @@ import { payloadTotp } from 'payload-totp'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { s3Storage } from '@payloadcms/storage-s3'
 import path from 'path'
+import * as Sentry from '@sentry/nextjs'
 import { buildConfig } from 'payload'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
@@ -14,8 +15,9 @@ import { fixGlobalViewRedirect } from './admin/fixGlobalViewRedirect'
 import { guardTenantSelection } from './admin/guardTenantSelection'
 import { superAdminTwoFactor } from './auth/superAdminTwoFactor'
 import { encryptTotpSecrets } from './auth/totpSecretEncryption'
-import { guardPool, POOL_SETTINGS } from './db/poolGuard'
+import { guardPool, POOL_SETTINGS, unpooledWarning } from './db/poolGuard'
 import { emailAdapter } from './email/adapter'
+import { sentryEnabled } from './monitoring/sentry'
 import { collections } from './collections'
 import { globals } from './globals'
 import { usersAccess } from './collections/Users'
@@ -139,6 +141,14 @@ export default buildConfig({
   // A dropped idle database connection must not crash the site (src/db/poolGuard.ts).
   onInit: async (payload) => {
     guardPool((payload.db as unknown as { pool?: Parameters<typeof guardPool>[0] }).pool)
+    // On Vercel only: a Neon address without "-pooler" is reported to Sentry (one issue, since
+    // the message never changes), not just logged.
+    const warning = process.env.VERCEL_ENV ? unpooledWarning(process.env.DATABASE_URL) : null
+    if (warning) {
+      payload.logger.warn(warning)
+      if (sentryEnabled())
+        Sentry.captureMessage('Database address is not the pooled one', 'warning')
+    }
   },
   telemetry: false,
   // Makes the smaller photo copies (src/collections/Media.ts).

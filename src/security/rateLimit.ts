@@ -107,6 +107,17 @@ export const DEMO_BOOKINGS_EMAILED_PER_DAY: Limit = {
   max: 15,
   windowSeconds: 24 * 60 * 60,
 }
+/** Sign-in attempts per address: password sign-ins and the emailed reset links together. An
+ * account locks after 5 wrong passwords, but that doesn't stop one address trying many accounts
+ * (audit fix plan, step 9, finding M5). */
+export const SIGN_IN_LIMIT: Limit = { name: 'sign-in', max: 20, windowSeconds: 10 * 60 }
+/** Two-factor code attempts per account: Payload's two-factor plugin already allows 5 guesses
+ * per 10 minutes; this caps a day at 30 (audit-auth.md, H1). */
+export const TWO_FACTOR_CODE_LIMIT: Limit = {
+  name: 'two-factor-code',
+  max: 30,
+  windowSeconds: 24 * 60 * 60,
+}
 /** Security policy reports, from all visitors together: they only go to the log. */
 export const CSP_REPORT_LIMIT: Limit = { name: 'csp-report', max: 60, windowSeconds: 60 }
 
