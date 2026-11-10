@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react'
 
-import { ChevronLeft, ChevronRight, Close, Play } from '../components/Icons'
+import { ChevronLeft, ChevronRight, Play } from '../components/Icons'
+import { VideoDialog } from './VideoDialog'
 import type { VideoItem } from './VideoPlayer'
 
 export type GalleryLayout = 'auto' | 'grid' | 'carousel'
@@ -20,14 +21,9 @@ export type GalleryLayout = 'auto' | 'grid' | 'carousel'
  */
 export const VideoGallery = ({ items, layout }: { items: VideoItem[]; layout: GalleryLayout }) => {
   const [open, setOpen] = useState<VideoItem | null>(null)
-  const dialog = useRef<HTMLDialogElement>(null)
   const track = useRef<HTMLUListElement>(null)
   const [index, setIndex] = useState(0)
   const count = items.length
-
-  useEffect(() => {
-    if (open && dialog.current && !dialog.current.open) dialog.current.showModal()
-  }, [open])
 
   useEffect(() => {
     const el = track.current
@@ -113,41 +109,7 @@ export const VideoGallery = ({ items, layout }: { items: VideoItem[]; layout: Ga
           </button>
         </div>
       ) : null}
-      <dialog
-        ref={dialog}
-        className="vd-dialog"
-        aria-label={open?.title}
-        onClose={() => setOpen(null)}
-        onClick={(e) => {
-          if (e.target === e.currentTarget) dialog.current?.close()
-        }}
-      >
-        {open ? (
-          <div className="vd-dialog-body">
-            <div className="vd-dialog-head">
-              <p className="t-label-m vd-dialog-title">{open.title}</p>
-              <button
-                type="button"
-                className="vd-dialog-close"
-                onClick={() => dialog.current?.close()}
-                aria-label="Close"
-              >
-                <Close />
-              </button>
-            </div>
-            <div className="vd-dialog-frame">
-              <iframe
-                className="vd-iframe"
-                src={open.embedURL}
-                title={open.title}
-                allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-                allowFullScreen
-                referrerPolicy="strict-origin-when-cross-origin"
-              />
-            </div>
-          </div>
-        ) : null}
-      </dialog>
+      <VideoDialog item={open} onClose={() => setOpen(null)} />
     </div>
   )
 }
