@@ -834,3 +834,9 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Watch:** the "Security policy would block / blocked" Sentry issue should stop growing within a day. If something real is blocked, it appears there. Going back is one line (`ADMIN_ENFORCED`), but while report-only every script is reported again.
 - **Still open from the same audit finding (headers audit, finding 1 step 2):** club previews are served from the admin's own address; moving them to their own address needs the platform domain.
 
+## 2026-11-10: "Did you mean" uses a cached word list (audit fix step 13, finding M9)
+
+- **Measured first** (benchmark club: 900 items, 1.9 MB of text, local Postgres): a normal search about 10 to 15 ms in the database; the suggestion query about 147 ms on every search that found nothing, growing with the club's text.
+- **Fix:** each club's list of searchable words is built once and cached for at most 5 minutes (`clubSearchWords`, `src/search/query.ts`, listed in the isolation manifest; cleared when the club's content changes). The suggestion then compares against that list: about 5 to 9 ms. The list is capped at 40,000 words.
+- **Not changed:** the index is still rebuilt on the first search after an edit (decisions of 19 Oct: nothing rebuilds while editors type). Not measured at scale; measure a real big club before changing it.
+

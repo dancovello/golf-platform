@@ -35,7 +35,7 @@ The plan for fixing everything found in the production readiness audit of 9 Nove
 | 10 | Super-admin safety: session time limit, emergency account, incident plan | M13 | 🔨 Claude, 👤 Dan for Q4 | Small | Done 10 Nov (#316); the emergency second account is Dan's decision |
 | 11 | Branded error pages | m2 | 🔨 Claude | Small | Done 10 Nov (#314) |
 | 12 | Audit log: who changed what, when | M6 | 🔨 Claude, 👤 Dan for Q5 | Large | Not started |
-| 13 | Faster, cheaper site search | M9 | 🔨 Claude | Medium | Not started |
+| 13 | Faster, cheaper site search | M9 | 🔨 Claude | Medium | PR open |
 | 14 | Nightly clean-up that keeps working as clubs grow | M8 | 🔨 Claude | Medium | Not started |
 | 15 | Load test against staging | Scalability | 🔨 Claude, 👤 Dan approves | Small | Not started |
 | 16 | Dan's legal and business jobs | C5, m10 | 👤 Dan | Ongoing | Not started |
@@ -129,6 +129,7 @@ A record of sign-ins, account changes, deletions and anything a super-admin does
 
 ### Step 13. Faster, cheaper search (M9)
 Rebuild a club's search index straight after a save rather than while a visitor waits; keep the "Did you mean" word list per club instead of rebuilding it on every search; add the database index the spelling-tolerance check needs.
+**Measured 10 Nov** on a benchmark club (900 items, 1.9 MB of text): a normal search is about 10 to 15 ms in the database; "Did you mean" (only when nothing is found) was about **147 ms** and grows with the club's text. It now uses a per-club word list cached for 5 minutes: about 5 to 9 ms. The rebuild-on-first-search is left as designed (nothing rebuilds while editors type); its cost wasn't the worst, and rebuilding after every save would add database work.
 **Done when:** the search tests pass and a timing comparison on staging shows the slow cases are faster.
 
 ### Step 14. Clean-up that scales (M8)
