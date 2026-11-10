@@ -29,6 +29,7 @@ export const clubOwnedCollections = {
 export const platformCollections = [
   'users',
   'tenants',
+  'audit-log',
   'marketing-pages',
   'marketing-media',
   'homepage-requests',

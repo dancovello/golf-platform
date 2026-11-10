@@ -81,6 +81,7 @@ export interface Config {
     users: User;
     'agreement-acceptances': AgreementAcceptance;
     tenants: Tenant;
+    'audit-log': AuditLog;
     'marketing-pages': MarketingPage;
     'marketing-media': MarketingMedia;
     'homepage-requests': HomepageRequest;
@@ -107,6 +108,7 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     'agreement-acceptances': AgreementAcceptancesSelect<false> | AgreementAcceptancesSelect<true>;
     tenants: TenantsSelect<false> | TenantsSelect<true>;
+    'audit-log': AuditLogSelect<false> | AuditLogSelect<true>;
     'marketing-pages': MarketingPagesSelect<false> | MarketingPagesSelect<true>;
     'marketing-media': MarketingMediaSelect<false> | MarketingMediaSelect<true>;
     'homepage-requests': HomepageRequestsSelect<false> | HomepageRequestsSelect<true>;
@@ -1987,6 +1989,43 @@ export interface AgreementAcceptance {
   version?: string | null;
   acceptedBy?: (string | null) | User;
   acceptedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Who did what, and when. Sign-ins, account and password changes, two-factor, clubs, and deleted club content. Read-only: nothing here can be changed. Kept for 12 months.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "audit-log".
+ */
+export interface AuditLog {
+  id: string;
+  action:
+    | 'sign-in'
+    | 'two-factor-code-accepted'
+    | 'two-factor-set-up'
+    | 'two-factor-removed'
+    | 'two-factor-reset'
+    | 'account-created'
+    | 'account-removed'
+    | 'account-email-changed'
+    | 'password-changed'
+    | 'password-reset'
+    | 'password-link-issued'
+    | 'editor-invited'
+    | 'club-created'
+    | 'club-changed'
+    | 'club-deleted'
+    | 'demo-club-built'
+    | 'marketing-starter-added'
+    | 'content-deleted';
+  actorRole?: string | null;
+  actorEmail?: string | null;
+  actorId?: string | null;
+  clubName?: string | null;
+  clubId?: string | null;
+  target?: string | null;
+  detail?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -4187,6 +4226,22 @@ export interface TenantsSelect<T extends boolean = true> {
   demoEnabled?: T;
   demoToken?: T;
   demoExpiresAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "audit-log_select".
+ */
+export interface AuditLogSelect<T extends boolean = true> {
+  action?: T;
+  actorRole?: T;
+  actorEmail?: T;
+  actorId?: T;
+  clubName?: T;
+  clubId?: T;
+  target?: T;
+  detail?: T;
   updatedAt?: T;
   createdAt?: T;
 }

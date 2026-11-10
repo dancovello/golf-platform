@@ -3,6 +3,7 @@ import type { CollectionConfig } from 'payload'
 import { AgreementAcceptances } from './AgreementAcceptances'
 import { Categories } from './Categories'
 import { ClubSettings } from './ClubSettings'
+import { AuditLog } from './AuditLog'
 import { Courses } from './Courses'
 import { CourseStatus } from './CourseStatus'
 import { Documents } from './Documents'
@@ -39,6 +40,7 @@ export const collections: CollectionConfig[] = [
   Users,
   AgreementAcceptances,
   Tenants,
+  AuditLog,
   // The company website (super-admin only).
   MarketingPages,
   MarketingMedia,

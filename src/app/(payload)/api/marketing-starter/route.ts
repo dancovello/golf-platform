@@ -1,6 +1,7 @@
 import config from '@payload-config'
 import { getPayload } from 'payload'
 
+import { recordAudit } from '@/audit/record'
 import { isSuperAdminWithCode } from '@/auth/fullyAuthenticated'
 import { addStarterPages } from '@/marketing/starter/pages'
 import { fromAnotherSite } from '@/security/sameOrigin'
@@ -23,6 +24,11 @@ export async function POST(request: Request) {
     return reply('You are not allowed to do this.', 403)
   }
   const { added, skipped } = await addStarterPages(payload)
+  await recordAudit(payload, {
+    action: 'marketing-starter-added',
+    actor: user,
+    detail: added.length ? `added: ${added.join(', ')}` : 'nothing added',
+  })
   const parts = [
     added.length ? `Added as drafts: ${added.join(', ')}.` : null,
     skipped.length ? `Already there, left alone: ${skipped.join(', ')}.` : null,

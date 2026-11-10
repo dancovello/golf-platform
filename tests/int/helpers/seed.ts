@@ -126,6 +126,7 @@ export const resetDatabase = async (payload: Payload) => {
   await wipe('marketing-media')
   await wipe('homepage-requests')
   await wipe('demo-bookings')
+  await wipe('audit-log')
   // Settings screens have one record; removing it brings back the defaults.
   await payload.db.drizzle.execute(sql`DELETE FROM marketing_settings`)
   // Rate-limit counts, so one test file's sends don't count against the next one's limits.
