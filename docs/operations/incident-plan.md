@@ -22,7 +22,7 @@ Details: `docs/operations/monitoring.md`, `docs/operations/canary.md`.
 
 Write down the time first (what you saw, when). Then:
 
-1. **Site down or broken after a release:** put the previous version back. Vercel → the project → **Deployments** → the last good Production deployment → **⋯ → Promote to Production** (or "Instant Rollback"). The database isn't rolled back by this; if the release changed the database, read `docs/operations/restore-runbook.md` before restoring anything.
+1. **Site down or broken after a release:** since 10 Nov 2026 a production release builds the new version without the live address, checks it, and only then switches on; if the live address fails its check afterwards, the previous version is put back automatically (the release then fails and opens a GitHub issue). If you still need to do it yourself, put the previous version back. Vercel → the project → **Deployments** → the last good Production deployment → **⋯ → Promote to Production** (or "Instant Rollback"). The database isn't rolled back by this; if the release changed the database, read `docs/operations/restore-runbook.md` before restoring anything.
 2. **Suspected break-in or leaked key:** change the key that may be exposed, in this order of likelihood:
    - GitHub secrets (Settings → Environments → `release-production`): replace the value at its source (Neon, Cloudflare, Vercel), then re-save it.
    - The website's database password (`golf_app`): do **not** press "Reset password" in Neon without updating `DATABASE_URL` in Vercel at the same moment, or the live site stops.

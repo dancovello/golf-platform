@@ -6,6 +6,7 @@ import {
   addedMigrations,
   badIndexImports,
   changedExistingMigrations,
+  findBreaking,
   findDestructive,
 } from '../../scripts/lib/migrationGuard'
 
@@ -168,5 +169,25 @@ describe('merged migrations never change', () => {
         import * as d from '../collections/Pages'
       `),
     ).toEqual(['./later/20261101_120000_x', './helpers', '../collections/Pages'])
+  })
+})
+
+describe('changes that would break the version still running (two-release rule)', () => {
+  it.each([
+    'DROP TABLE "pages";',
+    'ALTER TABLE "users" DROP COLUMN "phone";',
+    'ALTER TABLE "pages" RENAME COLUMN "slug" TO "path";',
+    'ALTER TABLE "pages" ALTER COLUMN "slug" SET DATA TYPE integer;',
+    'DROP TYPE "enum_pages_status";',
+  ])('%s', (sql) => {
+    expect(findBreaking(findDestructive(migration(sql)))).not.toEqual([])
+  })
+
+  it.each([
+    'ALTER TABLE "pages" ADD COLUMN "subtitle" varchar;',
+    "DELETE FROM pages WHERE slug = 'x';",
+    'GRANT SELECT ON "pages" TO golf_app;',
+  ])('does not call %s a breaking change', (sql) => {
+    expect(findBreaking(findDestructive(migration(sql)))).toEqual([])
   })
 })

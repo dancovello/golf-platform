@@ -9,8 +9,11 @@
 #                 database changes are applied to that copy first
 #   3. migrate    the same changes applied to the real database, with the owner account (only
 #                 GitHub has it; the website itself uses the limited golf_app account)
-#   4. deploy     Vercel builds and publishes the new code (Vercel never changes the database)
-#   5. check      /health/database must answer "ok" on the new deployment
+#   4. deploy     Vercel builds the new code (Vercel never changes the database). Production: it
+#                 is built WITHOUT the live address
+#   5. check      /health/database must answer "ok" on the new version's own address
+#   6. switch on  production only: the live address moves to it, is checked again, and the
+#                 previous version is put back automatically if that check fails
 #
 # If any step fails, the last job opens a GitHub issue (GitHub emails Dan about it).
 # docs/operations/restore-runbook.md covers rolling back.
@@ -175,30 +178,16 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .nvmrc
-      - name: Deploy with Vercel
+      # Production: the new version is built without the live address, checked on its own
+      # address, and only then switched on; if the live address then fails its check, the
+      # previous version is put back (scripts/lib/safeRelease.ts, audit fix plan step 4).
+      # Staging has no staged switch, so it builds and checks as before.
+      - name: Deploy, check, and switch on
         id: deploy
-        run: |
-          set -euo pipefail
-          if [ "$ENVIRONMENT" = "production" ]; then target=production; else target=staging; fi
-          # The CLI reads VERCEL_TOKEN from the environment, so it isn't put on the command line.
-          url=$(npx --yes "$VERCEL_CLI" deploy --yes --target="$target")
-          echo "url=${url}" >> "$GITHUB_OUTPUT"
-          echo "Deployed ${ENVIRONMENT}: ${url}" >> "$GITHUB_STEP_SUMMARY"
-      - name: Check the new deployment is healthy
         env:
-          DEPLOY_URL: ${{ steps.deploy.outputs.url }}
-        run: |
-          set -euo pipefail
-          # The CLI reads VERCEL_TOKEN from the environment. `vercel curl` hands any `--token` flag
-          # on to curl itself, and `--deployment` with a token reaches the wrong site, so neither
-          # is used here: the full address of the new deployment is passed instead.
-          for attempt in 1 2 3 4 5; do
-            body=$(npx --yes "$VERCEL_CLI" curl "${DEPLOY_URL}/health/database" --yes -- --silent 2>/dev/null || true)
-            if echo "$body" | grep -q '"status":"ok"'; then echo "Healthy" >> "$GITHUB_STEP_SUMMARY"; exit 0; fi
-            sleep 10
-          done
-          echo "The new deployment did not answer /health/database (the new version could not use its database). See docs/operations/restore-runbook.md." | tee -a "$GITHUB_STEP_SUMMARY"
-          exit 1
+          LIVE_URL: https://app.a1engine.co
+        # The CLI reads VERCEL_TOKEN from the environment, so it isn't put on the command line.
+        run: node scripts/release-deploy.ts
 
   # A failed release stops before changing anything that hasn't been checked, but nobody would
   # know it had stopped: GitHub's own failure emails depend on each person's settings. An issue
@@ -221,7 +210,7 @@ jobs:
         run: |
           set -euo pipefail
           title="Release to ${ENVIRONMENT} failed"
-          body=$(printf 'The release stopped, so %s is still running the previous version.\n\n**What was being released:** %s\n\n**Details:** %s\n\nClose this issue once a release has succeeded.' "$ENVIRONMENT" "$(echo "$COMMIT" | head -1)" "$RUN_URL")
+          body=$(printf 'The release stopped. Nothing was switched on, or the previous version was put back, so %s is on the previous version unless the details below say the rollback failed.\n\n**What was being released:** %s\n\n**Details:** %s\n\nClose this issue once a release has succeeded.' "$ENVIRONMENT" "$(echo "$COMMIT" | head -1)" "$RUN_URL")
           existing=$(gh issue list --state open --search "\"${title}\" in:title" --json number --jq '.[0].number // empty')
           if [ -n "$existing" ]; then
             gh issue comment "$existing" --body "$body"

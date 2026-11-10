@@ -16,6 +16,7 @@ import {
   badIndexImports,
   type ChangedFile,
   changedExistingMigrations,
+  findBreaking,
   findDestructive,
 } from './lib/migrationGuard.ts'
 
@@ -74,6 +75,14 @@ for (const file of addedMigrations(files)) {
   if (security.length > 0) {
     console.log(`${file.path} changes database security rules:`)
     for (const f of security) console.log(`  - ${f.pattern}: ${f.explanation}\n      ${f.line}`)
+  }
+  if (findBreaking(findings).length > 0) {
+    console.log(
+      '  Two-release rule: while a release runs, the database changes a few minutes BEFORE the new\n' +
+        '  code goes live, so the version still running must not need what is removed or renamed.\n' +
+        '  Remove or rename something only in a release AFTER the one that stopped using it, and say\n' +
+        "  in the PR which earlier release that was. Dan's label confirms it.\n",
+    )
   }
   if (approved) {
     console.log(
