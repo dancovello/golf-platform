@@ -821,3 +821,9 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Incident plan:** `docs/operations/incident-plan.md`, one page: how you find out, the first ten minutes, being locked out, telling clubs (including a personal data breach), afterwards.
 - **Open (Dan):** an offline emergency second super-admin account. Not created.
 
+## 2026-11-10: Hourly check of every club's own address; missed email alerts visible (audit fix step 7)
+
+- **Why not Sentry monitors:** the free plan has one uptime monitor, used by the production admin. A paid plan, or a second service, would cost money for no gain over a job we already know how to run.
+- **What:** `/cron/club-sites` (hourly, production only): loads each club's home page; each club that doesn't answer gets its own Sentry issue (fingerprint per address), which emails Dan. Clubs join the check as soon as they have a web address. It skips access rules to read club addresses only (listed in `src/security/override-allowlist.ts`).
+- **Missed email alerts:** the Enquiries list shows "Emailed to the club"; blank means the alert didn't go out (the message is always saved).
+

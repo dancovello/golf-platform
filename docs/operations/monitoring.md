@@ -38,6 +38,14 @@ The check uses the admin address, `app.a1engine.co/health`, because the main add
 
 **Why not Better Stack, as planned?** Its free tier says "free for personal projects". UptimeRobot's free plan was limited to non-commercial use in 2024, and it's unclear whether that changed. One check on production is enough while no club is live. **Before several clubs are live**, choose a paid uptime plan (roughly £5–£20 a month) that can check each club's home page.
 
+## Club addresses (added 10 Nov 2026)
+
+Sentry's free plan has one uptime monitor, and that one watches the production admin. So every club that has its own web address is checked another way, for free: Vercel's scheduler calls `/cron/club-sites` every hour (at 15 minutes past, `vercel.json`, production only). It loads each club's home page, and for each club that doesn't answer it sends Sentry one issue of its own, "Club site not answering: <address>", which emails Dan through the same "new issue" alert. A club whose address is down all day is one issue, not 24.
+
+- It checks hourly, not every 5 minutes, and only the home page. An outage can go unnoticed for up to an hour.
+- It needs nothing from Dan when a club goes live: a club appears in the check as soon as it has a web address.
+- Missed enquiry emails: the Enquiries list in the admin now has an "Emailed to the club" column; a blank one means the email alert didn't go out (the message itself is always saved).
+
 ## When an alert arrives
 
 - **Sentry email:** open it. The report shows the error and the page. If it's new or keeps happening, paste the link into a Claude Code chat in this project and ask for a fix (plan first, as usual).

@@ -275,6 +275,12 @@ export const ROUTES: Manifest = {
   'src/app/(frontend)/cron/clean-up/route.ts': [
     { file: 'tests/int/cleanup.int.spec.ts', test: "doesn't exist without the scheduler's secret" },
   ],
+  'src/app/(frontend)/cron/club-sites/route.ts': [
+    {
+      file: 'tests/int/club-site-check.int.spec.ts',
+      test: "doesn't exist without the scheduler's secret",
+    },
+  ],
   'src/app/(frontend)/cron/database-check/route.ts': [
     {
       file: 'tests/int/database-check.int.spec.ts',

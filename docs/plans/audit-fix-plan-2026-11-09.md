@@ -29,10 +29,10 @@ The plan for fixing everything found in the production readiness audit of 9 Nove
 | 4 | Safer releases: automatic rollback when the new version fails its check | M1 | 🔨 Claude | Medium | Not started |
 | 5 | A second copy of club photos and documents; clean-up stops deleting for good | C2 | 🔨 Claude, 👤 Dan for Q3 | Medium | PR open |
 | 6 | First restore drill, database and files | C1 | 👤 Dan + devops friend, Claude prepares | Half day | Not started |
-| 7 | Monitoring each club's own address, and showing when an email alert wasn't sent | M7, M3 | 🔨 Claude, 👤 Dan adds monitors | Small | Not started |
+| 7 | Monitoring each club's own address, and showing when an email alert wasn't sent | M7, M3 | 🔨 Claude, 👤 Dan adds monitors | Small | PR open |
 | 8 | Switch on the admin's script protection | M4 (part 1) | 🔨 Claude | Small, then a watch week | Not ready: the admin's reports aren't clean (see step 8) |
 | 9 | Sign-in limit per address, written in code; small hardening | M5, m6, m8 | 🔨 Claude | Small | Done 10 Nov (#315) |
-| 10 | Super-admin safety: session time limit, emergency account, incident plan | M13 | 🔨 Claude, 👤 Dan for Q4 | Small | PR open (emergency account: Dan's decision) |
+| 10 | Super-admin safety: session time limit, emergency account, incident plan | M13 | 🔨 Claude, 👤 Dan for Q4 | Small | Done 10 Nov (#316); the emergency second account is Dan's decision |
 | 11 | Branded error pages | m2 | 🔨 Claude | Small | Done 10 Nov (#314) |
 | 12 | Audit log: who changed what, when | M6 | 🔨 Claude, 👤 Dan for Q5 | Large | Not started |
 | 13 | Faster, cheaper site search | M9 | 🔨 Claude | Medium | Not started |
@@ -99,6 +99,7 @@ Dan and the devops friend follow `docs/operations/restore-runbook.md`; Claude pr
 
 ### Step 7. Club address monitoring and missed email alerts (M7, M3)
 Claude writes the steps for an uptime monitor per live club address (a real page, not just the admin), checking first whether Sentry's free plan allows enough monitors. In the admin, show a club when a message arrived but its email alert wasn't sent because the daily allowance ran out.
+**Built 10 Nov, differently from planned:** Sentry's free plan has one uptime monitor (already used by the production admin), so each club's own address is checked by a free hourly job instead (`/cron/club-sites`, a Sentry issue per club that doesn't answer). The Enquiries list now shows an "Emailed to the club" column so a missed alert stands out; the message is always saved, and the club home screen already lists new messages.
 **Done when:** each live club has a monitor, and a test shows the "alert not sent" note.
 
 ### Step 8. Admin script protection on (M4, part 1)

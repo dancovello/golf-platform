@@ -34,6 +34,14 @@ const RESOLVED_CLUB =
   'The club the request is for (src/site/resolveSite.ts, from its web address or /preview/<club>), passed in as tenantID and used in the where clause'
 
 export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
+  // ---------- Scheduled checks ----------
+  {
+    file: 'src/app/(frontend)/cron/club-sites/route.ts',
+    fn: 'GET',
+    uses: 1,
+    club: 'Every club that has its own web address, but only its list of addresses (select: domains): no content, accounts or messages',
+    why: "The hourly club address check runs from Vercel's scheduler with the secret, so there is no signed-in user; club web addresses are public",
+  },
   // ---------- Accounts and sign-in (super-admin tools, scripts) ----------
   {
     file: 'src/accounts/createSuperAdmin.ts',
