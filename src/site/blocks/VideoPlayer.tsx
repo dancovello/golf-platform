@@ -3,6 +3,7 @@
 import { useState } from 'react'
 
 import { Play } from '../components/Icons'
+import { VideoDialog } from './VideoDialog'
 
 export type VideoItem = {
   id: string
@@ -19,14 +20,25 @@ export type VideoItem = {
  * One video. Shows the club's own picture and a play button, and loads the YouTube or Vimeo
  * player only when the visitor presses play (the same idea as the map): nothing is requested
  * from either site before then, so no tracking until the visitor chooses. This one plays in
- * place (the featured style); a gallery of videos uses VideoGallery's pop-up instead.
+ * place (featured, standard and full width) or in a pop-up (half and half); a gallery of
+ * videos uses the same pop-up. No title or description sits under it: the title is read out
+ * to screen-reader users from the button.
  */
-export const VideoPlayer = ({ item, large }: { item: VideoItem; large: boolean }) => {
+export const VideoPlayer = ({
+  item,
+  large,
+  modal = false,
+}: {
+  item: VideoItem
+  large: boolean
+  /** Open in a pop-up window instead of playing in place (half and half). */
+  modal?: boolean
+}) => {
   const [playing, setPlaying] = useState(false)
   return (
     <figure className="vd-item">
       <div className="vd-frame">
-        {playing ? (
+        {playing && !modal ? (
           <iframe
             className="vd-iframe"
             src={item.embedURL}
@@ -40,6 +52,7 @@ export const VideoPlayer = ({ item, large }: { item: VideoItem; large: boolean }
             type="button"
             className="vd-poster"
             onClick={() => setPlaying(true)}
+            aria-haspopup={modal ? 'dialog' : undefined}
             aria-label={`Play video: ${item.title}`}
           >
             {/* eslint-disable-next-line @next/next/no-img-element -- sized copies via srcset from R2 */}
@@ -61,10 +74,9 @@ export const VideoPlayer = ({ item, large }: { item: VideoItem; large: boolean }
           </button>
         )}
       </div>
-      <figcaption className="vd-caption">
-        <span className={large ? 't-heading-s vd-title' : 't-label-m vd-title'}>{item.title}</span>
-        {item.caption ? <span className="t-body-s vd-text">{item.caption}</span> : null}
-      </figcaption>
+      {modal ? (
+        <VideoDialog item={playing ? item : null} onClose={() => setPlaying(false)} />
+      ) : null}
     </figure>
   )
 }
