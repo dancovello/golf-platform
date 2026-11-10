@@ -7,8 +7,10 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vite
 
 import { deleteOldDemoBookings } from '@/privacy/cleanUp'
 import { sendDemoBookingEmails } from '@/marketing/booking/alert'
+import { BOOKING_FORM_SCOPE, type BookingProof } from '@/marketing/booking/proof'
 import { GONE, submitDemoBooking } from '@/marketing/booking/submit'
 import { DEMO_BOOKINGS_PER_HOUR } from '@/security/rateLimit'
+import { issueFormToken, MIN_FILL_MS } from '@/site/contact/formToken'
 
 import { seedWorld, type World } from './helpers/seed'
 
@@ -31,8 +33,17 @@ const setSettings = (demoCalls: Record<string, unknown>, extra: Record<string, u
     overrideAccess: true,
   })
 
+// What the page sends to show a person is booking: a time check signed 10 seconds before NOW,
+// an empty hidden box, and no Cloudflare answer (it isn't switched on in tests).
+const proof = (over: Partial<BookingProof> = {}): BookingProof => ({
+  token: issueFormToken(BOOKING_FORM_SCOPE, NOW.getTime() - 10_000),
+  website: '',
+  turnstile: '',
+  ...over,
+})
+
 const book = (date = DAY, time = '10:00', who = details, onSaved?: (id: string) => void) =>
-  submitDemoBooking(who, date, time, NOW, onSaved)
+  submitDemoBooking(who, date, time, proof(), NOW, onSaved)
 
 const saved = async () =>
   (
@@ -87,7 +98,7 @@ describe('booking a demo', () => {
     expect(await book(DAY, '12:00')).toBe(GONE)
     expect(await book('2026-11-07', '10:00')).toBe(GONE)
     expect(await book('2026-11-04', '10:00')).toBe(GONE)
-    expect(await submitDemoBooking(details, '2026-11-02', '10:00', NOW)).toBe(GONE)
+    expect(await submitDemoBooking(details, '2026-11-02', '10:00', proof(), NOW)).toBe(GONE)
     expect(await saved()).toHaveLength(1)
   })
 
@@ -132,7 +143,7 @@ describe('booking a demo', () => {
     expect(results.at(-1)).toMatch(/right now/)
 
     await clear()
-    const refused = await submitDemoBooking(details, DAY, '10:30', NOW, undefined, {
+    const refused = await submitDemoBooking(details, DAY, '10:30', proof(), NOW, undefined, {
       visitorAllowed: async () => false,
     })
     expect(refused).toMatch(/right now/)
@@ -225,6 +236,89 @@ describe('the emails', () => {
     })
     expect(booking.alertSentAt).toBeTruthy()
     expect(booking.confirmationSentAt).toBeTruthy()
+  })
+})
+
+describe('spam checks on the booking', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs()
+    vi.unstubAllGlobals()
+  })
+  const cloudflare = (answer: Record<string, unknown>) => {
+    vi.stubEnv('TURNSTILE_SITE_KEY', 'test-site-key')
+    vi.stubEnv('TURNSTILE_SECRET_KEY', 'test-only-not-a-real-secret')
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => Response.json(answer)),
+    )
+  }
+  const tryBooking = (p: BookingProof) => submitDemoBooking(details, DAY, '10:00', p, NOW)
+
+  it('is told "booked", but nothing is saved or sent, when the hidden box is filled in', async () => {
+    const onSaved = vi.fn()
+    expect(
+      await submitDemoBooking(
+        details,
+        DAY,
+        '10:00',
+        proof({ website: 'https://spam.example' }),
+        NOW,
+        onSaved,
+      ),
+    ).toBe(true)
+    expect(await saved()).toHaveLength(0)
+    expect(onSaved).not.toHaveBeenCalled()
+  })
+
+  it('is told "booked", but nothing is saved, when it comes faster than a person could', async () => {
+    const tooFast = proof({
+      token: issueFormToken(BOOKING_FORM_SCOPE, NOW.getTime() - (MIN_FILL_MS - 500)),
+    })
+    expect(await tryBooking(tooFast)).toBe(true)
+    expect(await saved()).toHaveLength(0)
+  })
+
+  it('asks for the page to be reloaded when the time check is old, forged, missing or for another form', async () => {
+    const old = issueFormToken(BOOKING_FORM_SCOPE, NOW.getTime() - 25 * 60 * 60 * 1000)
+    const otherForm = issueFormToken('marketing-homepage-request', NOW.getTime() - 10_000)
+    for (const token of [old, otherForm, '', 'not.a.token', `${proof().token}x`]) {
+      expect(await tryBooking(proof({ token }))).toMatch(/open a long time/)
+    }
+    expect(await saved()).toHaveLength(0)
+  })
+
+  it('books normally with a good time check', async () => {
+    expect(await tryBooking(proof())).toBe(true)
+    expect(await saved()).toHaveLength(1)
+  })
+
+  it('books only when Cloudflare says the check was made for the booking', async () => {
+    cloudflare({ success: true, action: 'homepage' })
+    expect(await tryBooking(proof({ turnstile: 'token' }))).toMatch(/came from a person/)
+    expect(await saved()).toHaveLength(0)
+    cloudflare({ success: true, action: 'booking' })
+    expect(await tryBooking(proof({ turnstile: 'token' }))).toBe(true)
+    expect(await saved()).toHaveLength(1)
+  })
+
+  it('refuses a booking with no Cloudflare answer, or a failed one, when the check is on', async () => {
+    cloudflare({ success: false })
+    expect(await tryBooking(proof({ turnstile: '' }))).toMatch(/came from a person/)
+    expect(await tryBooking(proof({ turnstile: 'bad' }))).toMatch(/came from a person/)
+    expect(await saved()).toHaveLength(0)
+  })
+
+  it("books nothing when Cloudflare can't be reached", async () => {
+    vi.stubEnv('TURNSTILE_SITE_KEY', 'test-site-key')
+    vi.stubEnv('TURNSTILE_SECRET_KEY', 'test-only-not-a-real-secret')
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => {
+        throw new Error('network down')
+      }),
+    )
+    expect(await tryBooking(proof({ turnstile: 'token' }))).toMatch(/try again in a minute/)
+    expect(await saved()).toHaveLength(0)
   })
 })
 

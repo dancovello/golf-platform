@@ -25,11 +25,14 @@ export const TurnstileCheck = ({
   action,
   formID,
   restartKey,
+  onToken,
 }: {
   siteKey: string
   action: string
   formID: string
   restartKey: number | null
+  /** For a form that sends its answer in code rather than as a field (the Demo Booking). */
+  onToken?: (token: string) => void
 }) => {
   const box = useRef<HTMLDivElement>(null)
   const widget = useRef<string | null>(null)
@@ -54,6 +57,11 @@ export const TurnstileCheck = ({
       window.turnstile?.remove(id)
     }
   }, [loaded, siteKey, action])
+
+  useEffect(() => {
+    onToken?.(token)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token])
 
   useEffect(() => {
     if (restartKey === null || !widget.current) return

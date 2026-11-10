@@ -10,6 +10,7 @@ import { CLUB_HOST_HEADER } from '@/site/resolveSite'
 
 import type { BookingDetails } from '../site/booking/DemoBooking'
 import { sendDemoBookingEmails } from './alert'
+import type { BookingProof } from './proof'
 import { submitDemoBooking } from './submit'
 
 /**
@@ -22,6 +23,7 @@ export async function bookDemo(
   details: BookingDetails,
   date: string,
   time: string,
+  proof: BookingProof,
 ): Promise<true | string> {
   const requestHeaders = await headers()
   if (requestHeaders.get(CLUB_HOST_HEADER)) notFound()
@@ -29,7 +31,7 @@ export async function bookDemo(
   // At most 5 bookings per visitor in 10 minutes, checked here rather than by page address: a
   // server action runs from any page address.
   const visitorAllowed = () => withinLimit(DEMO_BOOKING_VISITOR_LIMIT, requestHeaders)
-  return submitDemoBooking(details, String(date), String(time), new Date(), onSaved, {
+  return submitDemoBooking(details, String(date), String(time), proof, new Date(), onSaved, {
     visitorAllowed,
   })
 }

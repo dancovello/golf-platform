@@ -22,9 +22,9 @@ The plan for fixing everything found in the production readiness audit of 9 Nove
 
 | Step | What | Fixes | Who | Size | Status |
 |---|---|---|---|---|---|
-| 0 | Dan's dashboard jobs, in one sitting | C3, M11 (C4, M3 deferred) | 👤 Dan, Claude writes the checklist | 1 hour | In progress |
-| 1 | Renew or fix the dependency-scan exceptions (two expire 10 Nov) | m1 | 🔨 Claude | Small | Not started |
-| 2 | Spam protection on the demo booking form | M2 | 🔨 Claude | Small | Not started |
+| 0 | Dan's dashboard jobs, in one sitting | C3, M11 (C4, M3 deferred) | 👤 Dan, Claude writes the checklist | 1 hour | Done 10 Nov (database pooling check moves to step 9) |
+| 1 | Renew or fix the dependency-scan exceptions (two expire 10 Nov) | m1 | 🔨 Claude | Small | Done 10 Nov (#307) |
+| 2 | Spam protection on the demo booking form | M2 | 🔨 Claude | Small | PR open |
 | 3 | A health check that proves the database answers, used by the release and the uptime monitor | M1, M7 | 🔨 Claude | Small | Not started |
 | 4 | Safer releases: automatic rollback when the new version fails its check | M1 | 🔨 Claude | Medium | Not started |
 | 5 | A second copy of club photos and documents; clean-up stops deleting for good | C2 | 🔨 Claude, 👤 Dan for Q3 | Medium | Not started |

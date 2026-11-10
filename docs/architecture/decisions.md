@@ -793,3 +793,10 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Why:** the Actions minutes ran out while the repository was private. Nightly backups failed from 6 to 9 Nov, and once the repository was public again the production release (#303) stopped at the "must be private" check.
 - **Decision:** the repository stays public for now, and the release workflow's check is now a warning, not a stop. Supersedes the "Guard" line of 22 Oct.
 - **Next:** CI will be trimmed so the free minutes last a whole month before the repository goes private again (audit fix plan, `docs/plans/audit-fix-plan-2026-11-09.md`).
+
+## 2026-11-10: The demo booking form gets the other forms' spam checks (audit fix step 2)
+
+- **Why:** the booking form was the only public form without bot checks, so a script could fill every open slot and send Google Calendar invitations to made-up addresses.
+- **What:** the same three checks as the Homepage Request Form: a hidden "website" box, the page's signed time check (a booking within 3 seconds of the page opening is a robot; valid 24 hours), and Cloudflare's check (action `booking`). A robot caught by the first two is told "booked", but nothing is saved or sent. Cloudflare failing or unreachable books nothing. The existing limits and slot checks run after.
+- **Code:** `src/marketing/booking/proof.ts`, `submit.ts`, `actions.ts`; the form is `src/marketing/site/booking/DemoBooking.tsx`. `submitDemoBooking` now requires the proof, so nothing can call it without the checks.
+

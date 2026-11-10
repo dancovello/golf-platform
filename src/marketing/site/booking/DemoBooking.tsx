@@ -2,6 +2,9 @@
 
 import { type KeyboardEvent, useEffect, useMemo, useRef, useState } from 'react'
 
+import type { BookingProof } from '@/marketing/booking/proof'
+import { TurnstileCheck } from '@/site/contact/TurnstileCheck'
+
 import {
   addDays,
   bookableDays,
@@ -45,11 +48,22 @@ const WEEKDAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', '
 export const DemoBooking = ({
   open,
   book,
+  token = '',
+  turnstileSiteKey = null,
   minutes = 30,
   rescheduleHref,
 }: {
   open: OpenDay[]
-  book: (details: BookingDetails, date: string, time: string) => Promise<boolean | string>
+  book: (
+    details: BookingDetails,
+    date: string,
+    time: string,
+    proof: BookingProof,
+  ) => Promise<boolean | string>
+  /** The page's signed "shown at" time (src/marketing/booking/proof.ts). */
+  token?: string
+  /** Cloudflare's spam check, when it's switched on (src/site/contact/turnstile.ts). */
+  turnstileSiteKey?: string | null
   /** How long the call lasts, for the calendar file. */
   minutes?: number
   /** Where "Reschedule" goes: an email to the inbox, so a booking is only ever moved by us. */
@@ -73,6 +87,10 @@ export const DemoBooking = ({
   })
   const [problem, setProblem] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  // The hidden box only robots fill in, and Cloudflare's answer (each works once).
+  const [trap, setTrap] = useState('')
+  const [turnstile, setTurnstile] = useState('')
+  const [refusals, setRefusals] = useState(0)
   const headingRef = useRef<HTMLHeadingElement>(null)
   const gridRef = useRef<HTMLTableElement>(null)
 
@@ -93,11 +111,19 @@ export const DemoBooking = ({
 
   const confirm = async () => {
     if (!day || !time) return
+    if (turnstileSiteKey && !turnstile) {
+      setProblem('One moment, we’re checking you’re a person. Please press Confirm again.')
+      return
+    }
     setBusy(true)
     setProblem(null)
-    const result = await book(details, day, time).catch(() => false)
+    const result = await book(details, day, time, { token, website: trap, turnstile }).catch(
+      () => false,
+    )
     setBusy(false)
     if (result !== true) {
+      // An answer from Cloudflare works once: ask for a new one before the next try.
+      setRefusals((n) => n + 1)
       setProblem(
         typeof result === 'string' ? result : 'That time has just gone. Please pick another.',
       )
@@ -160,6 +186,16 @@ export const DemoBooking = ({
 
   return (
     <div className="mk-booking">
+      {/* Starts as soon as the page is open, so the answer is ready by the time they confirm. */}
+      {turnstileSiteKey && step !== 'booked' ? (
+        <TurnstileCheck
+          siteKey={turnstileSiteKey}
+          action="booking"
+          formID="mk-booking-check"
+          restartKey={refusals > 0 ? refusals : null}
+          onToken={setTurnstile}
+        />
+      ) : null}
       <ol className="mk-booking-steps" ref={stepsRef}>
         {STEPS.map((s, i) => (
           <li
@@ -212,6 +248,19 @@ export const DemoBooking = ({
             onChange={(e) => setDetails({ ...details, email: e.target.value })}
             error={errors.email}
           />
+          <div className="mk-request-trap" aria-hidden="true">
+            <label>
+              Leave this empty
+              <input
+                type="text"
+                name="website"
+                tabIndex={-1}
+                autoComplete="off"
+                value={trap}
+                onChange={(e) => setTrap(e.target.value)}
+              />
+            </label>
+          </div>
           <span className="mk-booking-wide">
             <MarketingButton label="Next: pick a time" type="submit" variant="primary" />
           </span>
