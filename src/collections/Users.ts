@@ -21,7 +21,7 @@ import { resetTwoFactorEndpoint } from '../auth/resetTwoFactor'
 import {
   emailPasswordChange,
   emailPasswordReset,
-  endLongEditorSessions,
+  endLongSessions,
   notePasswordChange,
 } from '../auth/sessionLimit'
 import { publicError } from '../errors'
@@ -157,7 +157,7 @@ export const Users: CollectionConfig = {
   custom: { totp: { disableAccessWrapper: { read: true } } },
   endpoints: [inviteEndpoint, passwordLinkEndpoint, resetTwoFactorEndpoint],
   hooks: {
-    beforeOperation: [passwordOperationRules, endLongEditorSessions],
+    beforeOperation: [passwordOperationRules, endLongSessions],
     beforeValidate: [enforcePasswordLength],
     beforeChange: [enforceAccountCreationRules, noAccountsInDemoClubs, notePasswordChange],
     afterChange: [emailPasswordChange],
