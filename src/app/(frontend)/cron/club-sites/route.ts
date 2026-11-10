@@ -3,10 +3,11 @@ import * as Sentry from '@sentry/nextjs'
 import { timingSafeEqual } from 'node:crypto'
 import { getPayload } from 'payload'
 
+import { checkClubSites } from '@/monitoring/clubSites'
 import { sentryEnabled } from '@/monitoring/sentry'
 
 export const dynamic = 'force-dynamic'
-export const maxDuration = 60
+export const maxDuration = 120
 
 /** Vercel's scheduler sends "Authorization: Bearer <CRON_SECRET>" (vercel.json). */
 const fromScheduler = (request: Request) => {
@@ -15,24 +16,6 @@ const fromScheduler = (request: Request) => {
   const sent = Buffer.from(request.headers.get('authorization') ?? '')
   const expected = Buffer.from(`Bearer ${secret}`)
   return sent.length === expected.length && timingSafeEqual(sent, expected)
-}
-
-const TIMEOUT_MS = 10_000
-const AT_A_TIME = 5
-
-/** Whether the club's home page loads (any redirect followed). */
-const answers = async (host: string) => {
-  try {
-    const response = await fetch(`https://${host}/`, {
-      redirect: 'follow',
-      cache: 'no-store',
-      signal: AbortSignal.timeout(TIMEOUT_MS),
-      headers: { 'user-agent': 'A1-Engine-site-check' },
-    })
-    return response.ok
-  } catch {
-    return false
-  }
 }
 
 /**
@@ -64,14 +47,7 @@ export async function GET(request: Request) {
     .map((club) => club.domains?.[0]?.hostname)
     .filter((host): host is string => Boolean(host))
 
-  const down: string[] = []
-  for (let i = 0; i < hosts.length; i += AT_A_TIME) {
-    const batch = hosts.slice(i, i + AT_A_TIME)
-    const results = await Promise.all(batch.map(answers))
-    batch.forEach((host, k) => {
-      if (!results[k]) down.push(host)
-    })
-  }
+  const { down, checked, notChecked } = await checkClubSites(hosts)
 
   for (const host of down) {
     const message = `Club site not answering: ${host}`
@@ -81,10 +57,18 @@ export async function GET(request: Request) {
       Sentry.captureMessage(message, { level: 'error', fingerprint: ['club-site-down', host] })
     }
   }
-  if (down.length > 0 && sentryEnabled()) await Sentry.flush(2000)
+  if (notChecked > 0) {
+    // Out of time: say so, so a widespread outage never looks like a quiet hour.
+    const message = `Club site check ran out of time: ${notChecked} of ${hosts.length} clubs not checked`
+    console.error(message)
+    if (sentryEnabled()) {
+      Sentry.captureMessage(message, { level: 'error', fingerprint: ['club-site-check-late'] })
+    }
+  }
+  if ((down.length > 0 || notChecked > 0) && sentryEnabled()) await Sentry.flush(2000)
 
   return Response.json(
-    { ok: down.length === 0, checked: hosts.length, down: down.length },
-    { status: down.length === 0 ? 200 : 500, headers },
+    { ok: down.length === 0 && notChecked === 0, checked, down: down.length },
+    { status: down.length === 0 && notChecked === 0 ? 200 : 500, headers },
   )
 }

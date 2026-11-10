@@ -78,15 +78,16 @@
 }
 .cg-scrim {
   position: absolute;
-  inset: 0;
+  /* The shade covers the lower three quarters only, so the top of the photo stays clear. */
+  inset: 25% 0 0;
   /* Light at the top, darker towards the copy at the bottom. Multiplied onto the photo, so it
      deepens the colours instead of greying them. The copy sits in the lower third, where the
      shade is never less than the photo's own (--photo-shade), so its text still reads. */
   mix-blend-mode: multiply;
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--image-shade) 6%, transparent) 0%,
-    color-mix(in srgb, var(--image-shade) var(--photo-shade), transparent) 55%,
+    transparent 0%,
+    color-mix(in srgb, var(--image-shade) var(--photo-shade), transparent) 40%,
     color-mix(in srgb, var(--image-shade) max(78%, var(--photo-shade)), transparent) 100%
   );
 }
@@ -212,6 +213,7 @@
   }
   /* The strip is short, so its copy covers most of the photo: keep the full shade there. */
   .cg-scrim {
+    inset: 0;
     background: linear-gradient(
       180deg,
       var(--color-overlay-clear) 35%,
@@ -238,4 +240,147 @@
 }
 .cg-grid > [role='listitem'] > .cg-card {
   flex: 1;
+}
+
+/* 5 cards (2 + 3): the two wider cards on top get the same picture height as a card in the row
+   of 3 below, instead of growing with their width. 100cqw is the grid's own width. */
+@media (min-width: 1024px) {
+  .cg-grid.cards-5 {
+    container-type: inline-size;
+  }
+  .cg-grid.cards-5.cols-3 > :nth-child(-n + 2) :is(.cg-editorial, .cg-index) .cg-media {
+    aspect-ratio: auto;
+    height: calc((100cqw - 2 * var(--space-24)) / 4);
+  }
+}
+
+/* Carousel (style B from 4 cards): 3 across, 2 on a tablet, one and a bit on a phone. */
+.cg-carousel-track {
+  display: flex;
+  gap: var(--space-24);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.cg-carousel-track::-webkit-scrollbar {
+  display: none;
+}
+.cg-carousel-track > * {
+  display: flex;
+  flex: 0 0 calc((100% - 2 * var(--space-24)) / 3);
+  min-width: 0;
+  scroll-snap-align: start;
+}
+.cg-carousel-track > * > .cg-card {
+  flex: 1;
+}
+.cg-carousel-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-24);
+  margin-top: var(--space-32);
+}
+.cg-carousel-controls.is-hidden {
+  display: none;
+}
+.cg-carousel-count {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+}
+.cg-carousel-of {
+  opacity: 0.6;
+}
+.cg-carousel-progress {
+  position: relative;
+  flex: 1;
+  height: 1px;
+  background: color-mix(in srgb, currentColor 30%, transparent);
+}
+.cg-carousel-thumb {
+  position: absolute;
+  top: -1px;
+  height: 3px;
+  background: var(--color-action-accent);
+  transition:
+    left 200ms ease-out,
+    width 200ms ease-out;
+}
+.cg-carousel-buttons {
+  display: inline-flex;
+  gap: var(--space-12);
+}
+.cg-carousel-buttons button {
+  display: inline-grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, currentColor 40%, transparent);
+  border-radius: var(--radius-full);
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  transition:
+    background-color 200ms ease-out,
+    border-color 200ms ease-out,
+    color 200ms ease-out;
+}
+.cg-carousel-buttons button:hover:not(:disabled) {
+  border-color: var(--color-action-accent);
+  background: var(--color-action-accent);
+  color: var(--color-action-on-accent);
+}
+.cg-carousel-buttons button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+@media (max-width: 1023px) {
+  .cg-carousel-track > * {
+    flex-basis: calc((100% - var(--space-24)) / 2);
+  }
+}
+@media (max-width: 767px) {
+  .cg-carousel-track {
+    gap: var(--space-16);
+    margin: 0 -20px;
+    padding: 0 20px;
+    scroll-padding: 0 20px;
+  }
+  .cg-carousel-track > * {
+    flex-basis: 82vw;
+  }
+  /* In the carousel the cards keep their tall shape (not the stacked strip). */
+  .cg-carousel .cg-immersive {
+    aspect-ratio: 4 / 5;
+  }
+  .cg-carousel .cg-immersive .cg-copy {
+    padding: var(--space-24) var(--space-80) var(--space-24) var(--space-24);
+  }
+  .cg-carousel .cg-glass {
+    right: var(--space-24);
+    bottom: var(--space-24);
+  }
+  .cg-carousel .cg-scrim {
+    inset: 25% 0 0;
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      color-mix(in srgb, var(--image-shade) var(--photo-shade), transparent) 40%,
+      color-mix(in srgb, var(--image-shade) max(78%, var(--photo-shade)), transparent) 100%
+    );
+  }
+  .cg-carousel-controls {
+    margin-top: var(--space-24);
+    gap: var(--space-16);
+  }
+  .cg-carousel-buttons button {
+    width: 44px;
+    height: 44px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cg-carousel-thumb,
+  .cg-carousel-buttons button {
+    transition: none;
+  }
 }
