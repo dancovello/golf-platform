@@ -112,6 +112,23 @@ const RULES: (Rule & { kind: Finding['kind'] })[] = [
 ]
 
 /**
+ * Changes that break the version of the website still running while a release is under way
+ * (the database changes first, the new code goes live a few minutes later). The two-release
+ * rule (audit fix plan, step 4): add the new thing in one release, stop using the old thing in
+ * the same release, and remove the old thing only in a LATER release.
+ */
+export const BREAKING_PATTERNS = [
+  'DROP TABLE',
+  'DROP COLUMN',
+  'RENAME',
+  'change column type',
+  'DROP TYPE',
+]
+
+export const findBreaking = (findings: Finding[]) =>
+  findings.filter((f) => BREAKING_PATTERNS.includes(f.pattern))
+
+/**
  * The part of a migration that runs when it's applied: its `up` function. Fails safe: if the
  * file isn't laid out as expected (no `up`, or `down` before `up`), the whole file is checked.
  */
