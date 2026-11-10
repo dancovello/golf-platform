@@ -35,11 +35,13 @@ Every public endpoint has a limit, at two layers (doc 04 §8): **the app** and *
 
 **Sign in** (`/api/users/login`)
 - The account is locked for 10 minutes after 5 wrong passwords.
-- Enforced by Payload (stored on the account, so shared) and by Vercel Firewall rule 2 per address.
+- Added 10 Nov 2026: 20 sign-in, forgot-password or reset attempts per address in 10 minutes, counted together (one address can't try many accounts). Where a request has no address (scripts, tests) nothing is counted; every real request on Vercel has one.
+- Enforced by Payload (stored on the account, so shared), by the app (shared database) and by Vercel Firewall rule 2 per address.
 
 **Two-factor code** (`/api/verify-totp`, `/api/setup-totp`, `/api/remove-totp`)
 - Locked for 10 minutes after 5 wrong codes. `remove-totp` refuses while two-factor is required.
-- Enforced by payload-totp (stored in the database) and by Vercel Firewall rule 2.
+- Added 10 Nov 2026: at most 30 code attempts a day per account on `verify-totp`. If a real super-admin is ever locked out by this, delete the rows whose key starts with `two-factor-code:` from the `rate_limits` table (the rest of each key is hashed, so that clears everyone's count), or wait until the day's window ends.
+- Enforced by payload-totp (stored in the database), by the app (shared database) and by Vercel Firewall rule 2.
 
 **Forgot password** (`/api/users/forgot-password`)
 - One email per account every 15 minutes. Refused while email reset is off.
