@@ -856,3 +856,7 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Fix:** each club's list of searchable words is built once and cached for at most 5 minutes (`clubSearchWords`, `src/search/query.ts`, listed in the isolation manifest; cleared when the club's content changes). The suggestion then compares against that list: about 5 to 9 ms. The list is capped at 40,000 words.
 - **Not changed:** the index is still rebuilt on the first search after an edit (decisions of 19 Oct: nothing rebuilds while editors type). Not measured at scale; measure a real big club before changing it.
 
+
+## 2026-11-10: The hourly club address check scales to many clubs at once
+
+A second audit (10 Nov) pointed out that the hourly check of every club's own address (5 at a time, 10 seconds each, 60 second limit) would run out of time at about 30 clubs all down, which is exactly when the alert matters. It now checks 20 at a time with an 8 second wait each (about 100 clubs all down in 40 seconds) and may run for 120 seconds. It stops starting new batches after 90 seconds, and if any clubs were not checked it says so in its own Sentry issue ("Club site check ran out of time") and fails, so a widespread outage can never look like a quiet hour. The code moved to `src/monitoring/clubSites.ts` so the batching and time limit are tested directly.

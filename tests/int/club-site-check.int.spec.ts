@@ -2,6 +2,7 @@ import * as Sentry from '@sentry/nextjs'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { GET as check } from '@/app/(frontend)/cron/club-sites/route'
+import { checkClubSites } from '@/monitoring/clubSites'
 
 import { seedWorld } from './helpers/seed'
 
@@ -103,5 +104,40 @@ describe('the hourly club address check', () => {
     const response = await call(AUTH)
     expect(await response.json()).toEqual({ ok: false, checked: 2, down: 2 })
     expect(Sentry.captureMessage).toHaveBeenCalledTimes(2)
+  })
+
+  it('checks many clubs at once, so a widespread outage still finishes in time', async () => {
+    const hosts = Array.from({ length: 100 }, (_, i) => `club-${i}.example`)
+    let running = 0
+    let most = 0
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => {
+        running++
+        most = Math.max(most, running)
+        await new Promise((r) => setTimeout(r, 5))
+        running--
+        throw new Error('down')
+      }),
+    )
+    const result = await checkClubSites(hosts)
+    expect(result.down).toHaveLength(100)
+    expect(result.notChecked).toBe(0)
+    expect(most).toBe(20)
+  })
+
+  it('says how many clubs were not checked when time runs out', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response('home')),
+    )
+    let clock = 0
+    const result = await checkClubSites(['a.example', 'b.example', 'c.example'], {
+      atATime: 1,
+      budgetMs: 1_000,
+      now: () => (clock += 600),
+    })
+    expect(result.notChecked).toBeGreaterThan(0)
+    expect(result.checked + result.notChecked).toBe(3)
   })
 })
