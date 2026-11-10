@@ -3,12 +3,12 @@
 
 [[IgnoredVulns]]
 id = "GHSA-67mh-4wv8-2f99"
-ignoreUntil = 2026-11-10
-reason = "esbuild 0.18 dev-server issue. Only pulled in by drizzle-kit (migration generator, developer machines only), which never starts esbuild's dev server."
+ignoreUntil = 2026-12-10
+reason = "esbuild 0.18 dev-server issue. Only pulled in by drizzle-kit (migration generator, developer machines only), which never starts esbuild's dev server. Rechecked 10 Nov: drizzle-kit comes with Payload 3.93.0, which is still the latest release, so there is nothing newer to move to. Review again on expiry."
 [[IgnoredVulns]]
 id = "GHSA-gcqx-w48m-w2h4"
-ignoreUntil = 2026-11-10
-reason = "deepmerge 4.3.1 prototype poisoning in mergeObject(): no fixed release. Pulled in by Payload core, which only merges its own configuration built from our code, never user input. Review again on expiry."
+ignoreUntil = 2026-12-10
+reason = "deepmerge 4.3.1 prototype poisoning in mergeObject(): no fixed release (rechecked 10 Nov). Pulled in by Payload core, which only merges its own configuration built from our code, never user input. Review again on expiry."
 
 [[IgnoredVulns]]
 id = "GHSA-3g3m-2fjr-6pw4"
