@@ -787,3 +787,9 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Provider:** Daniel Covello, a sole trader (not a registered company), trading as A1 Engine, 41 Clarence Embankment, Cardiff; contact daniel@a1engine.co. There is no company number.
 - **Approved:** Dan says the wording is approved and the liability clause is agreed, so the "Draft" notice is off (`AGREEMENT_APPROVED = true`) and the version is `2026-11-09`. Any club that accepted the old draft version is asked to accept again.
 - **Sub-processors:** Vercel is London (functions region `lhr1`). Neon: Standard Contractual Clauses with the UK Addendum, and Sentry: Data Privacy Framework with the SCCs and UK Addendum as a fallback, both as their own DPAs describe them. Resend's row points to Resend's DPA, because its transfer safeguard was not confirmed.
+
+## 2026-11-09: Releases run while the repository is public (Dan)
+
+- **Why:** the Actions minutes ran out while the repository was private. Nightly backups failed from 6 to 9 Nov, and once the repository was public again the production release (#303) stopped at the "must be private" check.
+- **Decision:** the repository stays public for now, and the release workflow's check is now a warning, not a stop. Supersedes the "Guard" line of 22 Oct.
+- **Next:** CI will be trimmed so the free minutes last a whole month before the repository goes private again (audit fix plan, `docs/plans/audit-fix-plan-2026-11-09.md`).

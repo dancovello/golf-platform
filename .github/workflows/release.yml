@@ -45,16 +45,15 @@ jobs:
     outputs:
       environment: ${{ steps.pick.outputs.environment }}
     steps:
-      # Production releases stop while the repository is public (decisions.md, 22 and 27 Oct).
-      # Staging may release while public, as it did from 15 to 22 Oct.
-      - name: The repository must be private (production only)
-        if: github.ref_name == 'production'
+      # A reminder only: releases run while the repository is public (Dan, 9 Nov 2026, so Actions
+      # minutes stay free until CI is trimmed). It used to stop production releases
+      # (decisions.md, 22 Oct and 9 Nov).
+      - name: Note when the repository is public
         env:
           PRIVATE: ${{ github.event.repository.private }}
         run: |
           if [ "$PRIVATE" != "true" ]; then
-            echo "::error::The repository is public. Make it private (GitHub → Settings → General → Danger Zone) before releasing."
-            exit 1
+            echo "::warning::The repository is public. Releasing anyway (decisions.md, 9 Nov 2026)."
           fi
       - id: pick
         run: |
