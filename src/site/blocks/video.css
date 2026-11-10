@@ -183,17 +183,39 @@
   }
 }
 
-/* The pop-up that plays a gallery video. */
+/* The pop-up that plays a video: a soft, rounded frame that fades in, with a loader. */
 .vd-dialog {
   width: min(1100px, calc(100vw - 2 * var(--space-24)));
   max-height: calc(100dvh - 2 * var(--space-24));
-  padding: var(--space-16) var(--space-16) var(--space-24);
+  padding: var(--space-16) var(--space-16) var(--space-16);
   border: 0;
+  border-radius: calc(var(--radius-lg) * 2);
   background: var(--color-surface-canvas);
   color: var(--color-text-primary);
+  box-shadow: 0 24px 80px rgb(0 0 0 / 0.35);
+  overscroll-behavior: contain;
+  overflow: hidden;
+}
+.vd-dialog[open] {
+  animation: vd-dialog-in 260ms ease-out;
 }
 .vd-dialog::backdrop {
   background: var(--color-overlay-lightbox);
+  backdrop-filter: blur(4px);
+}
+.vd-dialog[open]::backdrop {
+  animation: vd-fade-in 260ms ease-out;
+}
+@keyframes vd-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+}
+@keyframes vd-fade-in {
+  from {
+    opacity: 0;
+  }
 }
 .vd-dialog-head {
   display: flex;
@@ -201,6 +223,7 @@
   justify-content: space-between;
   gap: var(--space-16);
   margin-bottom: var(--space-12);
+  padding-left: var(--space-8);
 }
 .vd-dialog-title {
   margin: 0;
@@ -213,14 +236,54 @@
   height: var(--size-control);
   padding: 0;
   border: 0;
+  border-radius: var(--radius-full);
   background: none;
   color: inherit;
   cursor: pointer;
+  transition: background-color 150ms ease-out;
+}
+.vd-dialog-close:hover {
+  background: var(--color-surface-subtle);
 }
 .vd-dialog-frame {
   position: relative;
   aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
   background: #000;
+}
+.vd-dialog-frame .vd-iframe {
+  opacity: 0;
+  transition: opacity 300ms ease-out;
+}
+.vd-dialog-frame.is-loaded .vd-iframe {
+  opacity: 1;
+}
+.vd-loader {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  border: 3px solid rgb(255 255 255 / 0.25);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: vd-spin 800ms linear infinite;
+}
+@keyframes vd-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vd-dialog[open],
+  .vd-dialog[open]::backdrop {
+    animation: none;
+  }
+  .vd-loader {
+    animation-duration: 2s;
+  }
 }
 
 /* Featured, full width: heading, description and button centred above a full-width video. */
@@ -243,10 +306,11 @@
 
 /* Featured, half and half: the video runs to the edge of the page (like Two-Column "Split"),
    the text sits beside it, centred on the video. */
+/* Same proportions as Image and text "Split": 50/50, at least 640 high, panel padding 96. */
 .vd-split {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  align-items: center;
+  min-height: 640px;
   background: var(--color-surface-canvas);
   color: var(--color-text-primary);
   font-family: var(--font-body);
@@ -255,7 +319,16 @@
   order: 2;
 }
 .vd-split-media {
+  position: relative;
   min-width: 0;
+  min-height: 100%;
+}
+.vd-split-media .vd-item,
+.vd-split-media .vd-frame {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  aspect-ratio: auto;
 }
 .vd-split-panel {
   display: flex;
@@ -273,6 +346,11 @@
 @media (max-width: 767px) {
   .vd-split {
     grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+  }
+  .vd-split-media {
+    min-height: 0;
+    aspect-ratio: 16 / 9;
   }
   .vd-split.is-right .vd-split-media {
     order: 0;
