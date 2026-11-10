@@ -30,7 +30,7 @@ The plan for fixing everything found in the production readiness audit of 9 Nove
 | 5 | A second copy of club photos and documents; clean-up stops deleting for good | C2 | 🔨 Claude, 👤 Dan for Q3 | Medium | PR open |
 | 6 | First restore drill, database and files | C1 | 👤 Dan + devops friend, Claude prepares | Half day | Not started |
 | 7 | Monitoring each club's own address, and showing when an email alert wasn't sent | M7, M3 | 🔨 Claude, 👤 Dan adds monitors | Small | PR open |
-| 8 | Switch on the admin's script protection | M4 (part 1) | 🔨 Claude | Small, then a watch week | Not ready: the admin's reports aren't clean (see step 8) |
+| 8 | Switch on the admin's script protection | M4 (part 1) | 🔨 Claude | Small, then a watch week | PR open (see step 8) |
 | 9 | Sign-in limit per address, written in code; small hardening | M5, m6, m8 | 🔨 Claude | Small | Done 10 Nov (#315) |
 | 10 | Super-admin safety: session time limit, emergency account, incident plan | M13 | 🔨 Claude, 👤 Dan for Q4 | Small | Done 10 Nov (#316); the emergency second account is Dan's decision |
 | 11 | Branded error pages | m2 | 🔨 Claude | Small | Done 10 Nov (#314) |
@@ -104,8 +104,8 @@ Claude writes the steps for an uptime monitor per live club address (a real page
 
 ### Step 8. Admin script protection on (M4, part 1)
 The admin's content security policy has been report-only since October. Check the reports, then switch it to enforced. Watch for a week for anything it blocks that it shouldn't.
-**Checked 10 Nov:** Sentry shows about 300 "would block" reports since 5 Nov, almost all on admin pages: scripts that carry no security code (inline scripts, and scripts from the admin's own address). Enforcing now would break admin screens. So it stays report-only. Making it enforceable means getting Payload's own admin scripts to carry the code, which needs its own investigation.
-**Done when:** the admin's policy is enforced and a week has passed with no real problem reports.
+**Found 10 Nov:** the reports were misleading, not the admin. While a policy is report-only, Next.js doesn't put the one-time code on the page's own scripts: production's login page had 0 of 20 script tags with a code, while the same build enforced locally had 20 of 20. So every script was reported (about 300 in Sentry). Enforced, no admin screen I tried gave a single violation (13 list and settings screens, the edit and create screens, the login screens), and the 98 existing admin browser tests pass. So the fix is the one-line switch, plus tests that the admin's own scripts carry the code.
+**Done when:** the admin's policy is enforced and a week has passed with no real problem reports in Sentry (the "Security policy blocked" issue should stop growing; if it doesn't, read its newest events).
 
 ### Step 9. Sign-in limit in code, and small hardening (M5, m6, m8)
 - A per-address limit on sign-in, password reset and two-factor code attempts, using the existing shared rate-limit table, so it doesn't depend only on a Vercel dashboard rule. Write the current Vercel Firewall rules into the docs.

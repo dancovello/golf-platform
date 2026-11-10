@@ -827,3 +827,10 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **What:** `/cron/club-sites` (hourly, production only): loads each club's home page; each club that doesn't answer gets its own Sentry issue (fingerprint per address), which emails Dan. Clubs join the check as soon as they have a web address. It skips access rules to read club addresses only (listed in `src/security/override-allowlist.ts`).
 - **Missed email alerts:** the Enquiries list shows "Emailed to the club"; blank means the alert didn't go out (the message is always saved).
 
+## 2026-11-10: The admin's security policy is enforced (audit fix step 8)
+
+- **What:** `ADMIN_ENFORCED = true` (`src/security/csp.ts`): the admin now blocks what its policy doesn't allow, as club sites and the company site already did.
+- **Why the reports were misleading:** the admin was report-only since 21 Oct, and Sentry collected about 300 "would block" reports. While a policy is report-only, Next.js doesn't put the one-time code on the page's own scripts, so every script was reported. Production's login page had 0 of 20 script tags with a code; the same build enforced had 20 of 20. Enforced, no violation on 13 admin list and settings screens, the edit and create screens or the login screens, and all 98 admin browser tests pass.
+- **Watch:** the "Security policy would block / blocked" Sentry issue should stop growing within a day. If something real is blocked, it appears there. Going back is one line (`ADMIN_ENFORCED`), but while report-only every script is reported again.
+- **Still open from the same audit finding (headers audit, finding 1 step 2):** club previews are served from the admin's own address; moving them to their own address needs the platform domain.
+

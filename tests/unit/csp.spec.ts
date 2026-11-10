@@ -62,10 +62,10 @@ describe('content security policy', () => {
     expect(buildPolicy('site', 'n', { ...env, NODE_ENV: 'development' })).toContain("'unsafe-eval'")
   })
 
-  it('club sites and the marketing site are enforced; the admin reports only, for now', () => {
+  it('club sites, the marketing site and the admin are all enforced', () => {
     expect(policyHeaderName('site')).toBe('Content-Security-Policy')
     expect(policyHeaderName('marketing')).toBe('Content-Security-Policy')
-    expect(policyHeaderName('admin')).toBe('Content-Security-Policy-Report-Only')
+    expect(policyHeaderName('admin')).toBe('Content-Security-Policy')
   })
 
   it('the marketing site gets the strict base, the spam check, and no club-only extras', () => {
