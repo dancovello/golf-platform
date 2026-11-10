@@ -30,7 +30,7 @@
 4. **Drill:** delete the branch. **Real incident:** follow Neon's prompt to restore the snapshot to the production branch, or point the app at the restored branch. Agree which one with Dan first.
 
 ## 3. Restore from the nightly off-site copy (Cloudflare R2: survives problems with Neon itself)
-Backups are made nightly at 02:30 UTC, and before every release (named `…-pre-release`). They're kept for 30 days.
+Backups are made nightly at 02:30 UTC, and before every release (named `…-pre-release`). They're kept for 7 days (a lifecycle rule in Cloudflare on `golf-platform-backups`, prefixes `production/` and `staging/`).
 
 > **Stated exception to golden rule 2:** the off-site copy is encrypted, so it must be decrypted somewhere to restore it. That's **the devops contact's own computer**, which must have full-disk encryption turned on, and only for the length of the drill. Delete every decrypted file at the end (step 6).
 
@@ -93,3 +93,30 @@ Add a row to `docs/operations/restore-drills.md`:
 - Try the next method down (point-in-time, then snapshot, then off-site copy).
 - Neon support: from the Neon console (paid plan).
 - Tell Dan what's lost and the expected recovery time. Clubs are told by Dan, not by the devops contact or Claude.
+
+## 7. Photos, videos and documents (the second copy)
+The database holds only each file's record; the files are in Cloudflare R2. Every night at 03:00 UTC (`.github/workflows/media-backup.yml`) a second copy of the live bucket `golf-platform-media-production` is made in `golf-platform-backups`:
+
+- **`media/production/<same path as the live bucket>`**: every file, kept for as long as it exists in the live bucket.
+- **`media/removed/<same path>`**: a file that has gone from the live bucket is moved here, and a lifecycle rule deletes it 7 days later. This is where to look first for a file removed by mistake.
+
+If more than 200 files look removed in a night, or the live bucket looks empty, the job stops and opens a GitHub issue ("Media backup failed") rather than set anything aside. Check the live bucket (and which token the job used) before anything else.
+
+**One file removed by mistake.** Needs a Cloudflare R2 token with Object Read & Write on both buckets, made for this job and deleted after (the devops contact's, not stored anywhere):
+
+```bash
+aws s3 cp "s3://golf-platform-backups/media/removed/<path>" "s3://golf-platform-media-production/<path>" --endpoint-url "$R2_ENDPOINT"
+```
+
+**Everything lost (the live bucket deleted or emptied).** Recreate the bucket with the same name and public settings, then copy the second copy back:
+
+```bash
+aws s3 sync "s3://golf-platform-backups/media/production/" "s3://golf-platform-media-production/" --endpoint-url "$R2_ENDPOINT"
+```
+
+If R2 refuses the copy between buckets, do it in two steps: `aws s3 sync` the backup into a local folder on the devops contact's encrypted computer, then `aws s3 sync` that folder up to the live bucket, and delete the local folder. Files are not encrypted in the second copy (they are public on the website anyway), but still: delete the local folder at the end.
+
+**Then check:** open a few pages with photos on the live site, and a document link. Photos uploaded since 03:00 UTC are not in the copy; editors can add them again.
+
+**Drill:** restore one file from `media/removed/` and one from `media/production/` into a spare bucket, and record the result in `restore-drills.md` (first time: step 6 of the audit fix plan). Not yet proven against real R2: whether the copy between buckets is accepted.
+
