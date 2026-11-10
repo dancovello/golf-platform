@@ -807,3 +807,9 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Two tokens, one job each:** the existing backups token (read and write on the backup bucket only) and a new read-only token on the live bucket.
 - **Not relied on:** R2 object versioning (not confirmed) and server-side copy between buckets (the job downloads and uploads).
 
+## 2026-11-10: Hourly check of every club's own address; missed email alerts visible (audit fix step 7)
+
+- **Why not Sentry monitors:** the free plan has one uptime monitor, used by the production admin. A paid plan, or a second service, would cost money for no gain over a job we already know how to run.
+- **What:** `/cron/club-sites` (hourly, production only): loads each club's home page; each club that doesn't answer gets its own Sentry issue (fingerprint per address), which emails Dan. Clubs join the check as soon as they have a web address. It skips access rules to read club addresses only (listed in `src/security/override-allowlist.ts`).
+- **Missed email alerts:** the Enquiries list shows "Emailed to the club"; blank means the alert didn't go out (the message is always saved).
+
