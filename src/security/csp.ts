@@ -5,8 +5,10 @@
  * ('strict-dynamic': Turnstile, and Google Analytics after cookie consent).
  *
  * - Club sites (own domains and /preview): enforced.
- * - The admin (/admin): report-only until a clean week of reports, then enforced (a one-line
- *   change: ADMIN_ENFORCED below).
+ * - The admin (/admin): enforced since 10 Nov 2026 (ADMIN_ENFORCED below). It was report-only
+ *   first, and those reports were misleading: while a policy is report-only, Next.js doesn't
+ *   put the one-time code on the page's own scripts, so every script was reported. Enforced,
+ *   every script carries it (checked on every admin screen and by the browser tests).
  * - The company's marketing site: enforced, and without the club-only extras (the map). Each is
  *   added back only when a marketing page needs it. It has Cloudflare's spam check, for the
  *   homepage request form (Switching page), and Google Analytics only when MARKETING_GA_ID is
@@ -20,8 +22,9 @@
  * finding 3). */
 export type PolicyKind = 'site' | 'admin' | 'marketing' | 'platform'
 
-/** Flip to true once the admin's reports have been clean for a week. */
-export const ADMIN_ENFORCED = false
+/** The admin's policy blocks, rather than only reports (see above). Set to false to go back to
+ * report-only in an emergency, but expect every script to be reported while it is. */
+export const ADMIN_ENFORCED = true
 
 /** Where browsers send reports of anything blocked (src/app/(frontend)/csp-report). */
 export const REPORT_PATH = '/csp-report'

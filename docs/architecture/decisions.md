@@ -837,3 +837,10 @@ Dan asked for the public forms audit's fixes on the company website's Homepage R
 - **Kept 12 months** (Dan, 10 Nov): deleted by the nightly clean-up (`deleteOldAuditEntries`). It holds editors' email addresses, so it counts as personal data (security records, legitimate interests).
 - **Emergency account alert:** if `EMERGENCY_ADMIN_EMAIL` is set in Vercel Production and that account signs in, Sentry emails at once (fatal). Nothing happens while it is unset; set it when the account is created (`docs/operations/incident-plan.md`).
 
+## 2026-11-10: The admin's security policy is enforced (audit fix step 8)
+
+- **What:** `ADMIN_ENFORCED = true` (`src/security/csp.ts`): the admin now blocks what its policy doesn't allow, as club sites and the company site already did.
+- **Why the reports were misleading:** the admin was report-only since 21 Oct, and Sentry collected about 300 "would block" reports. While a policy is report-only, Next.js doesn't put the one-time code on the page's own scripts, so every script was reported. Production's login page had 0 of 20 script tags with a code; the same build enforced had 20 of 20. Enforced, no violation on 13 admin list and settings screens, the edit and create screens or the login screens, and all 98 admin browser tests pass.
+- **Watch:** the "Security policy would block / blocked" Sentry issue should stop growing within a day. If something real is blocked, it appears there. Going back is one line (`ADMIN_ENFORCED`), but while report-only every script is reported again.
+- **Still open from the same audit finding (headers audit, finding 1 step 2):** club previews are served from the admin's own address; moving them to their own address needs the platform domain.
+
