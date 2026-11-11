@@ -1,8 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-
-import { ArrowLeft, ArrowRight } from '../components/Icons'
+import { CarouselControls, useCarousel } from './CarouselControls'
 import { pad2, TeeDot } from './holeParts'
 import { holeLabel, useHoleDialog } from './HoleDialog'
 import { Photo } from './parts'
@@ -10,7 +8,7 @@ import type { SiteHole, SiteTee } from './resolve'
 
 /**
  * Hole-by-hole style B (Figma Hole Card "Overlay"): a scroll-snap track of tall photo cards on
- * the brand colour, with previous/next and "01 / 18" in the header. No autoplay; swipe or
+ * the brand colour, with the shared carousel controls below. No autoplay; swipe or
  * scroll works without JavaScript.
  */
 export const HoleCarousel = ({
@@ -24,29 +22,8 @@ export const HoleCarousel = ({
   eyebrow: string | null
   heading: string
 }) => {
-  const track = useRef<HTMLDivElement>(null)
   const { show, dialog } = useHoleDialog(tees)
-  const [index, setIndex] = useState(0)
-  const count = holes.length
-
-  useEffect(() => {
-    const el = track.current
-    if (!el) return
-    const onScroll = () => {
-      const first = el.firstElementChild as HTMLElement | null
-      if (!first) return
-      const step = first.offsetWidth + parseFloat(getComputedStyle(el).columnGap || '0')
-      setIndex(Math.min(count - 1, Math.max(0, Math.round(el.scrollLeft / step))))
-    }
-    el.addEventListener('scroll', onScroll, { passive: true })
-    return () => el.removeEventListener('scroll', onScroll)
-  }, [count])
-
-  const go = (to: number) => {
-    const el = track.current
-    const card = el?.children[to] as HTMLElement | undefined
-    if (el && card) el.scrollTo({ left: card.offsetLeft - el.offsetLeft, behavior: 'smooth' })
-  }
+  const { track, state, go } = useCarousel<HTMLDivElement>(holes.length)
 
   return (
     <>
@@ -54,27 +31,6 @@ export const HoleCarousel = ({
         <div>
           {eyebrow ? <p className="t-eyebrow blk-eyebrow">{eyebrow}</p> : null}
           <h2 className="t-heading-l blk-heading">{heading}</h2>
-        </div>
-        <div className="hole-pager">
-          <button
-            type="button"
-            onClick={() => go(index - 1)}
-            disabled={index === 0}
-            aria-label="Previous hole"
-          >
-            <ArrowLeft />
-          </button>
-          <span className="t-label-s" aria-hidden="true">
-            {pad2(index + 1)} / {pad2(count)}
-          </span>
-          <button
-            type="button"
-            onClick={() => go(index + 1)}
-            disabled={index >= count - 1}
-            aria-label="Next hole"
-          >
-            <ArrowRight />
-          </button>
         </div>
       </div>
       {/* Scrolls sideways, so it can be focused and scrolled from the keyboard too. */}
@@ -118,6 +74,7 @@ export const HoleCarousel = ({
           </article>
         ))}
       </div>
+      <CarouselControls state={state} count={holes.length} go={go} noun="hole" />
       {dialog}
     </>
   )

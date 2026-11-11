@@ -1,0 +1,42 @@
+# Checks, without releasing anything, that the release's Vercel token still works for what a
+# production release needs (audit fix plan, step 4 follow-up). Run it by hand after changing a
+# Vercel token or setting: Actions -> "Vercel access check" -> Run workflow.
+name: Vercel access check
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Which environment secrets to test'
+        type: choice
+        options: [release-staging, release-production]
+        default: release-staging
+      promote_live_to_itself:
+        description: 'Also run the switch-on request on the version already live (changes nothing)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: ${{ inputs.environment }}
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      LIVE_URL: https://app.a1engine.co
+      PROMOTE_LIVE_TO_ITSELF: ${{ inputs.promote_live_to_itself }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+      - run: node scripts/vercel-access-check.ts

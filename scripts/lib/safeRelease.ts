@@ -57,7 +57,15 @@ export const safeRelease = async (
   steps.log('The new version passed its check.')
   if (!staged) return { url, promoted: false }
 
-  await steps.promote(url)
+  try {
+    await steps.promote(url)
+  } catch (error) {
+    // The database change has already run and the new version is built and checked, so say
+    // exactly how to finish by hand (what happened on 10 Nov 2026).
+    throw new ReleaseFailed(
+      `The new version (${url}) was built and passed its check, but could not be switched on automatically: ${(error instanceof Error ? error.message : String(error)).replace(/\.$/, '')}. Visitors are still on the previous version. To finish by hand: Vercel, Deployments, the newest Production deployment, then the three dots, then "Promote to Production".`,
+    )
+  }
   steps.log('Switched the live address to the new version.')
   if (await steps.checkLive()) {
     steps.log('The live address passed its check.')

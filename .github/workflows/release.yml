@@ -4,6 +4,8 @@
 #   merge into production  -> releases to PRODUCTION (Dan merges the release PR: that's the approval)
 #
 # In order, stopping at the first failure:
+#   0. access     read-only proof that the Vercel token works for what the deploy needs, BEFORE
+#                 anything changes (scripts/vercel-access-check.ts)
 #   1. backup     encrypted copy of the database to Cloudflare R2, labelled pre-release
 #   2. dry run    the database's structure is copied into a throwaway database here, and the new
 #                 database changes are applied to that copy first
@@ -64,8 +66,29 @@ jobs:
           echo "environment=${env}" >> "$GITHUB_OUTPUT"
           echo "Releasing to ${env}" >> "$GITHUB_STEP_SUMMARY"
 
-  backup:
+  # Before anything changes: can this release talk to Vercel the way the deploy step will?
+  # Read-only. The first production release with the staged switch-on (10 Nov 2026) was
+  # refused by Vercel only at the last step, after the database had already changed, so the
+  # access is proved first.
+  vercel-access:
     needs: target
+    environment: ${{ needs.target.outputs.environment == 'production' && 'release-production' || 'release-staging' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      LIVE_URL: ${{ needs.target.outputs.environment == 'production' && 'https://app.a1engine.co' || '' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+      - run: node scripts/vercel-access-check.ts
+
+  backup:
+    needs: [target, vercel-access]
     uses: ./.github/workflows/backup.yml
     with:
       environment: ${{ needs.target.outputs.environment }}
@@ -73,7 +96,7 @@ jobs:
     secrets: inherit
 
   dry-run:
-    needs: target
+    needs: [target, vercel-access]
     # Production keys live only in a GitHub environment that only these branches can use
     # (migrations audit, finding 1; docs/operations/github-environments.md).
     environment: ${{ needs.target.outputs.environment == 'production' && 'release-production' || 'release-staging' }}
@@ -193,7 +216,7 @@ jobs:
   # know it had stopped: GitHub's own failure emails depend on each person's settings. An issue
   # is emailed to the repository's owner, and stays open until someone closes it.
   report-failure:
-    needs: [target, backup, dry-run, migrate, deploy]
+    needs: [target, vercel-access, backup, dry-run, migrate, deploy]
     if: failure()
     runs-on: ubuntu-latest
     timeout-minutes: 2

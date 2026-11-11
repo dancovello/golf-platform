@@ -93,6 +93,32 @@ describe('a production release', () => {
   })
 })
 
+describe('when the switch-on itself is refused (10 Nov 2026)', () => {
+  it('says the new version is built and checked, still not live, and how to finish by hand', async () => {
+    const { steps } = fake({
+      promote: async () => {
+        throw new Error('POST /v10/projects/p/promote/d answered 404: User not found')
+      },
+    })
+    const error = await safeRelease(steps, { staged: true }).catch((e) => e)
+    expect(error).toBeInstanceOf(ReleaseFailed)
+    expect(error.message).toContain('https://new.example')
+    expect(error.message).toContain('User not found')
+    expect(error.message).toContain('still on the previous version')
+    expect(error.message).toContain('Promote to Production')
+  })
+
+  it('does not roll back, because nothing was switched on', async () => {
+    const { steps, calls } = fake({
+      promote: async () => {
+        throw new Error('refused')
+      },
+    })
+    await safeRelease(steps, { staged: true }).catch(() => {})
+    expect(calls.some((c) => c.startsWith('rollback'))).toBe(false)
+  })
+})
+
 describe('a staging release', () => {
   it('builds and checks, with no switch and no rollback', async () => {
     const { steps, calls } = fake()

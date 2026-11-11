@@ -40,3 +40,8 @@ Every Claude Code session on your Mac uses your own GitHub login, so GitHub can'
 1. Create a second GitHub account (or a GitHub App) for Claude, with **write** access to this repository, no admin rights and no `workflow` permission.
 2. Sign Claude Code's `gh` in as that account (`gh auth login` in Claude's terminal).
 3. Branch rules on `main` and `production`: **Require a pull request review** (1 approval). Claude can't approve its own pull requests, so only you can.
+
+
+## Checking the Vercel token without releasing (added 11 Nov 2026)
+
+After creating or changing `VERCEL_TOKEN`, `VERCEL_ORG_ID` or `VERCEL_PROJECT_ID` in either environment: GitHub → Actions → **Vercel access check** → Run workflow, pick the environment. It only reads from Vercel and says whether a release can switch a version on. Ticking "Also run the switch-on request" sends the switch-on request for the version already live (the live address keeps serving the same version, so nothing changes). Every release runs the read-only part first, before the backup and the database change.
