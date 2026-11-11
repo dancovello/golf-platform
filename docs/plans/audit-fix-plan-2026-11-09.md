@@ -24,19 +24,19 @@ The plan for fixing everything found in the production readiness audit of 9 Nove
 |---|---|---|---|---|---|
 | 0 | Dan's dashboard jobs, in one sitting | C3, M11 (C4, M3 deferred) | 👤 Dan, Claude writes the checklist | 1 hour | Done 10 Nov (database pooling check moves to step 9) |
 | 1 | Renew or fix the dependency-scan exceptions (two expire 10 Nov) | m1 | 🔨 Claude | Small | Done 10 Nov (#307) |
-| 2 | Spam protection on the demo booking form | M2 | 🔨 Claude | Small | PR open |
-| 3 | A health check that proves the database answers, used by the release and the uptime monitor | M1, M7 | 🔨 Claude | Small | Not started |
-| 4 | Safer releases: automatic rollback when the new version fails its check | M1 | 🔨 Claude | Medium | Not started |
-| 5 | A second copy of club photos and documents; clean-up stops deleting for good | C2 | 🔨 Claude, 👤 Dan for Q3 | Medium | PR open |
+| 2 | Spam protection on the demo booking form | M2 | 🔨 Claude | Small | Done 10 Nov (#312) |
+| 3 | A health check that proves the database answers, used by the release and the uptime monitor | M1, M7 | 🔨 Claude | Small | Merged 10 Nov (#331); on production with the next release. The 5-minute monitor stays on `/health` to let Neon sleep |
+| 4 | Safer releases: automatic rollback when the new version fails its check | M1 | 🔨 Claude | Medium | PR open (#332); production only, logic tested with a fake Vercel, first real production release is the live test |
+| 5 | A second copy of club photos and documents; clean-up stops deleting for good | C2 | 🔨 Claude, 👤 Dan for Q3 | Medium | Done 10 Nov (#313) |
 | 6 | First restore drill, database and files | C1 | 👤 Dan + devops friend, Claude prepares | Half day | Not started |
-| 7 | Monitoring each club's own address, and showing when an email alert wasn't sent | M7, M3 | 🔨 Claude, 👤 Dan adds monitors | Small | PR open |
-| 8 | Switch on the admin's script protection | M4 (part 1) | 🔨 Claude | Small, then a watch week | PR open (see step 8) |
+| 7 | Monitoring each club's own address, and showing when an email alert wasn't sent | M7, M3 | 🔨 Claude, 👤 Dan adds monitors | Small | Done 10 Nov (#317) |
+| 8 | Switch on the admin's script protection | M4 (part 1) | 🔨 Claude | Small, then a watch week | Done 10 Nov (#318) |
 | 9 | Sign-in limit per address, written in code; small hardening | M5, m6, m8 | 🔨 Claude | Small | Done 10 Nov (#315) |
-| 10 | Super-admin safety: session time limit, emergency account, incident plan | M13 | 🔨 Claude, 👤 Dan for Q4 | Small | Done 10 Nov (#316); the emergency second account is Dan's decision |
+| 10 | Super-admin safety: session time limit, emergency account, incident plan | M13 | 🔨 Claude, 👤 Dan for Q4 | Small | Done 10 Nov (#316); emergency second account created 10 Nov, alert proved |
 | 11 | Branded error pages | m2 | 🔨 Claude | Small | Done 10 Nov (#314) |
-| 12 | Audit log: who changed what, when | M6 | 🔨 Claude, 👤 Dan for Q5 | Large | 12a PR open (accounts, sign-in, clubs, super-admin actions); 12b next (deleted club content) |
-| 13 | Faster, cheaper site search | M9 | 🔨 Claude | Medium | PR open |
-| 14 | Nightly clean-up that keeps working as clubs grow | M8 | 🔨 Claude | Medium | PR open |
+| 12 | Audit log: who changed what, when | M6 | 🔨 Claude, 👤 Dan for Q5 | Large | Done 10 Nov (#319, #320) |
+| 13 | Faster, cheaper site search | M9 | 🔨 Claude | Medium | Done 10 Nov (#321) |
+| 14 | Nightly clean-up that keeps working as clubs grow | M8 | 🔨 Claude | Medium | Done 10 Nov (#322) |
 | 15 | Load test against staging | Scalability | 🔨 Claude, 👤 Dan approves | Small | Not started |
 | 16 | Dan's legal and business jobs | C5, m10 | 👤 Dan | Ongoing | Not started |
 | 17 | Later, after the first clubs (v1.1) | M10, M4 (part 2), m3, m4, m5, m7, m9 | Both | Various | Not started |

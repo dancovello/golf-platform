@@ -189,17 +189,21 @@ export const Membership = ({
                     <div className="mb-category-text">
                       <p className="mb-category-name">
                         <span className="t-heading-m">{t.name}</span>
-                        {t.availability ? (
-                          <span className="t-data-label mb-tag">{t.availability}</span>
-                        ) : null}
                       </p>
                       {t.description ? (
                         <p className="t-body-s mb-description">{t.description}</p>
                       ) : null}
                     </div>
+                    <span className="mb-availability">
+                      {t.availability ? (
+                        <span className="t-data-label mb-tag">{t.availability}</span>
+                      ) : null}
+                    </span>
                     {l ? (
                       <Button label={l.label} link={l.link} base={base} style="link" arrow />
-                    ) : null}
+                    ) : (
+                      <span />
+                    )}
                   </li>
                 )
               })}
@@ -232,26 +236,27 @@ export const Membership = ({
     const price = t.price?.trim()
     return (
       <article key={i} className={`mb-tier${t.recommended ? ' is-recommended on-brand' : ''}`}>
-        <div className="mb-tier-top">
-          <h3 className="t-heading-m">{t.name}</h3>
-          {t.recommended ? <span className="t-data-label mb-popular">Most popular</span> : null}
+        {t.recommended ? <span className="t-data-label mb-popular">Most popular</span> : null}
+        <div className="mb-tier-head">
+          <span className="mb-rule" aria-hidden="true" />
+          <h3 className="t-heading-m mb-tier-title">{t.name}</h3>
+          {t.description ? <p className="t-body-s mb-description">{t.description}</p> : null}
         </div>
         <p className="mb-price">
           {price ? (
             <>
-              <span className="t-heading-l mb-amount">{price}</span>
+              <span className="mb-amount">{price}</span>
               {t.period ? <span className="t-label-s mb-period">{t.period}</span> : null}
             </>
           ) : (
             <span className="t-body-m mb-on-application">{ON_APPLICATION}</span>
           )}
         </p>
-        {t.description ? <p className="t-body-s mb-description">{t.description}</p> : null}
         {t.benefits && t.benefits.length > 0 ? (
           <ul className="mb-benefits t-body-s">
             {t.benefits.map((b, k) => (
               <li key={k}>
-                <Check />
+                <Check size={16} />
                 {b.text}
               </li>
             ))}
