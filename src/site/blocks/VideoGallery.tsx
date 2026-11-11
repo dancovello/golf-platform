@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 
-import { ChevronLeft, ChevronRight, Play } from '../components/Icons'
+import { Play } from '../components/Icons'
+import { CarouselControls, useCarousel } from './CarouselControls'
 import { VideoDialog } from './VideoDialog'
 import type { VideoItem } from './VideoPlayer'
 
@@ -21,29 +22,8 @@ export type GalleryLayout = 'auto' | 'grid' | 'carousel'
  */
 export const VideoGallery = ({ items, layout }: { items: VideoItem[]; layout: GalleryLayout }) => {
   const [open, setOpen] = useState<VideoItem | null>(null)
-  const track = useRef<HTMLUListElement>(null)
-  const [index, setIndex] = useState(0)
   const count = items.length
-
-  useEffect(() => {
-    const el = track.current
-    if (!el) return
-    const onScroll = () => {
-      const first = el.firstElementChild as HTMLElement | null
-      if (!first) return
-      const step = first.offsetWidth + 24
-      setIndex(Math.min(count - 1, Math.max(0, Math.round(el.scrollLeft / step))))
-    }
-    el.addEventListener('scroll', onScroll, { passive: true })
-    return () => el.removeEventListener('scroll', onScroll)
-  }, [count])
-
-  const go = (to: number) => {
-    const el = track.current
-    const card = el?.children[Math.min(count - 1, Math.max(0, to))] as HTMLElement | undefined
-    if (el && card) el.scrollTo({ left: card.offsetLeft - el.offsetLeft, behavior: 'smooth' })
-  }
-  const pad = (n: number) => String(n).padStart(2, '0')
+  const { track, state, go } = useCarousel<HTMLUListElement>(count)
 
   // How many sit side by side on a wide screen, and whether the row scrolls there.
   const wide = layout === 'carousel' || (layout === 'auto' && count > 3) ? 'carousel' : 'grid'
@@ -92,22 +72,13 @@ export const VideoGallery = ({ items, layout }: { items: VideoItem[]; layout: Ga
         ))}
       </ul>
       {count > 1 ? (
-        <div className="vd-pager t-label-s" aria-hidden="true">
-          <button type="button" tabIndex={-1} disabled={index === 0} onClick={() => go(index - 1)}>
-            <ChevronLeft />
-          </button>
-          <span>
-            {pad(index + 1)} / {pad(count)}
-          </span>
-          <button
-            type="button"
-            tabIndex={-1}
-            disabled={index >= count - 1}
-            onClick={() => go(index + 1)}
-          >
-            <ChevronRight />
-          </button>
-        </div>
+        <CarouselControls
+          state={state}
+          count={count}
+          go={go}
+          noun="video"
+          className="vd-controls"
+        />
       ) : null}
       <VideoDialog item={open} onClose={() => setOpen(null)} />
     </div>
