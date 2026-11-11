@@ -1,14 +1,15 @@
 'use client'
 
-import { type ReactNode, useEffect, useRef, useState } from 'react'
+import type { ReactNode } from 'react'
 
-import { ArrowLeft, ArrowRight } from '../components/Icons'
+import { CarouselControls, useCarousel } from '../blocks/CarouselControls'
+import { ArrowRight } from '../components/Icons'
 
 /**
- * Figma "News / A · Card carousel": three cards in view at 1200, arrows move one card and
- * disable at each end, and the track ends on an "All news" tile. On phones the cards are 272px
- * and run to the screen edge, and "All news" sits under the heading instead of the arrows.
- * The cards stay ordinary links, so it works without JavaScript (the track just scrolls).
+ * Figma "News / A · Card carousel": three cards in view at 1200 and a track that ends on an
+ * "All news" tile. The cards run to the edge of the window; the shared carousel controls sit
+ * below them. On phones the cards are 272px and "All news" sits under the heading. The cards
+ * stay ordinary links, so it works without JavaScript (the track just scrolls).
  */
 export const NewsCarousel = ({
   eyebrow,
@@ -27,33 +28,9 @@ export const NewsCarousel = ({
   variant?: 'cards' | 'headlines'
   children: ReactNode[]
 }) => {
-  const track = useRef<HTMLUListElement>(null)
-  const [atStart, setAtStart] = useState(true)
-  const [atEnd, setAtEnd] = useState(false)
-
-  useEffect(() => {
-    const el = track.current
-    if (!el) return
-    const update = () => {
-      setAtStart(el.scrollLeft <= 1)
-      setAtEnd(el.scrollLeft + el.clientWidth >= el.scrollWidth - 1)
-    }
-    update()
-    el.addEventListener('scroll', update, { passive: true })
-    window.addEventListener('resize', update)
-    return () => {
-      el.removeEventListener('scroll', update)
-      window.removeEventListener('resize', update)
-    }
-  }, [])
-
-  const step = (direction: 1 | -1) => {
-    const el = track.current
-    const card = el?.firstElementChild as HTMLElement | null
-    if (!el || !card) return
-    const gap = Number.parseFloat(getComputedStyle(el).columnGap) || 0
-    el.scrollBy({ left: direction * (card.offsetWidth + gap), behavior: 'smooth' })
-  }
+  // The "All news" tile is a card in the track too, so it counts.
+  const count = children.length + (variant === 'headlines' ? 0 : 1)
+  const { track, state, go } = useCarousel<HTMLUListElement>(count)
 
   return (
     <section
@@ -69,24 +46,6 @@ export const NewsCarousel = ({
             <a className="btn btn-link t-label-button news-link" href={allHref}>
               {allLabel} <ArrowRight />
             </a>
-            <button
-              type="button"
-              className="news-arrow"
-              aria-label="Scroll back"
-              disabled={atStart}
-              onClick={() => step(-1)}
-            >
-              <ArrowLeft size={24} />
-            </button>
-            <button
-              type="button"
-              className="news-arrow"
-              aria-label="Scroll forward"
-              disabled={atEnd}
-              onClick={() => step(1)}
-            >
-              <ArrowRight size={24} />
-            </button>
           </div>
         </div>
         <ul ref={track} className="news-carousel-track" aria-label={heading}>
@@ -104,6 +63,7 @@ export const NewsCarousel = ({
             </li>
           )}
         </ul>
+        <CarouselControls state={state} count={count} go={go} />
       </div>
     </section>
   )

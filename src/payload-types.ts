@@ -1022,6 +1022,15 @@ export interface MembershipBlock {
   heading: string;
   intro?: string | null;
   /**
+   * Start here. Each row is one thing you compare, e.g. "Playing days" or "Locker". Then, in each category below, fill in "Table values" in the same order: value 1 goes beside row 1, value 2 beside row 2, and so on.
+   */
+  features?:
+    | {
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * In the order you want them. Style A reads best with three.
    */
   tiers?:
@@ -1049,7 +1058,7 @@ export interface MembershipBlock {
             }[]
           | null;
         /**
-         * One per table row, in the same order. Type "yes" for a tick; leave empty for not included.
+         * Value 1 appears beside table row 1 (set at the top of this block), value 2 beside row 2, and so on. Type "yes" for a tick; leave empty for a dash. Nothing shows until the table rows exist.
          */
         values?:
           | {
@@ -1082,15 +1091,6 @@ export interface MembershipBlock {
    * Defaults: "Apply for membership" (A), "Apply" (B), "Enquire" (C).
    */
   buttonLabel?: string | null;
-  /**
-   * e.g. "Playing days", "Locker".
-   */
-  features?:
-    | {
-        label: string;
-        id?: string | null;
-      }[]
-    | null;
   /**
    * e.g. "Book a tour".
    */
@@ -3509,6 +3509,12 @@ export interface MembershipBlockSelect<T extends boolean = true> {
   eyebrow?: T;
   heading?: T;
   intro?: T;
+  features?:
+    | T
+    | {
+        label?: T;
+        id?: T;
+      };
   tiers?:
     | T
     | {
@@ -3542,12 +3548,6 @@ export interface MembershipBlockSelect<T extends boolean = true> {
         id?: T;
       };
   buttonLabel?: T;
-  features?:
-    | T
-    | {
-        label?: T;
-        id?: T;
-      };
   action?:
     | T
     | {
