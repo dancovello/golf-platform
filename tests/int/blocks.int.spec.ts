@@ -348,6 +348,79 @@ describe('hole by hole', () => {
     expect(course?.holes[0]).toMatchObject({ number: 1, par: 4, yards: [400] })
     expect(page!.ctx.course(w.courseB.id)).toBeNull()
   })
+
+  // Course tour details (12 Nov 2026): more photos, a hole plan, a description, three notes
+  // and hazard tags on each hole; a name for each tee, a black tee, and who the tips are from.
+  describe('course tour details', () => {
+    const update = (data: Record<string, unknown>) =>
+      w.payload.update({
+        collection: 'courses',
+        id: w.courseA.id,
+        data: data as never,
+        overrideAccess: false,
+        user: w.editorA,
+      })
+    const holes = (first: Record<string, unknown>) =>
+      Array.from({ length: 9 }, (_, i) => ({ par: 4, yardsBlack: 410, ...(i === 0 ? first : {}) }))
+
+    it("refuses club B's photos as a hole's extra photos or plan", async () => {
+      const error = await update({
+        holes: holes({ morePhotos: [w.mediaA.id, w.mediaB.id], plan: w.mediaB.id }),
+      }).catch((e: unknown) => e)
+      expect(errorPaths(error)).toEqual(
+        expect.arrayContaining(['holes.0.morePhotos.1', 'holes.0.plan']),
+      )
+      expect(errorPaths(error)).not.toContain('holes.0.morePhotos.0')
+    })
+
+    it('keeps hazard tags and tee names short', async () => {
+      await expect(
+        update({ holes: holes({ hazards: ['A hazard tag that runs far too long'] }) }),
+      ).rejects.toThrow()
+      await expect(
+        update({ tees: [{ colour: 'white', name: 'A tee name longer than twenty-five' }] }),
+      ).rejects.toThrow()
+    })
+
+    it('the website gets what the club filled in, and nothing for what it left empty', async () => {
+      await update({
+        tipFrom: ' James Holt, Head professional ',
+        tees: [{ colour: 'black', name: 'Championship' }, { colour: 'white' }],
+        holes: holes({
+          image: w.mediaA.id,
+          morePhotos: [w.mediaA.id],
+          plan: w.mediaA.id,
+          description: 'First paragraph.\n\nSecond paragraph.',
+          noteTee: 'Aim left.',
+          noteGreen: 'Stay below the hole.',
+          hazards: ['Out of bounds right', 'Ditch at 296'],
+        }),
+      })
+      await save([
+        { blockType: 'holeGrid', style: 'guide', heading: 'Holes', course: w.courseA.id },
+      ])
+      const course = (await loadClubPage(w.clubA.id, 'membership'))!.ctx.course(w.courseA.id)!
+      expect(course.tipFrom).toBe('James Holt, Head professional')
+      expect(course.tees.map((t) => [t.colour, t.name])).toEqual([
+        ['black', 'Championship'],
+        ['white', 'White'],
+      ])
+      const [first, second] = course.holes
+      expect(first.yards).toEqual([410, null])
+      expect(first.photos).toHaveLength(2)
+      expect(first.plan?.url).toBeTruthy()
+      expect(first.description).toContain('Second paragraph.')
+      expect(first.notes.map((n) => n.label)).toEqual(['Off the tee', 'On the green'])
+      expect(first.hazards).toEqual(['Out of bounds right', 'Ditch at 296'])
+      expect(second).toMatchObject({
+        photos: [],
+        plan: null,
+        description: null,
+        notes: [],
+        hazards: [],
+      })
+    })
+  })
 })
 
 describe('scorecard', () => {

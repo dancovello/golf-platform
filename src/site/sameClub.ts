@@ -141,12 +141,16 @@ export const checkStaffSameClub = sameClubCheck((data) => {
   return id ? [{ collection: 'media', id, path: 'photo' }] : []
 })
 
-/** Courses: each hole's photo. */
+/** Courses: each hole's photo, its extra photos and its plan. */
 export const checkCourseSameClub = sameClubCheck((data) =>
   (Array.isArray(data.holes) ? (data.holes as Record<string, unknown>[]) : []).flatMap(
     (hole, i) => {
-      const id = idOf(hole.image)
-      return id ? [{ collection: 'media' as const, id, path: `holes.${i}.image` }] : []
+      const more = Array.isArray(hole.morePhotos) ? hole.morePhotos : []
+      return [
+        { id: idOf(hole.image), path: `holes.${i}.image` },
+        { id: idOf(hole.plan), path: `holes.${i}.plan` },
+        ...more.map((photo, n) => ({ id: idOf(photo), path: `holes.${i}.morePhotos.${n}` })),
+      ].flatMap(({ id, path }) => (id ? [{ collection: 'media' as const, id, path }] : []))
     },
   ),
 )

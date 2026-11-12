@@ -42,5 +42,11 @@ export const demoCourse = (): SiteCourse => ({
     image: demoPicture(PICTURES[i % PICTURES.length]),
     video: null,
     tip: HOLE_TIPS[i % HOLE_TIPS.length],
+    photos: [],
+    plan: null,
+    description: null,
+    notes: [],
+    hazards: [],
   })),
+  tipFrom: null,
 })

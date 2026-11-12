@@ -79,6 +79,7 @@ import * as migration_20261109_165615_hole_video from './20261109_165615_hole_vi
 import * as migration_20261109_201550_launch_wording from './20261109_201550_launch_wording';
 import * as migration_20261110_185248_audit_log from './20261110_185248_audit_log';
 import * as migration_20261110_212116_twocolumn_button from './20261110_212116_twocolumn_button';
+import * as migration_20261112_220906_course_tour_fields from './20261112_220906_course_tour_fields';
 
 export const migrations = [
   {
@@ -484,6 +485,11 @@ export const migrations = [
   {
     up: migration_20261110_212116_twocolumn_button.up,
     down: migration_20261110_212116_twocolumn_button.down,
-    name: '20261110_212116_twocolumn_button'
+    name: '20261110_212116_twocolumn_button',
+  },
+  {
+    up: migration_20261112_220906_course_tour_fields.up,
+    down: migration_20261112_220906_course_tour_fields.down,
+    name: '20261112_220906_course_tour_fields'
   },
 ];
