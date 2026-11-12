@@ -68,6 +68,7 @@ Nearly every club needs the same handful of pages (Home, The Course, Visitors & 
 ### Golf-specific data
 - **Hole-by-Hole Card Grid** — one card per hole (photo, par, yardage, description), pulls from Course Holes collection. (Hillside, Formby, Coombe Hill)
 - **Scorecard Table** — multi-tee yardage/par table, tabular numerals, horizontally scrollable on mobile. (Hillside, The Berkshire)
+- **Course Tour** (added 12 Nov 2026): a page for every hole of a course, from one block on one page (the page's address plus `/hole-N`). Three styles: Hole story, Split-screen guide, Course journey. Photos, a hole plan, a video, a description, "how to play it" notes, hazard tags, the pro's tip and each tee's yards, all optional and read from Courses. See `docs/architecture/decisions.md`, 12 Nov 2026.
 - **Course Status Widget** — live open/closed, buggy/trolley rules, timestamp. The single most common live-data block in the field. (Hollinwell, Prestbury, Ferndown)
 - **Rate/Pricing Table** — seasonal/dated green-fee tables, supports multiple season tabs. (Hayling — 2026 & 2027 published together)
 - **Membership Tier Cards** — priced tiers + CTA; supports an "enquire, no public price" variant for private clubs. (Hadley Wood, Moortown)

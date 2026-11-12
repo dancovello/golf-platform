@@ -612,6 +612,14 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
     why: PUBLIC_SITE,
   },
   {
+    // The courses behind a club's Course tour pages, to list a page per hole in its sitemap.
+    file: 'src/site/routes/seo.ts',
+    fn: 'tourHolePages',
+    uses: 1,
+    club: RESOLVED_CLUB,
+    why: PUBLIC_SITE,
+  },
+  {
     file: 'src/site/contact/load.ts',
     fn: 'loadContactSettings',
     uses: 1,

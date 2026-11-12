@@ -203,6 +203,7 @@ export interface Page {
         | MembershipBlock
         | HoleGridBlock
         | ScorecardBlock
+        | CourseTourBlock
         | CourseStatusBlock
         | CourseRecordBlock
         | NewsFeedBlock
@@ -1273,6 +1274,28 @@ export interface ScorecardBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'scorecard';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CourseTourBlock".
+ */
+export interface CourseTourBlock {
+  style: 'story' | 'split' | 'journey';
+  /**
+   * Names the list of holes. Style C shows it above the strip.
+   */
+  heading: string;
+  /**
+   * Each hole of this course gets its own page under this one, e.g. “/course-tour/hole-2”. Photos, tees and notes come from Courses. Give this page its own address and put the tour first on it.
+   */
+  course: string | Course;
+  /**
+   * Shown as a “View full scorecard” link on every hole.
+   */
+  scorecardPage?: (string | null) | Page;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'courseTour';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3094,6 +3117,7 @@ export interface PagesSelect<T extends boolean = true> {
         membership?: T | MembershipBlockSelect<T>;
         holeGrid?: T | HoleGridBlockSelect<T>;
         scorecard?: T | ScorecardBlockSelect<T>;
+        courseTour?: T | CourseTourBlockSelect<T>;
         courseStatus?: T | CourseStatusBlockSelect<T>;
         courseRecord?: T | CourseRecordBlockSelect<T>;
         newsFeed?: T | NewsFeedBlockSelect<T>;
@@ -3631,6 +3655,18 @@ export interface ScorecardBlockSelect<T extends boolean = true> {
   download?: T;
   linkToGuide?: T;
   note?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CourseTourBlock_select".
+ */
+export interface CourseTourBlockSelect<T extends boolean = true> {
+  style?: T;
+  heading?: T;
+  course?: T;
+  scorecardPage?: T;
   id?: T;
   blockName?: T;
 }

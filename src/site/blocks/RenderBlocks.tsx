@@ -21,6 +21,7 @@ import { Team } from './Team'
 import { Membership } from './Membership'
 import { HoleGrid } from './HoleGrid'
 import { Scorecard } from './Scorecard'
+import { CourseTour } from './CourseTour'
 import { CourseStatus } from './CourseStatus'
 import { CourseRecord } from './CourseRecord'
 import { NewsFeed } from '../news/NewsFeed'
@@ -45,6 +46,7 @@ import './team.css'
 import './membership.css'
 import './holes.css'
 import './scorecard.css'
+import './courseTour.css'
 import './courseStatus.css'
 import './courseRecord.css'
 import '../components/buttons.css'
@@ -60,6 +62,7 @@ export const RenderBlocks = ({
   ctx,
   club,
   base,
+  pageSlug,
   pageUpdatedAt = null,
   live = false,
 }: {
@@ -67,6 +70,8 @@ export const RenderBlocks = ({
   ctx: BlockContext
   club: ClubSite
   base: string
+  /** The page's own address, for blocks that make pages under it (Course tour). */
+  pageSlug: string
   /** The page's last save, for "Prices last updated". */
   pageUpdatedAt?: string | null
   /** In the admin's live preview: an invisible marker after each block lets the preview find
@@ -74,7 +79,7 @@ export const RenderBlocks = ({
   live?: boolean
 }) =>
   layout.map((block, i) => {
-    const drawn = drawBlock(block, i, { ctx, club, base, pageUpdatedAt })
+    const drawn = drawBlock(block, i, { ctx, club, base, pageSlug, pageUpdatedAt })
     if (!live) return drawn
     return (
       <Fragment key={block.id ?? i}>
@@ -91,8 +96,15 @@ const drawBlock = (
     ctx,
     club,
     base,
+    pageSlug,
     pageUpdatedAt,
-  }: { ctx: BlockContext; club: ClubSite; base: string; pageUpdatedAt: string | null },
+  }: {
+    ctx: BlockContext
+    club: ClubSite
+    base: string
+    pageSlug: string
+    pageUpdatedAt: string | null
+  },
 ) => {
   switch (block.blockType) {
     case 'hero':
@@ -138,6 +150,20 @@ const drawBlock = (
       return <HoleGrid key={block.id ?? i} block={block} ctx={ctx} />
     case 'scorecard':
       return <Scorecard key={block.id ?? i} block={block} ctx={ctx} />
+    case 'courseTour':
+      // The tour's own page shows the first hole; the hole's name is the page's main heading
+      // when the tour comes first.
+      return (
+        <CourseTour
+          key={block.id ?? i}
+          block={block}
+          ctx={ctx}
+          club={club}
+          base={base}
+          pageSlug={pageSlug}
+          titleTag={i === 0 ? 'h1' : 'h2'}
+        />
+      )
     case 'courseStatus':
       return <CourseStatus key={block.id ?? i} block={block} ctx={ctx} club={club} base={base} />
     case 'courseRecord':

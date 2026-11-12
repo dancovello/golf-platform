@@ -3,8 +3,12 @@ import { headers } from 'next/headers'
 import { notFound, permanentRedirect, redirect } from 'next/navigation'
 import { cache } from 'react'
 
+import { holeFromSegment, holeSegment } from '@/blocks/courseTour/config'
+import type { CourseTourBlock } from '@/payload-types'
+import { CourseTour } from '@/site/blocks/CourseTour'
 import { heroIsFullBleed, heroShading } from '@/site/blocks/Hero'
 import { RenderBlocks } from '@/site/blocks/RenderBlocks'
+import { holeTitle } from '@/site/blocks/tour'
 import { ClubShell } from '@/site/ClubShell'
 import { clubIcon } from '@/site/clubIcon'
 import { LiveRefresh } from '@/site/components/LiveRefresh'
@@ -74,6 +78,7 @@ export const HomeView = async ({ site, query }: { site: ResolvedSite; query: Que
             ctx={home.ctx}
             club={club}
             base={base}
+            pageSlug="home"
             pageUpdatedAt={home.updatedAt}
             live={live}
           />
@@ -92,8 +97,28 @@ export const HomeView = async ({ site, query }: { site: ResolvedSite; query: Que
   )
 }
 
-/** Paths the site can have: one segment, or /news/<address>. */
-const validPath = (path: string[]) => path.length === 1 || (path.length === 2 && path[0] === 'news')
+/**
+ * Paths the site can have: one segment, /news/<address>, or a Course tour hole: a page's own
+ * address plus /hole-N (decisions.md, 12 Nov 2026).
+ */
+const validPath = (path: string[]) =>
+  path.length === 1 ||
+  (path.length === 2 && (path[0] === 'news' || holeFromSegment(path[1]) !== null))
+
+type FoundPage = NonNullable<Awaited<ReturnType<typeof page>>>
+
+/**
+ * The hole a "/<page>/hole-N" address is for: the page's first Course tour block and that hole
+ * of its course. Null when the page has no tour or the course has no such hole (a 9-hole
+ * course has no hole 12), which is a "page not found".
+ */
+const tourHole = (found: FoundPage, segment: string) => {
+  const number = holeFromSegment(segment)
+  const block = found.layout.find((b): b is CourseTourBlock => b.blockType === 'courseTour')
+  const course = block ? found.ctx.course(block.course) : null
+  const hole = number ? course?.holes[number - 1] : undefined
+  return block && course && hole ? { block, course, hole } : null
+}
 
 /** One of the club's pages, or a built-in one (privacy, contact, events, news). */
 export const PathView = async ({
@@ -185,13 +210,35 @@ export const PathView = async ({
     )
   }
 
-  if (path[0] === 'home') redirect(base || '/')
+  if (path[0] === 'home' && path.length === 1) redirect(base || '/')
   // Inside the admin's live preview, the club's own editors see their latest draft.
   const live = query.live === '1'
   const draft = await canSeeDrafts(club.tenantID, live ? '1' : null)
   const found = await page(club.tenantID, path[0], draft)
   if (!found) notFound()
-  const startsWithHero = found.layout[0]?.blockType === 'hero'
+
+  // One hole of a Course tour: only the tour is drawn, not the page's other blocks.
+  if (path.length === 2) {
+    const tour = tourHole(found, path[1])
+    if (!tour) notFound()
+    return (
+      <ClubShell club={club} base={base} currentPath={`${base}/${found.slug}`}>
+        {live ? <LiveRefresh /> : null}
+        <CourseTour
+          block={tour.block}
+          ctx={found.ctx}
+          club={club}
+          base={base}
+          pageSlug={found.slug}
+          holeNumber={tour.hole.number}
+          titleTag="h1"
+        />
+      </ClubShell>
+    )
+  }
+  // A hero shows the page's title; a Course tour's hole name is the main heading instead.
+  const startsWithHero =
+    found.layout[0]?.blockType === 'hero' || found.layout[0]?.blockType === 'courseTour'
 
   return (
     <ClubShell
@@ -210,6 +257,7 @@ export const PathView = async ({
         ctx={found.ctx}
         club={club}
         base={base}
+        pageSlug={found.slug}
         pageUpdatedAt={found.updatedAt}
         live={live}
       />
@@ -308,6 +356,22 @@ export const pathMetadata = async (site: ResolvedSite, path: string[]): Promise<
   }
   const found = await page(club.tenantID, path[0], false)
   if (!found) return {}
+  if (path.length === 2) {
+    const tour = tourHole(found, path[1])
+    if (!tour) return {}
+    // The tour's own page already shows hole 1, so that is hole 1's one address for search
+    // engines; every other hole's page is its own.
+    const canonical =
+      tour.hole.number === 1 ? `/${found.slug}` : `/${found.slug}/${holeSegment(tour.hole.number)}`
+    return {
+      ...describe(site, {
+        title: `${holeTitle(tour.hole)} | ${tour.course.name} | ${club.name}`,
+        path: canonical,
+        image: tour.hole.image?.url ?? logo,
+      }),
+      ...(tour.hole.description ? { description: tour.hole.description.slice(0, 160) } : {}),
+    }
+  }
   const first = found.layout[0]
   const image =
     first?.blockType === 'hero' ? found.ctx.media((first as { image?: unknown }).image)?.url : null

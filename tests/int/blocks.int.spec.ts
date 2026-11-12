@@ -3,7 +3,9 @@ import { beforeAll, describe, expect, it } from 'vitest'
 
 import { pngFile } from '../shared/media'
 import { rt } from '../shared/richText'
+import { holeFromSegment, holeSegment } from '@/blocks/courseTour/config'
 import { loadClubPage } from '@/site/loadClub'
+import { sitemapResponse } from '@/site/routes/seo'
 import { categoryOf, seedWorld, type World } from './helpers/seed'
 
 // Every block: club A's page can't use club B's photos or pages (src/blocks/*/config.ts refs).
@@ -420,6 +422,53 @@ describe('hole by hole', () => {
         hazards: [],
       })
     })
+  })
+})
+
+describe('course tour', () => {
+  const tour = (course: string, scorecardPage?: string) => ({
+    blockType: 'courseTour',
+    style: 'story',
+    heading: 'Course tour',
+    course,
+    ...(scorecardPage ? { scorecardPage } : {}),
+  })
+
+  it("refuses club B's course and club B's scorecard page", async () => {
+    const error = await save([tour(w.courseB.id, w.pageB.id)]).catch((e: unknown) => e)
+    expect(errorPaths(error)).toEqual(
+      expect.arrayContaining(['layout.0.course', 'layout.0.scorecardPage']),
+    )
+  })
+
+  it('the sitemap lists a page for each hole after the first, and no more', async () => {
+    await save([tour(w.courseA.id)])
+    const site = { origin: 'https://club-a.example', club: { tenantID: w.clubA.id } }
+    const sitemap = await (await sitemapResponse(site as never)).text()
+    expect(sitemap).toContain('<loc>https://club-a.example/membership</loc>')
+    // Course A has nine holes. Hole 1 is the tour's own page.
+    expect(sitemap).toContain('<loc>https://club-a.example/membership/hole-2</loc>')
+    expect(sitemap).toContain('<loc>https://club-a.example/membership/hole-9</loc>')
+    expect(sitemap).not.toContain('/membership/hole-1<')
+    expect(sitemap).not.toContain('/membership/hole-10')
+    // Club B's pages and course never appear in club A's sitemap.
+    expect(sitemap).not.toContain(w.clubB.id)
+  })
+
+  it('only real hole addresses count: hole-1 to hole-18', () => {
+    expect(['hole-1', 'hole-9', 'hole-18'].map(holeFromSegment)).toEqual([1, 9, 18])
+    for (const bad of [
+      'hole-0',
+      'hole-19',
+      'hole-02',
+      'hole-',
+      'hole-1a',
+      'Hole-1',
+      '1',
+      undefined,
+    ])
+      expect(holeFromSegment(bad)).toBeNull()
+    expect(holeSegment(7)).toBe('hole-7')
   })
 })
 
