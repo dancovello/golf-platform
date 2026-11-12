@@ -3,7 +3,9 @@ import { beforeAll, describe, expect, it } from 'vitest'
 
 import { pngFile } from '../shared/media'
 import { rt } from '../shared/richText'
+import { holeFromSegment, holeSegment } from '@/blocks/courseTour/config'
 import { loadClubPage } from '@/site/loadClub'
+import { sitemapResponse } from '@/site/routes/seo'
 import { categoryOf, seedWorld, type World } from './helpers/seed'
 
 // Every block: club A's page can't use club B's photos or pages (src/blocks/*/config.ts refs).
@@ -347,6 +349,126 @@ describe('hole by hole', () => {
     expect(course?.holes).toHaveLength(9)
     expect(course?.holes[0]).toMatchObject({ number: 1, par: 4, yards: [400] })
     expect(page!.ctx.course(w.courseB.id)).toBeNull()
+  })
+
+  // Course tour details (12 Nov 2026): more photos, a hole plan, a description, three notes
+  // and hazard tags on each hole; a name for each tee, a black tee, and who the tips are from.
+  describe('course tour details', () => {
+    const update = (data: Record<string, unknown>) =>
+      w.payload.update({
+        collection: 'courses',
+        id: w.courseA.id,
+        data: data as never,
+        overrideAccess: false,
+        user: w.editorA,
+      })
+    const holes = (first: Record<string, unknown>) =>
+      Array.from({ length: 9 }, (_, i) => ({ par: 4, yardsBlack: 410, ...(i === 0 ? first : {}) }))
+
+    it("refuses club B's photos as a hole's extra photos or plan", async () => {
+      const error = await update({
+        holes: holes({ morePhotos: [w.mediaA.id, w.mediaB.id], plan: w.mediaB.id }),
+      }).catch((e: unknown) => e)
+      expect(errorPaths(error)).toEqual(
+        expect.arrayContaining(['holes.0.morePhotos.1', 'holes.0.plan']),
+      )
+      expect(errorPaths(error)).not.toContain('holes.0.morePhotos.0')
+    })
+
+    it('keeps hazard tags and tee names short', async () => {
+      await expect(
+        update({ holes: holes({ hazards: ['A hazard tag that runs far too long'] }) }),
+      ).rejects.toThrow()
+      await expect(
+        update({ tees: [{ colour: 'white', name: 'A tee name longer than twenty-five' }] }),
+      ).rejects.toThrow()
+    })
+
+    it('the website gets what the club filled in, and nothing for what it left empty', async () => {
+      await update({
+        tipFrom: ' James Holt, Head professional ',
+        tees: [{ colour: 'black', name: 'Championship' }, { colour: 'white' }],
+        holes: holes({
+          image: w.mediaA.id,
+          morePhotos: [w.mediaA.id],
+          plan: w.mediaA.id,
+          description: 'First paragraph.\n\nSecond paragraph.',
+          noteTee: 'Aim left.',
+          noteGreen: 'Stay below the hole.',
+          hazards: ['Out of bounds right', 'Ditch at 296'],
+        }),
+      })
+      await save([
+        { blockType: 'holeGrid', style: 'guide', heading: 'Holes', course: w.courseA.id },
+      ])
+      const course = (await loadClubPage(w.clubA.id, 'membership'))!.ctx.course(w.courseA.id)!
+      expect(course.tipFrom).toBe('James Holt, Head professional')
+      expect(course.tees.map((t) => [t.colour, t.name])).toEqual([
+        ['black', 'Championship'],
+        ['white', 'White'],
+      ])
+      const [first, second] = course.holes
+      expect(first.yards).toEqual([410, null])
+      expect(first.photos).toHaveLength(2)
+      expect(first.plan?.url).toBeTruthy()
+      expect(first.description).toContain('Second paragraph.')
+      expect(first.notes.map((n) => n.label)).toEqual(['Off the tee', 'On the green'])
+      expect(first.hazards).toEqual(['Out of bounds right', 'Ditch at 296'])
+      expect(second).toMatchObject({
+        photos: [],
+        plan: null,
+        description: null,
+        notes: [],
+        hazards: [],
+      })
+    })
+  })
+})
+
+describe('course tour', () => {
+  const tour = (course: string, scorecardPage?: string) => ({
+    blockType: 'courseTour',
+    style: 'story',
+    heading: 'Course tour',
+    course,
+    ...(scorecardPage ? { scorecardPage } : {}),
+  })
+
+  it("refuses club B's course and club B's scorecard page", async () => {
+    const error = await save([tour(w.courseB.id, w.pageB.id)]).catch((e: unknown) => e)
+    expect(errorPaths(error)).toEqual(
+      expect.arrayContaining(['layout.0.course', 'layout.0.scorecardPage']),
+    )
+  })
+
+  it('the sitemap lists a page for each hole after the first, and no more', async () => {
+    await save([tour(w.courseA.id)])
+    const site = { origin: 'https://club-a.example', club: { tenantID: w.clubA.id } }
+    const sitemap = await (await sitemapResponse(site as never)).text()
+    expect(sitemap).toContain('<loc>https://club-a.example/membership</loc>')
+    // Course A has nine holes. Hole 1 is the tour's own page.
+    expect(sitemap).toContain('<loc>https://club-a.example/membership/hole-2</loc>')
+    expect(sitemap).toContain('<loc>https://club-a.example/membership/hole-9</loc>')
+    expect(sitemap).not.toContain('/membership/hole-1<')
+    expect(sitemap).not.toContain('/membership/hole-10')
+    // Club B's pages and course never appear in club A's sitemap.
+    expect(sitemap).not.toContain(w.clubB.id)
+  })
+
+  it('only real hole addresses count: hole-1 to hole-18', () => {
+    expect(['hole-1', 'hole-9', 'hole-18'].map(holeFromSegment)).toEqual([1, 9, 18])
+    for (const bad of [
+      'hole-0',
+      'hole-19',
+      'hole-02',
+      'hole-',
+      'hole-1a',
+      'Hole-1',
+      '1',
+      undefined,
+    ])
+      expect(holeFromSegment(bad)).toBeNull()
+    expect(holeSegment(7)).toBe('hole-7')
   })
 })
 

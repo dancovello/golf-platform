@@ -29,3 +29,28 @@ export const HOLE_TIPS = [
   'Only a short iron, but the green is a shelf. Take one more club than you think.',
   'Reachable in two for the long hitters, but the cross-bunker at 280 yards catches many.',
 ]
+
+/** Course tour details for the demo club: a few sets, shared round the holes. */
+export const HOLE_TOUR_DETAILS = [
+  {
+    description:
+      'A gently rising hole cut through an avenue of Scots pine. Out of bounds runs the length of the right side, so the tee shot sets up everything.\n\nThe green is two-tiered and slopes hard from back to front. Anything above the hole is a nervous two-putt.',
+    noteTee:
+      'Aim at the lone pine on the horizon. A three-wood to the left half leaves the best angle in.',
+    noteApproach:
+      'The front is open, so a running shot is the safe option when the wind is against.',
+    noteGreen: 'Two tiers, with a steep step through the middle. Leave it below the hole.',
+    hazards: ['Out of bounds right', 'Two-tier green', 'Greenside bunkers'],
+  },
+  {
+    description:
+      'The heather closes in from both sides here, and the fairway narrows just where most drives finish.',
+    noteTee: 'Position matters more than length. Stay short of the cross-bunker.',
+    noteGreen: 'It looks flat and is not: everything falls gently towards the clubhouse.',
+    hazards: ['Cross-bunker', 'Heather both sides'],
+  },
+  {
+    description: 'A hole that plays longer than its yardage, into the prevailing wind.',
+    hazards: ['Into the wind'],
+  },
+]

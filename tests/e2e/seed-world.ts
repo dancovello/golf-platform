@@ -234,6 +234,150 @@ await w.payload.create({
   } as never,
 })
 
+// The course tour (tests/e2e/site-course-tour.spec.ts), on a club of its own so club A's
+// admin lists stay as the isolation tests expect. An 18-hole course whose holes are filled in
+// to different degrees: hole 1 has a photo and nothing else, hole 2 has everything, hole 3
+// only a name and a photo, hole 4 nothing at all (no photo either), hole 6 everything at its
+// longest, and the rest a name and a photo. One page per design style, plus a 9-hole tour of
+// a course with no photos.
+const tourClub = await w.payload.create({
+  collection: 'tenants',
+  data: { name: 'Test Club Tour', slug: 'test-club-tour' },
+})
+const tourScorecard = await w.payload.create({
+  collection: 'pages',
+  data: {
+    _status: 'published',
+    title: 'Scorecard',
+    slug: 'scorecard',
+    tenant: tourClub.id,
+    layout: [],
+  } as never,
+})
+const tourNine = await w.payload.create({
+  collection: 'courses',
+  data: {
+    name: 'The Nine',
+    tenant: tourClub.id,
+    tees: [{ colour: 'white' }],
+    holes: Array.from({ length: 9 }, (_, i) => ({ par: 4, strokeIndex: i + 1, yardsWhite: 400 })),
+  } as never,
+})
+const tourPhotos: { id: string }[] = []
+for (const [name, alt] of [
+  ['tour-1.jpg', 'The green from the fairway'],
+  ['tour-2.jpg', 'Looking back to the tee'],
+  ['tour-3.jpg', 'The greenside bunkers'],
+  ['tour-4.jpg', 'The view from the tee'],
+] as const) {
+  const photo = await w.payload.create({
+    collection: 'media',
+    data: { alt, tenant: tourClub.id },
+    file: await photoFile(name, 1600, 1000),
+  })
+  tourPhotos.push({ id: String(photo.id) })
+}
+const tourPlan = await w.payload.create({
+  collection: 'media',
+  data: { alt: 'Plan of the second hole', tenant: tourClub.id },
+  file: await photoFile('tour-plan.jpg', 800, 1244),
+})
+const tourCourse = await w.payload.create({
+  collection: 'courses',
+  data: {
+    name: 'The Old Course',
+    tenant: tourClub.id,
+    tipFrom: 'James Holt, Head professional',
+    tees: [
+      // The longest name a tee can have (25 characters).
+      { colour: 'black', name: 'Championship Back Markers' },
+      { colour: 'white' },
+      { colour: 'yellow' },
+      { colour: 'red', name: 'Forward' },
+    ],
+    holes: Array.from({ length: 18 }, (_, i) => {
+      const yards = { yardsBlack: 462 - i, yardsWhite: 446 - i, yardsYellow: 425 - i }
+      if (i === 0) return { par: 4, image: tourPhotos[0].id }
+      if (i === 1)
+        return {
+          name: 'The Firs',
+          par: 4,
+          strokeIndex: 1,
+          ladiesPar: 5,
+          ladiesStrokeIndex: 3,
+          ...yards,
+          yardsRed: 380,
+          image: tourPhotos[0].id,
+          morePhotos: [tourPhotos[1].id, tourPhotos[2].id, tourPhotos[3].id],
+          plan: tourPlan.id,
+          video: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+          tip: 'Take one more club than you think. Short is fine here; long is a disaster.',
+          description:
+            'A long, gently rising par 4 cut through an avenue of Scots pine.\n\nThe green is two-tiered and slopes hard from back to front.',
+          noteTee: 'Aim at the lone pine on the horizon.',
+          noteApproach: 'Most players come in with a long iron over the ditch.',
+          noteGreen: 'Two tiers, with a steep step through the middle.',
+          hazards: ['Out of bounds right', 'Ditch at 296', '4 greenside bunkers', 'Two-tier green'],
+        }
+      if (i === 2) return { name: 'Short Cut', par: 3, image: tourPhotos[2].id }
+      if (i === 3) return { par: 5 }
+      // Hole 6: everything at its longest (the designs' "overflow" state).
+      if (i === 5)
+        return {
+          name: 'Wwwwwwwwww Mmmmmmmmmm Wwwwwwww',
+          par: 5,
+          strokeIndex: 18,
+          ladiesPar: 6,
+          ladiesStrokeIndex: 18,
+          ...yards,
+          yardsRed: 380,
+          image: tourPhotos[0].id,
+          morePhotos: Array.from({ length: 11 }, (_, n) => tourPhotos[(n + 1) % 4].id),
+          plan: tourPlan.id,
+          tip: 'Tip '.repeat(75).trim(),
+          description: `${'Long description. '.repeat(33).trim()}\n\n${'More of it. '.repeat(50).trim()}`,
+          noteTee: 'Off the tee. '.repeat(38).trim(),
+          noteApproach: 'The approach. '.repeat(35).trim(),
+          noteGreen: 'On the green. '.repeat(35).trim(),
+          hazards: Array.from({ length: 8 }, (_, n) => `Hazard number ${n + 1} is long!`),
+        }
+      return {
+        name: `Hole name ${i + 1}`,
+        par: 4,
+        strokeIndex: i + 1,
+        ...yards,
+        image: tourPhotos[i % 4].id,
+        ...(i === 17 ? { tip: 'Finish below the hole.', noteGreen: 'It runs away from you.' } : {}),
+      }
+    }),
+  } as never,
+})
+for (const [slug, style, course] of [
+  ['tour', 'story', tourCourse.id],
+  ['tour-split', 'split', tourCourse.id],
+  ['tour-journey', 'journey', tourCourse.id],
+  ['tour-nine', 'story', tourNine.id],
+] as const) {
+  await w.payload.create({
+    collection: 'pages',
+    data: {
+      _status: 'published',
+      title: 'Course tour',
+      slug,
+      tenant: tourClub.id,
+      layout: [
+        {
+          blockType: 'courseTour',
+          style,
+          heading: 'Course tour',
+          course,
+          scorecardPage: tourScorecard.id,
+        },
+      ],
+    } as never,
+  })
+}
+
 // Club A's events (tests/e2e/site-events.spec.ts). The browser tests run on 15 July 2026.
 for (const [i, category] of [
   'social',

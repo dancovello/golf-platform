@@ -21,6 +21,13 @@
 .tee-dot.is-blue {
   background: var(--color-tee-blue);
 }
+.tee-dot.is-black {
+  background: var(--color-tee-black);
+}
+/* On the brand colour a black dot needs an edge to be seen. */
+.on-brand .tee-dot.is-black {
+  box-shadow: 0 0 0 1px var(--color-border-on-inverse);
+}
 
 .holes .hole-number,
 .holes .hole-par {

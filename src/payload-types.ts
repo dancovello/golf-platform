@@ -203,6 +203,7 @@ export interface Page {
         | MembershipBlock
         | HoleGridBlock
         | ScorecardBlock
+        | CourseTourBlock
         | CourseStatusBlock
         | CourseRecordBlock
         | NewsFeedBlock
@@ -1022,6 +1023,15 @@ export interface MembershipBlock {
   heading: string;
   intro?: string | null;
   /**
+   * Start here. Each row is one thing you compare, e.g. "Playing days" or "Locker". Then, in each category below, fill in "Table values" in the same order: value 1 goes beside row 1, value 2 beside row 2, and so on.
+   */
+  features?:
+    | {
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * In the order you want them. Style A reads best with three.
    */
   tiers?:
@@ -1049,7 +1059,7 @@ export interface MembershipBlock {
             }[]
           | null;
         /**
-         * One per table row, in the same order. Type "yes" for a tick; leave empty for not included.
+         * Value 1 appears beside table row 1 (set at the top of this block), value 2 beside row 2, and so on. Type "yes" for a tick; leave empty for a dash. Nothing shows until the table rows exist.
          */
         values?:
           | {
@@ -1082,15 +1092,6 @@ export interface MembershipBlock {
    * Defaults: "Apply for membership" (A), "Apply" (B), "Enquire" (C).
    */
   buttonLabel?: string | null;
-  /**
-   * e.g. "Playing days", "Locker".
-   */
-  features?:
-    | {
-        label: string;
-        id?: string | null;
-      }[]
-    | null;
   /**
    * e.g. "Book a tour".
    */
@@ -1155,7 +1156,7 @@ export interface HoleGridBlock {
   blockType: 'holeGrid';
 }
 /**
- * Each course’s holes and tees, for the Hole-by-hole and Scorecard blocks.
+ * Each course’s holes and tees, for the Hole-by-hole, Scorecard and Course tour blocks.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "courses".
@@ -1168,11 +1169,15 @@ export interface Course {
    */
   name: string;
   /**
-   * The first tee is the one shown when only one yardage fits.
+   * Up to four. The first tee is the one shown when only one yardage fits, and the “Length” on course tour pages.
    */
   tees?:
     | {
-        colour: 'white' | 'yellow' | 'red' | 'blue';
+        colour: 'white' | 'yellow' | 'red' | 'blue' | 'black';
+        /**
+         * Only if the club calls this tee something else, e.g. “Championship”. Otherwise the colour is used.
+         */
+        name?: string | null;
         rating?: number | null;
         slope?: number | null;
         /**
@@ -1186,6 +1191,10 @@ export interface Course {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Shown under each hole’s playing tip on course tour pages, e.g. “James Holt, Head professional”.
+   */
+  tipFrom?: string | null;
   /**
    * In order, from hole 1. Fill in the yards for the tees you have.
    */
@@ -1203,6 +1212,7 @@ export interface Course {
         yardsYellow?: number | null;
         yardsRed?: number | null;
         yardsBlue?: number | null;
+        yardsBlack?: number | null;
         image?: (string | null) | Media;
         /**
          * A YouTube or Vimeo address. It plays in the hole’s pop-up; the card still shows the photo.
@@ -1212,6 +1222,25 @@ export interface Course {
          * One or two sentences.
          */
         tip?: string | null;
+        /**
+         * Up to 11, shown after the hole’s main photo above.
+         */
+        morePhotos?: (string | Media)[] | null;
+        /**
+         * A yardage-book drawing or an aerial picture of the hole.
+         */
+        plan?: (string | null) | Media;
+        /**
+         * Leave a blank line between paragraphs.
+         */
+        description?: string | null;
+        noteTee?: string | null;
+        noteApproach?: string | null;
+        noteGreen?: string | null;
+        /**
+         * Up to 8 short tags, e.g. “Out of bounds right”. Type one and press Enter.
+         */
+        hazards?: string[] | null;
         id?: string | null;
       }[]
     | null;
@@ -1245,6 +1274,28 @@ export interface ScorecardBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'scorecard';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CourseTourBlock".
+ */
+export interface CourseTourBlock {
+  style: 'story' | 'split' | 'journey';
+  /**
+   * Names the list of holes. Style C shows it above the strip.
+   */
+  heading: string;
+  /**
+   * Each hole of this course gets its own page under this one, e.g. “/course-tour/hole-2”. Photos, tees and notes come from Courses. Give this page its own address and put the tour first on it.
+   */
+  course: string | Course;
+  /**
+   * Shown as a “View full scorecard” link on every hole.
+   */
+  scorecardPage?: (string | null) | Page;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'courseTour';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3066,6 +3117,7 @@ export interface PagesSelect<T extends boolean = true> {
         membership?: T | MembershipBlockSelect<T>;
         holeGrid?: T | HoleGridBlockSelect<T>;
         scorecard?: T | ScorecardBlockSelect<T>;
+        courseTour?: T | CourseTourBlockSelect<T>;
         courseStatus?: T | CourseStatusBlockSelect<T>;
         courseRecord?: T | CourseRecordBlockSelect<T>;
         newsFeed?: T | NewsFeedBlockSelect<T>;
@@ -3509,6 +3561,12 @@ export interface MembershipBlockSelect<T extends boolean = true> {
   eyebrow?: T;
   heading?: T;
   intro?: T;
+  features?:
+    | T
+    | {
+        label?: T;
+        id?: T;
+      };
   tiers?:
     | T
     | {
@@ -3542,12 +3600,6 @@ export interface MembershipBlockSelect<T extends boolean = true> {
         id?: T;
       };
   buttonLabel?: T;
-  features?:
-    | T
-    | {
-        label?: T;
-        id?: T;
-      };
   action?:
     | T
     | {
@@ -3603,6 +3655,18 @@ export interface ScorecardBlockSelect<T extends boolean = true> {
   download?: T;
   linkToGuide?: T;
   note?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CourseTourBlock_select".
+ */
+export interface CourseTourBlockSelect<T extends boolean = true> {
+  style?: T;
+  heading?: T;
+  course?: T;
+  scorecardPage?: T;
   id?: T;
   blockName?: T;
 }
@@ -3778,12 +3842,14 @@ export interface CoursesSelect<T extends boolean = true> {
     | T
     | {
         colour?: T;
+        name?: T;
         rating?: T;
         slope?: T;
         ratingWomen?: T;
         slopeWomen?: T;
         id?: T;
       };
+  tipFrom?: T;
   holes?:
     | T
     | {
@@ -3796,9 +3862,17 @@ export interface CoursesSelect<T extends boolean = true> {
         yardsYellow?: T;
         yardsRed?: T;
         yardsBlue?: T;
+        yardsBlack?: T;
         image?: T;
         video?: T;
         tip?: T;
+        morePhotos?: T;
+        plan?: T;
+        description?: T;
+        noteTee?: T;
+        noteApproach?: T;
+        noteGreen?: T;
+        hazards?: T;
         id?: T;
       };
   updatedAt?: T;
