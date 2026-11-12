@@ -510,25 +510,6 @@ a.pagination-step:hover .pagination-word {
   align-items: center;
   gap: var(--space-24);
 }
-.news-arrow {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--size-control);
-  height: var(--size-control);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-full);
-  background: none;
-  color: var(--color-text-primary);
-  cursor: pointer;
-}
-.news-arrow:hover:not(:disabled) {
-  background: var(--color-surface-subtle);
-}
-.news-arrow:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
 .news-carousel-track {
   display: grid;
   grid-auto-columns: calc((100% - 2 * var(--space-24)) / 3);
@@ -752,8 +733,8 @@ a.pagination-step:hover .pagination-word {
   .news-carousel .blk-header {
     padding: 0 var(--space-24);
   }
-  .news-carousel-controls .news-arrow {
-    display: none;
+  .news-carousel .carctl {
+    padding: 0 var(--space-24);
   }
   .news-carousel-track {
     grid-auto-columns: 272px;
@@ -828,13 +809,6 @@ a.pagination-step:hover .pagination-word {
 .news-carousel.is-headlines .news-meta,
 .on-brand :is(.news-eyebrow, .news-meta) {
   color: var(--color-text-accent);
-}
-.news-carousel.is-headlines .news-arrow {
-  border-color: var(--color-border-on-inverse);
-  color: var(--color-text-on-inverse);
-}
-.news-carousel.is-headlines .news-arrow:hover:not(:disabled) {
-  background: var(--color-surface-glass);
 }
 .news-carousel.is-headlines .news-link {
   color: var(--color-text-on-inverse);

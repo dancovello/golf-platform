@@ -26,7 +26,7 @@ The plan for fixing everything found in the production readiness audit of 9 Nove
 | 1 | Renew or fix the dependency-scan exceptions (two expire 10 Nov) | m1 | 🔨 Claude | Small | Done 10 Nov (#307) |
 | 2 | Spam protection on the demo booking form | M2 | 🔨 Claude | Small | Done 10 Nov (#312) |
 | 3 | A health check that proves the database answers, used by the release and the uptime monitor | M1, M7 | 🔨 Claude | Small | Merged 10 Nov (#331); on production with the next release. The 5-minute monitor stays on `/health` to let Neon sleep |
-| 4 | Safer releases: automatic rollback when the new version fails its check | M1 | 🔨 Claude | Medium | PR open (#332); production only, logic tested with a fake Vercel, first real production release is the live test |
+| 4 | Safer releases: automatic rollback when the new version fails its check | M1 | 🔨 Claude | Medium | Merged (#332), first production release failed at the switch-on (Vercel token refused `promote`); fix PR open (talks to Vercel's API, proves access before a release changes anything) |
 | 5 | A second copy of club photos and documents; clean-up stops deleting for good | C2 | 🔨 Claude, 👤 Dan for Q3 | Medium | Done 10 Nov (#313) |
 | 6 | First restore drill, database and files | C1 | 👤 Dan + devops friend, Claude prepares | Half day | Not started |
 | 7 | Monitoring each club's own address, and showing when an email alert wasn't sent | M7, M3 | 🔨 Claude, 👤 Dan adds monitors | Small | Done 10 Nov (#317) |

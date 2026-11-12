@@ -237,6 +237,9 @@ export const Membership = ({
     return (
       <article key={i} className={`mb-tier${t.recommended ? ' is-recommended on-brand' : ''}`}>
         {t.recommended ? <span className="t-data-label mb-popular">Most popular</span> : null}
+        <span className="mb-numeral" aria-hidden="true">
+          {String(i + 1).padStart(2, '0')}
+        </span>
         <div className="mb-tier-head">
           <span className="mb-rule" aria-hidden="true" />
           <h3 className="t-heading-m mb-tier-title">{t.name}</h3>
@@ -256,7 +259,9 @@ export const Membership = ({
           <ul className="mb-benefits t-body-s">
             {t.benefits.map((b, k) => (
               <li key={k}>
-                <Check size={16} />
+                <span className="mb-benefit-tick" aria-hidden="true">
+                  <Check size={12} />
+                </span>
                 {b.text}
               </li>
             ))}

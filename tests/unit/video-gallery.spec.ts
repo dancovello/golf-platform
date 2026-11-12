@@ -46,7 +46,7 @@ describe('the video gallery', () => {
     expect(out).toContain('aria-haspopup="dialog"')
   })
 
-  it('has a single video without a pager', () => {
-    expect(html(1, 'auto')).not.toContain('vd-pager')
+  it('has a single video without carousel controls', () => {
+    expect(html(1, 'auto')).not.toContain('carctl')
   })
 })

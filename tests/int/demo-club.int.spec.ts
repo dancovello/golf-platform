@@ -74,6 +74,7 @@ describe('the demo club', () => {
       'The Championship course',
       'The Heathland course',
       'Scorecards',
+      'Championship course tour',
       'Course status',
       'The Academy',
       'Competitions',

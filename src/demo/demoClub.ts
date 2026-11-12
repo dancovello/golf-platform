@@ -1,6 +1,6 @@
 import type { Payload } from 'payload'
 
-import { HOLE_CARD, HOLE_TIPS } from './courseCard'
+import { HOLE_CARD, HOLE_TIPS, HOLE_TOUR_DETAILS } from './courseCard'
 import { categoryIds } from '../collections/categoryIds'
 import { LEGACY_DOCUMENT_CATEGORY_SLUGS } from '../collections/defaultCategories'
 import { demoPDF, portrait, scene, type SceneOptions } from './pictures'
@@ -264,7 +264,12 @@ export const buildDemoClub = async (payload: Payload) => {
       yardsRed,
       image: photos[i % photos.length].id,
       tip: tips[i % tips.length],
+      // Course tour details, filled in to different degrees so the tour shows how it copes:
+      // every third hole has the lot, and the last of each three only a line and a tag.
+      morePhotos: i % 3 === 0 ? [1, 2, 3].map((n) => photos[(i + n) % photos.length].id) : [],
+      ...HOLE_TOUR_DETAILS[i % HOLE_TOUR_DETAILS.length],
     })),
+    tipFrom: 'The professional’s shop',
   })
   const heathland = await create<{ id: ID }>('courses', {
     name: 'The Heathland course',
@@ -290,6 +295,9 @@ export const buildDemoClub = async (payload: Payload) => {
     ['championship-course', 'The Championship course'],
     ['heathland-course', 'The Heathland course'],
     ['scorecards', 'Scorecards'],
+    ['course-tour', 'Championship course tour'],
+    ['heathland-tour', 'Heathland course tour'],
+    ['course-journey', 'Course journey'],
     ['course-status', 'Course status'],
     ['academy', 'The Academy'],
     ['competitions', 'Competitions'],
@@ -320,6 +328,9 @@ export const buildDemoClub = async (payload: Payload) => {
       'championship-course',
       'heathland-course',
       'scorecards',
+      // Only one of the three tour pages is in the menu, to keep the drop-down short; the
+      // other two show the other design styles and are reached by their addresses.
+      'course-tour',
       'course-status',
       'academy',
       'competitions',
@@ -1025,6 +1036,23 @@ export const buildDemoClub = async (payload: Payload) => {
       download: docs.heathCard.id,
     },
   ])
+
+  // Course tour, one page per style: each page also makes a page for every hole of its course.
+  for (const [slug, style, course] of [
+    ['course-tour', 'story', championship.id],
+    ['heathland-tour', 'split', heathland.id],
+    ['course-journey', 'journey', championship.id],
+  ] as const) {
+    await save(slug, [
+      {
+        blockType: 'courseTour',
+        style,
+        heading: 'Course tour',
+        course,
+        scorecardPage: pageIDs.scorecards,
+      },
+    ])
+  }
 
   await save('scorecards', [
     {

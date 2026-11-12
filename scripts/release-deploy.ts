@@ -7,13 +7,20 @@
  * Settings come from environment variables:
  *   ENVIRONMENT   "production" or "staging"
  *   VERCEL_CLI    e.g. vercel@63.1.2
- *   VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID   read by the Vercel CLI itself
+ *   VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID   read by the Vercel CLI (the build) and by
+ *                 scripts/lib/vercelApi.ts (which version is live, and switching on)
  *   LIVE_URL      production only: the live address, e.g. https://app.a1engine.co
  */
 import { execFileSync } from 'node:child_process'
 import { appendFileSync } from 'node:fs'
 
 import { ReleaseFailed, safeRelease } from './lib/safeRelease.ts'
+import {
+  deploymentFor,
+  liveDeploymentId,
+  promoteDeployment,
+  type VercelAccess,
+} from './lib/vercelApi.ts'
 
 const required = (name: string): string => {
   const value = process.env[name]?.trim()
@@ -46,6 +53,25 @@ const retry = async (times: number, seconds: number, attempt: () => Promise<bool
   return false
 }
 
+const access = (): VercelAccess => ({
+  token: required('VERCEL_TOKEN'),
+  orgId: required('VERCEL_ORG_ID'),
+  projectId: required('VERCEL_PROJECT_ID'),
+})
+
+/** Waits until the live address really serves that version (the switch takes a few seconds). */
+const switchedTo = async (id: string) => {
+  const done = await retry(10, 6, async () => {
+    try {
+      return (await liveDeploymentId(access(), required('LIVE_URL'))) === id
+    } catch {
+      return false
+    }
+  })
+  if (!done)
+    throw new Error('Vercel accepted the switch but the live address did not change in a minute')
+}
+
 const isOk = (body: string) => /"status"\s*:\s*"ok"/.test(body)
 
 try {
@@ -71,14 +97,17 @@ try {
         }),
       currentLive: async () => {
         try {
-          const info = JSON.parse(vercel(['inspect', required('LIVE_URL'), '--format', 'json']))
-          return (info.id ?? info.uid ?? info.url) as string | undefined
-        } catch {
+          return await liveDeploymentId(access(), required('LIVE_URL'))
+        } catch (error) {
+          // Said out loud: this was swallowed silently on 10 Nov 2026 and hid the real problem.
+          summary(`Could not find out which version is live: ${String(error)}`)
           return undefined
         }
       },
       promote: async (url) => {
-        vercel(['promote', url, '--yes', '--timeout', '3m'])
+        const { id } = await deploymentFor(access(), new URL(url).host)
+        await promoteDeployment(access(), id)
+        await switchedTo(id)
       },
       checkLive: () =>
         retry(5, 6, async () => {
@@ -93,7 +122,8 @@ try {
           }
         }),
       rollback: async (to) => {
-        vercel(['rollback', to, '--yes', '--timeout', '3m'])
+        await promoteDeployment(access(), to)
+        await switchedTo(to)
       },
       log: summary,
     },

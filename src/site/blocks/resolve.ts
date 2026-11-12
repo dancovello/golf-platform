@@ -4,7 +4,7 @@ import type { Payload } from 'payload'
 import { layoutRefs } from '@/blocks'
 import { idOf } from '@/blocks/types'
 import { STATUS_STALE_HOURS, type StatusState } from '@/collections/courseStatusStates'
-import { TEE_COLOURS, type TeeColour, yardsField } from '@/collections/courseTees'
+import { type TeeColour, teeName, yardsField } from '@/collections/courseTees'
 import { builtInLink, isSafeURL } from '@/fields/link'
 
 import { PUBLISHED } from '../published'
@@ -159,7 +159,7 @@ const loadClubStaff = async (
 
 export type SiteTee = {
   colour: TeeColour
-  /** "White", "Yellow"… */
+  /** The club's own name for the tee, or else its colour: "White", "Yellow"… */
   name: string
   rating: number | null
   slope: number | null
@@ -182,9 +182,30 @@ export type SiteHole = {
   /** The safe player address for the hole's video, when it has one. */
   video: string | null
   tip: string | null
+  /** Course tour only (all optional): the main photo first, then the hole's other photos. */
+  photos: SiteMedia[]
+  plan: SiteMedia | null
+  /** Plain text, a blank line between paragraphs. */
+  description: string | null
+  /** "How to play it", in playing order; only the notes the club has written. */
+  notes: { key: 'tee' | 'approach' | 'green'; label: string; text: string }[]
+  hazards: string[]
 }
 
-export type SiteCourse = { id: string; name: string; tees: SiteTee[]; holes: SiteHole[] }
+export type SiteCourse = {
+  id: string
+  name: string
+  tees: SiteTee[]
+  holes: SiteHole[]
+  /** Who the playing tips are from, e.g. "James Holt, Head professional". */
+  tipFrom: string | null
+}
+
+const TOUR_NOTES = [
+  { key: 'tee', field: 'noteTee', label: 'Off the tee' },
+  { key: 'approach', field: 'noteApproach', label: 'The approach' },
+  { key: 'green', field: 'noteGreen', label: 'On the green' },
+] as const
 
 /** Courses by ID, only if they belong to this club, with their (same-club) hole photos. */
 const loadClubCourses = async (
@@ -204,21 +225,31 @@ const loadClubCourses = async (
     payload,
     tenantID,
     docs
-      .flatMap((d) => (d.holes ?? []).map((h) => idOf(h.image)))
+      .flatMap((d) =>
+        (d.holes ?? []).flatMap((h) => [
+          idOf(h.image),
+          idOf(h.plan),
+          ...(h.morePhotos ?? []).map(idOf),
+        ]),
+      )
       .filter((id): id is string => Boolean(id)),
   )
+  const photo = (value: unknown) => {
+    const found = photos.get(idOf(value) ?? '') ?? null
+    return found?.mimeType.startsWith('image/') ? found : null
+  }
   return new Map(
     docs.map((d) => {
       const tees: SiteTee[] = (d.tees ?? []).map((t) => ({
         colour: t.colour,
-        name: TEE_COLOURS.find((c) => c.value === t.colour)?.label ?? t.colour,
+        name: teeName(t),
         rating: t.rating ?? null,
         slope: t.slope ?? null,
         ratingWomen: t.ratingWomen ?? null,
         slopeWomen: t.slopeWomen ?? null,
       }))
       const holes: SiteHole[] = (d.holes ?? []).map((h, i) => {
-        const image = photos.get(idOf(h.image) ?? '') ?? null
+        const image = photo(h.image)
         return {
           number: i + 1,
           name: h.name?.trim() || null,
@@ -227,12 +258,23 @@ const loadClubCourses = async (
           ladiesPar: h.ladiesPar ?? null,
           ladiesStrokeIndex: h.ladiesStrokeIndex ?? null,
           yards: tees.map((t) => h[yardsField(t.colour)] ?? null),
-          image: image?.mimeType.startsWith('image/') ? image : null,
+          image,
           video: parseVideoURL(h.video)?.embedURL ?? null,
           tip: h.tip?.trim() || null,
+          photos: [image, ...(h.morePhotos ?? []).map(photo)].filter((m) => m !== null),
+          plan: photo(h.plan),
+          description: h.description?.trim() || null,
+          notes: TOUR_NOTES.flatMap(({ key, field, label }) => {
+            const text = h[field]?.trim()
+            return text ? [{ key, label, text }] : []
+          }),
+          hazards: (h.hazards ?? []).map((t) => t.trim()).filter(Boolean),
         }
       })
-      return [String(d.id), { id: String(d.id), name: d.name, tees, holes }]
+      return [
+        String(d.id),
+        { id: String(d.id), name: d.name, tees, holes, tipFrom: d.tipFrom?.trim() || null },
+      ]
     }),
   )
 }

@@ -90,30 +90,9 @@
 .tl-h-layout > .blk-header {
   flex: 1 1 320px;
 }
-.tl-h-layout > .tl-track {
+.tl-h-layout > .tl-track,
+.tl-h-layout > .tl-controls {
   flex: 1 1 100%;
-}
-.tl-pager {
-  display: flex;
-  align-items: center;
-  gap: var(--space-16);
-  margin-bottom: var(--space-48);
-}
-.tl-pager button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  border: 1px solid var(--color-border-on-inverse);
-  border-radius: var(--radius-full);
-  background: none;
-  color: inherit;
-  cursor: pointer;
-}
-.tl-pager button:disabled {
-  opacity: 0.35;
-  cursor: default;
 }
 .tl-track {
   display: flex;
@@ -215,9 +194,6 @@
     grid-row: 2;
     justify-self: stretch;
     max-width: none;
-  }
-  .tl-pager {
-    margin-bottom: var(--space-32);
   }
   .tl-card {
     flex-basis: 80vw;

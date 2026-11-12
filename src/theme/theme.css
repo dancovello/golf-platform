@@ -62,6 +62,7 @@
   --color-tee-yellow: #f2c230;
   --color-tee-red: #c8382e;
   --color-tee-blue: #2e5aac;
+  --color-tee-black: #111814;
 }
 
 /* A brand-colour surface: its text is checked against Primary. Sets its own text colour too, so

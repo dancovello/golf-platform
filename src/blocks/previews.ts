@@ -189,6 +189,19 @@ const pictures: Record<string, string> = {
     )
     .join(''),
 
+  // A big photo with the hole's number, a row of hole chips, then two columns of detail.
+  courseTour:
+    photo(30, 40, 540, 170) +
+    rect(54, 150, 60, 44, PANEL, 3) +
+    rect(126, 172, 150, 12, PANEL, 3) +
+    [0, 1, 2, 3, 4, 5, 6, 7, 8]
+      .map((i) => rect(30 + i * 34, 224, 26, 26, i === 1 ? BRAND : TEXT, 4))
+      .join('') +
+    rect(30, 276, 300, 8, TEXT, 3) +
+    rect(30, 294, 260, 8, TEXT, 3) +
+    rect(30, 312, 280, 8, TEXT, 3) +
+    panel(380, 268, 190, 92),
+
   holeGrid: [0, 1, 2, 3, 4, 5, 6, 7]
     .map((i) => {
       const x = 30 + (i % 4) * 138

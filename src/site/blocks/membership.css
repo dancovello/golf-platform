@@ -29,10 +29,6 @@
   display: grid;
   gap: var(--space-24);
 }
-.mb-tiers {
-  /* Room for the "Most popular" tab, which sits half above the top edge of its card. */
-  padding-top: var(--space-12);
-}
 .mb-tiers.cols-1 {
   grid-template-columns: minmax(0, 420px);
 }
@@ -48,9 +44,11 @@
 .mb-tiers > [role='listitem'] {
   display: flex;
 }
-/* A is a quiet, generous card: a short gold rule, the name in the display face, who it is for,
-   then a hairline-framed price, the list and the button. The recommended card is the brand
-   colour with a "Most popular" tab on its top edge. */
+/* A: a tall card with its own character. The category number sits large and faint behind the
+   name, a thin accent bar draws across the top edge on hover, the price is set in the display
+   face at a modest size, and each benefit gets a small ticked disc. The recommended card is the
+   brand colour with a warm accent glow in its corner and, on a wide screen, stands a little
+   proud of the row. Everything reads from the club's colour and font tokens. */
 .mb-tier {
   position: relative;
   display: flex;
@@ -58,23 +56,73 @@
   gap: var(--space-32);
   width: 100%;
   padding: var(--space-48) var(--space-40) var(--space-40);
+  overflow: hidden;
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-sm);
-  background: var(--color-surface-raised);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-action-accent) 9%, var(--color-surface-raised)),
+      var(--color-surface-raised) 220px
+    ),
+    var(--color-surface-raised);
   transition:
     transform 250ms ease-out,
     box-shadow 250ms ease-out,
     border-color 250ms ease-out;
+}
+.mb-tier::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: var(--color-action-accent);
+  transform: scaleX(0.16);
+  transform-origin: left;
+  transition: transform 450ms cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 .mb-tier:hover {
   transform: translateY(-4px);
   border-color: var(--color-border-strong);
   box-shadow: 0 18px 40px color-mix(in srgb, var(--color-text-primary) 8%, transparent);
 }
+.mb-tier:hover::before {
+  transform: scaleX(1);
+}
 .mb-tier.is-recommended {
   border-color: var(--color-surface-brand);
-  background: var(--color-surface-brand);
+  background:
+    radial-gradient(
+      90% 55% at 100% 0,
+      color-mix(in srgb, var(--color-action-accent) 26%, transparent),
+      transparent 70%
+    ),
+    var(--color-surface-brand);
   color: var(--color-text-on-inverse);
+  box-shadow: 0 24px 48px color-mix(in srgb, var(--color-surface-brand) 28%, transparent);
+}
+.mb-tier.is-recommended::before {
+  transform: scaleX(1);
+}
+.mb-tier > :not(.mb-numeral, .mb-popular) {
+  position: relative;
+}
+/* The category's number: large, faint and behind the text; hidden from screen readers. */
+.mb .mb-numeral {
+  position: absolute;
+  top: var(--space-16);
+  right: var(--space-24);
+  font-family: var(--font-display);
+  font-size: calc(var(--type-display-xl) * 1.35);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: color-mix(in srgb, var(--color-text-primary) 7%, transparent);
+  pointer-events: none;
+  user-select: none;
+}
+.mb-tier.is-recommended .mb-numeral {
+  color: color-mix(in srgb, var(--color-text-on-inverse) 10%, transparent);
 }
 .mb-tier-head {
   display: flex;
@@ -102,34 +150,33 @@
   color: var(--color-action-on-accent);
   white-space: nowrap;
 }
+/* The tab is half above the card, and the card clips its own corners, so it sits inside. */
+.mb-tier .mb-popular {
+  top: var(--space-16);
+  left: var(--space-40);
+  transform: none;
+}
 .mb .mb-price {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   gap: var(--space-8) var(--space-12);
-  min-height: calc(var(--type-heading-l) * 0.85);
   margin: 0;
-  padding: var(--space-24) 0;
-  border-top: 1px solid var(--color-border-subtle);
-  border-bottom: 1px solid var(--color-border-subtle);
-}
-.mb-tier.is-recommended .mb-price {
-  border-color: var(--color-border-on-inverse-subtle);
 }
 .mb .mb-period {
   color: var(--color-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
-/* The price is told apart from the category name by its typeface (the plain text face against
-   the name's display face); "On application" is quiet text, not a heading. */
+/* The price is in the display face, at a modest size: it should sit with the name, not shout.
+   "On application" is quiet text, not a heading. */
 .mb .mb-amount {
-  font-family: var(--font-body);
-  font-size: calc(var(--type-heading-l) * 0.8);
+  font-family: var(--font-display);
+  font-size: var(--type-quote-m);
   font-weight: 400;
   line-height: 1.1;
-  letter-spacing: -0.01em;
-  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.005em;
+  font-variant-numeric: lining-nums tabular-nums;
 }
 .mb .mb-on-application {
   color: var(--color-text-secondary);
@@ -146,20 +193,31 @@
   flex-direction: column;
   gap: var(--space-16);
   margin: 0;
-  padding: 0;
+  padding: var(--space-24) 0 0;
+  border-top: 1px solid var(--color-border-subtle);
   list-style: none;
+}
+.mb-tier.is-recommended .mb-benefits {
+  border-color: var(--color-border-on-inverse-subtle);
 }
 .mb .mb-benefits li {
   display: flex;
   align-items: flex-start;
   gap: var(--space-12);
 }
-.mb .mb-benefits svg {
+.mb .mb-benefit-tick {
+  display: inline-grid;
   flex: none;
-  margin-top: 2px;
-  color: var(--color-action-accent);
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--color-action-accent) 18%, transparent);
+  color: var(--color-text-brand);
 }
-.mb-tier.is-recommended .mb-benefits svg {
+.mb-tier.is-recommended .mb-benefit-tick {
+  background: color-mix(in srgb, var(--color-action-accent) 28%, transparent);
   color: var(--color-text-accent);
 }
 .mb-tier .btn {
@@ -167,11 +225,37 @@
   width: 100%;
   margin-top: auto;
 }
-@media (prefers-reduced-motion: reduce) {
+@media (min-width: 1024px) {
+  /* With three cards the recommended one stands a little proud; room is kept above for it. */
+  .mb-tiers.cols-3 {
+    padding-top: var(--space-24);
+  }
+  .mb-tiers.cols-3 .mb-tier.is-recommended {
+    transform: translateY(calc(-1 * var(--space-12)));
+  }
+  .mb-tiers.cols-3 .mb-tier.is-recommended:hover {
+    transform: translateY(calc(-1 * var(--space-16)));
+  }
+}
+@media (max-width: 767px) {
   .mb-tier {
+    padding: var(--space-48) var(--space-24) var(--space-32);
+  }
+  .mb-tier .mb-popular {
+    left: var(--space-24);
+  }
+  .mb .mb-numeral {
+    font-size: var(--type-display-xl);
+    right: var(--space-16);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mb-tier,
+  .mb-tier::before {
     transition: none;
   }
-  .mb-tier:hover {
+  .mb-tier:hover,
+  .mb-tiers.cols-3 .mb-tier.is-recommended:hover {
     transform: none;
   }
 }

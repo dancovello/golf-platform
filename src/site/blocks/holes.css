@@ -21,6 +21,13 @@
 .tee-dot.is-blue {
   background: var(--color-tee-blue);
 }
+.tee-dot.is-black {
+  background: var(--color-tee-black);
+}
+/* On the brand colour a black dot needs an edge to be seen. */
+.on-brand .tee-dot.is-black {
+  box-shadow: 0 0 0 1px var(--color-border-on-inverse);
+}
 
 .holes .hole-number,
 .holes .hole-par {
@@ -245,28 +252,7 @@
   cursor: pointer;
 }
 
-/* B: carousel. Cards 340 × 425 (4:5), gap 24; pager in the header. */
-.hole-pager {
-  display: flex;
-  align-items: center;
-  gap: var(--space-16);
-}
-.hole-pager button {
-  display: grid;
-  place-items: center;
-  width: var(--size-control);
-  height: var(--size-control);
-  padding: 0;
-  border: 1px solid var(--color-border-on-inverse);
-  border-radius: var(--radius-full);
-  background: none;
-  color: inherit;
-  cursor: pointer;
-}
-.hole-pager button:disabled {
-  opacity: 0.35;
-  cursor: default;
-}
+/* B: carousel. Cards 340 × 425 (4:5), gap 24; the shared controls (.carctl) sit below. */
 .hole-track {
   display: flex;
   gap: var(--space-24);
@@ -433,16 +419,9 @@
     border-radius: var(--radius-full);
   }
 
-  /* B on phones: pager under the heading, cards 82vw. */
-  .holes-carousel .hole-pager {
-    align-self: stretch;
-    justify-content: space-between;
-  }
+  /* B on phones: cards 82vw. */
   .hole-track {
     gap: var(--space-16);
-    margin: 0 -20px;
-    padding: 0 20px;
-    scroll-padding: 0 20px;
   }
   .hole-overlay {
     flex-basis: 82vw;

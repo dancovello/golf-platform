@@ -84,7 +84,9 @@
    page content and snaps back to that line. */
 .hole-track,
 .tl-track,
-.news-carousel-track {
+.news-carousel-track,
+.cg-carousel-track,
+.vd-gallery {
   /* How far the page column sits from the window edge: the block's side padding, or more
      once the window is wider than the column. Written out (not 50%) because scroll-padding
      measures % against the carousel itself, which put the snap line at the window edge. */
@@ -94,8 +96,9 @@
   scroll-padding-inline: var(--bleed);
 }
 
-/* Swipe row (mobile carousels): runs to the screen edge, snaps per card, pager below. */
-.swipe-pager {
+/* Swipe row (mobile carousels): runs to the screen edge and snaps per card; the shared
+   controls (.carctl) sit below it. Phones only: from 768px it is the block's own grid. */
+.swipe-controls {
   display: none;
 }
 @media (max-width: 767px) {
@@ -116,30 +119,88 @@
     flex: 0 0 82vw;
     scroll-snap-align: start;
   }
-  .swipe-pager {
+  .swipe-controls {
     display: flex;
-    align-items: center;
-    gap: var(--space-16);
-    margin-top: var(--space-24);
   }
-  .swipe-pager button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+}
+
+/* The shared carousel controls (CarouselControls.tsx): count, progress line, two round arrows.
+   Colours follow the text colour, so they work on the brand colour too. They sit in the page
+   column while the track above them runs to the window edge. */
+.carctl {
+  display: flex;
+  align-items: center;
+  gap: var(--space-24);
+  margin-top: var(--space-32);
+}
+.carctl.is-hidden {
+  display: none;
+}
+.carctl-count {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+}
+.carctl-of {
+  opacity: 0.6;
+}
+.carctl-progress {
+  position: relative;
+  flex: 1;
+  height: 1px;
+  background: color-mix(in srgb, currentColor 30%, transparent);
+}
+.carctl-thumb {
+  position: absolute;
+  top: -1px;
+  height: 3px;
+  background: var(--color-action-accent);
+  transition:
+    left 200ms ease-out,
+    width 200ms ease-out;
+}
+.carctl-buttons {
+  display: inline-flex;
+  gap: var(--space-12);
+}
+.carctl-buttons button {
+  display: inline-grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, currentColor 40%, transparent);
+  border-radius: var(--radius-full);
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  transition:
+    background-color 200ms ease-out,
+    border-color 200ms ease-out,
+    color 200ms ease-out;
+}
+.carctl-buttons button:hover:not(:disabled) {
+  border-color: var(--color-action-accent);
+  background: var(--color-action-accent);
+  color: var(--color-action-on-accent);
+}
+.carctl-buttons button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+@media (max-width: 767px) {
+  .carctl {
+    margin-top: var(--space-24);
+    gap: var(--space-16);
+  }
+  .carctl-buttons button {
     width: 44px;
     height: 44px;
-    border: 1px solid var(--color-border-strong);
-    border-radius: var(--radius-full);
-    background: none;
-    color: inherit;
-    cursor: pointer;
   }
-  .swipe-pager button:disabled {
-    opacity: 0.35;
-    cursor: default;
-  }
-  .on-brand .swipe-pager button {
-    border-color: var(--color-border-on-inverse);
+}
+@media (prefers-reduced-motion: reduce) {
+  .carctl-thumb,
+  .carctl-buttons button {
+    transition: none;
   }
 }
 
