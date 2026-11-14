@@ -150,9 +150,9 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* The hole details opened from a card. */
+/* The hole details opened from a card: big, half media and half text (Dan, 13 Nov). */
 .hole-dialog {
-  width: min(880px, calc(100vw - 2 * var(--space-24)));
+  width: min(1240px, calc(100vw - 2 * var(--space-24)));
   max-height: calc(100dvh - 2 * var(--space-24));
   padding: 0;
   border: 0;
@@ -166,29 +166,40 @@
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: var(--space-40);
-  padding: var(--space-40);
+  min-height: min(680px, calc(100dvh - 2 * var(--space-24)));
 }
 /* No photo: the details fill the whole pop-up instead of leaving half of it empty. */
 .hole-dialog-body.is-no-photo {
   grid-template-columns: minmax(0, 1fr);
+  min-height: 0;
 }
+/* The media fills its whole half, edge to edge. */
 .hole-dialog-image {
-  aspect-ratio: 3 / 2;
+  position: relative;
+  min-height: 100%;
   overflow: hidden;
+  background: var(--color-surface-brand);
+}
+.hole-dialog-image > img,
+.hole-dialog-image .hole-dialog-poster img {
+  position: absolute;
+  inset: 0;
 }
 .holes .hole-dialog-text {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: var(--space-12);
+  padding: var(--space-64) var(--space-48);
 }
-/* The hole's video: the photo with a play button, then the player once pressed. */
+/* The hole's video: the photo with a play button, then the player once pressed. The player
+   fills the half on a black ground, so a video of any shape gets black bars, never a stretch. */
 .hole-dialog-image.is-video {
-  position: relative;
-  background: var(--color-surface-brand);
+  background: #000;
 }
 .hole-dialog-poster {
-  position: relative;
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
@@ -208,10 +219,13 @@
   outline-offset: -4px;
 }
 .hole-dialog-iframe {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
   border: 0;
+  background: #000;
 }
 
 /* Carousel cards and guide rows: a see-through button over the whole card opens the pop-up. */
@@ -247,9 +261,11 @@
   height: var(--size-control);
   padding: 0;
   border: 0;
-  background: none;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-canvas);
   color: var(--color-text-primary);
   cursor: pointer;
+  z-index: 2;
 }
 
 /* B: carousel. Cards 340 × 425 (4:5), gap 24; the shared controls (.carctl) sit below. */
@@ -411,12 +427,14 @@
   }
   .hole-dialog-body {
     grid-template-columns: 1fr;
-    gap: var(--space-24);
-    padding: var(--space-24);
+    min-height: 0;
   }
-  .hole-dialog-close {
-    background: var(--color-surface-canvas);
-    border-radius: var(--radius-full);
+  .hole-dialog-image {
+    min-height: 0;
+    aspect-ratio: 16 / 10;
+  }
+  .holes .hole-dialog-text {
+    padding: var(--space-24);
   }
 
   /* B on phones: cards 82vw. */

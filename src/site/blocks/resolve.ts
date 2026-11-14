@@ -1,4 +1,4 @@
-import { parseVideoURL } from '@/blocks/video/embed'
+import { parseVideoURL, quietEmbedURL } from '@/blocks/video/embed'
 import type { Payload } from 'payload'
 
 import { layoutRefs } from '@/blocks'
@@ -259,7 +259,7 @@ const loadClubCourses = async (
           ladiesStrokeIndex: h.ladiesStrokeIndex ?? null,
           yards: tees.map((t) => h[yardsField(t.colour)] ?? null),
           image,
-          video: parseVideoURL(h.video)?.embedURL ?? null,
+          video: quietVideo(parseVideoURL(h.video)?.embedURL),
           tip: h.tip?.trim() || null,
           photos: [image, ...(h.morePhotos ?? []).map(photo)].filter((m) => m !== null),
           plan: photo(h.plan),
@@ -278,6 +278,8 @@ const loadClubCourses = async (
     }),
   )
 }
+
+const quietVideo = (embedURL: string | undefined) => (embedURL ? quietEmbedURL(embedURL) : null)
 
 export type SiteCourseStatus = {
   state: StatusState

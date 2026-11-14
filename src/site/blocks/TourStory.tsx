@@ -4,6 +4,7 @@ import { Paragraphs, Photo } from './parts'
 import type { SiteHole } from './resolve'
 import { hasAbout, holeTees, holeTitle, type Tour } from './tour'
 import { TourPicker } from './TourPicker'
+import { TourExpand } from './TourExpand'
 import { TourStickyBar } from './TourStickyBar'
 import {
   TourFacts,
@@ -102,6 +103,15 @@ export const TourStory = ({ tour }: { tour: Tour }) => {
       >
         {hole.image ? (
           <Photo image={hole.image} sizes="100vw" className="tour-hero-photo" eager />
+        ) : null}
+        {hole.photos.length || hole.plan || hole.video ? (
+          <TourExpand
+            photos={hole.photos}
+            plan={hole.plan}
+            video={hole.video}
+            title={holeTitle(hole)}
+            number={pad2(hole.number)}
+          />
         ) : null}
         <div className="tour-wrap tour-hero-row">
           <p className="tour-hero-number" aria-hidden="true">
@@ -204,7 +214,7 @@ export const TourStory = ({ tour }: { tour: Tour }) => {
       {more.length ? (
         <div className="tour-wrap tour-more">
           <h2 className="t-eyebrow tour-eyebrow">More from this hole</h2>
-          <ul className="tour-more-grid">
+          <ul className={`tour-more-grid is-count-${Math.min(more.length, 3)}`}>
             {more.map((photo, i) => (
               <li key={i}>
                 <Photo image={photo} sizes="(max-width: 767px) 100vw, 400px" />

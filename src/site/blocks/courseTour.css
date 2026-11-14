@@ -221,6 +221,35 @@ a.tour-arrow:hover {
   cursor: pointer;
 }
 
+/* Expand: opens the photos, plan and video full size (the same viewer as styles B and C). */
+.tour-expand-btn {
+  position: absolute;
+  top: var(--space-24);
+  right: var(--space-24);
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  padding: var(--space-12) var(--space-20, 20px) var(--space-12) var(--space-16);
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-raised);
+  color: var(--ink-page, #111814);
+  box-shadow: 0 2px 12px rgb(0 0 0 / 0.25);
+  cursor: pointer;
+}
+.tour-expand-btn:hover {
+  background: var(--color-action-solid);
+  color: var(--color-action-on-solid);
+}
+.tour-expand-btn:focus-visible {
+  outline: 2px solid var(--color-action-accent);
+  outline-offset: 3px;
+}
+.tour-expand-count {
+  opacity: 0.65;
+}
+
 .tour-picker-bar {
   position: sticky;
   top: 0;
@@ -393,6 +422,19 @@ a.tour-arrow:hover {
   width: 100%;
   height: 280px;
   object-fit: cover;
+}
+/* One or two photos are drawn big, so they never look lost under the page (Dan, 13 Nov). */
+.tour-more-grid.is-count-1 {
+  grid-template-columns: 1fr;
+}
+.tour-more-grid.is-count-1 img {
+  height: 520px;
+}
+.tour-more-grid.is-count-2 {
+  grid-template-columns: 1fr 1fr;
+}
+.tour-more-grid.is-count-2 img {
+  height: 420px;
 }
 
 .tour-neighbours {
@@ -596,12 +638,15 @@ a.tour-arrow:hover {
   .tour-more {
     padding-bottom: var(--space-48);
   }
-  .tour-more-grid {
+  .tour-more-grid,
+  .tour-more-grid.is-count-2 {
     grid-template-columns: 1fr;
     gap: var(--space-16);
   }
-  .tour-more-grid img {
-    height: 208px;
+  .tour-more-grid img,
+  .tour-more-grid.is-count-1 img,
+  .tour-more-grid.is-count-2 img {
+    height: 240px;
   }
   .tour-neighbours {
     grid-template-columns: 1fr;
@@ -1049,11 +1094,15 @@ a.tour-arrow:hover {
 .tour-film-hole[aria-current='page'] .tour-film-number {
   color: var(--color-text-accent);
 }
+/* The bar under the strip: its marker is the part of the strip in view, and slides as it scrolls. */
 .tour-film-progress {
+  position: relative;
   height: 2px;
   background: var(--color-border-on-inverse-subtle);
 }
 .tour-film-progress span {
+  position: absolute;
+  top: 0;
   display: block;
   height: 100%;
   background: var(--color-action-accent);
@@ -1133,6 +1182,67 @@ a.tour-arrow:hover {
   width: 380px;
   max-width: 100%;
 }
+/* A tab with a photo: the words on one side, the photo filling the other (Dan, 13 Nov). */
+.tour-overview.has-photo,
+.tour-step {
+  align-items: stretch;
+  gap: var(--space-64);
+}
+.tour-step {
+  display: flex;
+  padding-top: var(--space-64);
+  padding-bottom: var(--space-96);
+}
+.tour-step-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-24);
+  min-width: 0;
+}
+.tour-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8) var(--space-24);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  color: var(--color-text-secondary);
+}
+.tour-steps li {
+  display: flex;
+  gap: var(--space-8);
+}
+.tour-steps li[aria-current='step'] {
+  color: var(--color-text-accent);
+}
+.tour-step-quote {
+  margin: 0;
+}
+.tour-step-photo {
+  position: relative;
+  flex: 0 1 520px;
+  min-height: 360px;
+  overflow: hidden;
+}
+.tour-step-photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.tour-step-photo.is-plan {
+  background: var(--color-surface-subtle);
+}
+.tour-step-photo.is-plan img {
+  object-fit: contain;
+}
+.tour-step .tour-hazards,
+.tour-step .tour-tees {
+  max-width: 420px;
+}
+
 .tour-journey-tip {
   padding: var(--space-96) 0;
   background: var(--color-surface-brand);
@@ -1419,6 +1529,7 @@ a.tour-arrow:hover {
   .tour-next-actions .btn-solid {
     width: 100%;
   }
+  .tour-step,
   .tour-overview {
     flex-direction: column;
     gap: var(--space-16);
@@ -1430,6 +1541,15 @@ a.tour-arrow:hover {
   }
   .tour-overview .tour-hazards {
     width: 100%;
+  }
+  .tour-overview.has-photo,
+  .tour-step {
+    gap: var(--space-24);
+  }
+  .tour-step-photo {
+    flex: none;
+    width: 100%;
+    min-height: 240px;
   }
   .tour-journey-tip {
     padding: var(--space-48) 0;
