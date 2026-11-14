@@ -269,7 +269,7 @@ export const Tenants: CollectionConfig = {
       },
       admin: {
         description:
-          'Shows this club at a public link anyone can open, for 30 days, hidden from search engines. Turn it OFF when the club goes live (then add its web address).',
+          'Shows this club at a public link anyone can open, for 30 days, hidden from search engines. To take the club live, untick this AND add its web address in the same save: the demo link stops, and the site is open to search engines on its own address.',
       },
     },
     {

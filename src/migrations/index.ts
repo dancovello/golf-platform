@@ -81,6 +81,7 @@ import * as migration_20261110_185248_audit_log from './20261110_185248_audit_lo
 import * as migration_20261110_212116_twocolumn_button from './20261110_212116_twocolumn_button';
 import * as migration_20261112_220906_course_tour_fields from './20261112_220906_course_tour_fields';
 import * as migration_20261112_222757_course_tour_block from './20261112_222757_course_tour_block';
+import * as migration_20261114_091925_video_file from './20261114_091925_video_file';
 
 export const migrations = [
   {
@@ -496,6 +497,11 @@ export const migrations = [
   {
     up: migration_20261112_222757_course_tour_block.up,
     down: migration_20261112_222757_course_tour_block.down,
-    name: '20261112_222757_course_tour_block'
+    name: '20261112_222757_course_tour_block',
+  },
+  {
+    up: migration_20261114_091925_video_file.up,
+    down: migration_20261114_091925_video_file.down,
+    name: '20261114_091925_video_file'
   },
 ];

@@ -5,7 +5,8 @@ import { expect, test } from './fixtures'
 // Club A uses no optional features. "Test Club Cookies" uses all of them, including Google
 // Analytics (tests/e2e/seed-world.ts).
 const plain = '/preview/test-club-a'
-// On the club's own address: previews never show the cookie banner (headers audit, finding 1).
+// On the club's own address, Google loads after consent. On a preview or demo the banner shows
+// but Google never loads (headers audit, finding 1: tests/e2e/audit-csp-headers.spec.ts).
 const cookies = 'http://club-cookies.localhost:3100'
 const GA = /googletagmanager\.com/
 

@@ -27,14 +27,14 @@ Legend: ✅ done · 🔨 build (Claude) · 👤 Dan · ❓ undecided
 
 | # | Job | Notes |
 |---|---|---|
-| B1 | ✅ built 9 Nov (PR pending), not yet seen in a browser: cookie banner appears only after the golf ball intro has finished (and straight away when the intro is skipped or already seen this session) | Check on staging with the intro on a fresh session, on reload (the intro replays) and with reduced motion. Dan to look at the wording once it is visible |
+| B1 | ✅ built 9 Nov, fine (Dan, 14 Nov). Also 14 Nov: the banner now shows on club previews and demos (Google still never loads there), so a club's banner can be seen before it goes live. It only appears when the club has a Google Analytics ID. Original note: cookie banner appears only after the golf ball intro has finished (and straight away when the intro is skipped or already seen this session) | Check on staging with the intro on a fresh session, on reload (the intro replays) and with reduced motion. Dan to look at the wording once it is visible |
 | B2 | ✅ built 9 Nov: removed the course selector from the pricing calculator | `src/marketing/site/pricing/CalculatorClient.tsx`, `pricingBlocks.ts`, `MarketingSettings.ts` (second-course price setting). Remove the matching claims-register rows and tests |
 | B3 | ✅ built 9 Nov: prices: monthly cost only, no VAT label, no setup fee beside any price | Reverses the 28 Oct "setup fee beside every price" rule. Update `priceVatLabel`, `tests/unit/marketing-wording.spec.ts` and the Pricing FAQ |
 | B4 | ✅ built 9 Nov (FAQ now "What happens if we cancel?"): leaving wording: "no export, you lose the site if you stop paying" | Pricing FAQ, Switching page, Trust page, claims register. Do not promise Markdown, CSV or original files (N10) |
-| B5 | Remove the "pages already saved in a database keep old wording" gap (launch gate item 11) | Needs Dan's go-ahead to run against staging or production |
-| B6 | Bearwood leftovers | Gary Player repeated photos on the live demo (Dan's go), WebP for existing Bearwood photos (Dan's go), branded video player research (B-21), storage allowance per club (B-23) |
+| B5 | ✅ script built 14 Nov: `pnpm fix-marketing-wording` finds banned wording in saved pages and replaces only those pages with the starter copy (dry run first). **Not yet run on staging or production**: Dan to run it (it asks for the database address, hidden) |
+| B6 | Bearwood leftovers | Branded video player ✅ built 14 Nov (a video file a club uploads plays in our own player, in the club's colours). Storage allowance per club dropped (Dan, 14 Nov). Still open: Gary Player repeated photos on the live demo (Dan's go), WebP for existing Bearwood photos (Dan's go) |
 | B7 | Test club on production (Dan, 5 Nov) | Plan first, Dan approves. Own subdomain, kept out of search engines, clearly labelled |
-| B8 | When a club goes live, its demo pages lose `noindex` automatically | Written down in `demo-sites-plan` memory; test it |
+| B8 | ✅ 14 Nov: going live is one save (untick Public demo and add the web address together). Demo pages are `noindex` only because of the `/demo/` route, so nothing needs removing; the live site is indexable on production. Tested in `tests/int/prospect-demo.int.spec.ts` | `docs/operations/prospect-demos.md` |
 
 ## Dan's jobs 👤
 

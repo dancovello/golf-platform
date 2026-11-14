@@ -342,3 +342,87 @@
     padding: var(--space-48) 20px;
   }
 }
+
+/* The club's own player, for an uploaded video file (BrandedVideo.tsx). */
+.vd-branded {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  color: #fff;
+}
+.vd-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  cursor: pointer;
+}
+.vd-big-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--color-action-accent);
+  color: var(--color-text-on-accent, #fff);
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+}
+.vd-controls {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 12px 10px;
+  background: linear-gradient(to top, rgb(0 0 0 / 70%), transparent);
+}
+.vd-control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+.vd-control:hover {
+  background: rgb(255 255 255 / 18%);
+}
+.vd-time {
+  min-width: 5.5em;
+  font-variant-numeric: tabular-nums;
+}
+.vd-seek {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  margin: 0;
+  background: none;
+  accent-color: var(--color-action-accent);
+  cursor: pointer;
+}
+.vd-big-play:focus-visible,
+.vd-control:focus-visible,
+.vd-seek:focus-visible,
+.vd-video:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+@media (max-width: 480px) {
+  .vd-time {
+    display: none;
+  }
+}
