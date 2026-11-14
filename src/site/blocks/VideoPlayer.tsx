@@ -3,22 +3,44 @@
 import { useState } from 'react'
 
 import { Play } from '../components/Icons'
+import { BrandedVideo } from './BrandedVideo'
 import { VideoDialog } from './VideoDialog'
 
 export type VideoItem = {
   id: string
   title: string
   caption: string | null
-  provider: 'youtube' | 'vimeo'
-  embedURL: string
+  provider: 'youtube' | 'vimeo' | 'file'
+  /** The YouTube or Vimeo player address; null for an uploaded file. */
+  embedURL: string | null
+  /** The club's own uploaded video file, played in our own player; null for YouTube or Vimeo. */
+  fileURL?: string | null
   poster: { src: string; srcSet: string | null; position: string }
   width: number | null
   height: number | null
 }
 
+/** The player itself: the club's own branded one for an uploaded file, else the provider's. */
+export const VideoFrame = ({ item, onLoad }: { item: VideoItem; onLoad?: () => void }) => {
+  if (item.fileURL) {
+    return <BrandedVideo src={item.fileURL} poster={item.poster.src || null} title={item.title} />
+  }
+  return (
+    <iframe
+      className="vd-iframe"
+      src={item.embedURL ?? undefined}
+      title={item.title}
+      allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+      allowFullScreen
+      referrerPolicy="strict-origin-when-cross-origin"
+      onLoad={onLoad}
+    />
+  )
+}
+
 /**
  * One video. Shows the club's own picture and a play button, and loads the YouTube or Vimeo
- * player only when the visitor presses play (the same idea as the map): nothing is requested
+ * player (or, for an uploaded file, the club's own player) only when the visitor presses play (the same idea as the map): nothing is requested
  * from either site before then, so no tracking until the visitor chooses. This one plays in
  * place (featured, standard and full width) or in a pop-up (half and half); a gallery of
  * videos uses the same pop-up. No title or description sits under it: the title is read out
@@ -39,14 +61,7 @@ export const VideoPlayer = ({
     <figure className="vd-item">
       <div className="vd-frame">
         {playing && !modal ? (
-          <iframe
-            className="vd-iframe"
-            src={item.embedURL}
-            title={item.title}
-            allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-            allowFullScreen
-            referrerPolicy="strict-origin-when-cross-origin"
-          />
+          <VideoFrame item={item} />
         ) : (
           <button
             type="button"

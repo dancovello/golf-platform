@@ -235,7 +235,7 @@ export interface Tenant {
       }[]
     | null;
   /**
-   * Shows this club at a public link anyone can open, for 30 days, hidden from search engines. Turn it OFF when the club goes live (then add its web address).
+   * Shows this club at a public link anyone can open, for 30 days, hidden from search engines. To take the club live, untick this AND add its web address in the same save: the demo link stops, and the site is open to search engines on its own address.
    */
   demoEnabled?: boolean | null;
   /**
@@ -732,11 +732,15 @@ export interface VideoBlock {
     url?: string | null;
   };
   /**
-   * Upload the film to YouTube or Vimeo first, then paste its address here. You choose the picture shown before it plays.
+   * Either upload the film to YouTube or Vimeo and paste its address, or choose a video file from Photos and videos to play it in your club’s own player. You choose the picture shown before it plays.
    */
   videos?:
     | {
-        url: string;
+        /**
+         * Optional. Upload an MP4 (or WebM) to Photos and videos first, then choose it here. It plays in a player in your club’s colours, with no YouTube or Vimeo branding and nothing loaded from another site. Keep it under 50MB: compress it first if it is bigger. If you choose a file, you can leave the address below empty.
+         */
+        file?: (string | null) | Media;
+        url?: string | null;
         /**
          * Landscape, at least 1600 pixels wide. Choose your own: YouTube’s automatic picture is often a blurry frame.
          */
@@ -3383,6 +3387,7 @@ export interface VideoBlockSelect<T extends boolean = true> {
   videos?:
     | T
     | {
+        file?: T;
         url?: T;
         poster?: T;
         title?: T;

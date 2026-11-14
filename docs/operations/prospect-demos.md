@@ -18,7 +18,7 @@ How we show a club its new website before it has signed up: a public link anyone
 | **Never indexed** | Every demo page is `noindex` in the page and in the `X-Robots-Tag` header, and demos are in no sitemap (`src/proxy.ts`, `src/site/resolveSite.ts`). |
 | **Contact form sends nothing** | The Contact page shows "This is a demo" instead of the form, and the form's save step refuses a demo club as well (`src/site/contact/submit.ts`). Nothing is stored or emailed. |
 | **No editor accounts** | A demo club can't have an editor account, and a club with one can't become a demo (`src/access/accountCreation.ts`, `src/collections/Tenants.ts`). |
-| **No web address** | A demo club can't have a web address. Switching the demo off comes first (see "Going live"). |
+| **No web address** | A demo club can't have a web address. Untick the demo and add the address in the same save (see "Going live"). |
 | **Not the canary clubs** | The hidden `canary-` clubs can never be demos. |
 | **Not on a club's own domain** | `/demo/…` returns 404 on any club's domain. |
 | **Tenant isolation** | One link opens one club. It must match both the club's short name and its random ending. Covered by `tests/int/prospect-demo.int.spec.ts` and `tests/e2e/prospect-demo.spec.ts`, which is part of the tenant-isolation CI job. |
@@ -34,13 +34,12 @@ How we show a club its new website before it has signed up: a public link anyone
 
 ## Going live: checklist
 
-**Do these in order when a club signs up.** The first step matters for search engines.
+**Do these in order when a club signs up.** Step 1 is the only one that changes search-engine visibility, and it is automatic.
 
-1. **Switch Public demo OFF** on the club, then save. This clears the link ending and expiry, so the old demo link stops working for good.
-2. **Add the club's web address** (`docs/operations/connect-club-domain.md`).
-3. **Check the live site is allowed into search engines.** On its own domain, on production, pages are indexable (`indexable` in `src/site/resolveSite.ts`). Demo pages always have `noindex`, and live pages don't, because they are served by a different route. Open the live site and check that `view-source` has no `noindex`, and `/robots.txt` and `/sitemap.xml` are the club's own. A test covers this (`tests/int/prospect-demo.int.spec.ts`: "is indexable on its own web address once it has gone live").
-4. Create the club's editor account(s). These can only be made once the demo is off.
-5. Tell the club the old demo link has stopped, in case they shared it.
+1. **In one save: untick Public demo and add the club's web address** (`docs/operations/connect-club-domain.md`). Saving clears the link ending and expiry, so the old demo link stops working for good, and the club's own address is open to search engines (there is nothing to remove: demo pages are `noindex` because of the `/demo/` route, and the live site is a different route). A test covers doing both in one save.
+2. **Check the live site is allowed into search engines.** On its own domain, on production, pages are indexable (`indexable` in `src/site/resolveSite.ts`). Demo pages always have `noindex`, and live pages don't, because they are served by a different route. Open the live site and check that `view-source` has no `noindex`, and `/robots.txt` and `/sitemap.xml` are the club's own. A test covers this (`tests/int/prospect-demo.int.spec.ts`: "is indexable on its own web address once it has gone live").
+3. Create the club's editor account(s). These can only be made once the demo is off.
+4. Tell the club the old demo link has stopped, in case they shared it.
 
 ## If something is wrong
 
