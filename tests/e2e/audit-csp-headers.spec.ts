@@ -25,12 +25,16 @@ test.fail(
   },
 )
 
-// Step 1 of the fix (23 Oct): no cookie banner or Google Analytics on previews. Step 2 (previews
-// on their own address) is a planned change, so the test above stays a known failure.
+// Step 1 of the fix (23 Oct): Google Analytics never loads on previews. Step 2 (previews on their
+// own address) is a planned change, so the test above stays a known failure. (14 Nov: the cookie
+// banner itself now shows on previews and demos so a club can see it, but accepting it still
+// loads nothing from Google.)
 test('Google Analytics never loads on the admin’s own address', async ({ page }) => {
   await openReady(page, '/preview/test-club-cookies')
-  await expect(page.getByRole('button', { name: 'Accept analytics cookies' })).toHaveCount(0)
+  await page.getByRole('button', { name: 'Accept analytics cookies' }).click()
+  await expect(page.getByTestId('cookie-banner')).toBeHidden()
   expect(await page.locator('script#club-ga').count()).toBe(0)
+  expect(await page.locator('script[src*="googletagmanager"]').count()).toBe(0)
 })
 
 // Finding 2 (medium). The admin's policy only reported; it blocked nothing. Fixed 10 Nov 2026

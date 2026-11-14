@@ -118,3 +118,22 @@ export const PROVIDER_NAMES: Record<VideoProvider, string> = {
   youtube: 'YouTube',
   vimeo: 'Vimeo',
 }
+
+/**
+ * The same player address with as much of the provider's own furniture switched off as the
+ * provider allows (Course tour hole videos, Dan 13 Nov): no control bar, title, "more videos"
+ * or logo on top of a small video. Only the parameters change; the host and video ID don't.
+ */
+export const quietEmbedURL = (embedURL: string): string => {
+  let url: URL
+  try {
+    url = new URL(embedURL)
+  } catch {
+    return embedURL
+  }
+  const quiet: Record<string, string> = url.hostname.includes('vimeo')
+    ? { title: '0', byline: '0', portrait: '0', badge: '0', controls: '0' }
+    : { controls: '0', modestbranding: '1', iv_load_policy: '3', fs: '0', disablekb: '1' }
+  for (const [key, value] of Object.entries(quiet)) url.searchParams.set(key, value)
+  return url.toString()
+}

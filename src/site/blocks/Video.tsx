@@ -9,7 +9,8 @@ import { type GalleryLayout, VideoGallery } from './VideoGallery'
 import { type VideoItem, VideoPlayer } from './VideoPlayer'
 
 /**
- * Video: films kept on YouTube or Vimeo, played on the club's page. Two styles: A Featured
+ * Video: films kept on YouTube or Vimeo, or video files uploaded to the club's own library
+ * (played in the club's own branded player), shown on the club's page. Two styles: A Featured
  * (one large player in place, the first video; standard, full width, or half and half with
  * the video running to the page edge, with an optional description and button) and B Gallery (several, each opening in a
  * pop-up window; a grid or a carousel). The address is read again here and the player
@@ -26,16 +27,19 @@ export const Video = ({
 }) => {
   const style = block.style ?? 'featured'
   const items: VideoItem[] = (block.videos ?? []).flatMap((row) => {
-    const parsed = parseVideoURL(row.url)
+    const file = ctx.media(row.file)
+    const uploaded = file?.mimeType.startsWith('video/') ? file : null
+    const parsed = uploaded ? null : parseVideoURL(row.url)
     const poster = ctx.media(row.poster)
-    if (!parsed || !isImage(poster)) return []
+    if ((!uploaded && !parsed) || !isImage(poster)) return []
     return [
       {
-        id: row.id ?? `${parsed.provider}-${parsed.id}`,
+        id: row.id ?? (uploaded ? `file-${uploaded.url}` : `${parsed!.provider}-${parsed!.id}`),
         title: row.title,
         caption: row.caption ?? null,
-        provider: parsed.provider,
-        embedURL: parsed.embedURL,
+        provider: uploaded ? 'file' : parsed!.provider,
+        embedURL: parsed?.embedURL ?? null,
+        fileURL: uploaded?.url ?? null,
         poster: { src: poster.url, srcSet: poster.srcSet, position: poster.position },
         width: poster.width,
         height: poster.height,

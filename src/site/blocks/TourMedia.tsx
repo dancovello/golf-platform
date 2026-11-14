@@ -23,6 +23,8 @@ export const TourMedia = ({
   title,
   number,
   sizes,
+  standalone = false,
+  onClose,
 }: {
   photos: SiteMedia[]
   plan: SiteMedia | null
@@ -32,6 +34,9 @@ export const TourMedia = ({
   /** "02", shown when the hole has no photo. */
   number: string
   sizes: string
+  /** Draw only the full-size viewer, for a pop-up another part of the page owns (style A's header). */
+  standalone?: boolean
+  onClose?: () => void
 }) => {
   const modes: Mode[] = [
     ...(photos.length || (!plan && !video) ? (['photos'] as const) : []),
@@ -139,7 +144,7 @@ export const TourMedia = ({
             type="button"
             className="tour-media-round tour-media-expand"
             aria-label="Close"
-            onClick={() => dialog.current?.close()}
+            onClick={() => (standalone ? onClose?.() : dialog.current?.close())}
           >
             <Close size={24} />
           </button>
@@ -200,6 +205,8 @@ export const TourMedia = ({
       </div>
     )
   }
+
+  if (standalone) return view(true)
 
   return (
     <div className="tour-media" role="region" aria-label={`Photos and video: ${title}`}>

@@ -5,6 +5,8 @@ import { collectArrayRefs, collectRefs, imageField, styleField } from '../shared
 import type { BlockDefinition } from '../types'
 import { validateVideoURL } from './embed'
 
+const VIDEO_FILE_TYPES = ['video/mp4', 'video/webm']
+
 /**
  * Video: films kept on YouTube or Vimeo, played on the club's own page. Nothing is stored on
  * the club's account and nothing loads from the video site until a visitor presses play.
@@ -102,16 +104,27 @@ const config: Block = {
       admin: {
         initCollapsed: true,
         description:
-          'Upload the film to YouTube or Vimeo first, then paste its address here. You choose the picture shown before it plays.',
+          'Either upload the film to YouTube or Vimeo and paste its address, or choose a video file from Photos and videos to play it in your club’s own player. You choose the picture shown before it plays.',
       },
       fields: [
         {
+          name: 'file',
+          label: 'Video file (plays in your club’s own player)',
+          type: 'upload',
+          relationTo: 'media',
+          filterOptions: { mimeType: { in: VIDEO_FILE_TYPES } },
+          admin: {
+            description:
+              'Optional. Upload an MP4 (or WebM) to Photos and videos first, then choose it here. It plays in a player in your club’s colours, with no YouTube or Vimeo branding and nothing loaded from another site. Keep it under 50MB: compress it first if it is bigger. If you choose a file, you can leave the address below empty.',
+          },
+        },
+        {
           name: 'url',
-          label: 'YouTube or Vimeo address',
+          label: 'Or a YouTube or Vimeo address',
           type: 'text',
-          required: true,
           maxLength: 300,
-          validate: validateVideoURL,
+          validate: (value: unknown, { siblingData }: { siblingData?: { file?: unknown } }) =>
+            siblingData?.file ? true : validateVideoURL(value),
         },
         imageField('poster', 'Picture shown before it plays', true, {
           admin: {
@@ -142,6 +155,6 @@ export const video: BlockDefinition = {
   config,
   refs: (block, path) => [
     ...collectRefs(block, path, { links: ['button'] }),
-    ...collectArrayRefs(block, path, 'videos', { images: ['poster'] }),
+    ...collectArrayRefs(block, path, 'videos', { images: ['poster', 'file'] }),
   ],
 }

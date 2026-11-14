@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 import { Close } from '../components/Icons'
-import type { VideoItem } from './VideoPlayer'
+import { type VideoItem, VideoFrame } from './VideoPlayer'
 
 /**
  * The pop-up window that plays a video (a native dialog: focus stays inside, Esc, the cross or
@@ -18,7 +18,8 @@ export const VideoDialog = ({ item, onClose }: { item: VideoItem | null; onClose
   useEffect(() => {
     const el = dialog.current
     if (!item || !el) return
-    setLoaded(false)
+    // An uploaded file has no frame to wait for.
+    setLoaded(Boolean(item.fileURL))
     if (!el.open) el.showModal()
     const overflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
@@ -54,15 +55,7 @@ export const VideoDialog = ({ item, onClose }: { item: VideoItem | null; onClose
             {loaded ? null : (
               <span className="vd-loader" role="status" aria-label="Loading video" />
             )}
-            <iframe
-              className="vd-iframe"
-              src={item.embedURL}
-              title={item.title}
-              allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-              allowFullScreen
-              referrerPolicy="strict-origin-when-cross-origin"
-              onLoad={() => setLoaded(true)}
-            />
+            <VideoFrame item={item} onLoad={() => setLoaded(true)} />
           </div>
         </div>
       ) : null}

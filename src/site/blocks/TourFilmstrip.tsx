@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+
+import { useCarousel } from './CarouselControls'
 
 import type { SiteMedia } from './media'
-import { TourPicker } from './TourPicker'
 
 export type FilmHole = {
   number: number
@@ -56,10 +57,52 @@ export const TourFilmstrip = ({
           </div>
         ) : null}
       </div>
-      <TourPicker
+      <FilmTrack
         key={show}
-        className={`tour-film-strip${show === 'all' && split ? ' is-all' : ''}`}
-        label={`${heading}: holes`}
+        holes={holes}
+        current={current}
+        heading={heading}
+        all={show === 'all' && split}
+        inView={inView}
+      />
+    </>
+  )
+}
+
+/**
+ * The scrolling row of holes and the thin bar under it. The bar's marker is the part of the
+ * strip in view and moves as the strip scrolls (the same rule as every carousel on the site).
+ * Remounted when the nine changes, so it measures the new row.
+ */
+const FilmTrack = ({
+  holes,
+  current,
+  heading,
+  all,
+  inView,
+}: {
+  holes: FilmHole[]
+  current: number
+  heading: string
+  all: boolean
+  inView: (n: number) => boolean
+}) => {
+  const { track, state } = useCarousel<HTMLElement>(holes.length)
+  // Slide the strip so the hole being viewed starts in view (the strip only, never the page).
+  useEffect(() => {
+    const row = track.current
+    const here = row?.querySelector<HTMLElement>('[aria-current="page"]')
+    if (!row || !here) return
+    const r = row.getBoundingClientRect()
+    const c = here.getBoundingClientRect()
+    row.scrollTo({ left: row.scrollLeft + c.left - r.left - (r.width - c.width) / 2 })
+  }, [track])
+  return (
+    <>
+      <nav
+        ref={track}
+        className={`tour-film-strip${all ? ' is-all' : ''}`}
+        aria-label={`${heading}: holes`}
       >
         {holes.map((h) => (
           <a
@@ -89,9 +132,9 @@ export const TourFilmstrip = ({
             <span className="t-data-label tour-film-par">Par {h.par}</span>
           </a>
         ))}
-      </TourPicker>
+      </nav>
       <div className="tour-film-progress" aria-hidden="true">
-        <span style={{ width: `${(current / holes.length) * 100}%` }} />
+        <span style={{ width: `${state.size}%`, left: `${state.start}%` }} />
       </div>
     </>
   )

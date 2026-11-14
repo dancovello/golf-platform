@@ -2,7 +2,8 @@ import { Button } from '../components/Button'
 import { ArrowRight } from '../components/Icons'
 import { linkTarget, siteHref } from '../components/links'
 import { pad2 } from './holeParts'
-import { Paragraphs } from './parts'
+import type { SiteMedia } from './media'
+import { Paragraphs, Photo } from './parts'
 import { Tabs } from './Tabs'
 import { holeTitle, type Tour } from './tour'
 import { TourFilmstrip } from './TourFilmstrip'
@@ -27,34 +28,62 @@ export const TourJourney = ({ tour }: { tour: Tour }) => {
   const { hole, course, next, previous } = tour
   const booking = tour.club.header.booking
   const overview = hole.description || hole.hazards.length > 0
+  // Each tab gets a photo of its own where the hole has enough of them, so the tabs are not
+  // just words (Dan, 13 Nov: "media is key"). Hole 1's photo is already in the viewer above.
+  const pool = hole.photos
+  const photoFor = (i: number) => (pool.length > 1 ? pool[(i % (pool.length - 1)) + 1] : null)
+  const tabPhoto = (image: SiteMedia | null, isPlan = false) =>
+    image ? (
+      <div className={`tour-step-photo${isPlan ? ' is-plan' : ''}`}>
+        <Photo
+          image={image}
+          sizes="(max-width: 767px) 100vw, 520px"
+          alt={isPlan ? image.alt || `Plan of ${holeTitle(hole)}` : ''}
+        />
+      </div>
+    ) : null
   const tabs = [
     ...(overview
       ? [
           {
             label: 'Overview',
             panel: (
-              <div className="tour-wrap tour-overview">
-                {hole.description ? (
-                  <div className="tour-overview-text">
+              <div className={`tour-wrap tour-overview${photoFor(0) ? ' has-photo' : ''}`}>
+                <div className="tour-overview-text">
+                  {hole.description ? (
                     <Paragraphs text={hole.description} className="t-body-l tour-description" />
-                  </div>
-                ) : null}
-                <TourHazards hole={hole} />
+                  ) : null}
+                  <TourHazards hole={hole} />
+                </div>
+                {tabPhoto(photoFor(0))}
               </div>
             ),
           },
         ]
       : []),
-    ...hole.notes.map((note) => ({
-      label: note.label,
-      panel: (
-        <div className="tour-wrap tour-overview">
-          <div className="tour-overview-text">
-            <p className="t-body-l tour-description">{note.text}</p>
+    ...hole.notes.map((note, i) => {
+      // "Step 2 of 3": the order the hole is played in, with the step being read marked.
+      const image = note.key === 'green' && hole.plan ? hole.plan : photoFor(i + (overview ? 1 : 0))
+      return {
+        label: note.label,
+        panel: (
+          <div className="tour-wrap tour-step">
+            <div className="tour-step-text">
+              <ol className="t-data-label tour-steps" aria-label="Playing order">
+                {hole.notes.map((n, j) => (
+                  <li key={n.key} aria-current={j === i ? 'step' : undefined}>
+                    <span>{pad2(j + 1)}</span>
+                    <span>{n.label}</span>
+                  </li>
+                ))}
+              </ol>
+              <p className="t-quote-l tour-step-quote">{note.text}</p>
+            </div>
+            {tabPhoto(image, image === hole.plan)}
           </div>
-        </div>
-      ),
-    })),
+        ),
+      }
+    }),
   ]
   return (
     <section className="tour tour-journey">

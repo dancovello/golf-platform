@@ -85,12 +85,15 @@ export const CookieConsent = ({
   gaID,
   storageKey,
   privacyHref,
+  loadAnalytics = true,
 }: {
   gaID: string
   /** Per club, because every club shares one address on staging. */
   storageKey: string
   /** Where the privacy policy is. Null when it isn't published yet: the banner then names no link. */
   privacyHref: string | null
+  /** False on a preview or demo: the banner works and remembers the choice, but Google never loads. */
+  loadAnalytics?: boolean
 }) => {
   const [open, setOpen] = useState(false)
   const heading = useRef<HTMLHeadingElement>(null)
@@ -98,7 +101,9 @@ export const CookieConsent = ({
   useEffect(() => {
     const choice = read(storageKey)
     let stopWaiting = () => {}
-    if (choice === 'accepted') loadGA(gaID)
+    if (choice === 'accepted') {
+      if (loadAnalytics) loadGA(gaID)
+    }
     // Shown after the page has loaded (and after the intro, on the company site), so the
     // server-drawn page never includes it.
     else if (choice === null) stopWaiting = whenIntroIsOver(() => setOpen(true))
@@ -108,7 +113,7 @@ export const CookieConsent = ({
       stopWaiting()
       window.removeEventListener(OPEN_COOKIE_SETTINGS, reopen)
     }
-  }, [gaID, storageKey])
+  }, [gaID, storageKey, loadAnalytics])
 
   useEffect(() => {
     if (open && read(storageKey) !== null) heading.current?.focus()
@@ -120,14 +125,14 @@ export const CookieConsent = ({
       write(storageKey, choice)
       setOpen(false)
       if (choice === 'accepted') {
-        loadGA(gaID)
-      } else if (before === 'accepted') {
+        if (loadAnalytics) loadGA(gaID)
+      } else if (before === 'accepted' && loadAnalytics) {
         // Google's script can't be unloaded, so start the page afresh without it.
         clearGACookies()
         window.location.reload()
       }
     },
-    [gaID, storageKey],
+    [gaID, storageKey, loadAnalytics],
   )
 
   if (!open) return null
