@@ -262,3 +262,40 @@ test('style C: the filmstrip shows one nine at a time, and tabs follow the notes
   await expect(page.getByRole('tab')).toHaveCount(0)
   await expect(page.getByText('It runs away from you.')).toBeVisible()
 })
+
+test('style A: the header has an Expand button that opens the photos, plan and video', async ({
+  page,
+}) => {
+  await page.goto(`${club}/tour/hole-2`)
+  const expand = page.locator('.tour-hero').getByRole('button', { name: /^Expand/ })
+  await expect(expand).toBeVisible()
+  await expand.click()
+  const dialog = page.getByRole('dialog', { name: 'Photos and video: Hole 2: The Firs' })
+  await expect(dialog).toBeVisible()
+  await expect(dialog.getByRole('button', { name: /^Photo \d/ })).toHaveCount(4)
+  await page.keyboard.press('Escape')
+  await expect(dialog).toBeHidden()
+  await expect(expand).toBeFocused()
+  // A hole with no photo, plan or video has nothing to expand.
+  await page.goto(`${club}/tour/hole-4`)
+  await expect(page.locator('.tour-hero').getByRole('button', { name: /^Expand/ })).toHaveCount(0)
+})
+
+test('style C: the bar under the filmstrip moves as the strip scrolls', async ({ page }) => {
+  await page.goto(`${club}/tour-journey/hole-2`)
+  await page.getByRole('button', { name: 'All 18' }).click()
+  const marker = page.locator('.tour-film-progress span')
+  const before = await marker.evaluate((el) => parseFloat(el.style.left))
+  await page.locator('.tour-film-strip').evaluate((el) => el.scrollTo({ left: el.scrollWidth }))
+  await expect
+    .poll(() => marker.evaluate((el) => parseFloat(el.style.left)))
+    .toBeGreaterThan(before + 10)
+})
+
+test('style C: each tab carries more than one sentence', async ({ page }) => {
+  await page.goto(`${club}/tour-journey/hole-2`)
+  await page.getByRole('tab', { name: 'Off the tee' }).click()
+  const panel = page.getByRole('tabpanel')
+  await expect(panel.getByRole('list', { name: 'Playing order' })).toBeVisible()
+  await expect(panel.locator('.tour-step-photo img')).toBeVisible()
+})

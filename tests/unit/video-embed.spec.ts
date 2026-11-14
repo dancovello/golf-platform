@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { parseVideoURL, validateVideoURL } from '@/blocks/video/embed'
+import { parseVideoURL, quietEmbedURL, validateVideoURL } from '@/blocks/video/embed'
 
 const ID = 'aqz-KE-bpKQ'
 
@@ -80,5 +80,21 @@ describe('video addresses', () => {
   it('gives the editor a plain message when an address is refused', () => {
     expect(validateVideoURL(`https://youtu.be/${ID}`)).toBe(true)
     expect(validateVideoURL('https://example.com/video')).toMatch(/YouTube or Vimeo/)
+  })
+})
+
+describe('quietEmbedURL', () => {
+  it('switches off YouTube’s controls and extras without changing the host or video', () => {
+    const quiet = new URL(quietEmbedURL(parseVideoURL(`https://youtu.be/${ID}`)!.embedURL))
+    expect(quiet.origin).toBe('https://www.youtube-nocookie.com')
+    expect(quiet.pathname).toBe(`/embed/${ID}`)
+    expect(quiet.searchParams.get('controls')).toBe('0')
+    expect(quiet.searchParams.get('modestbranding')).toBe('1')
+    expect(quiet.searchParams.get('autoplay')).toBe('1')
+  })
+  it('hides Vimeo’s title and byline', () => {
+    const quiet = new URL(quietEmbedURL('https://player.vimeo.com/video/76979871?autoplay=1&dnt=1'))
+    expect(quiet.searchParams.get('title')).toBe('0')
+    expect(quiet.searchParams.get('dnt')).toBe('1')
   })
 })

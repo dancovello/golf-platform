@@ -38,7 +38,7 @@ const HoleVideo = ({ hole, embedURL }: { hole: SiteHole; embedURL: string }) => 
       aria-label={`Play video: ${holeLabel(hole)}`}
     >
       {hole.image ? (
-        <Photo image={hole.image} sizes="(max-width: 767px) 100vw, 480px" alt="" />
+        <Photo image={hole.image} sizes="(max-width: 767px) 100vw, 640px" alt="" />
       ) : null}
       <span className="vd-play" aria-hidden="true">
         <Play size={24} />
@@ -82,7 +82,7 @@ export const useHoleDialog = (
             </div>
           ) : open.image ? (
             <div className="hole-dialog-image">
-              <Photo image={open.image} sizes="(max-width: 767px) 100vw, 480px" alt="" />
+              <Photo image={open.image} sizes="(max-width: 767px) 100vw, 640px" alt="" />
             </div>
           ) : null}
           <div className="hole-dialog-text">
