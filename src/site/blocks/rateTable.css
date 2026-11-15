@@ -349,3 +349,9 @@
   margin: 0 0 var(--space-8);
   color: var(--color-text-secondary);
 }
+
+/* Visitor times (G4): the day column takes about a third, the times the rest. */
+.visitor-times-table tbody th {
+  width: 36%;
+  padding-right: var(--space-16);
+}

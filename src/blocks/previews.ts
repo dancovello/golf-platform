@@ -69,6 +69,23 @@ const pictures: Record<string, string> = {
     lines(60, 240, 480, 4) +
     lines(60, 320, 300, 1),
 
+  // Visitor times (G4): season tabs above a two-column table of days and times.
+  visitorTimes:
+    heading(60, 44, 200) +
+    rect(60, 80, 70, 10, BRAND, 4) +
+    rect(146, 80, 70, 10, TEXT, 4) +
+    panel(30, 104, 540, 250) +
+    [0, 1, 2, 3, 4]
+      .map(
+        (i) =>
+          rect(50, 128 + i * 44, 130, 8, DARK, 3) +
+          rect(260, 128 + i * 44, 110 + ((i * 29) % 60), 8, i === 3 ? BRAND : TEXT, 3) +
+          (i < 4
+            ? `<line x1="40" x2="560" y1="${150 + i * 44}" y2="${150 + i * 44}" stroke="#e8ebee"/>`
+            : ''),
+      )
+      .join(''),
+
   rateTable:
     panel(30, 50, 540, 300) +
     rect(30, 50, 540, 40, BRAND, 6) +

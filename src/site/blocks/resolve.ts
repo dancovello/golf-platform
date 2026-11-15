@@ -3,7 +3,11 @@ import type { Payload } from 'payload'
 
 import { layoutRefs } from '@/blocks'
 import { idOf } from '@/blocks/types'
-import { STATUS_STALE_HOURS, type StatusState } from '@/collections/courseStatusStates'
+import {
+  NOTICE_LEAD_DAYS,
+  STATUS_STALE_HOURS,
+  type StatusState,
+} from '@/collections/courseStatusStates'
 import {
   type TeeColour,
   teeKey,
@@ -304,9 +308,51 @@ export type SiteCourseStatus = {
   reason: string | null
   facilities: { label: string; state: StatusState; value: string | null }[]
   changedBy: string | null
+  /** When the course was last checked or changed (planned notices don't count). */
   updatedAt: string
   /** Not changed for 24 hours: the site says so instead of showing an old status. */
   stale: boolean
+  /** Planned notices in force today, then those starting within a month (G4). */
+  notices: SiteNotice[]
+}
+
+export type SiteNotice = {
+  message: string
+  kind: StatusState
+  startsOn: string
+  endsOn: string | null
+  /** In force today; otherwise coming up. */
+  now: boolean
+}
+
+/** "2027-04-01": a stored date's UK calendar day, so days compare as plain text. */
+const ukDay = (value: string | Date) =>
+  new Date(value).toLocaleDateString('en-CA', { timeZone: 'Europe/London' })
+
+/** The notices to show today: in force first (soonest-ending first), then coming up. */
+export const currentNotices = (
+  notices: { message: string; kind: StatusState; startsOn: string; endsOn?: string | null }[],
+  today: Date,
+): SiteNotice[] => {
+  const day = ukDay(today)
+  const horizon = ukDay(new Date(today.getTime() + NOTICE_LEAD_DAYS * 86_400_000))
+  return notices
+    .filter((n) => !n.endsOn || ukDay(n.endsOn) >= day)
+    .filter((n) => ukDay(n.startsOn) <= horizon)
+    .map((n) => ({
+      message: n.message.trim(),
+      kind: n.kind,
+      startsOn: n.startsOn,
+      endsOn: n.endsOn ?? null,
+      now: ukDay(n.startsOn) <= day,
+    }))
+    .sort((a, b) =>
+      a.now !== b.now
+        ? Number(b.now) - Number(a.now)
+        : ukDay(a.now ? (a.endsOn ?? '9999-12-31') : a.startsOn).localeCompare(
+            ukDay(b.now ? (b.endsOn ?? '9999-12-31') : b.startsOn),
+          ),
+    )
 }
 
 /** The club's course status, if a block on the page shows it. */
@@ -323,7 +369,9 @@ const loadClubCourseStatus = async (
   })
   const d = docs[0]
   if (!d) return null
-  const age = siteToday().getTime() - new Date(d.updatedAt).getTime()
+  const today = siteToday()
+  const checked = d.stateChangedAt ?? d.updatedAt
+  const age = today.getTime() - new Date(checked).getTime()
   return {
     state: d.state,
     reason: d.reason?.trim() || null,
@@ -333,8 +381,9 @@ const loadClubCourseStatus = async (
       value: f.value?.trim() || null,
     })),
     changedBy: d.changedBy?.trim() || null,
-    updatedAt: d.updatedAt,
+    updatedAt: checked,
     stale: age > STATUS_STALE_HOURS * 60 * 60 * 1000,
+    notices: currentNotices(d.notices ?? [], today),
   }
 }
 

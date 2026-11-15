@@ -652,14 +652,16 @@ const loadAnnouncement = async (
     const { docs } = await payload.find({
       collection: 'course-status',
       where: { tenant: { equals: tenantID } },
-      select: { state: true, updatedAt: true },
+      select: { state: true, updatedAt: true, stateChangedAt: true },
       limit: 1,
       depth: 0,
       overrideAccess: true,
     })
     const d = docs[0]
+    // When the course was last checked, not when a planned notice was last edited (G4).
+    const checked = d?.stateChangedAt ?? d?.updatedAt
     const fresh =
-      d && now.getTime() - new Date(d.updatedAt).getTime() <= STATUS_STALE_HOURS * 3_600_000
+      d && checked && now.getTime() - new Date(checked).getTime() <= STATUS_STALE_HOURS * 3_600_000
     if (d && fresh) {
       const label = STATUS_STATES.find((x) => x.value === d.state)?.label ?? d.state
       status = { state: d.state, label: `Course ${label.toLowerCase()}` }

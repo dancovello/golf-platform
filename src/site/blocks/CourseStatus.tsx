@@ -6,7 +6,7 @@ import { siteHref } from '../components/links'
 import type { ClubSite } from '../loadClub'
 import { siteToday } from '../today'
 import { Paragraphs } from './parts'
-import type { BlockContext, SiteCourseStatus } from './resolve'
+import type { BlockContext, SiteCourseStatus, SiteNotice } from './resolve'
 
 const stateLabel = (s: StatusState) => STATUS_STATES.find((x) => x.value === s)?.label ?? s
 
@@ -66,6 +66,36 @@ const Facilities = ({ status }: { status: SiteCourseStatus }) => (
   </ul>
 )
 
+const shortDay = (iso: string) =>
+  new Date(iso).toLocaleDateString('en-GB', { timeZone: LONDON, day: 'numeric', month: 'short' })
+
+/** "Until 28 Feb", "From 1 Dec", or nothing for a notice with no end. */
+const noticeWhen = (n: SiteNotice) =>
+  n.now
+    ? n.endsOn
+      ? `Until ${shortDay(n.endsOn)}`
+      : null
+    : `From ${shortDay(n.startsOn)}${n.endsOn ? ` to ${shortDay(n.endsOn)}` : ''}`
+
+/** Planned notices (G4): in force today first, then those coming up. */
+const Notices = ({ notices, title }: { notices: SiteNotice[]; title: boolean }) =>
+  notices.length === 0 ? null : (
+    <div className="status-notices">
+      {title ? <h3 className="t-data-label status-notices-title">Notices</h3> : null}
+      <ul className="status-notice-list">
+        {notices.map((n, i) => (
+          <li key={i} className={`status-notice${n.now ? '' : ' is-upcoming'}`}>
+            <Dot state={n.kind} />
+            <span className="t-body-s status-notice-text">{n.message}</span>
+            {noticeWhen(n) ? (
+              <span className="t-label-s status-notice-when">{noticeWhen(n)}</span>
+            ) : null}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+
 /** One item in the band: a link to the full board when there is one. */
 const BandItem = ({ href, children }: { href: string | null; children: React.ReactNode }) =>
   href ? (
@@ -81,7 +111,8 @@ const BandItem = ({ href, children }: { href: string | null; children: React.Rea
  * A Board (headline state, reason, who changed it and when, and each part's status),
  * B Band (a compact strip on the brand colour, e.g. under the hero) and C Widget (a small
  * card beside some text). If it hasn't been changed for 24 hours, it says so and asks
- * visitors to call, rather than showing an old status. Weather (Figma B) waits for a
+ * visitors to call, rather than showing an old status. Planned notices (G4) show whatever the
+ * status's age: they are dated facts, not today's check. Weather (Figma B) waits for a
  * weather provider decision.
  */
 export const CourseStatus = ({
@@ -110,7 +141,9 @@ export const CourseStatus = ({
     ) : null
 
   if (style === 'band') {
-    const items = status.stale ? [] : status.facilities.slice(0, 4)
+    // A notice in force today takes one of the band's four places (G4).
+    const notice = status.notices.find((n) => n.now) ?? null
+    const items = status.stale ? [] : status.facilities.slice(0, notice ? 3 : 4)
     return (
       <section className="blk status status-band on-brand" aria-label="Course status">
         <div className="blk-container status-band-row">
@@ -139,6 +172,15 @@ export const CourseStatus = ({
               </span>
             </BandItem>
           )}
+          {notice ? (
+            <BandItem href={pageHref}>
+              <span className="t-data-label">Notice</span>
+              <span className="t-label-s status-band-notice">
+                <Dot state={notice.kind} />
+                {notice.message}
+              </span>
+            </BandItem>
+          ) : null}
         </div>
       </section>
     )
@@ -174,6 +216,7 @@ export const CourseStatus = ({
                 <Facilities status={status} />
               </>
             )}
+            <Notices notices={status.notices.filter((n) => n.now)} title />
             <div className="status-widget-footer">
               <Updated status={status} />
               {page && pageHref ? (
@@ -210,6 +253,7 @@ export const CourseStatus = ({
           </div>
           {!status.stale && status.facilities.length > 0 ? <Facilities status={status} /> : null}
         </div>
+        <Notices notices={status.notices} title />
       </div>
     </section>
   )
