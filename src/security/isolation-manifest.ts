@@ -477,4 +477,12 @@ export const CACHED: Manifest = {
   ],
   featuredEvent: cacheCovers,
   eventsArchive: cacheCovers,
+  // G3 (15 Nov 2026): past events with results.
+  clubResults: [
+    {
+      file: 'tests/int/events-competitions.int.spec.ts',
+      test: 'lists past events with results, newest first, from this club only',
+    },
+    ...cacheCovers,
+  ],
 }
