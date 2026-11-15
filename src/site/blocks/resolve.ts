@@ -73,7 +73,7 @@ export type SitePerson = {
 }
 
 /** Documents by ID, only the club's own, each with its category's name and place in the list. */
-const loadClubDocuments = async (
+export const loadClubDocuments = async (
   payload: Payload,
   tenantID: string,
   ids: string[],

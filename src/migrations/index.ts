@@ -83,6 +83,7 @@ import * as migration_20261112_220906_course_tour_fields from './20261112_220906
 import * as migration_20261112_222757_course_tour_block from './20261112_222757_course_tour_block';
 import * as migration_20261114_091925_video_file from './20261114_091925_video_file';
 import * as migration_20261115_195844_tee_sets from './20261115_195844_tee_sets';
+import * as migration_20261115_200732_open_competitions from './20261115_200732_open_competitions';
 
 export const migrations = [
   {
@@ -508,6 +509,11 @@ export const migrations = [
   {
     up: migration_20261115_195844_tee_sets.up,
     down: migration_20261115_195844_tee_sets.down,
-    name: '20261115_195844_tee_sets'
+    name: '20261115_195844_tee_sets',
+  },
+  {
+    up: migration_20261115_200732_open_competitions.up,
+    down: migration_20261115_200732_open_competitions.down,
+    name: '20261115_200732_open_competitions'
   },
 ];

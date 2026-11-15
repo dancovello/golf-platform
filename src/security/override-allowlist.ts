@@ -568,6 +568,14 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
     why: PUBLIC_SITE,
   },
   { file: 'src/site/events.ts', fn: 'clubEvents', uses: 1, club: RESOLVED_CLUB, why: PUBLIC_SITE },
+  // G3 (15 Nov 2026): past events with results. The club is the first condition of the query.
+  {
+    file: 'src/site/events.ts',
+    fn: 'clubResultsFresh',
+    uses: 1,
+    club: RESOLVED_CLUB,
+    why: PUBLIC_SITE,
+  },
   {
     file: 'src/site/news.ts',
     fn: 'clubCategoriesFresh',

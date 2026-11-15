@@ -923,3 +923,16 @@ From the 50-club audit (`docs/product/15-feature-gap-register.md`): 21 of 50 clu
 - Shared scorecard links keep working: `?tee=yellow` still finds the yellow tee, and new links use the tee's name (`?tee=winter-yellow`).
 - The demo club's Championship course gained a women's green tee, so the block pictures need refreshing ("Update block pictures" workflow).
 - Club import files now give yards as `yards1`, `yards2`… in the order of the course's tees.
+
+## 2026-11-15: Open competitions and results (feature gap G3, chosen by Dan)
+
+37 of the 50 audited clubs list open competitions; 21 publish results.
+
+- **Every event gets an optional "Competition details and results" panel** (collapsed): who can enter (Men, Ladies, Mixed, Juniors, Seniors), entry rules as free text (handicap limit, age), format, when entries open and close (UK time), "places decided by ballot", and a results link (one of the club's documents, pages or a web address). It is on every event, not only competitions, because fields hidden by a condition skip their checks; a results link also suits any event.
+- **Entry stays on the club's own system** (IntelligentGolf, BRS, HowDidiDo, Golf Genius): the event's button links there. A new button wording, **"Enter"**, joins Book, Enquire and Sold out.
+- **The button follows the entry window:** before entries open it reads "Entries open Thu 15 Jan, 10:00", after they close "Entries closed", both shown muted with no arrow; in between, "Enter". Cards also show a "Who" line (who can enter and the rules) and a "Format" line ("Stableford · Places by ballot").
+- **Results on the events page:** past published events with a results link, newest first, grouped by year, up to 24. Shown under "All events" and "Competitions", not under the other categories. A results link to a page or file that has since gone is left out. Club B's document or page can never be club A's results (same-club check, tested).
+- **Who can enter filter:** under Competitions, a second row of pills (Everyone, Men, Ladies, Mixed, Juniors, Seniors), kept in the address as `?for=`. The Upcoming events block can be limited the same way (for example a Ladies' section page), when its category is Competitions.
+- "Ladies" is the public word, as clubs use it; the stored value is "women", like the tees.
+- Adds one entry to the access-rule skip allowlist (`clubResultsFresh`, public site, limited to the club), reviewed like the others.
+- Database change: new columns only, plus a small table for "who can enter". Nothing changed or deleted.

@@ -15,7 +15,7 @@ import { LiveRefresh } from '@/site/components/LiveRefresh'
 import { PageNotFound } from '@/site/components/PageNotFound'
 import { ContactPage } from '@/site/contact/ContactPage'
 import { loadContactSettings } from '@/site/contact/load'
-import { eventsArchive } from '@/site/events'
+import { clubResults, eventsArchive } from '@/site/events'
 import { EventsArchive } from '@/site/events/EventsArchive'
 import { canSeeDrafts } from '@/site/livePreviewAccess'
 import { loadClubPage } from '@/site/loadClub'
@@ -167,15 +167,19 @@ export const PathView = async ({
     const asked = one(query.event)
     const preview =
       live && asked && UUID.test(asked) && (await canSeeDrafts(club.tenantID, '1')) ? asked : null
-    const archive = await eventsArchive(club.tenantID, {
-      category: one(query.category),
-      show: Number.parseInt(one(query.show) ?? '0', 10) || 0,
-      include: preview,
-    })
+    const [archive, results] = await Promise.all([
+      eventsArchive(club.tenantID, {
+        category: one(query.category),
+        entrant: one(query.for),
+        show: Number.parseInt(one(query.show) ?? '0', 10) || 0,
+        include: preview,
+      }),
+      clubResults(club.tenantID),
+    ])
     return (
       <ClubShell club={club} base={base} currentPath={`${base}/events`}>
         {live ? <LiveRefresh /> : null}
-        <EventsArchive archive={archive} base={base} />
+        <EventsArchive archive={archive} results={results} base={base} />
       </ClubShell>
     )
   }
