@@ -93,6 +93,7 @@ export const ContactPage = ({
                 sent: null,
               }}
               membershipTypes={settings.membershipTypes}
+              extras={settings.extras}
               today={ukToday(new Date())}
               offerNewsletter={Boolean(club.privacy.newsletterProvider)}
               againHref={`${base}/contact`}

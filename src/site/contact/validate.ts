@@ -1,4 +1,5 @@
 import { EMAIL_ADDRESS } from '@/email/address'
+import { type ExtraKey, EXTRA_KEYS, extraFor } from '../../collections/enquiryExtras'
 import {
   asksForDateAndPeople,
   type EnquiryPurpose,
@@ -22,7 +23,7 @@ export type ContactValues = {
   groupSize: string
   message: string
   newsletter: boolean
-}
+} & Record<ExtraKey, string>
 
 export type FieldName = Exclude<keyof ContactValues, 'purpose' | 'newsletter'>
 export type FieldErrors = Partial<Record<FieldName, string>>
@@ -35,6 +36,7 @@ export const FIELD_ORDER: FieldName[] = [
   'membershipType',
   'preferredDate',
   'groupSize',
+  ...EXTRA_KEYS,
   'message',
 ]
 
@@ -43,6 +45,8 @@ export type ContactRules = {
   membershipTypes: string[]
   /** Today in the UK, as YYYY-MM-DD. */
   today: string
+  /** The extra questions the club switched on, per topic (G5). */
+  extras?: Partial<Record<EnquiryPurpose, ExtraKey[]>>
 }
 
 export const EMPTY_VALUES: ContactValues = {
@@ -55,6 +59,7 @@ export const EMPTY_VALUES: ContactValues = {
   groupSize: '',
   message: '',
   newsletter: false,
+  ...(Object.fromEntries(EXTRA_KEYS.map((k) => [k, ''])) as Record<ExtraKey, string>),
 }
 
 const EMAIL = EMAIL_ADDRESS
@@ -62,13 +67,15 @@ const PHONE = /^\+?[0-9 ()-]{7,20}$/
 const DATE = /^\d{4}-\d{2}-\d{2}$/
 
 /** Which fields this purpose shows (the rest are ignored, never saved). */
-export const fieldsFor = (purpose: EnquiryPurpose): FieldName[] =>
+export const fieldsFor = (purpose: EnquiryPurpose, extras: ExtraKey[] = []): FieldName[] =>
   FIELD_ORDER.filter((f) =>
     f === 'membershipType'
       ? purpose === 'membership'
       : f === 'preferredDate' || f === 'groupSize'
         ? asksForDateAndPeople(purpose)
-        : true,
+        : EXTRA_KEYS.includes(f as ExtraKey)
+          ? extras.includes(f as ExtraKey)
+          : true,
   )
 
 export const fieldError = (
@@ -77,6 +84,17 @@ export const fieldError = (
   rules: ContactRules,
 ): string | null => {
   const value = v[field].trim()
+  const extra = extraFor(field)
+  if (extra) {
+    if (!value) return null
+    if (extra.kind === 'count') {
+      const n = Number(value)
+      return Number.isInteger(n) && n >= 0 && n <= extra.max
+        ? null
+        : `Enter a number from 0 to ${extra.max}`
+    }
+    return value.length > extra.max ? `Keep this to ${extra.max} characters or fewer` : null
+  }
   switch (field) {
     case 'name':
       if (!value) return 'Tell us your name'
@@ -112,12 +130,15 @@ export const fieldError = (
     case 'message':
       if (!value) return 'Tell us how we can help'
       return value.length > MESSAGE_MAX ? 'Keep your message to 1,000 characters or fewer' : null
+    default:
+      // The extra questions (G5) were handled above.
+      return null
   }
 }
 
 export const validateContact = (v: ContactValues, rules: ContactRules): FieldErrors => {
   const errors: FieldErrors = {}
-  for (const field of fieldsFor(v.purpose)) {
+  for (const field of fieldsFor(v.purpose, rules.extras?.[v.purpose] ?? [])) {
     const message = fieldError(field, v, rules)
     if (message) errors[field] = message
   }
@@ -141,5 +162,6 @@ export const valuesFromForm = (form: FormData): ContactValues => {
     groupSize: text('groupSize'),
     message: text('message'),
     newsletter: form.get('newsletter') === 'yes',
+    ...(Object.fromEntries(EXTRA_KEYS.map((k) => [k, text(k)])) as Record<ExtraKey, string>),
   }
 }

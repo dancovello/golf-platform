@@ -1,6 +1,7 @@
 import config from '@payload-config'
 import { getPayload } from 'payload'
 
+import { type ExtraKey, isExtraKey } from '@/collections/enquiryExtras'
 import { type EnquiryPurpose, isEnquiryPurpose } from '@/collections/enquiryPurposes'
 import { builtInLink, isSafeURL, linksToPage } from '@/fields/link'
 
@@ -18,6 +19,8 @@ export type ContactSettings = {
   /** Who replies to each topic, and the button shown after sending. */
   routes: Partial<Record<EnquiryPurpose, { replier: string | null; next: LabelledLink | null }>>
   membershipTypes: string[]
+  /** The extra questions switched on for each topic (G5). */
+  extras: Partial<Record<EnquiryPurpose, ExtraKey[]>>
   aside: { title: string; text: string } | null
 }
 
@@ -32,7 +35,12 @@ type RawContact = {
   intro?: string | null
   replyDays?: number | null
   officeHours?: string | null
-  purposes?: { purpose?: string | null; replier?: string | null; nextLink?: RawLink | null }[]
+  purposes?: {
+    purpose?: string | null
+    replier?: string | null
+    nextLink?: RawLink | null
+    extraFields?: string[] | null
+  }[]
   membershipTypes?: { label?: string | null }[] | null
   asideTitle?: string | null
   asideText?: string | null
@@ -73,9 +81,12 @@ export const loadContactSettings = async (tenantID: string): Promise<ContactSett
   }
 
   const routes: ContactSettings['routes'] = {}
+  const extras: ContactSettings['extras'] = {}
   for (const row of rows) {
     if (!isEnquiryPurpose(row.purpose) || routes[row.purpose]) continue
     routes[row.purpose] = { replier: text(row.replier), next: toLink(row.nextLink) }
+    const keys = (row.extraFields ?? []).filter(isExtraKey)
+    if (keys.length > 0) extras[row.purpose] = keys
   }
 
   const asideText = text(c.asideText)
@@ -84,6 +95,7 @@ export const loadContactSettings = async (tenantID: string): Promise<ContactSett
     replyDays: Math.min(10, Math.max(1, Math.round(c.replyDays ?? 1))),
     officeHours: text(c.officeHours),
     routes,
+    extras,
     membershipTypes: (c.membershipTypes ?? []).flatMap((m) => text(m.label) ?? []),
     aside: asideText
       ? { title: text(c.asideTitle) ?? 'Tee times and lessons', text: asideText }
