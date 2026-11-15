@@ -41,7 +41,7 @@ describe('dated price lists', () => {
     validFrom: day('2027-04-01'),
     validUntil: day('2027-10-31'),
   }
-  const undated = { name: 'Always' }
+  const undated = { name: 'Always', validFrom: null }
 
   it('counts whole UK days at both ends', () => {
     expect(priceListPhase(winter26, at('2027-03-31', '22:30'))).toBe('current')
