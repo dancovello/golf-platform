@@ -634,13 +634,7 @@ export interface RateTableBlock {
               period?: string | null;
               startMonth?: ('1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12') | null;
               endMonth?: ('1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12') | null;
-              /**
-               * Before this day the list is hidden (see "Show upcoming prices").
-               */
               validFrom?: string | null;
-              /**
-               * After this day the list disappears from the website.
-               */
               validUntil?: string | null;
               rows?:
                 | {
@@ -661,7 +655,7 @@ export interface RateTableBlock {
       }[]
     | null;
   /**
-   * For clubs that take bookings a year ahead: a price list with a "Valid from" date still to come is shown now, marked with the day it starts. Otherwise it appears on that day.
+   * Tick this if you take bookings a year ahead: next year’s prices then show now, marked “These prices apply from …”. Leave it off and they appear on their first day.
    */
   showUpcoming?: boolean | null;
   footnote?: string | null;
@@ -1240,7 +1234,7 @@ export interface Course {
    */
   name: string;
   /**
-   * Up to eight, including women’s and winter tees. The first tee is the one shown when only one yardage fits, and the “Length” on course tour pages.
+   * One row per set of tee markers, up to eight. Most clubs need two or three. Add a women’s tee or a winter tee here too. The first one is used for the “Length” on course tour pages. After adding a tee, type its yards on each hole below.
    */
   tees?:
     | {
@@ -1250,11 +1244,11 @@ export interface Course {
          */
         name?: string | null;
         /**
-         * A women’s tee shows the ladies’ par and stroke index with it.
+         * Choose Women for a tee only women play: it uses the ladies’ par and stroke index.
          */
         players?: ('both' | 'men' | 'women') | null;
         /**
-         * Only played in winter.
+         * Tick for a tee only used in winter.
          */
         winter?: boolean | null;
         rating?: number | null;
@@ -1601,7 +1595,7 @@ export interface Event {
     url?: string | null;
   };
   /**
-   * Used for the Men / Ladies / Juniors / Seniors filters.
+   * Tick everyone it is open to. Used for the Men, Ladies, Juniors and Seniors buttons on the events page.
    */
   entrants?: ('men' | 'women' | 'mixed' | 'juniors' | 'seniors')[] | null;
   /**
@@ -1613,11 +1607,11 @@ export interface Event {
    */
   format?: string | null;
   /**
-   * UK time. Before this, the button says when entries open.
+   * Optional. Until then the button says when entries open.
    */
   entriesOpen?: string | null;
   /**
-   * UK time. After this, the button says "Entries closed".
+   * Optional. After this the button says “Entries closed”.
    */
   entriesClose?: string | null;
   ballot?: boolean | null;
@@ -1671,13 +1665,13 @@ export interface CourseStatus {
    */
   changedBy?: string | null;
   /**
-   * Things you know in advance, e.g. "Winter mats in use on fairways" from 1 Dec to 28 Feb. Each shows on the course status from its first day (and as "coming up" in the month before), and goes by itself after its last day. Saving only notices doesn’t count as updating the course status.
+   * For things you know in advance, such as winter mats from 1 December to 28 February. A notice appears on its first day (and as “coming up” in the month before) and goes by itself after its last day, so there is nothing to remember. The line above is still for how the course is today.
    */
   notices?:
     | {
         message: string;
         /**
-         * e.g. "Heathland course". Shown before the notice.
+         * Only if you have more than one course. e.g. "Heathland course".
          */
         appliesTo?: string | null;
         kind: 'closed' | 'restricted' | 'open';

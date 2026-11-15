@@ -130,8 +130,9 @@ export const CourseStatus: CollectionConfig = {
       labels: { singular: 'Notice', plural: 'Notices' },
       admin: {
         initCollapsed: true,
+        components: { RowLabel: '/admin/NoticeRowLabel#NoticeRowLabel' },
         description:
-          'Things you know in advance, e.g. "Winter mats in use on fairways" from 1 Dec to 28 Feb. Each shows on the course status from its first day (and as "coming up" in the month before), and goes by itself after its last day. Saving only notices doesn’t count as updating the course status.',
+          'For things you know in advance, such as winter mats from 1 December to 28 February. A notice appears on its first day (and as “coming up” in the month before) and goes by itself after its last day, so there is nothing to remember. The line above is still for how the course is today.',
       },
       fields: [
         { name: 'message', label: 'Notice', type: 'text', required: true, maxLength: 120 },
@@ -142,7 +143,7 @@ export const CourseStatus: CollectionConfig = {
           label: 'Which course (optional)',
           type: 'text',
           maxLength: 40,
-          admin: { description: 'e.g. "Heathland course". Shown before the notice.' },
+          admin: { description: 'Only if you have more than one course. e.g. "Heathland course".' },
         },
         {
           type: 'row',
