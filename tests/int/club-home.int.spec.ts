@@ -1,3 +1,4 @@
+import { sql } from '@payloadcms/db-postgres'
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import { allClubsProgress, clubHomeData } from '@/admin/clubSetup'
@@ -58,6 +59,78 @@ describe('club home screen', () => {
     const tomorrow = new Date(Date.now() + 25 * 60 * 60 * 1000)
     expect((await clubHomeData(w.payload, w.clubA.id))?.courseStatus?.stale).toBe(false)
     expect((await clubHomeData(w.payload, w.clubA.id, tomorrow))?.courseStatus?.stale).toBe(true)
+  })
+
+  it('the course-status age follows the course check, not edits to planned notices (G4)', async () => {
+    const status = await w.payload.findByID({
+      collection: 'course-status',
+      id: w.statusA.id,
+      overrideAccess: true,
+    })
+    // Checked two days ago; a notice was edited just now (which keeps the old check time).
+    await w.payload.db.drizzle.execute(
+      sql`UPDATE course_status SET state_changed_at = now() - interval '2 days' WHERE id = ${status.id}`,
+    )
+    expect((await clubHomeData(w.payload, w.clubA.id))?.courseStatus?.stale).toBe(true)
+  })
+
+  it('the attention list holds only this club’s things', async () => {
+    const club = await w.payload.create({ collection: 'tenants', data: { name: 'Attention Club' } })
+    const other = await w.payload.create({ collection: 'tenants', data: { name: 'Other Club' } })
+    const ended = {
+      blockType: 'rateTable',
+      style: 'classic',
+      heading: 'Green fees',
+      columns: [{ label: 'Weekday' }],
+      tabs: [
+        {
+          label: 'Summer',
+          sections: [
+            {
+              rows: [{ label: 'Visitor', price1: '£90' }],
+              validFrom: '2026-04-01T00:00:00.000Z',
+              validUntil: '2026-10-31T00:00:00.000Z',
+            },
+          ],
+        },
+      ],
+    }
+    await w.payload.create({
+      collection: 'pages',
+      data: {
+        _status: 'published',
+        title: 'Fees',
+        slug: 'fees',
+        tenant: club.id,
+        layout: [ended],
+      } as never,
+    })
+    await w.payload.create({
+      collection: 'pages',
+      data: {
+        _status: 'published',
+        title: 'Other fees',
+        slug: 'fees',
+        tenant: other.id,
+        layout: [ended],
+      } as never,
+    })
+    // The club has used Events but has nothing coming up.
+    await w.payload.create({
+      collection: 'events',
+      data: {
+        title: 'Old do',
+        status: 'published',
+        category: 'social',
+        booking: 'book',
+        startsAt: new Date(Date.now() - 86_400_000).toISOString(),
+        tenant: club.id,
+      } as never,
+    })
+    const items = (await clubHomeData(w.payload, club.id))!.attention
+    expect(items.some((i) => i.key.startsWith('prices-ended-'))).toBe(true)
+    expect(items.some((i) => i.key === 'no-events')).toBe(true)
+    expect(JSON.stringify(items)).not.toContain('Other fees')
   })
 
   it('an unknown club shows nothing', async () => {

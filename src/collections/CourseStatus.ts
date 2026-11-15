@@ -85,7 +85,10 @@ export const CourseStatus: CollectionConfig = {
       type: 'array',
       maxRows: 6,
       labels: { singular: 'Line', plural: 'Lines' },
-      admin: { description: 'e.g. Buggies: Restricted, "Paths only". Up to six.' },
+      admin: {
+        description:
+          'e.g. Buggies: Restricted, "Paths only". For a club with several courses, one line per course, e.g. Heathland course: Open. Up to six.',
+      },
       fields: [
         {
           type: 'row',
@@ -132,6 +135,15 @@ export const CourseStatus: CollectionConfig = {
       },
       fields: [
         { name: 'message', label: 'Notice', type: 'text', required: true, maxLength: 120 },
+        {
+          // G16 (15 Nov 2026): which course, for clubs with more than one. Plain words, so it
+          // can't point at another club's course.
+          name: 'appliesTo',
+          label: 'Which course (optional)',
+          type: 'text',
+          maxLength: 40,
+          admin: { description: 'e.g. "Heathland course". Shown before the notice.' },
+        },
         {
           type: 'row',
           fields: [

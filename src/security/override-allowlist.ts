@@ -117,6 +117,14 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
     why: 'Reads counts and summaries across several collections for the home screen. Candidate to run as the signed-in user instead (see docs/security/override-review.md)',
   },
   {
+    // G15 (15 Nov 2026): the "Needs attention" list. Called only from clubHomeData.
+    file: 'src/admin/clubAttention.ts',
+    fn: 'clubAttention',
+    uses: 3,
+    club: 'The tenantID passed in (the same one clubHomeData is given). Every query filters by it',
+    why: 'Same as clubHomeData: counts and summaries for the home screen, read with access rules off after the caller has checked who is signed in',
+  },
+  {
     file: 'src/admin/clubSetup.ts',
     fn: 'allClubsProgress',
     uses: 1,

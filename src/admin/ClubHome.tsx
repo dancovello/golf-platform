@@ -68,6 +68,18 @@ const ClubCards = ({ data }: { data: ClubHomeData }) => {
         </Card>
       ) : null}
 
+      {data.attention.length > 0 ? (
+        <Card title="Needs attention">
+          <ul style={{ margin: 0, paddingLeft: '1.25rem', display: 'grid', gap: '0.4rem' }}>
+            {data.attention.map((a) => (
+              <li key={a.key}>
+                <Link href={a.href}>{a.text}</Link>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      ) : null}
+
       <Card title={data.newEnquiries === 0 ? 'Messages' : `Messages: ${data.newEnquiries} new`}>
         {data.enquiries.length === 0 ? (
           <p style={{ margin: 0 }}>No new messages from your Contact page.</p>

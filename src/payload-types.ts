@@ -1653,7 +1653,7 @@ export interface CourseStatus {
    */
   reason?: string | null;
   /**
-   * e.g. Buggies: Restricted, "Paths only". Up to six.
+   * e.g. Buggies: Restricted, "Paths only". For a club with several courses, one line per course, e.g. Heathland course: Open. Up to six.
    */
   facilities?:
     | {
@@ -1676,6 +1676,10 @@ export interface CourseStatus {
   notices?:
     | {
         message: string;
+        /**
+         * e.g. "Heathland course". Shown before the notice.
+         */
+        appliesTo?: string | null;
         kind: 'closed' | 'restricted' | 'open';
         startsOn: string;
         /**
@@ -4020,6 +4024,7 @@ export interface CourseStatusSelect<T extends boolean = true> {
     | T
     | {
         message?: T;
+        appliesTo?: T;
         kind?: T;
         startsOn?: T;
         endsOn?: T;
