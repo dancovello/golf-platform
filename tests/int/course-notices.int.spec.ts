@@ -124,6 +124,22 @@ describe('the course status record', () => {
     ])
     expect(status.stale).toBe(false)
   })
+
+  it('a notice can say which course it applies to', async () => {
+    await updateStatus({
+      notices: [
+        {
+          message: 'Fairway mats in use',
+          appliesTo: ' Heathland course ',
+          kind: 'restricted',
+          startsOn: inDays(-1),
+        },
+      ],
+    })
+    await savePage([{ blockType: 'courseStatus', style: 'board', heading: 'Course status' }])
+    const status = (await loadClubPage(w.clubA.id, 'membership'))!.ctx.courseStatus!
+    expect(status.notices[0]).toMatchObject({ appliesTo: 'Heathland course', now: true })
+  })
 })
 
 describe('the Visitor times block', () => {

@@ -3,6 +3,7 @@ import type { Payload } from 'payload'
 import { clubHasAccepted } from '../agreement/acceptance'
 import { STATUS_STALE_HOURS, STATUS_STATES } from '../collections/courseStatusStates'
 import { BRAND_INPUTS, DEFAULT_BRAND } from '../theme/colour'
+import { type AttentionItem, clubAttention } from './clubAttention'
 
 /**
  * What the club home screen shows (src/admin/ClubHome.tsx, plan part E): a setup checklist
@@ -20,6 +21,8 @@ export type ClubHomeData = {
   newEnquiries: number
   courseStatus: { label: string; updatedAt: string | null; stale: boolean } | null
   homePageID: string | null
+  /** Things to look at before a visitor notices (G15). */
+  attention: AttentionItem[]
 }
 
 type Settings = {
@@ -38,49 +41,51 @@ export const clubHomeData = async (
   now = new Date(),
 ): Promise<ClubHomeData | null> => {
   const byClub = { tenant: { equals: tenantID } }
-  const [club, settingsResult, home, accepted, enquiries, newCount, status] = await Promise.all([
-    payload
-      .findByID({ collection: 'tenants', id: tenantID, depth: 0, overrideAccess: true })
-      .catch(() => null),
-    payload.find({
-      collection: 'club-settings',
-      where: byClub,
-      limit: 1,
-      depth: 0,
-      overrideAccess: true,
-    }),
-    payload.find({
-      collection: 'pages',
-      where: { and: [byClub, { slug: { equals: 'home' } }] },
-      select: { _status: true },
-      limit: 1,
-      depth: 0,
-      overrideAccess: true,
-    }),
-    clubHasAccepted(payload, tenantID),
-    payload.find({
-      collection: 'enquiries',
-      where: { and: [byClub, { status: { equals: 'new' } }] },
-      select: { name: true, reference: true, createdAt: true },
-      sort: '-createdAt',
-      limit: 5,
-      depth: 0,
-      overrideAccess: true,
-    }),
-    payload.count({
-      collection: 'enquiries',
-      where: { and: [byClub, { status: { equals: 'new' } }] },
-      overrideAccess: true,
-    }),
-    payload.find({
-      collection: 'course-status',
-      where: byClub,
-      select: { state: true, updatedAt: true },
-      limit: 1,
-      depth: 0,
-      overrideAccess: true,
-    }),
-  ])
+  const [club, settingsResult, home, accepted, enquiries, newCount, status, attention] =
+    await Promise.all([
+      payload
+        .findByID({ collection: 'tenants', id: tenantID, depth: 0, overrideAccess: true })
+        .catch(() => null),
+      payload.find({
+        collection: 'club-settings',
+        where: byClub,
+        limit: 1,
+        depth: 0,
+        overrideAccess: true,
+      }),
+      payload.find({
+        collection: 'pages',
+        where: { and: [byClub, { slug: { equals: 'home' } }] },
+        select: { _status: true },
+        limit: 1,
+        depth: 0,
+        overrideAccess: true,
+      }),
+      clubHasAccepted(payload, tenantID),
+      payload.find({
+        collection: 'enquiries',
+        where: { and: [byClub, { status: { equals: 'new' } }] },
+        select: { name: true, reference: true, createdAt: true },
+        sort: '-createdAt',
+        limit: 5,
+        depth: 0,
+        overrideAccess: true,
+      }),
+      payload.count({
+        collection: 'enquiries',
+        where: { and: [byClub, { status: { equals: 'new' } }] },
+        overrideAccess: true,
+      }),
+      payload.find({
+        collection: 'course-status',
+        where: byClub,
+        select: { state: true, updatedAt: true, stateChangedAt: true },
+        limit: 1,
+        depth: 0,
+        overrideAccess: true,
+      }),
+      clubAttention(payload, tenantID, now),
+    ])
   if (!club) return null
 
   const settings = settingsResult.docs[0] as Settings | undefined
@@ -133,8 +138,10 @@ export const clubHomeData = async (
     },
   ]
 
-  const statusDoc = status.docs[0] as { state?: string; updatedAt?: string } | undefined
-  const updatedAt = statusDoc?.updatedAt ?? null
+  const statusDoc = status.docs[0] as
+    { state?: string; updatedAt?: string; stateChangedAt?: string | null } | undefined
+  // When the course was last checked, not when a planned notice was last edited (G4).
+  const updatedAt = statusDoc?.stateChangedAt ?? statusDoc?.updatedAt ?? null
   return {
     clubName: (filled(settings?.clubName) ? settings?.clubName : club.name) as string,
     steps,
@@ -156,6 +163,7 @@ export const clubHomeData = async (
         }
       : null,
     homePageID: homeDoc?.id ?? null,
+    attention,
   }
 }
 

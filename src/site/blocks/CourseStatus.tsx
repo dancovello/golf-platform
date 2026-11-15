@@ -86,7 +86,10 @@ const Notices = ({ notices, title }: { notices: SiteNotice[]; title: boolean }) 
         {notices.map((n, i) => (
           <li key={i} className={`status-notice${n.now ? '' : ' is-upcoming'}`}>
             <Dot state={n.kind} />
-            <span className="t-body-s status-notice-text">{n.message}</span>
+            <span className="t-body-s status-notice-text">
+              {n.appliesTo ? <strong>{n.appliesTo}: </strong> : null}
+              {n.message}
+            </span>
             {noticeWhen(n) ? (
               <span className="t-label-s status-notice-when">{noticeWhen(n)}</span>
             ) : null}
@@ -177,6 +180,7 @@ export const CourseStatus = ({
               <span className="t-data-label">Notice</span>
               <span className="t-label-s status-band-notice">
                 <Dot state={notice.kind} />
+                {notice.appliesTo ? `${notice.appliesTo}: ` : ''}
                 {notice.message}
               </span>
             </BandItem>

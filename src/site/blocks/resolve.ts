@@ -318,6 +318,8 @@ export type SiteCourseStatus = {
 
 export type SiteNotice = {
   message: string
+  /** The course it applies to, for clubs with several. */
+  appliesTo: string | null
   kind: StatusState
   startsOn: string
   endsOn: string | null
@@ -331,7 +333,13 @@ const ukDay = (value: string | Date) =>
 
 /** The notices to show today: in force first (soonest-ending first), then coming up. */
 export const currentNotices = (
-  notices: { message: string; kind: StatusState; startsOn: string; endsOn?: string | null }[],
+  notices: {
+    message: string
+    appliesTo?: string | null
+    kind: StatusState
+    startsOn: string
+    endsOn?: string | null
+  }[],
   today: Date,
 ): SiteNotice[] => {
   const day = ukDay(today)
@@ -341,6 +349,7 @@ export const currentNotices = (
     .filter((n) => ukDay(n.startsOn) <= horizon)
     .map((n) => ({
       message: n.message.trim(),
+      appliesTo: n.appliesTo?.trim() || null,
       kind: n.kind,
       startsOn: n.startsOn,
       endsOn: n.endsOn ?? null,
