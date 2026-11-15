@@ -4,7 +4,14 @@ import type { Payload } from 'payload'
 import { layoutRefs } from '@/blocks'
 import { idOf } from '@/blocks/types'
 import { STATUS_STALE_HOURS, type StatusState } from '@/collections/courseStatusStates'
-import { type TeeColour, teeName, yardsField } from '@/collections/courseTees'
+import {
+  type TeeColour,
+  teeKey,
+  teeName,
+  teeSlots,
+  type TeePlayers,
+  yardsSlotField,
+} from '@/collections/courseTees'
 import { builtInLink, isSafeURL } from '@/fields/link'
 
 import { PUBLISHED } from '../published'
@@ -159,8 +166,13 @@ const loadClubStaff = async (
 
 export type SiteTee = {
   colour: TeeColour
-  /** The club's own name for the tee, or else its colour: "White", "Yellow"… */
+  /** The club's own name for the tee, or else from its colour: "White", "Women's red"… */
   name: string
+  /** The name as an address part, for "?tee=yellow". Unique on the course. */
+  key: string
+  /** Who plays it: everyone, men or women. A women's tee goes with the ladies' par and SI. */
+  players: TeePlayers
+  winter: boolean
   rating: number | null
   slope: number | null
   /** Women's rating and slope, when the club gives them. */
@@ -240,9 +252,13 @@ const loadClubCourses = async (
   }
   return new Map(
     docs.map((d) => {
+      const slots = teeSlots(d.tees ?? [])
       const tees: SiteTee[] = (d.tees ?? []).map((t) => ({
         colour: t.colour,
         name: teeName(t),
+        key: teeKey(teeName(t)),
+        players: t.players ?? 'both',
+        winter: t.winter ?? false,
         rating: t.rating ?? null,
         slope: t.slope ?? null,
         ratingWomen: t.ratingWomen ?? null,
@@ -257,7 +273,9 @@ const loadClubCourses = async (
           strokeIndex: h.strokeIndex ?? null,
           ladiesPar: h.ladiesPar ?? null,
           ladiesStrokeIndex: h.ladiesStrokeIndex ?? null,
-          yards: tees.map((t) => h[yardsField(t.colour)] ?? null),
+          yards: slots.map(
+            (s) => ((h as Record<string, unknown>)[yardsSlotField(s)] as number | null) ?? null,
+          ),
           image,
           video: quietVideo(parseVideoURL(h.video)?.embedURL),
           tip: h.tip?.trim() || null,

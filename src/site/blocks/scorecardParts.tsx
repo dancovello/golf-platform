@@ -33,14 +33,17 @@ export const Summary = ({
   course,
   tees,
   ratingTee,
+  parOf = (h) => h.par,
 }: {
   course: SiteCourse
   /** Tees whose total length to show. */
   tees: SiteTee[]
   /** Whose rating and slope to show. */
   ratingTee: SiteTee | undefined
+  /** The par a hole is played to (the ladies' par for a women's tee). */
+  parOf?: (h: SiteHole) => number
 }) => {
-  const par = sum(course.holes, (h) => h.par)
+  const par = sum(course.holes, parOf)
   const men = ratingTee?.rating != null || ratingTee?.slope != null
   const women = ratingTee?.ratingWomen != null || ratingTee?.slopeWomen != null
   const both = men && women
@@ -52,7 +55,7 @@ export const Summary = ({
         <dd className="t-data-serif">{fmt(par)}</dd>
       </div>
       {tees.map((t) => (
-        <div key={t.colour}>
+        <div key={t.key}>
           <dt className="t-data-label">{tees.length > 1 ? t.name : 'Length'}</dt>
           <dd className="t-data-serif">{lengthOf(t) == null ? '—' : `${fmt(lengthOf(t))} yds`}</dd>
         </div>

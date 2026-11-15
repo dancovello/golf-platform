@@ -351,6 +351,84 @@ describe('hole by hole', () => {
     expect(page!.ctx.course(w.courseB.id)).toBeNull()
   })
 
+  // Tee sets (G1, 15 Nov 2026): up to eight tees, more colours, women's and winter tees, and
+  // each tee keeps its own yards when the tees are reordered.
+  describe('tee sets', () => {
+    const update = (data: Record<string, unknown>) =>
+      w.payload.update({
+        collection: 'courses',
+        id: w.courseA.id,
+        data: data as never,
+        overrideAccess: false,
+        user: w.editorA,
+      })
+    const nine = (yards: Record<string, number>) =>
+      Array.from({ length: 9 }, () => ({ par: 4, ...yards }))
+    const websiteCourse = async () => {
+      await save([
+        { blockType: 'holeGrid', style: 'guide', heading: 'Holes', course: w.courseA.id },
+      ])
+      return (await loadClubPage(w.clubA.id, 'membership'))!.ctx.course(w.courseA.id)!
+    }
+
+    it('takes up to eight tees, in the new colours, and names women’s and winter tees', async () => {
+      const colours = ['white', 'yellow', 'red', 'blue', 'black', 'green', 'gold', 'purple']
+      await update({
+        tees: colours.map((colour) => ({ colour })),
+        holes: nine(Object.fromEntries(colours.map((_, i) => [`yards${i + 1}`, 400 - i * 10]))),
+      })
+      expect((await websiteCourse()).holes[0].yards).toEqual([
+        400, 390, 380, 370, 360, 350, 340, 330,
+      ])
+      await expect(
+        update({ tees: [...colours, 'orange'].map((colour) => ({ colour })) }),
+      ).rejects.toThrow()
+
+      await update({
+        tees: [
+          { colour: 'yellow' },
+          { colour: 'yellow', winter: true },
+          { colour: 'red', players: 'women', ratingWomen: 72.1, slopeWomen: 126 },
+        ],
+        holes: nine({ yards1: 380, yards2: 350, yards3: 330 }),
+      })
+      const course = await websiteCourse()
+      expect(course.tees.map((t) => [t.name, t.key, t.players, t.winter])).toEqual([
+        ['Yellow', 'yellow', 'both', false],
+        ['Winter yellow', 'winter-yellow', 'both', true],
+        ['Women’s red', 'women-s-red', 'women', false],
+      ])
+      expect(course.holes[0].yards).toEqual([380, 350, 330])
+    })
+
+    it('refuses two tees with the same name', async () => {
+      const error = await update({ tees: [{ colour: 'yellow' }, { colour: 'yellow' }] }).catch(
+        (e: unknown) => e,
+      )
+      expect(errorPaths(error)).toContain('tees')
+      await expect(
+        update({ tees: [{ colour: 'yellow' }, { colour: 'yellow', name: 'Medal yellow' }] }),
+      ).resolves.toBeTruthy()
+    })
+
+    it('keeps each tee’s yards when the tees are reordered, and clears a removed tee’s', async () => {
+      const saved = await update({
+        tees: [{ colour: 'white' }, { colour: 'yellow' }, { colour: 'red' }],
+        holes: nine({ yards1: 400, yards2: 380, yards3: 350 }),
+      })
+      const [white, yellow, red] = saved.tees ?? []
+      // An editor drags red to the top and removes yellow, as the admin form would send it.
+      const after = await update({ tees: [red, white], holes: saved.holes })
+      expect(after.tees?.map((t) => [t.colour, t.slot])).toEqual([
+        ['red', 3],
+        ['white', 1],
+      ])
+      expect(yellow.slot).toBe(2)
+      expect(after.holes?.[0]).toMatchObject({ yards1: 400, yards2: null, yards3: 350 })
+      expect((await websiteCourse()).holes[0].yards).toEqual([350, 400])
+    })
+  })
+
   // Course tour details (12 Nov 2026): more photos, a hole plan, a description, three notes
   // and hazard tags on each hole; a name for each tee, a black tee, and who the tips are from.
   describe('course tour details', () => {
@@ -363,7 +441,7 @@ describe('hole by hole', () => {
         user: w.editorA,
       })
     const holes = (first: Record<string, unknown>) =>
-      Array.from({ length: 9 }, (_, i) => ({ par: 4, yardsBlack: 410, ...(i === 0 ? first : {}) }))
+      Array.from({ length: 9 }, (_, i) => ({ par: 4, yards1: 410, ...(i === 0 ? first : {}) }))
 
     it("refuses club B's photos as a hole's extra photos or plan", async () => {
       const error = await update({

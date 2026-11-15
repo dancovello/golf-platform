@@ -119,6 +119,10 @@ export async function up() { await db.execute(sql\`DROP TABLE "pages";\`) }`
     // document is pointed at its category (the UPDATEs: one for the old name, one fallback to
     // "other"). Nothing is dropped; the old column stays. Approved by Dan, 5 Nov 2026.
     '20261109_150000_document_categories.ts': Array(2).fill('UPDATE … SET'),
+    // Tee sets (G1, 15 Nov 2026): each tee gets its place in the list as its slot, then each
+    // hole's yards are copied from the old colour columns into the slots (the UPDATEs). Nothing
+    // is dropped; the old columns stay. Needs Dan's approval label on the PR.
+    '20261115_195844_tee_sets.ts': Array(2).fill('UPDATE … SET'),
   }
 
   it('every merged migration only adds things, apart from the ones Dan approved', () => {

@@ -63,6 +63,12 @@
   --color-tee-red: #c8382e;
   --color-tee-blue: #2e5aac;
   --color-tee-black: #111814;
+  /* Added for G1 (15 Nov 2026); not yet in Figma's Tee Marker set. */
+  --color-tee-green: #2f8a4c;
+  --color-tee-gold: #c9a227;
+  --color-tee-orange: #e07a26;
+  --color-tee-purple: #6b3fa0;
+  --color-tee-silver: #b8bcc2;
 }
 
 /* A brand-colour surface: its text is checked against Primary. Sets its own text colour too, so

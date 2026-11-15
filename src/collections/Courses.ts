@@ -1,21 +1,73 @@
-import type { CollectionConfig, Field } from 'payload'
+import type { CollectionBeforeChangeHook, CollectionConfig, Field } from 'payload'
 
 import { clubContentCreate, loggedIn } from '../access/roles'
 import { IMAGE_TYPES, imageField } from '../blocks/shared'
 import { validateVideoURL } from '../blocks/video/embed'
 import { checkCourseSameClub } from '../site/sameClub'
-import { TEE_COLOURS, TEE_NAME_MAX, yardsField } from './courseTees'
+import {
+  MAX_TEES,
+  TEE_COLOURS,
+  TEE_NAME_MAX,
+  TEE_PLAYERS,
+  TEE_SLOTS,
+  teeName,
+  teeSlots,
+  yardsSlotField,
+  type TeeColour,
+  type TeePlayers,
+} from './courseTees'
 import { clubBannerField } from '../tenancy'
 import { searchHooks } from '../search/hooks'
 
-const yards = (colour: (typeof TEE_COLOURS)[number]): Field => ({
-  name: yardsField(colour.value),
-  label: `${colour.label} yards`,
+type TeeRow = {
+  colour?: TeeColour
+  name?: string | null
+  players?: TeePlayers | null
+  winter?: boolean | null
+  slot?: number | null
+}
+
+/** A hole's yards for one tee slot. Shown only while a tee uses the slot, labelled with its name. */
+const yards = (slot: number): Field => ({
+  name: yardsSlotField(slot),
+  label: `Tee ${slot} yards`,
   type: 'number',
   min: 40,
   max: 800,
-  admin: { width: '20%' },
+  admin: {
+    width: '25%',
+    condition: (data) => teeSlots((data?.tees ?? []) as TeeRow[]).includes(slot),
+    components: { Label: '/admin/TeeYardsLabel#TeeYardsLabel' },
+  },
 })
+
+/**
+ * Before G1 (15 Nov 2026) yards were stored by colour. These columns are kept, hidden and no
+ * longer read, so the change deletes nothing; the migration copied them into the tee slots.
+ * A later, approved migration can drop them.
+ */
+const LEGACY_YARDS = ['White', 'Yellow', 'Red', 'Blue', 'Black'].map((c): Field => ({
+  name: `yards${c}`,
+  type: 'number',
+  admin: { hidden: true, disableListColumn: true, disableListFilter: true },
+}))
+
+/** Gives each tee its slot and empties the yards of slots no tee uses any more. */
+const assignTeeSlots: CollectionBeforeChangeHook = ({ data }) => {
+  if (!Array.isArray(data.tees)) return data
+  const tees = data.tees as TeeRow[]
+  const slots = teeSlots(tees)
+  data.tees = tees.map((t, i) => ({ ...t, slot: slots[i] }))
+  if (Array.isArray(data.holes)) {
+    const used = new Set(slots)
+    data.holes = (data.holes as Record<string, unknown>[]).map((h) => {
+      const next = { ...h }
+      for (const s of TEE_SLOTS) if (!used.has(s)) next[yardsSlotField(s)] = null
+      return next
+    })
+  }
+  return data
+}
 
 /** One of the three "how to play it" notes on a hole's course tour page. */
 const tourNote = (name: string, label: string): Field => ({
@@ -39,7 +91,7 @@ export const Courses: CollectionConfig = {
       'Each course’s holes and tees, for the Hole-by-hole, Scorecard and Course tour blocks.',
   },
   access: { create: clubContentCreate, read: loggedIn, update: loggedIn, delete: loggedIn },
-  hooks: { beforeValidate: [checkCourseSameClub], ...searchHooks },
+  hooks: { beforeValidate: [checkCourseSameClub], beforeChange: [assignTeeSlots], ...searchHooks },
   fields: [
     clubBannerField,
     {
@@ -55,15 +107,19 @@ export const Courses: CollectionConfig = {
       label: 'Tees',
       type: 'array',
       minRows: 1,
-      maxRows: 4,
+      maxRows: MAX_TEES,
       labels: { singular: 'Tee', plural: 'Tees' },
       admin: {
         description:
-          'Up to four. The first tee is the one shown when only one yardage fits, and the “Length” on course tour pages.',
+          'Up to eight, including women’s and winter tees. The first tee is the one shown when only one yardage fits, and the “Length” on course tour pages.',
       },
       validate: (rows: unknown) => {
-        const colours = (Array.isArray(rows) ? rows : []).map((r) => r?.colour)
-        return new Set(colours).size === colours.length ? true : 'Each tee colour once only.'
+        const names = (Array.isArray(rows) ? (rows as TeeRow[]) : [])
+          .filter((r) => r?.colour)
+          .map((r) => teeName(r as TeeRow & { colour: TeeColour }).toLowerCase())
+        return new Set(names).size === names.length
+          ? true
+          : 'Two tees have the same name. Give one of them its own name, e.g. “Medal yellow”.'
       },
       fields: [
         {
@@ -85,8 +141,31 @@ export const Courses: CollectionConfig = {
               admin: {
                 width: '75%',
                 description:
-                  'Only if the club calls this tee something else, e.g. “Championship”. Otherwise the colour is used.',
+                  'Only if the club calls this tee something else, e.g. “Championship” or “60”. Otherwise it is named from its colour, e.g. “Women’s red” or “Winter yellow”.',
               },
+            },
+          ],
+        },
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'players',
+              label: 'Who plays it',
+              type: 'select',
+              defaultValue: 'both',
+              options: [...TEE_PLAYERS],
+              admin: {
+                width: '25%',
+                description: 'A women’s tee shows the ladies’ par and stroke index with it.',
+              },
+            },
+            {
+              name: 'winter',
+              label: 'Winter tee',
+              type: 'checkbox',
+              defaultValue: false,
+              admin: { width: '75%', description: 'Only played in winter.' },
             },
           ],
         },
@@ -99,7 +178,11 @@ export const Courses: CollectionConfig = {
               type: 'number',
               min: 50,
               max: 90,
-              admin: { width: '25%', step: 0.1 },
+              admin: {
+                width: '25%',
+                step: 0.1,
+                condition: (_, sibling) => sibling?.players !== 'women',
+              },
             },
             {
               name: 'slope',
@@ -107,7 +190,7 @@ export const Courses: CollectionConfig = {
               type: 'number',
               min: 55,
               max: 155,
-              admin: { width: '25%' },
+              admin: { width: '25%', condition: (_, sibling) => sibling?.players !== 'women' },
             },
             {
               name: 'ratingWomen',
@@ -115,7 +198,12 @@ export const Courses: CollectionConfig = {
               type: 'number',
               min: 50,
               max: 90,
-              admin: { width: '25%', step: 0.1, description: 'Optional.' },
+              admin: {
+                width: '25%',
+                step: 0.1,
+                description: 'Optional.',
+                condition: (_, sibling) => sibling?.players !== 'men',
+              },
             },
             {
               name: 'slopeWomen',
@@ -123,9 +211,21 @@ export const Courses: CollectionConfig = {
               type: 'number',
               min: 55,
               max: 155,
-              admin: { width: '25%', description: 'Optional.' },
+              admin: {
+                width: '25%',
+                description: 'Optional.',
+                condition: (_, sibling) => sibling?.players !== 'men',
+              },
             },
           ],
+        },
+        {
+          // Which yards boxes on each hole belong to this tee. Set on save (assignTeeSlots).
+          name: 'slot',
+          type: 'number',
+          min: 1,
+          max: MAX_TEES,
+          admin: { hidden: true },
         },
       ],
     },
@@ -205,7 +305,8 @@ export const Courses: CollectionConfig = {
             },
           ],
         },
-        { type: 'row', fields: TEE_COLOURS.map(yards) },
+        { type: 'row', fields: TEE_SLOTS.map(yards) },
+        ...LEGACY_YARDS,
         imageField('image', 'Photo (optional)', false),
         {
           name: 'video',

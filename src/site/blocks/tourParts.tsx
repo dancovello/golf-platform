@@ -59,7 +59,7 @@ export const TourTees = ({ tour }: { tour: Tour }) => {
   return (
     <ul className="tour-tees" aria-label="Yards from each tee">
       {rows.map(({ tee, yards }) => (
-        <li key={tee.colour} className="tour-tee">
+        <li key={tee.key} className="tour-tee">
           <TeeDot tee={tee} />
           <span className="t-body-s tour-tee-name">{tee.name}</span>
           <span className="t-data-sans tour-tee-yards">
