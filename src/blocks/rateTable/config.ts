@@ -124,6 +124,42 @@ const config: Block = {
               ],
             },
             {
+              // G2, 15 Nov 2026: dated lists switch over by themselves, so last year's prices
+              // never stay up. Both optional; month-only seasons above still work.
+              type: 'row',
+              fields: [
+                {
+                  name: 'validFrom',
+                  label: 'Valid from (optional)',
+                  type: 'date',
+                  admin: {
+                    width: '50%',
+                    date: { pickerAppearance: 'dayOnly', displayFormat: 'd MMM yyyy' },
+                    description: 'Before this day the list is hidden (see "Show upcoming prices").',
+                  },
+                },
+                {
+                  name: 'validUntil',
+                  label: 'Valid until (optional)',
+                  type: 'date',
+                  admin: {
+                    width: '50%',
+                    date: { pickerAppearance: 'dayOnly', displayFormat: 'd MMM yyyy' },
+                    description: 'After this day the list disappears from the website.',
+                  },
+                  validate: (
+                    value: unknown,
+                    { siblingData }: { siblingData: { validFrom?: unknown } },
+                  ) =>
+                    !value ||
+                    !siblingData?.validFrom ||
+                    new Date(String(value)) >= new Date(String(siblingData.validFrom))
+                      ? true
+                      : 'The list must end on or after the day it starts.',
+                },
+              ],
+            },
+            {
               name: 'rows',
               label: 'Rates',
               type: 'array',
@@ -159,6 +195,16 @@ const config: Block = {
           ],
         },
       ],
+    },
+    {
+      name: 'showUpcoming',
+      label: 'Show upcoming prices before they start',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        description:
+          'For clubs that take bookings a year ahead: a price list with a "Valid from" date still to come is shown now, marked with the day it starts. Otherwise it appears on that day.',
+      },
     },
     { name: 'footnote', label: 'Footnote (optional)', type: 'textarea', maxLength: 240 },
     {

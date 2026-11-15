@@ -936,3 +936,14 @@ From the 50-club audit (`docs/product/15-feature-gap-register.md`): 21 of 50 clu
 - "Ladies" is the public word, as clubs use it; the stored value is "women", like the tees.
 - Adds one entry to the access-rule skip allowlist (`clubResultsFresh`, public site, limited to the club), reviewed like the others.
 - Database change: new columns only, plus a small table for "who can enter". Nothing changed or deleted.
+
+## 2026-11-15: Price lists that switch over by date (feature gap G2, chosen by Dan)
+
+21 of 50 audited clubs date their price lists, and many show last year's prices because nobody switched them over (Castlerock, Wrexham, Dunbar, Gleneagles). Dan asked why we would show two years together; we don't by default.
+
+- **Each price list in the Price table block can have "Valid from" and "Valid until" days** (both optional, UK days, inclusive). Month-only seasons (style B's "Season starts in / ends in") still work for clubs whose prices repeat each year.
+- **By default only today's prices show.** A list whose "valid until" day has passed disappears by itself; one whose "valid from" day is still to come stays hidden until that morning. No publish or editor action is needed: club pages are drawn fresh on each visit (only their data is cached), so the change happens on the day.
+- **"Show upcoming prices before they start"** (a tick on the block, off by default) is for clubs that take bookings a year ahead: the coming list shows now, marked "These prices apply from 1 April 2027."
+- **Never an empty table while prices are coming:** if every list is still to start, the next one shows, marked with its start day. If every list has ended, the block shows nothing rather than old prices.
+- Style A (season tabs) applies these rules across its tabs and opens on the tab in force today. Styles B and C apply them within each audience tab. Style B's "Now" badge follows the dates when a list has them, otherwise the months.
+- Database change: three new columns. Nothing changed or deleted.

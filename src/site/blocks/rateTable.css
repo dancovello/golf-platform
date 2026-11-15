@@ -343,3 +343,9 @@
     display: none;
   }
 }
+
+/* A price list shown before it starts (G2): the day it applies from. */
+.rate-from {
+  margin: 0 0 var(--space-8);
+  color: var(--color-text-secondary);
+}
