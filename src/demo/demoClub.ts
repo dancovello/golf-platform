@@ -1002,6 +1002,8 @@ export const buildDemoClub = async (payload: Payload) => {
       eyebrow: 'The Championship course',
       heading: 'Scorecard',
       course: championship.id,
+      handicapTable: true,
+      allowance: '95',
       note: 'Yardages measured from the back of each tee. Course rating and slope shown for the selected tee.',
     },
     {
@@ -1516,6 +1518,9 @@ export const buildDemoClub = async (payload: Payload) => {
       ),
       values: vals('Mon–Fri', '14 days', yes, '3', yes, yes),
       availability: 'Places available',
+      availabilityStatus: 'open',
+      joiningFee: '£500',
+      paymentNote: '12 monthly payments by direct debit',
       link: tierLink,
     },
     {
@@ -1533,6 +1538,9 @@ export const buildDemoClub = async (payload: Payload) => {
       ),
       values: vals('7 days', '21 days', yes, '6', yes, yes),
       availability: 'Waiting list · c. 6 months',
+      availabilityStatus: 'waiting',
+      joiningFee: 'One year’s subscription',
+      paymentNote: 'Payable over three years',
       recommended: true,
       link: tierLink,
     },
@@ -1551,6 +1559,8 @@ export const buildDemoClub = async (payload: Payload) => {
       ),
       values: vals('7 days', '14 days', yes, '2', '', ''),
       availability: 'Places available',
+      availabilityStatus: 'open',
+      joiningFee: 'None',
       link: tierLink,
     },
   ]

@@ -86,6 +86,7 @@ import * as migration_20261115_195844_tee_sets from './20261115_195844_tee_sets'
 import * as migration_20261115_200732_open_competitions from './20261115_200732_open_competitions';
 import * as migration_20261115_201108_dated_price_lists from './20261115_201108_dated_price_lists';
 import * as migration_20261115_201530_course_notices from './20261115_201530_course_notices';
+import * as migration_20261115_204413_handicap_and_membership from './20261115_204413_handicap_and_membership';
 
 export const migrations = [
   {
@@ -526,6 +527,11 @@ export const migrations = [
   {
     up: migration_20261115_201530_course_notices.up,
     down: migration_20261115_201530_course_notices.down,
-    name: '20261115_201530_course_notices'
+    name: '20261115_201530_course_notices',
+  },
+  {
+    up: migration_20261115_204413_handicap_and_membership.up,
+    down: migration_20261115_204413_handicap_and_membership.down,
+    name: '20261115_204413_handicap_and_membership'
   },
 ];

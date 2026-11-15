@@ -46,6 +46,32 @@ const config: Block = {
       },
     },
     {
+      // G7, 15 Nov 2026: worked out from each tee's rating, slope and par (Courses).
+      name: 'handicapTable',
+      label: 'Show a course handicap table',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        description:
+          'Worked out for each tee from its course rating, slope and par, men’s and women’s. A tee with no rating or slope is left out. It changes by itself when a rating changes.',
+      },
+    },
+    {
+      name: 'allowance',
+      label: 'Playing handicap allowance',
+      type: 'select',
+      defaultValue: '100',
+      options: [
+        { label: '100% (course handicap only)', value: '100' },
+        { label: '95% (singles stroke play)', value: '95' },
+        { label: '85% (singles match play and better-ball)', value: '85' },
+      ],
+      admin: {
+        condition: (_d, sibling) => Boolean(sibling?.handicapTable),
+        description: 'At anything below 100% a Playing handicap column is added.',
+      },
+    },
+    {
       name: 'note',
       label: 'Small print below (optional)',
       type: 'textarea',

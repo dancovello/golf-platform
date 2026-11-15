@@ -351,6 +351,52 @@ describe('hole by hole', () => {
     expect(page!.ctx.course(w.courseB.id)).toBeNull()
   })
 
+  // Membership details and course handicap tables (G6 and G7, 15 Nov 2026).
+  describe('membership details and handicap tables', () => {
+    it('saves a joining fee, payment note and availability on each category', async () => {
+      const saved = await save([
+        {
+          blockType: 'membership',
+          style: 'cards',
+          heading: 'Membership',
+          tiers: [
+            {
+              name: 'Full',
+              joiningFee: '£250',
+              paymentNote: '12 monthly payments',
+              availabilityStatus: 'full',
+            },
+            { name: 'Junior' },
+          ],
+        },
+      ])
+      const tiers = ((saved.layout ?? [])[0] as { tiers: Record<string, unknown>[] }).tiers
+      expect(tiers[0]).toMatchObject({
+        joiningFee: '£250',
+        paymentNote: '12 monthly payments',
+        availabilityStatus: 'full',
+      })
+      expect(tiers[1]).toMatchObject({ availabilityStatus: 'none' })
+    })
+
+    it('saves the handicap table setting on a scorecard, defaulting to off', async () => {
+      const saved = await save([
+        { blockType: 'scorecard', style: 'classic', heading: 'Card', course: w.courseA.id },
+        {
+          blockType: 'scorecard',
+          style: 'classic',
+          heading: 'Card',
+          course: w.courseA.id,
+          handicapTable: true,
+          allowance: '95',
+        },
+      ])
+      const [off, on] = (saved.layout ?? []) as { handicapTable: boolean; allowance: string }[]
+      expect([off.handicapTable, off.allowance]).toEqual([false, '100'])
+      expect([on.handicapTable, on.allowance]).toEqual([true, '95'])
+    })
+  })
+
   // Tee sets (G1, 15 Nov 2026): up to eight tees, more colours, women's and winter tees, and
   // each tee keeps its own yards when the tees are reordered.
   describe('tee sets', () => {

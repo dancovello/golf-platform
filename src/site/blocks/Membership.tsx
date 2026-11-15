@@ -12,6 +12,25 @@ type Tier = NonNullable<MembershipBlock['tiers']>[number]
 
 const ON_APPLICATION = 'On application'
 
+const STATUS_WORDS = { open: 'Places available', waiting: 'Waiting list', full: 'Full' } as const
+
+/** The availability badge (G6): the club's own words, else those of the chosen status. */
+const availabilityOf = (t: Tier) => {
+  const own = t.availability?.trim()
+  const status =
+    t.availabilityStatus && t.availabilityStatus !== 'none' ? t.availabilityStatus : null
+  return own || (status ? STATUS_WORDS[status] : null)
+}
+
+/** A full category can't be applied for (G6). */
+const isFull = (t: Tier) => t.availabilityStatus === 'full'
+
+/** "Joining fee £250 · 12 monthly payments by direct debit". */
+const extrasOf = (t: Tier) =>
+  [t.joiningFee?.trim() ? `Joining fee ${t.joiningFee.trim()}` : null, t.paymentNote?.trim()]
+    .filter(Boolean)
+    .join(' · ')
+
 /** A table value: "yes" is a tick, empty is a dash, anything else is shown as typed. */
 const Value = ({ value }: { value: string | null | undefined }) => {
   const v = value?.trim() ?? ''
@@ -47,7 +66,8 @@ export const Membership = ({
   const buttonLabel =
     block.buttonLabel?.trim() ||
     (style === 'compare' ? 'Apply' : style === 'enquire' ? 'Enquire' : 'Apply for membership')
-  const linkOf = (t: Tier): ResolvedLink | null => ctx.link(t.link, buttonLabel)
+  const linkOf = (t: Tier): ResolvedLink | null =>
+    isFull(t) ? null : ctx.link(t.link, buttonLabel)
   const action = ctx.link(block.action)
 
   const header = (
@@ -83,6 +103,9 @@ export const Membership = ({
                     <th key={i} scope="col" className={t.recommended ? 'is-recommended' : ''}>
                       <span className="t-heading-m mb-tier-name">{t.name}</span>
                       <span className="t-data-sans mb-tier-price">{priceOf(t)}</span>
+                      {availabilityOf(t) ? (
+                        <span className="t-data-label mb-tag">{availabilityOf(t)}</span>
+                      ) : null}
                     </th>
                   ))}
                 </tr>
@@ -98,6 +121,16 @@ export const Membership = ({
                     ))}
                   </tr>
                 ))}
+                {tiers.some((t) => extrasOf(t)) ? (
+                  <tr>
+                    <th scope="row">Joining and payment</th>
+                    {tiers.map((t, i) => (
+                      <td key={i} className={t.recommended ? 'is-recommended' : ''}>
+                        {extrasOf(t) || '—'}
+                      </td>
+                    ))}
+                  </tr>
+                ) : null}
               </tbody>
               <tfoot>
                 <tr>
@@ -139,6 +172,9 @@ export const Membership = ({
                           <th scope="col">
                             <span className="t-heading-m mb-tier-name">{t.name}</span>
                             <span className="t-data-sans mb-tier-price">{priceOf(t)}</span>
+                            {availabilityOf(t) ? (
+                              <span className="t-data-label mb-tag">{availabilityOf(t)}</span>
+                            ) : null}
                           </th>
                         </tr>
                       </thead>
@@ -151,6 +187,12 @@ export const Membership = ({
                             </td>
                           </tr>
                         ))}
+                        {extrasOf(t) ? (
+                          <tr>
+                            <th scope="row">Joining and payment</th>
+                            <td>{extrasOf(t)}</td>
+                          </tr>
+                        ) : null}
                       </tbody>
                     </table>
                     {l ? (
@@ -193,10 +235,11 @@ export const Membership = ({
                       {t.description ? (
                         <p className="t-body-s mb-description">{t.description}</p>
                       ) : null}
+                      {extrasOf(t) ? <p className="t-label-s mb-extras">{extrasOf(t)}</p> : null}
                     </div>
                     <span className="mb-availability">
-                      {t.availability ? (
-                        <span className="t-data-label mb-tag">{t.availability}</span>
+                      {availabilityOf(t) ? (
+                        <span className="t-data-label mb-tag">{availabilityOf(t)}</span>
                       ) : null}
                     </span>
                     {l ? (
@@ -245,6 +288,9 @@ export const Membership = ({
           <h3 className="t-heading-m mb-tier-title">{t.name}</h3>
           {t.description ? <p className="t-body-s mb-description">{t.description}</p> : null}
         </div>
+        {availabilityOf(t) ? (
+          <span className="t-data-label mb-tag mb-card-tag">{availabilityOf(t)}</span>
+        ) : null}
         <p className="mb-price">
           {price ? (
             <>
@@ -255,6 +301,7 @@ export const Membership = ({
             <span className="t-body-m mb-on-application">{ON_APPLICATION}</span>
           )}
         </p>
+        {extrasOf(t) ? <p className="t-label-s mb-extras">{extrasOf(t)}</p> : null}
         {t.benefits && t.benefits.length > 0 ? (
           <ul className="mb-benefits t-body-s">
             {t.benefits.map((b, k) => (

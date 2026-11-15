@@ -1130,7 +1130,16 @@ export interface MembershipBlock {
             }[]
           | null;
         /**
-         * e.g. "Places available".
+         * e.g. "£250" or "Equal to the first year’s subscription".
+         */
+        joiningFee?: string | null;
+        /**
+         * e.g. "12 monthly payments by direct debit".
+         */
+        paymentNote?: string | null;
+        availabilityStatus?: ('none' | 'open' | 'waiting' | 'full') | null;
+        /**
+         * Replaces the wording above, e.g. "Two places left".
          */
         availability?: string | null;
         recommended?: boolean | null;
@@ -1346,6 +1355,14 @@ export interface ScorecardBlock {
    * Only if this page also has a Hole by hole block in style C.
    */
   linkToGuide?: boolean | null;
+  /**
+   * Worked out for each tee from its course rating, slope and par, men’s and women’s. A tee with no rating or slope is left out. It changes by itself when a rating changes.
+   */
+  handicapTable?: boolean | null;
+  /**
+   * At anything below 100% a Playing handicap column is added.
+   */
+  allowance?: ('100' | '95' | '85') | null;
   /**
    * e.g. "Yardages measured from the back of each tee."
    */
@@ -3753,6 +3770,9 @@ export interface MembershipBlockSelect<T extends boolean = true> {
               value?: T;
               id?: T;
             };
+        joiningFee?: T;
+        paymentNote?: T;
+        availabilityStatus?: T;
         availability?: T;
         recommended?: T;
         link?:
@@ -3821,6 +3841,8 @@ export interface ScorecardBlockSelect<T extends boolean = true> {
   course?: T;
   download?: T;
   linkToGuide?: T;
+  handicapTable?: T;
+  allowance?: T;
   note?: T;
   id?: T;
   blockName?: T;

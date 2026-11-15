@@ -476,3 +476,19 @@
 .mb-table-narrow .tabs-segments::-webkit-scrollbar {
   display: none;
 }
+
+/* G6 (15 Nov 2026): joining fee and payment line, and the badge on cards and tables. */
+.mb .mb-extras {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+.mb .mb-card-tag {
+  align-self: flex-start;
+}
+.mb .mb-tier.is-recommended .mb-tag {
+  border-color: var(--color-border-on-inverse);
+  color: inherit;
+}
+.mb .mb-table .mb-tag {
+  margin-top: var(--space-8);
+}

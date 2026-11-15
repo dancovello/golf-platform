@@ -13,6 +13,7 @@ import {
   sum,
   TeeLabel,
 } from './scorecardParts'
+import { HandicapTable } from './HandicapTable'
 import { TeeScorecard } from './TeeScorecard'
 import { NEW_TAB } from '../components/links'
 
@@ -209,6 +210,9 @@ export const Scorecard = ({ block, ctx }: { block: ScorecardBlock; ctx: BlockCon
         ) : (
           <Classic course={course} />
         )}
+        {block.handicapTable ? (
+          <HandicapTable course={course} allowance={Number(block.allowance ?? 100) || 100} />
+        ) : null}
         {block.note ? <Paragraphs text={block.note} className="t-body-s sc-note" /> : null}
       </div>
     </section>

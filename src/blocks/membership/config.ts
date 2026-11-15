@@ -126,11 +126,56 @@ const config: Block = {
           fields: [{ name: 'value', label: 'Value', type: 'text', maxLength: 20 }],
         },
         {
-          name: 'availability',
-          label: 'Availability (style C)',
-          type: 'text',
-          maxLength: 30,
-          admin: { ...blockIs('enquire'), description: 'e.g. "Places available".' },
+          // G6 (15 Nov 2026): joining fee and payment note on every style; "full" categories
+          // show a badge and drop their apply button.
+          type: 'row',
+          fields: [
+            {
+              name: 'joiningFee',
+              label: 'Joining fee (optional)',
+              type: 'text',
+              maxLength: 40,
+              admin: {
+                width: '50%',
+                description: 'e.g. "£250" or "Equal to the first year’s subscription".',
+              },
+            },
+            {
+              name: 'paymentNote',
+              label: 'How to pay (optional)',
+              type: 'text',
+              maxLength: 60,
+              admin: { width: '50%', description: 'e.g. "12 monthly payments by direct debit".' },
+            },
+          ],
+        },
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'availabilityStatus',
+              label: 'Availability',
+              type: 'select',
+              options: [
+                { label: 'Not shown', value: 'none' },
+                { label: 'Places available', value: 'open' },
+                { label: 'Waiting list', value: 'waiting' },
+                { label: 'Full (no apply button)', value: 'full' },
+              ],
+              defaultValue: 'none',
+              admin: { width: '40%' },
+            },
+            {
+              name: 'availability',
+              label: 'Own wording (optional)',
+              type: 'text',
+              maxLength: 30,
+              admin: {
+                width: '60%',
+                description: 'Replaces the wording above, e.g. "Two places left".',
+              },
+            },
+          ],
         },
         {
           name: 'recommended',
