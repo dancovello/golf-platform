@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
-import { courseHandicap, handicapTable, showHandicap, showRange } from '@/site/blocks/courseHandicap'
+import {
+  courseHandicap,
+  handicapTable,
+  showHandicap,
+  showRange,
+} from '@/site/blocks/courseHandicap'
 
 // Course handicap tables (G7, 15 Nov 2026): the World Handicap System formula.
 describe('course handicap', () => {
