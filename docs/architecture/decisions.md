@@ -973,3 +973,13 @@ From the 50-club audit (`docs/product/15-feature-gap-register.md`): 21 of 50 clu
 - **Bug fixed on the way:** the club home's "not updated today" warning still used the last save time, so editing only a planned notice would have reset it (G4). It now uses the course-checked time, with a test.
 - One allowance-list entry added for the new lookup (`clubAttention`), limited to the club.
 - Database change: one new optional column (the notice's course).
+
+## 2026-11-15: Extra questions on the Contact form (feature gap G5, chosen by Dan)
+
+14 of 50 audited clubs ask visitor, society or event enquirers for more than our form does (caddies and trolleys, which course, food needs, society name).
+
+- **A fixed set, switched on per topic.** In Club Settings → Contact page → "Who replies", each topic gets an optional "Extra questions" list: **Which course, Society or company name, Caddies, Buggies, Trolleys, Sets of hire clubs, Food and dietary needs, How did you hear about us.** Not a form builder (white label: keep it simple). A topic with none switched on is exactly as before, so every existing club's form is unchanged.
+- **All optional for the visitor.** Counts are whole numbers from 0 to 50 or 100; text has a length limit; the same rules run in the browser and (the one that counts) on the server. A question that is switched off is never read or saved, even if someone posts it by hand (tested).
+- **Saved on the enquiry** (read-only like the rest of what the visitor sent, shown in the admin only when answered), **included in the email to the club** as plain lines, and covered by the existing 12-month clean-up after the enquiry is handled. No new privacy wording needed: nothing new is personal.
+- **Left out on purpose:** date of birth and postal address (two clubs ask them). Both are personal data the club doesn't need to reply; they can be added later with privacy wording if a club needs them. Start and finish times, event type and per-product forms (Gleneagles) are not built either.
+- Database change: new columns on enquiries and one small table for the setting. Nothing changed or deleted.

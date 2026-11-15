@@ -1,6 +1,7 @@
 import config from '@payload-config'
 import { getPayload } from 'payload'
 
+import { ENQUIRY_EXTRAS } from '@/collections/enquiryExtras'
 import { enquiryPurposeLabel } from '@/collections/enquiryPurposes'
 import { emailEnabled } from '@/email/adapter'
 import { allowRequest, WEBSITE_FORM_EMAILS, CONTACT_ALERTS_PER_CLUB } from '@/security/rateLimit'
@@ -93,6 +94,11 @@ export const sendEnquiryAlert = async (enquiryID: string): Promise<AlertResult> 
     enquiry.membershipType ? `Membership type: ${enquiry.membershipType}` : null,
     enquiry.preferredDate ? `Date: ${ukDate(enquiry.preferredDate)}` : null,
     enquiry.groupSize ? `Number of people: ${enquiry.groupSize}` : null,
+    // The extra questions the visitor answered (G5).
+    ...ENQUIRY_EXTRAS.map((e) => {
+      const value = (enquiry as unknown as Record<string, unknown>)[e.key]
+      return value == null || value === '' ? null : `${e.label}: ${String(value)}`
+    }),
     enquiry.newsletter ? 'Would like the club newsletter: yes' : null,
     '',
     'Message:',

@@ -76,3 +76,39 @@ describe('the Contact form’s rules', () => {
     }
   })
 })
+
+describe('extra questions (G5, 15 Nov 2026)', () => {
+  const base = {
+    ...EMPTY_VALUES,
+    name: 'A',
+    email: 'a@example.com',
+    message: 'Hi',
+    purpose: 'visitor' as const,
+  }
+
+  it('are only checked when the club switched them on for that topic', () => {
+    const v = { ...base, caddies: 'many', trolleys: '200' }
+    expect(validateContact(v, { membershipTypes: [], today: '2026-10-16' })).toEqual({})
+    const rules = {
+      membershipTypes: [],
+      today: '2026-10-16',
+      extras: { visitor: ['caddies', 'trolleys'] as const },
+    }
+    expect(validateContact(v, { ...rules, extras: { visitor: ['caddies', 'trolleys'] } })).toEqual({
+      caddies: 'Enter a number from 0 to 50',
+      trolleys: 'Enter a number from 0 to 100',
+    })
+  })
+
+  it('are optional, and an empty answer is fine', () => {
+    const rules = {
+      membershipTypes: [],
+      today: '2026-10-16',
+      extras: { visitor: ['course' as const] },
+    }
+    expect(validateContact(base, rules)).toEqual({})
+    expect(validateContact({ ...base, course: 'x'.repeat(41) }, rules).course).toMatch(
+      /40 characters/,
+    )
+  })
+})

@@ -1,6 +1,7 @@
-import type { CollectionBeforeChangeHook, CollectionConfig, FieldAccess } from 'payload'
+import type { CollectionBeforeChangeHook, CollectionConfig, Field, FieldAccess } from 'payload'
 
 import { loggedIn } from '../access/roles'
+import { ENQUIRY_EXTRAS } from './enquiryExtras'
 import { ENQUIRY_PURPOSES } from './enquiryPurposes'
 
 /** What the visitor sent stays exactly as sent: editors can read it but not change it. */
@@ -122,6 +123,19 @@ export const Enquiries: CollectionConfig = {
         },
       ],
     },
+    // The extra questions a club can switch on per topic (G5, 15 Nov 2026), shown only when
+    // the visitor answered them.
+    ...ENQUIRY_EXTRAS.map((e): Field => ({
+      name: e.key,
+      label: e.label,
+      access: asSent,
+      admin: { condition: (data) => data?.[e.key] != null && data?.[e.key] !== '' },
+      ...(e.kind === 'count'
+        ? ({ type: 'number', min: 0, max: e.max } as const)
+        : e.kind === 'long'
+          ? ({ type: 'textarea', maxLength: e.max } as const)
+          : ({ type: 'text', maxLength: e.max } as const)),
+    })),
     {
       name: 'message',
       label: 'Message',

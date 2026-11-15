@@ -1714,6 +1714,14 @@ export interface Enquiry {
   membershipType?: string | null;
   preferredDate?: string | null;
   groupSize?: number | null;
+  course?: string | null;
+  organisation?: string | null;
+  caddies?: number | null;
+  buggies?: number | null;
+  trolleys?: number | null;
+  hireClubs?: number | null;
+  catering?: string | null;
+  heardFrom?: string | null;
   message: string;
   newsletter?: boolean | null;
   /**
@@ -2072,6 +2080,14 @@ export interface ClubSetting {
            * Blank: the footer email address.
            */
           inbox?: string | null;
+          /**
+           * Extra questions to ask on this topic, e.g. caddies and trolleys for Visitor golf, or food and dietary needs for Events. They are saved with the message and included in the email.
+           */
+          extraFields?:
+            | (
+                'course' | 'organisation' | 'caddies' | 'buggies' | 'trolleys' | 'hireClubs' | 'catering' | 'heardFrom'
+              )[]
+            | null;
           nextLink?: {
             label?: string | null;
             type?: ('page' | 'builtIn' | 'url') | null;
@@ -4228,6 +4244,14 @@ export interface EnquiriesSelect<T extends boolean = true> {
   membershipType?: T;
   preferredDate?: T;
   groupSize?: T;
+  course?: T;
+  organisation?: T;
+  caddies?: T;
+  buggies?: T;
+  trolleys?: T;
+  hireClubs?: T;
+  catering?: T;
+  heardFrom?: T;
   message?: T;
   newsletter?: T;
   alertSentAt?: T;
@@ -4457,6 +4481,7 @@ export interface ClubSettingsSelect<T extends boolean = true> {
               purpose?: T;
               replier?: T;
               inbox?: T;
+              extraFields?: T;
               nextLink?:
                 | T
                 | {
