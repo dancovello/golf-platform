@@ -82,6 +82,7 @@ import * as migration_20261110_212116_twocolumn_button from './20261110_212116_t
 import * as migration_20261112_220906_course_tour_fields from './20261112_220906_course_tour_fields';
 import * as migration_20261112_222757_course_tour_block from './20261112_222757_course_tour_block';
 import * as migration_20261114_091925_video_file from './20261114_091925_video_file';
+import * as migration_20261115_195844_tee_sets from './20261115_195844_tee_sets';
 
 export const migrations = [
   {
@@ -502,6 +503,11 @@ export const migrations = [
   {
     up: migration_20261114_091925_video_file.up,
     down: migration_20261114_091925_video_file.down,
-    name: '20261114_091925_video_file'
+    name: '20261114_091925_video_file',
+  },
+  {
+    up: migration_20261115_195844_tee_sets.up,
+    down: migration_20261115_195844_tee_sets.down,
+    name: '20261115_195844_tee_sets'
   },
 ];

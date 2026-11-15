@@ -1173,15 +1173,23 @@ export interface Course {
    */
   name: string;
   /**
-   * Up to four. The first tee is the one shown when only one yardage fits, and the “Length” on course tour pages.
+   * Up to eight, including women’s and winter tees. The first tee is the one shown when only one yardage fits, and the “Length” on course tour pages.
    */
   tees?:
     | {
-        colour: 'white' | 'yellow' | 'red' | 'blue' | 'black';
+        colour: 'white' | 'yellow' | 'red' | 'blue' | 'black' | 'green' | 'gold' | 'orange' | 'purple' | 'silver';
         /**
-         * Only if the club calls this tee something else, e.g. “Championship”. Otherwise the colour is used.
+         * Only if the club calls this tee something else, e.g. “Championship” or “60”. Otherwise it is named from its colour, e.g. “Women’s red” or “Winter yellow”.
          */
         name?: string | null;
+        /**
+         * A women’s tee shows the ladies’ par and stroke index with it.
+         */
+        players?: ('both' | 'men' | 'women') | null;
+        /**
+         * Only played in winter.
+         */
+        winter?: boolean | null;
         rating?: number | null;
         slope?: number | null;
         /**
@@ -1192,6 +1200,7 @@ export interface Course {
          * Optional.
          */
         slopeWomen?: number | null;
+        slot?: number | null;
         id?: string | null;
       }[]
     | null;
@@ -1212,6 +1221,14 @@ export interface Course {
          */
         ladiesPar?: number | null;
         ladiesStrokeIndex?: number | null;
+        yards1?: number | null;
+        yards2?: number | null;
+        yards3?: number | null;
+        yards4?: number | null;
+        yards5?: number | null;
+        yards6?: number | null;
+        yards7?: number | null;
+        yards8?: number | null;
         yardsWhite?: number | null;
         yardsYellow?: number | null;
         yardsRed?: number | null;
@@ -3848,10 +3865,13 @@ export interface CoursesSelect<T extends boolean = true> {
     | {
         colour?: T;
         name?: T;
+        players?: T;
+        winter?: T;
         rating?: T;
         slope?: T;
         ratingWomen?: T;
         slopeWomen?: T;
+        slot?: T;
         id?: T;
       };
   tipFrom?: T;
@@ -3863,6 +3883,14 @@ export interface CoursesSelect<T extends boolean = true> {
         strokeIndex?: T;
         ladiesPar?: T;
         ladiesStrokeIndex?: T;
+        yards1?: T;
+        yards2?: T;
+        yards3?: T;
+        yards4?: T;
+        yards5?: T;
+        yards6?: T;
+        yards7?: T;
+        yards8?: T;
         yardsWhite?: T;
         yardsYellow?: T;
         yardsRed?: T;

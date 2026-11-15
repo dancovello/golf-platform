@@ -62,7 +62,7 @@ export const HoleCarousel = ({
               <ul className="hole-overlay-tees">
                 {tees.map((t, i) =>
                   hole.yards[i] == null ? null : (
-                    <li key={t.colour} className="t-label-s hole-chip">
+                    <li key={t.key} className="t-label-s hole-chip">
                       <TeeDot tee={t} />
                       <span className="visually-hidden">{t.name}</span>
                       {hole.yards[i]}

@@ -251,6 +251,8 @@ export const buildDemoClub = async (payload: Payload) => {
       { colour: 'white', rating: 74.1, slope: 138, ratingWomen: 79.6, slopeWomen: 145 },
       { colour: 'yellow', rating: 72.3, slope: 131, ratingWomen: 77.5, slopeWomen: 139 },
       { colour: 'red', rating: 75.2, slope: 134, ratingWomen: 80.1, slopeWomen: 139 },
+      // A women's forward tee, so the demo shows women's tees on the scorecard (G1).
+      { colour: 'green', players: 'women', ratingWomen: 72.4, slopeWomen: 128 },
     ],
     holes: holeCard.map(([name, par, strokeIndex, yardsWhite, yardsYellow, yardsRed], i) => ({
       name,
@@ -259,9 +261,11 @@ export const buildDemoClub = async (payload: Payload) => {
       // The ladies' card: its own stroke index, and one hole that plays a shot longer.
       ladiesStrokeIndex: (strokeIndex % 18) + 1,
       ladiesPar: i === holeCard.findIndex((h) => h[1] === 4) ? 5 : undefined,
-      yardsWhite,
-      yardsYellow,
-      yardsRed,
+      // Yards by tee, in the order above: white, yellow, red, women's green.
+      yards1: yardsWhite,
+      yards2: yardsYellow,
+      yards3: yardsRed,
+      yards4: yardsRed - 25,
       image: photos[i % photos.length].id,
       tip: tips[i % tips.length],
       // Course tour details, filled in to different degrees so the tour shows how it copes:
@@ -281,8 +285,8 @@ export const buildDemoClub = async (payload: Payload) => {
       name,
       par,
       strokeIndex: [5, 1, 9, 3, 7, 8, 2, 4, 6][i],
-      yardsYellow: yardsYellow - 40,
-      yardsRed: yardsRed - 40,
+      yards1: yardsYellow - 40,
+      yards2: yardsRed - 40,
       image: photos[(i + 3) % photos.length].id,
     })),
   })

@@ -24,7 +24,7 @@ export const TeeYards = ({ hole, tees }: { hole: SiteHole; tees: SiteTee[] }) =>
   <dl className="hole-tees">
     {tees.map((t, i) =>
       hole.yards[i] == null ? null : (
-        <div key={t.colour} className="hole-tee">
+        <div key={t.key} className="hole-tee">
           <dt className="t-label-s">
             <TeeDot tee={t} />
             {t.name}
