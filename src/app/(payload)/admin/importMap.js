@@ -16,6 +16,8 @@ import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0
 import { HeadingFeatureClient as HeadingFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ParagraphFeatureClient as ParagraphFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { AssignTenantFieldTrigger as AssignTenantFieldTrigger_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
+import { NoticeRowLabel as NoticeRowLabel_1a742fd273dc388f52cc428a335e2ca5 } from '../../../admin/NoticeRowLabel'
+import { TeeRowLabel as TeeRowLabel_e68434ae96bcfa677845dfe38beab25f } from '../../../admin/TeeRowLabel'
 import { TeeYardsLabel as TeeYardsLabel_240dca23aa5f07aa91806df6ee1d314f } from '../../../admin/TeeYardsLabel'
 import { DescriptionCell as DescriptionCell_77efe8da5abd468dfbd244797c4797b0 } from '../../../admin/DescriptionCell'
 import { AgreementNotice as AgreementNotice_0c59deaf7e3e73247a9db3722360189d } from '../../../admin/AgreementNotice'
@@ -66,6 +68,8 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#HeadingFeatureClient": HeadingFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#ParagraphFeatureClient": ParagraphFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/plugin-multi-tenant/client#AssignTenantFieldTrigger": AssignTenantFieldTrigger_1d0591e3cf4f332c83a86da13a0de59a,
+  "/admin/NoticeRowLabel#NoticeRowLabel": NoticeRowLabel_1a742fd273dc388f52cc428a335e2ca5,
+  "/admin/TeeRowLabel#TeeRowLabel": TeeRowLabel_e68434ae96bcfa677845dfe38beab25f,
   "/admin/TeeYardsLabel#TeeYardsLabel": TeeYardsLabel_240dca23aa5f07aa91806df6ee1d314f,
   "/admin/DescriptionCell#DescriptionCell": DescriptionCell_77efe8da5abd468dfbd244797c4797b0,
   "/admin/AgreementNotice#AgreementNotice": AgreementNotice_0c59deaf7e3e73247a9db3722360189d,

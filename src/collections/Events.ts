@@ -177,11 +177,27 @@ export const Events: CollectionConfig = {
     {
       // Open competitions (G3, 15 Nov 2026): the rules golfers look for, when entries open and
       // close, and the results. Entry itself stays on the club's own system (the link above).
-      // Shown for every event (collapsed), not only competitions: fields hidden by a condition
-      // skip their checks, and a results link is useful for any event.
+      // Only for competitions (the category above), so a quiz night or dinner isn't asked about
+      // handicaps. If an event of another category already has details, they stay visible.
       type: 'collapsible',
       label: 'Competition details and results (optional)',
-      admin: { initCollapsed: true },
+      admin: {
+        initCollapsed: true,
+        condition: (data) =>
+          data?.category === 'competition' ||
+          Boolean(
+            data?.entrants?.length ||
+            data?.eligibility ||
+            data?.format ||
+            data?.entriesOpen ||
+            data?.entriesClose ||
+            data?.ballot ||
+            data?.results?.page ||
+            data?.results?.document ||
+            data?.results?.url ||
+            data?.results?.builtIn,
+          ),
+      },
       fields: [
         {
           name: 'entrants',
@@ -189,7 +205,10 @@ export const Events: CollectionConfig = {
           type: 'select',
           hasMany: true,
           options: [...EVENT_ENTRANTS],
-          admin: { description: 'Used for the Men / Ladies / Juniors / Seniors filters.' },
+          admin: {
+            description:
+              'Tick everyone it is open to. Used for the Men, Ladies, Juniors and Seniors buttons on the events page.',
+          },
         },
         {
           type: 'row',
@@ -223,7 +242,7 @@ export const Events: CollectionConfig = {
               admin: {
                 width: '50%',
                 date: { pickerAppearance: 'dayAndTime', displayFormat: 'd MMM yyyy, HH:mm' },
-                description: 'UK time. Before this, the button says when entries open.',
+                description: 'Optional. Until then the button says when entries open.',
               },
             },
             {
@@ -233,7 +252,7 @@ export const Events: CollectionConfig = {
               admin: {
                 width: '50%',
                 date: { pickerAppearance: 'dayAndTime', displayFormat: 'd MMM yyyy, HH:mm' },
-                description: 'UK time. After this, the button says "Entries closed".',
+                description: 'Optional. After this the button says “Entries closed”.',
               },
               validate: (
                 value: unknown,

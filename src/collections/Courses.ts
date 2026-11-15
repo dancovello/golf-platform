@@ -110,8 +110,10 @@ export const Courses: CollectionConfig = {
       maxRows: MAX_TEES,
       labels: { singular: 'Tee', plural: 'Tees' },
       admin: {
+        initCollapsed: true,
+        components: { RowLabel: '/admin/TeeRowLabel#TeeRowLabel' },
         description:
-          'Up to eight, including women’s and winter tees. The first tee is the one shown when only one yardage fits, and the “Length” on course tour pages.',
+          'One row per set of tee markers, up to eight. Most clubs need two or three. Add a women’s tee or a winter tee here too. The first one is used for the “Length” on course tour pages. After adding a tee, type its yards on each hole below.',
       },
       validate: (rows: unknown) => {
         const names = (Array.isArray(rows) ? (rows as TeeRow[]) : [])
@@ -157,7 +159,8 @@ export const Courses: CollectionConfig = {
               options: [...TEE_PLAYERS],
               admin: {
                 width: '25%',
-                description: 'A women’s tee shows the ladies’ par and stroke index with it.',
+                description:
+                  'Choose Women for a tee only women play: it uses the ladies’ par and stroke index.',
               },
             },
             {
@@ -165,7 +168,7 @@ export const Courses: CollectionConfig = {
               label: 'Winter tee',
               type: 'checkbox',
               defaultValue: false,
-              admin: { width: '75%', description: 'Only played in winter.' },
+              admin: { width: '75%', description: 'Tick for a tee only used in winter.' },
             },
           ],
         },

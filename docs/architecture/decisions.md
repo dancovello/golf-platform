@@ -983,3 +983,15 @@ From the 50-club audit (`docs/product/15-feature-gap-register.md`): 21 of 50 clu
 - **Saved on the enquiry** (read-only like the rest of what the visitor sent, shown in the admin only when answered), **included in the email to the club** as plain lines, and covered by the existing 12-month clean-up after the enquiry is handled. No new privacy wording needed: nothing new is personal.
 - **Left out on purpose:** date of birth and postal address (two clubs ask them). Both are personal data the club doesn't need to reply; they can be added later with privacy wording if a club needs them. Start and finish times, event type and per-product forms (Gleneagles) are not built either.
 - Database change: new columns on enquiries and one small table for the setting. Nothing changed or deleted.
+
+## 2026-11-15: Editing review of the new options (UX pass, Dan's request)
+
+Dan asked for the new editing options to be easy and not overwhelming. Reviewed screen by screen from the editor's side (by reading the screens' configuration, not by clicking through the admin); no database change.
+
+- **Courses → Tees:** tees now start collapsed and each shows its own name ("Women's red", "Winter yellow") instead of "Tee 03", so eight tees don't mean eight open forms. Plainer help: most clubs need two or three; type the yards on each hole after adding a tee.
+- **Events:** the competition panel (who can enter, rules, entry dates, ballot, results) now appears only for events in the Competitions category, so a quiz night or dinner isn't asked about handicaps. An event of another category that already has details keeps them visible, so nothing is hidden or skipped.
+- **Price table:** the two date options are separate and clearer: "Repeats every year: starts in / ends in" (months, style B) and a collapsed "Dates: when do these prices apply? (optional)" with First day and Last day. "Show next year's prices early" only appears once a list has a first day.
+- **Membership:** joining fee, how to pay and availability moved into one collapsed "Joining fee and availability (optional)" group per category, so clubs that don't use them never see them.
+- **Course status:** collapsed notices show their words as the heading; "Which course" help says it is only for clubs with several courses.
+- **Visitor times:** the "Design style" picker is hidden while there is only one style.
+- Not changed: the Contact form's extra questions (already one multi-select inside a topic that clubs add themselves), the Scorecard's handicap tick, and the "Needs attention" list (read-only).

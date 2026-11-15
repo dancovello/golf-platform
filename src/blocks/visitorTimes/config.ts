@@ -1,6 +1,5 @@
 import type { Block } from 'payload'
 
-import { styleField } from '../shared'
 import type { BlockDefinition } from '../types'
 
 const MONTHS = [
@@ -29,7 +28,16 @@ const config: Block = {
   labels: { singular: 'Visitor times', plural: 'Visitor times' },
   interfaceName: 'VisitorTimesBlock',
   fields: [
-    styleField([{ label: 'A · Table: a row per day, a tab per season', value: 'table' }]),
+    // One style for now, so there is nothing to choose: the picker is hidden.
+    {
+      name: 'style',
+      label: 'Design style',
+      type: 'select',
+      required: true,
+      defaultValue: 'table',
+      options: [{ label: 'A · Table: a row per day, a tab per season', value: 'table' }],
+      admin: { hidden: true },
+    },
     {
       name: 'eyebrow',
       label: 'Small line above the heading (optional)',
