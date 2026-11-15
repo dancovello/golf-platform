@@ -575,7 +575,7 @@ describe('course status', () => {
     expect(fresh!.ctx.courseStatus).toMatchObject({ state: 'open', stale: false })
 
     await w.payload.db.drizzle.execute(
-      sql`UPDATE course_status SET updated_at = now() - interval '2 days' WHERE id = ${w.statusA.id}`,
+      sql`UPDATE course_status SET updated_at = now() - interval '2 days', state_changed_at = now() - interval '2 days' WHERE id = ${w.statusA.id}`,
     )
     const old = await loadClubPage(w.clubA.id, 'membership')
     expect(old!.ctx.courseStatus?.stale).toBe(true)
