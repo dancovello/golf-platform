@@ -633,6 +633,14 @@ export interface RateTableBlock {
               period?: string | null;
               startMonth?: ('1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12') | null;
               endMonth?: ('1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12') | null;
+              /**
+               * Before this day the list is hidden (see "Show upcoming prices").
+               */
+              validFrom?: string | null;
+              /**
+               * After this day the list disappears from the website.
+               */
+              validUntil?: string | null;
               rows?:
                 | {
                     label: string;
@@ -651,6 +659,10 @@ export interface RateTableBlock {
         id?: string | null;
       }[]
     | null;
+  /**
+   * For clubs that take bookings a year ahead: a price list with a "Valid from" date still to come is shown now, marked with the day it starts. Otherwise it appears on that day.
+   */
+  showUpcoming?: boolean | null;
   footnote?: string | null;
   /**
    * Leave empty to use the club’s "Book a tee time" button.
@@ -3359,6 +3371,8 @@ export interface RateTableBlockSelect<T extends boolean = true> {
               period?: T;
               startMonth?: T;
               endMonth?: T;
+              validFrom?: T;
+              validUntil?: T;
               rows?:
                 | T
                 | {
@@ -3375,6 +3389,7 @@ export interface RateTableBlockSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  showUpcoming?: T;
   footnote?: T;
   button?:
     | T

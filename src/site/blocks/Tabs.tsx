@@ -12,13 +12,16 @@ export const Tabs = ({
   panels,
   variant,
   label,
+  initial = 0,
 }: {
   labels: string[]
   panels: ReactNode[]
   variant: 'tabs' | 'segments'
   label: string
+  /** The tab shown first (e.g. the price list in force today). */
+  initial?: number
 }) => {
-  const [active, setActive] = useState(0)
+  const [active, setActive] = useState(initial)
   const id = useId()
   const refs = useRef<(HTMLButtonElement | null)[]>([])
 
