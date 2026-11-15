@@ -11,6 +11,7 @@ import { Video } from './Video'
 import { Hero } from './Hero'
 import { MapBlock } from './MapBlock'
 import { RateTable } from './RateTable'
+import { VisitorTimes } from './VisitorTimes'
 import { RichText } from './RichText'
 import { TwoColumn } from './TwoColumn'
 import { PullQuote } from './PullQuote'
@@ -126,6 +127,8 @@ const drawBlock = (
           pageUpdatedAt={pageUpdatedAt}
         />
       )
+    case 'visitorTimes':
+      return <VisitorTimes key={block.id ?? i} block={block} />
     case 'gallery':
       return <Gallery key={block.id ?? i} block={block} ctx={ctx} />
     case 'video':

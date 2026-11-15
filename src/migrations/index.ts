@@ -85,6 +85,7 @@ import * as migration_20261114_091925_video_file from './20261114_091925_video_f
 import * as migration_20261115_195844_tee_sets from './20261115_195844_tee_sets';
 import * as migration_20261115_200732_open_competitions from './20261115_200732_open_competitions';
 import * as migration_20261115_201108_dated_price_lists from './20261115_201108_dated_price_lists';
+import * as migration_20261115_201530_course_notices from './20261115_201530_course_notices';
 
 export const migrations = [
   {
@@ -520,6 +521,11 @@ export const migrations = [
   {
     up: migration_20261115_201108_dated_price_lists.up,
     down: migration_20261115_201108_dated_price_lists.down,
-    name: '20261115_201108_dated_price_lists'
+    name: '20261115_201108_dated_price_lists',
+  },
+  {
+    up: migration_20261115_201530_course_notices.up,
+    down: migration_20261115_201530_course_notices.down,
+    name: '20261115_201530_course_notices'
   },
 ];

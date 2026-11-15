@@ -191,6 +191,7 @@ export interface Page {
         | TwoColumnBlock
         | RichTextBlock
         | RateTableBlock
+        | VisitorTimesBlock
         | GalleryBlock
         | VideoBlock
         | DocumentListBlock
@@ -693,6 +694,51 @@ export interface RateTableBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'rateTable';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "VisitorTimesBlock".
+ */
+export interface VisitorTimesBlock {
+  style: 'table';
+  eyebrow?: string | null;
+  heading: string;
+  intro?: string | null;
+  /**
+   * One is enough if the times never change. Add one per season (e.g. "Summer", "Winter") if they do; the one for this month is shown first.
+   */
+  timetables?:
+    | {
+        /**
+         * e.g. "Summer". Shown as the tab.
+         */
+        name?: string | null;
+        startMonth?: ('1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12') | null;
+        endMonth?: ('1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12') | null;
+        rows?:
+          | {
+              /**
+               * e.g. "Monday to Friday"
+               */
+              days: string;
+              /**
+               * e.g. "9:30am to 1pm" or "Members only"
+               */
+              times: string;
+              /**
+               * e.g. "Two-balls only before 10am"
+               */
+              note?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  footnote?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'visitorTimes';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1607,6 +1653,22 @@ export interface CourseStatus {
    * e.g. "the Course Manager". Shown beside the time.
    */
   changedBy?: string | null;
+  /**
+   * Things you know in advance, e.g. "Winter mats in use on fairways" from 1 Dec to 28 Feb. Each shows on the course status from its first day (and as "coming up" in the month before), and goes by itself after its last day. Saving only notices doesn’t count as updating the course status.
+   */
+  notices?:
+    | {
+        message: string;
+        kind: 'closed' | 'restricted' | 'open';
+        startsOn: string;
+        /**
+         * Blank: until you remove it.
+         */
+        endsOn?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  stateChangedAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -3176,6 +3238,7 @@ export interface PagesSelect<T extends boolean = true> {
         twoColumn?: T | TwoColumnBlockSelect<T>;
         richText?: T | RichTextBlockSelect<T>;
         rateTable?: T | RateTableBlockSelect<T>;
+        visitorTimes?: T | VisitorTimesBlockSelect<T>;
         gallery?: T | GalleryBlockSelect<T>;
         video?: T | VideoBlockSelect<T>;
         documentList?: T | DocumentListBlockSelect<T>;
@@ -3410,6 +3473,35 @@ export interface RateTableBlockSelect<T extends boolean = true> {
         id?: T;
       };
   showPhone?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "VisitorTimesBlock_select".
+ */
+export interface VisitorTimesBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  intro?: T;
+  timetables?:
+    | T
+    | {
+        name?: T;
+        startMonth?: T;
+        endMonth?: T;
+        rows?:
+          | T
+          | {
+              days?: T;
+              times?: T;
+              note?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  footnote?: T;
   id?: T;
   blockName?: T;
 }
@@ -3902,6 +3994,16 @@ export interface CourseStatusSelect<T extends boolean = true> {
         id?: T;
       };
   changedBy?: T;
+  notices?:
+    | T
+    | {
+        message?: T;
+        kind?: T;
+        startsOn?: T;
+        endsOn?: T;
+        id?: T;
+      };
+  stateChangedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }

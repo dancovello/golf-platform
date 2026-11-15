@@ -571,6 +571,21 @@ export const buildDemoClub = async (payload: Payload) => {
         { label: 'Practice ground', state: 'closed', value: 'Opens 10:00' },
         { label: 'Winter greens', state: 'open', value: 'Not in play' },
       ],
+      // Planned notices (G4): one in force, one coming up, always relative to today.
+      notices: [
+        {
+          message: 'Fairway mats in use on the Heathland course',
+          kind: 'restricted',
+          startsOn: daysFromNow(-10),
+          endsOn: daysFromNow(60),
+        },
+        {
+          message: 'Championship course closed for hollow-tining',
+          kind: 'closed',
+          startsOn: daysFromNow(14),
+          endsOn: daysFromNow(16),
+        },
+      ],
     } as never,
   })
 
@@ -1286,6 +1301,40 @@ export const buildDemoClub = async (payload: Payload) => {
       image: morning.id,
       eyebrow: 'Visitors welcome · 7 days a week',
       headline: 'Your morning on the Championship course',
+    },
+    {
+      // Visitor times (G4): a summer and a winter timetable; this month's opens first.
+      blockType: 'visitorTimes',
+      style: 'table',
+      eyebrow: 'Visitor times',
+      heading: 'When visitors can play',
+      timetables: [
+        {
+          name: 'Summer',
+          startMonth: '4',
+          endMonth: '10',
+          rows: [
+            {
+              days: 'Monday to Wednesday',
+              times: 'From 9:30am',
+              note: 'Two-balls only before 10am',
+            },
+            { days: 'Thursday', times: 'Members only' },
+            { days: 'Friday', times: 'From 9:30am' },
+            { days: 'Saturday and Sunday', times: 'After 1pm' },
+          ],
+        },
+        {
+          name: 'Winter',
+          startMonth: '11',
+          endMonth: '3',
+          rows: [
+            { days: 'Monday to Friday', times: 'From 9am' },
+            { days: 'Saturday and Sunday', times: 'After 12 noon' },
+          ],
+        },
+      ],
+      footnote: 'Times can change on competition days. The tee sheet always has the latest.',
     },
     {
       blockType: 'rateTable',

@@ -947,3 +947,15 @@ From the 50-club audit (`docs/product/15-feature-gap-register.md`): 21 of 50 clu
 - **Never an empty table while prices are coming:** if every list is still to start, the next one shows, marked with its start day. If every list has ended, the block shows nothing rather than old prices.
 - Style A (season tabs) applies these rules across its tabs and opens on the tab in force today. Styles B and C apply them within each audience tab. Style B's "Now" badge follows the dates when a list has them, otherwise the months.
 - Database change: three new columns. Nothing changed or deleted.
+
+## 2026-11-15: Course notices and visitor times (feature gap G4, chosen by Dan)
+
+26 of 50 audited clubs publish dated course changes (winter mats, winter closures, holes out of play); 18 publish weekly visitor times.
+
+- **Planned notices live on the club's Course status** (up to ten): a sentence, a type (Closure, Restriction or Information, shown with the red, amber or green status dot) and a first day, with an optional last day. A notice shows from its first day to its last (whole UK days), and as "coming up" in the 30 days before. Past notices drop off by themselves. Nobody needs to remember to change anything on the day.
+- **Where they show:** the status board lists notices in force (soonest-ending first) and then those coming up ("From 14 Dec to 16 Dec"); the widget lists those in force; the band gives one place to the first notice in force. Notices show even when the day's status is out of date, because they are dated facts, not the morning check.
+- **Editing only notices does not count as updating the course.** "Last changed …" and the "not updated today, please call" check now use a separate time that a save sets only when the course's state, words, parts or "changed by" change, or when someone saves without changing anything (confirming it is still right). This keeps the 24-hour honesty rule (doc 05) intact. Existing clubs use their last save time until their next status update. Kept on the one Course status record rather than a new collection, so no new club-owned collection or isolation fixtures were needed.
+- **Not linked to the announcement bar:** the bar already has its own start and end dates, so a club that wants a notice there adds it there.
+- **New block, "Visitor times":** up to three timetables (e.g. Summer, Winter), each a list of days, the visitor times and an optional note ("Two-balls only before 10am"), plus an optional month range. Several timetables become tabs that open on this month's. **One style only, and not yet drawn in Figma:** it borrows the Price table's classic look. Dan to decide whether it needs a design pass. Added to the demo club's Visitors page, with two demo notices on its course status (one in force, one coming up), so the block pictures need refreshing.
+- Not built (plan item G16, not chosen): a status or notice per course for clubs with several courses. A notice can name the course in its sentence.
+- Database change: new columns and tables only. Nothing changed or deleted.
