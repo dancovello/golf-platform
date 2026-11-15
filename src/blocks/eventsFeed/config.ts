@@ -1,6 +1,6 @@
 import type { Block } from 'payload'
 
-import { EVENT_CATEGORIES } from '../../collections/eventCategories'
+import { EVENT_CATEGORIES, EVENT_ENTRANTS } from '../../collections/eventCategories'
 import { styleField } from '../shared'
 import type { BlockDefinition } from '../types'
 
@@ -43,6 +43,19 @@ const config: Block = {
       type: 'select',
       options: [...EVENT_CATEGORIES],
       admin: { ...onlyFor('carousel', 'agenda'), description: 'Leave empty for all events.' },
+    },
+    {
+      // G3, 15 Nov 2026: e.g. a ladies' section page showing only the ladies' competitions.
+      name: 'entrant',
+      label: 'Only competitions for (optional)',
+      type: 'select',
+      options: [...EVENT_ENTRANTS],
+      admin: {
+        condition: (_d: unknown, sibling: { style?: string; category?: string }) =>
+          ['carousel', 'agenda'].includes(sibling?.style ?? '') &&
+          sibling?.category === 'competition',
+        description: 'Leave empty for every competition.',
+      },
     },
   ],
 }

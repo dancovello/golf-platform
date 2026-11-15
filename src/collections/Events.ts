@@ -5,7 +5,7 @@ import { imageField } from '../blocks/shared'
 import { linkField } from '../fields/link'
 import { eventLivePreview } from '../site/livePreview'
 import { checkEventSameClub } from '../site/sameClub'
-import { EVENT_CATEGORIES } from './eventCategories'
+import { EVENT_CATEGORIES, EVENT_ENTRANTS } from './eventCategories'
 import { clubBannerField } from '../tenancy'
 import { searchHooks } from '../search/hooks'
 import { ukStartOfDay } from '../site/ukTime'
@@ -63,7 +63,7 @@ export const Events: CollectionConfig = {
           admin: {
             date: { pickerAppearance: 'dayAndTime', displayFormat: 'd MMM yyyy, HH:mm' },
             description:
-              'UK time. The event leaves the website once it has started (or, with no set start time, when its day ends).',
+              'UK time. The event leaves the upcoming list once it has started (or, with no set start time, when its day ends). With results added, it then appears under Results.',
           },
         },
         {
@@ -146,6 +146,7 @@ export const Events: CollectionConfig = {
           defaultValue: 'book',
           options: [
             { label: 'Book', value: 'book' },
+            { label: 'Enter', value: 'enter' },
             { label: 'Enquire', value: 'enquire' },
             { label: 'Sold out', value: 'soldOut' },
           ],
@@ -173,6 +174,94 @@ export const Events: CollectionConfig = {
       withLabel: false,
       required: false,
     }),
+    {
+      // Open competitions (G3, 15 Nov 2026): the rules golfers look for, when entries open and
+      // close, and the results. Entry itself stays on the club's own system (the link above).
+      // Shown for every event (collapsed), not only competitions: fields hidden by a condition
+      // skip their checks, and a results link is useful for any event.
+      type: 'collapsible',
+      label: 'Competition details and results (optional)',
+      admin: { initCollapsed: true },
+      fields: [
+        {
+          name: 'entrants',
+          label: 'Who can enter',
+          type: 'select',
+          hasMany: true,
+          options: [...EVENT_ENTRANTS],
+          admin: { description: 'Used for the Men / Ladies / Juniors / Seniors filters.' },
+        },
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'eligibility',
+              label: 'Entry rules (optional)',
+              type: 'text',
+              maxLength: 120,
+              admin: {
+                width: '60%',
+                description: 'e.g. "Handicap index 18.4 or less, aged 55 and over"',
+              },
+            },
+            {
+              name: 'format',
+              label: 'Format (optional)',
+              type: 'text',
+              maxLength: 60,
+              admin: { width: '40%', description: 'e.g. "Stableford, yellow tees"' },
+            },
+          ],
+        },
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'entriesOpen',
+              label: 'Entries open (optional)',
+              type: 'date',
+              admin: {
+                width: '50%',
+                date: { pickerAppearance: 'dayAndTime', displayFormat: 'd MMM yyyy, HH:mm' },
+                description: 'UK time. Before this, the button says when entries open.',
+              },
+            },
+            {
+              name: 'entriesClose',
+              label: 'Entries close (optional)',
+              type: 'date',
+              admin: {
+                width: '50%',
+                date: { pickerAppearance: 'dayAndTime', displayFormat: 'd MMM yyyy, HH:mm' },
+                description: 'UK time. After this, the button says "Entries closed".',
+              },
+              validate: (
+                value: unknown,
+                { siblingData }: { siblingData: { entriesOpen?: unknown } },
+              ) =>
+                !value ||
+                !siblingData?.entriesOpen ||
+                new Date(String(value)) > new Date(String(siblingData.entriesOpen))
+                  ? true
+                  : 'Entries must close after they open.',
+            },
+          ],
+        },
+        {
+          name: 'ballot',
+          label: 'Places decided by ballot',
+          type: 'checkbox',
+          defaultValue: false,
+        },
+        linkField({
+          name: 'results',
+          label: 'Results (optional)',
+          withLabel: false,
+          required: false,
+          allowDocument: true,
+        }),
+      ],
+    },
     {
       name: 'featured',
       label: 'Feature this event (Events block style C)',

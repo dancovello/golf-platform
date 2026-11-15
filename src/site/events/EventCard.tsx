@@ -1,7 +1,10 @@
 import { Photo } from '../blocks/parts'
 import { ArrowRight, ChevronRight, Clock, Pin } from '../components/Icons'
 import { linkTarget, siteHref } from '../components/links'
+import { eventEntrantLabel } from '@/collections/eventCategories'
+
 import type { SiteEvent } from '../events'
+import { siteToday } from '../today'
 
 const LONDON = { timeZone: 'Europe/London' } as const
 
@@ -42,8 +45,42 @@ export const eventWhen = (e: SiteEvent) => {
 export const eventPrice = (e: SiteEvent) =>
   [e.price, e.memberPrice ? `Members ${e.memberPrice}` : null].filter(Boolean).join(' · ') || null
 
-export const bookingLabel = (e: SiteEvent) =>
-  e.booking === 'soldOut' ? 'Sold out' : e.booking === 'enquire' ? 'Enquire' : 'Book'
+/** "Thu 15 Jan, 10:00" (UK time). */
+const dayMonthTime = (iso: string) => {
+  const d = new Date(iso)
+  const weekday = d.toLocaleDateString('en-GB', { weekday: 'short', ...LONDON })
+  const date = d.toLocaleDateString('en-GB', { day: 'numeric', ...LONDON })
+  const time = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', ...LONDON })
+  return `${weekday} ${date} ${londonMonth(d)}, ${time}`
+}
+
+/**
+ * Where a competition's entries stand (G3): not open yet ("Entries open Thu 15 Jan, 10:00")
+ * or closed. Null while entries are open, or when the club gave no dates.
+ */
+export const entryStatus = (e: SiteEvent, now = siteToday()) => {
+  if (e.booking === 'soldOut') return null
+  if (e.entriesOpen && now < new Date(e.entriesOpen)) {
+    return { state: 'notOpen' as const, label: `Entries open ${dayMonthTime(e.entriesOpen)}` }
+  }
+  if (e.entriesClose && now > new Date(e.entriesClose)) {
+    return { state: 'closed' as const, label: 'Entries closed' }
+  }
+  return null
+}
+
+const BOOKING_LABELS = { book: 'Book', enter: 'Enter', enquire: 'Enquire', soldOut: 'Sold out' }
+
+/** The card's action: the entry window's state first, then Book / Enter / Enquire / Sold out. */
+export const bookingLabel = (e: SiteEvent) => entryStatus(e)?.label ?? BOOKING_LABELS[e.booking]
+
+/** "Men · Ladies · Handicap index 18.4 or less" (who can enter and the rules). */
+export const eventWho = (e: SiteEvent) =>
+  [...e.entrants.map(eventEntrantLabel), e.eligibility].filter(Boolean).join(' · ') || null
+
+/** "Stableford, yellow tees · Ballot". */
+export const eventFormat = (e: SiteEvent) =>
+  [e.format, e.ballot ? 'Places by ballot' : null].filter(Boolean).join(' · ') || null
 
 /** Figma "Date badge": the day large, the month small. */
 export const DateBadge = ({ iso, className = '' }: { iso: string; className?: string }) => (
@@ -102,6 +139,7 @@ export const EventCard = ({
           <p className="t-body-s event-meta">
             <time dateTime={event.startsAt}>{eventMeta(event)}</time>
             {event.booking === 'soldOut' ? ' · Sold out' : ''}
+            {entryStatus(event) ? ` · ${entryStatus(event)!.label}` : ''}
           </p>
         </div>
         {event.link ? (
@@ -112,7 +150,10 @@ export const EventCard = ({
       </article>
     )
   }
-  const soldOut = event.booking === 'soldOut'
+  // Sold out, entries not open yet or closed: the action is shown muted, without an arrow.
+  const muted = event.booking === 'soldOut' || entryStatus(event) !== null
+  const who = eventWho(event)
+  const format = eventFormat(event)
   return (
     <article className={`event-card is-stacked${event.link ? ' has-link' : ''}`}>
       <div className="event-image">
@@ -148,6 +189,18 @@ export const EventCard = ({
               </dd>
             </div>
           ) : null}
+          {who ? (
+            <div className="event-detail is-who">
+              <dt className="t-data-label">Who</dt>
+              <dd className="t-body-s">{who}</dd>
+            </div>
+          ) : null}
+          {format ? (
+            <div className="event-detail is-format">
+              <dt className="t-data-label">Format</dt>
+              <dd className="t-body-s">{format}</dd>
+            </div>
+          ) : null}
           {price ? (
             <div className="event-detail is-price">
               <dt className="t-data-label">Price</dt>
@@ -156,11 +209,11 @@ export const EventCard = ({
           ) : null}
         </dl>
         <span
-          className={`t-label-button event-action${soldOut ? ' is-sold-out' : ''}`}
+          className={`t-label-button event-action${muted ? ' is-sold-out' : ''}`}
           aria-hidden="true"
         >
           {bookingLabel(event)}
-          {event.link && !soldOut ? <ArrowRight /> : null}
+          {event.link && !muted ? <ArrowRight /> : null}
         </span>
       </div>
     </article>

@@ -180,5 +180,10 @@ export const checkEventSameClub = sameClubCheck((data) => {
   const link = (data.link ?? {}) as { type?: string; page?: unknown }
   const page = linksToPage(link.type) ? idOf(link.page) : null
   if (page) refs.push({ collection: 'pages', id: page, path: 'link.page' })
+  const results = (data.results ?? {}) as { type?: string; page?: unknown; document?: unknown }
+  const resultsPage = linksToPage(results.type) ? idOf(results.page) : null
+  if (resultsPage) refs.push({ collection: 'pages', id: resultsPage, path: 'results.page' })
+  const resultsDoc = results.type === 'document' ? idOf(results.document) : null
+  if (resultsDoc) refs.push({ collection: 'documents', id: resultsDoc, path: 'results.document' })
   return refs
 })

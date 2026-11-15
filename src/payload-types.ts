@@ -1414,6 +1414,10 @@ export interface EventsFeedBlock {
    * Leave empty for all events.
    */
   category?: ('social' | 'dining' | 'competition' | 'academy' | 'members') | null;
+  /**
+   * Leave empty for every competition.
+   */
+  entrant?: ('men' | 'women' | 'mixed' | 'juniors' | 'seniors') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'eventsFeed';
@@ -1477,7 +1481,7 @@ export interface Event {
   title: string;
   status: 'draft' | 'published';
   /**
-   * UK time. The event leaves the website once it has started (or, with no set start time, when its day ends).
+   * UK time. The event leaves the upcoming list once it has started (or, with no set start time, when its day ends). With results added, it then appears under Results.
    */
   startsAt: string;
   category: 'social' | 'dining' | 'competition' | 'academy' | 'members';
@@ -1506,7 +1510,7 @@ export interface Event {
    * e.g. "£38"
    */
   memberPrice?: string | null;
-  booking: 'book' | 'enquire' | 'soldOut';
+  booking: 'book' | 'enter' | 'enquire' | 'soldOut';
   capacity?: number | null;
   /**
    * Shown as "14 of 60 places left" when the event is featured.
@@ -1515,6 +1519,40 @@ export interface Event {
   link?: {
     type?: ('page' | 'builtIn' | 'url') | null;
     page?: (string | null) | Page;
+    builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+    /**
+     * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+     */
+    url?: string | null;
+  };
+  /**
+   * Used for the Men / Ladies / Juniors / Seniors filters.
+   */
+  entrants?: ('men' | 'women' | 'mixed' | 'juniors' | 'seniors')[] | null;
+  /**
+   * e.g. "Handicap index 18.4 or less, aged 55 and over"
+   */
+  eligibility?: string | null;
+  /**
+   * e.g. "Stableford, yellow tees"
+   */
+  format?: string | null;
+  /**
+   * UK time. Before this, the button says when entries open.
+   */
+  entriesOpen?: string | null;
+  /**
+   * UK time. After this, the button says "Entries closed".
+   */
+  entriesClose?: string | null;
+  ballot?: boolean | null;
+  results?: {
+    type?: ('page' | 'builtIn' | 'url' | 'document') | null;
+    page?: (string | null) | Page;
+    /**
+     * Opens the file in a new tab. Add files under Documents.
+     */
+    document?: (string | null) | Document;
     builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
     /**
      * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
@@ -3751,6 +3789,7 @@ export interface EventsFeedBlockSelect<T extends boolean = true> {
   heading?: T;
   intro?: T;
   category?: T;
+  entrant?: T;
   id?: T;
   blockName?: T;
 }
@@ -3809,6 +3848,21 @@ export interface EventsSelect<T extends boolean = true> {
     | {
         type?: T;
         page?: T;
+        builtIn?: T;
+        url?: T;
+      };
+  entrants?: T;
+  eligibility?: T;
+  format?: T;
+  entriesOpen?: T;
+  entriesClose?: T;
+  ballot?: T;
+  results?:
+    | T
+    | {
+        type?: T;
+        page?: T;
+        document?: T;
         builtIn?: T;
         url?: T;
       };

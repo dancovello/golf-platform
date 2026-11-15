@@ -1,10 +1,11 @@
 import config from '@payload-config'
 import { getPayload, type Where } from 'payload'
 
-import { EVENT_CATEGORIES, eventCategoryLabel } from '@/collections/eventCategories'
+import { EVENT_CATEGORIES, EVENT_ENTRANTS, eventCategoryLabel } from '@/collections/eventCategories'
 import { builtInLink, isSafeURL, linksToPage } from '@/fields/link'
 
 import { loadClubMedia, type SiteMedia } from './blocks/media'
+import { loadClubDocuments } from './blocks/resolve'
 import { PUBLISHED } from './published'
 import type { SiteLink } from './loadClub'
 import { siteToday } from './today'
@@ -27,12 +28,21 @@ export type SiteEvent = {
   image: SiteMedia | null
   price: string | null
   memberPrice: string | null
-  booking: 'book' | 'enquire' | 'soldOut'
-  /** Where Book / Enquire goes; null when sold out or not set. */
+  booking: 'book' | 'enter' | 'enquire' | 'soldOut'
+  /** Where Book / Enter / Enquire goes; null when sold out or not set. */
   link: SiteLink | null
   capacity: number | null
   placesLeft: number | null
   featured: boolean
+  /** Competition details (G3); all optional. */
+  entrants: string[]
+  eligibility: string | null
+  format: string | null
+  entriesOpen: string | null
+  entriesClose: string | null
+  ballot: boolean
+  /** The results: a document, page or web address, once the club adds them. */
+  results: SiteLink | null
 }
 
 /** The archive shows this many at first, and this many more each time. */
@@ -50,15 +60,36 @@ type EventDoc = {
   image?: unknown
   price?: string | null
   memberPrice?: string | null
-  booking: 'book' | 'enquire' | 'soldOut'
-  link?: { type?: string | null; page?: unknown; url?: string | null; builtIn?: unknown } | null
+  booking: 'book' | 'enter' | 'enquire' | 'soldOut'
+  link?: LinkDoc | null
   capacity?: number | null
   placesLeft?: number | null
   featured?: boolean | null
+  entrants?: string[] | null
+  eligibility?: string | null
+  format?: string | null
+  entriesOpen?: string | null
+  entriesClose?: string | null
+  ballot?: boolean | null
+  results?: LinkDoc | null
 }
 
+type LinkDoc = {
+  type?: string | null
+  page?: unknown
+  url?: string | null
+  builtIn?: unknown
+  document?: unknown
+}
+
+const ENTRANT_VALUES: string[] = EVENT_ENTRANTS.map((e) => e.value)
+
+/** A known "who can enter" value, or null (the archive's ?for= and the Events block). */
+export const knownEntrant = (value: unknown) =>
+  typeof value === 'string' && ENTRANT_VALUES.includes(value) ? value : null
+
 /** Published and not yet started (events with no set time: until their day ends). */
-const upcoming = (tenantID: string, category?: string | null): Where => ({
+const upcoming = (tenantID: string, category?: string | null, entrant?: string | null): Where => ({
   and: [
     { tenant: { equals: tenantID } },
     { status: { equals: 'published' } },
@@ -74,21 +105,31 @@ const upcoming = (tenantID: string, category?: string | null): Where => ({
       ],
     },
     ...(category ? [{ category: { equals: category } }] : []),
+    ...(entrant ? [{ entrants: { in: [entrant] } }] : []),
   ],
 })
 
 const toEvents = async (tenantID: string, docs: EventDoc[]): Promise<SiteEvent[]> => {
   const payload = await getPayload({ config })
   const photoIDs = docs.map((d) => idOf(d.image)).filter((id): id is string => Boolean(id))
+  const links = docs.flatMap((d) => [d.link, d.results])
   const pageIDs = [
     ...new Set(
-      docs
-        .map((d) => (linksToPage(d.link?.type) ? idOf(d.link?.page) : null))
+      links
+        .map((l) => (linksToPage(l?.type) ? idOf(l?.page) : null))
         .filter((id): id is string => Boolean(id)),
     ),
   ]
-  const [photos, pages] = await Promise.all([
+  const documentIDs = [
+    ...new Set(
+      docs
+        .map((d) => (d.results?.type === 'document' ? idOf(d.results.document) : null))
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ]
+  const [photos, documents, pages] = await Promise.all([
     loadClubMedia(payload, tenantID, photoIDs),
+    loadClubDocuments(payload, tenantID, documentIDs),
     pageIDs.length === 0
       ? Promise.resolve(new Map<string, string>())
       : payload
@@ -102,19 +143,21 @@ const toEvents = async (tenantID: string, docs: EventDoc[]): Promise<SiteEvent[]
           })
           .then(({ docs: found }) => new Map(found.map((p) => [String(p.id), String(p.slug)]))),
   ])
+  /** A link to the club's own page, built-in page, document or a safe web address. */
+  const toLink = (l: LinkDoc | null | undefined): SiteLink | null => {
+    if (!l) return null
+    if (l.type === 'url') return isSafeURL(l.url) ? { kind: 'url', href: l.url.trim() } : null
+    if (l.type === 'builtIn') return builtInLink(l.builtIn)
+    if (l.type === 'document') {
+      const doc = documents.get(idOf(l.document) ?? '')
+      return doc ? { kind: 'url', href: doc.url, file: true } : null
+    }
+    const slug = pages.get(idOf(l.page) ?? '')
+    return slug ? { kind: 'page', slug } : null
+  }
   return docs.map((d) => {
     const image = photos.get(idOf(d.image) ?? '') ?? null
-    let link: SiteLink | null = null
-    if (d.booking !== 'soldOut' && d.link) {
-      if (d.link.type === 'url') {
-        link = isSafeURL(d.link.url) ? { kind: 'url', href: d.link.url.trim() } : null
-      } else if (d.link.type === 'builtIn') {
-        link = builtInLink(d.link.builtIn)
-      } else {
-        const slug = pages.get(idOf(d.link.page) ?? '')
-        link = slug ? { kind: 'page', slug } : null
-      }
-    }
+    const link = d.booking !== 'soldOut' ? toLink(d.link) : null
     return {
       id: String(d.id),
       title: d.title,
@@ -133,6 +176,13 @@ const toEvents = async (tenantID: string, docs: EventDoc[]): Promise<SiteEvent[]
       capacity: d.capacity ?? null,
       placesLeft: d.placesLeft ?? null,
       featured: Boolean(d.featured),
+      entrants: (d.entrants ?? []).filter((e) => ENTRANT_VALUES.includes(e)),
+      eligibility: d.eligibility?.trim() || null,
+      format: d.format?.trim() || null,
+      entriesOpen: d.entriesOpen ?? null,
+      entriesClose: d.entriesClose ?? null,
+      ballot: Boolean(d.ballot),
+      results: toLink(d.results),
     }
   })
 }
@@ -169,8 +219,9 @@ const upcomingEventsFresh = async (
   tenantID: string,
   limit: number,
   category?: string | null,
+  entrant?: string | null,
 ): Promise<SiteEvent[]> => {
-  const { docs } = await find(tenantID, upcoming(tenantID, category), limit)
+  const { docs } = await find(tenantID, upcoming(tenantID, category, knownEntrant(entrant)), limit)
   return toEvents(tenantID, docs as EventDoc[])
 }
 
@@ -195,18 +246,27 @@ const eventsArchiveFresh = async (
   tenantID: string,
   {
     category,
+    entrant = null,
     show,
     include = null,
-  }: { category: string | null; show: number; include?: string | null },
+  }: {
+    category: string | null
+    entrant?: string | null
+    show: number
+    include?: string | null
+  },
 ) => {
   const known = EVENT_CATEGORIES.some((c) => c.value === category) ? category : null
+  // "Who can enter" only narrows competitions.
+  const forWho = known === 'competition' ? knownEntrant(entrant) : null
   const count = Math.min(Math.max(EVENTS_STEP, show), 200)
-  const result = await find(tenantID, upcoming(tenantID, known), count)
+  const result = await find(tenantID, upcoming(tenantID, known, forWho), count)
   // The event being previewed comes first, so the editor always sees it.
   const extra = include ? (await find(tenantID, { id: { equals: include } }, 1)).docs : []
   const docs = [...extra, ...result.docs.filter((d) => !extra.some((e) => e.id === d.id))]
   return {
     category: known,
+    entrant: forWho,
     events: await toEvents(tenantID, docs as EventDoc[]),
     total: result.totalDocs,
     show: count,
@@ -218,15 +278,58 @@ export const upcomingEvents = clubCached('upcomingEvents', upcomingEventsFresh, 
 export const featuredEvent = clubCached('featuredEvent', featuredEventFresh, { today: true })
 const cachedArchive = clubCached(
   'eventsArchive',
-  (tenantID: string, category: string | null, show: number) =>
-    eventsArchiveFresh(tenantID, { category, show }),
+  (tenantID: string, category: string | null, entrant: string | null, show: number) =>
+    eventsArchiveFresh(tenantID, { category, entrant, show }),
   { today: true },
 )
 /** The archive. With `include` (the live preview's draft event) it never goes through the cache. */
 export const eventsArchive = (
   tenantID: string,
-  options: { category: string | null; show: number; include?: string | null },
+  options: {
+    category: string | null
+    entrant?: string | null
+    show: number
+    include?: string | null
+  },
 ) =>
   options.include
     ? eventsArchiveFresh(tenantID, options)
-    : cachedArchive(tenantID, options.category, options.show)
+    : cachedArchive(tenantID, options.category, options.entrant ?? null, options.show)
+
+/** How many past results the events page lists. */
+export const RESULTS_LIMIT = 24
+
+/**
+ * Past events with results, newest first (G3): published events that have started and have a
+ * results document, page or web address.
+ */
+const clubResultsFresh = async (tenantID: string): Promise<SiteEvent[]> => {
+  const { docs } = await getPayload({ config }).then((payload) =>
+    payload.find({
+      collection: 'events',
+      where: {
+        and: [
+          { tenant: { equals: tenantID } },
+          { status: { equals: 'published' } },
+          { startsAt: { less_than_equal: siteToday().toISOString() } },
+          {
+            or: [
+              { 'results.page': { exists: true } },
+              { 'results.document': { exists: true } },
+              { 'results.url': { exists: true } },
+              { 'results.builtIn': { exists: true } },
+            ],
+          },
+        ],
+      },
+      sort: '-startsAt',
+      limit: RESULTS_LIMIT,
+      depth: 0,
+      overrideAccess: true,
+    }),
+  )
+  const events = await toEvents(tenantID, docs as unknown as EventDoc[])
+  // A results link to a page or file that has since gone is left out.
+  return events.filter((e) => e.results !== null)
+}
+export const clubResults = clubCached('clubResults', clubResultsFresh, { today: true })
