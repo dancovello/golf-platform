@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 
-import type { SiteCourse } from './resolve'
+import type { SiteCourse, SiteHole } from './resolve'
 import {
   fmt,
   halves,
@@ -17,7 +17,8 @@ import {
 /**
  * Scorecard style C: the whole course on one strip for the chosen tee. The tee picker
  * updates the figures and the yards row in place, and is kept in the address (?tee=yellow)
- * so the view can be shared. Without JavaScript the main (first) tee is shown.
+ * so the view can be shared. Without JavaScript the main (first) tee is shown. A women's tee
+ * shows the ladies' par and stroke index in the main rows (G1, 15 Nov 2026).
  */
 export const TeeScorecard = ({ course }: { course: SiteCourse }) => {
   const [active, setActive] = useState(0)
@@ -25,7 +26,9 @@ export const TeeScorecard = ({ course }: { course: SiteCourse }) => {
 
   useEffect(() => {
     const wanted = new URLSearchParams(window.location.search).get('tee')
-    const i = course.tees.findIndex((t) => t.colour === wanted)
+    // Old shared links used the colour (?tee=yellow); newer ones use the tee's own name.
+    const byKey = course.tees.findIndex((t) => t.key === wanted)
+    const i = byKey >= 0 ? byKey : course.tees.findIndex((t) => t.colour === wanted)
     // Reading the address once, on arrival: an external value, not derived state.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (i > 0) setActive(i)
@@ -34,12 +37,17 @@ export const TeeScorecard = ({ course }: { course: SiteCourse }) => {
   const choose = (i: number) => {
     setActive(i)
     const url = new URL(window.location.href)
-    url.searchParams.set('tee', course.tees[i].colour)
+    url.searchParams.set('tee', course.tees[i].key)
     window.history.replaceState(null, '', url)
   }
 
   const parts = halves(course.holes)
   const yards = (n: number) => course.holes[n - 1]?.yards[active] ?? null
+  // A women's tee plays to the ladies' card, so its rows replace the men's par and SI.
+  const women = tee?.players === 'women'
+  const parOf = (h: SiteHole) => (women ? ladiesPar(h) : h.par)
+  const siOf = (h: SiteHole) => (women ? (h.ladiesStrokeIndex ?? h.strokeIndex) : h.strokeIndex)
+  const extraLadiesRows = !women
 
   return (
     <>
@@ -47,7 +55,7 @@ export const TeeScorecard = ({ course }: { course: SiteCourse }) => {
         <div className="tabs tabs-segments sc-tee-picker" role="group" aria-label="Tees">
           {course.tees.map((t, i) => (
             <button
-              key={t.colour}
+              key={t.key}
               type="button"
               className={`tab t-label-s${active === i ? ' is-active' : ''}`}
               aria-pressed={active === i}
@@ -58,7 +66,7 @@ export const TeeScorecard = ({ course }: { course: SiteCourse }) => {
           ))}
         </div>
       ) : null}
-      <Summary course={course} tees={tee ? [tee] : []} ratingTee={tee} />
+      <Summary course={course} tees={tee ? [tee] : []} ratingTee={tee} parOf={parOf} />
       <div
         className="sc-scroll"
         tabIndex={0}
@@ -107,13 +115,13 @@ export const TeeScorecard = ({ course }: { course: SiteCourse }) => {
             <tr>
               <th scope="row">Par</th>
               {parts.flatMap((p) => [
-                ...p.holes.map((h) => <td key={h.number}>{h.par}</td>),
+                ...p.holes.map((h) => <td key={h.number}>{parOf(h)}</td>),
                 <td key={p.total} className="is-total">
-                  {fmt(sum(p.holes, (h) => h.par))}
+                  {fmt(sum(p.holes, parOf))}
                 </td>,
               ])}
               {parts.length > 1 ? (
-                <td className="is-total">{fmt(sum(course.holes, (h) => h.par))}</td>
+                <td className="is-total">{fmt(sum(course.holes, parOf))}</td>
               ) : null}
             </tr>
             <tr>
@@ -121,14 +129,14 @@ export const TeeScorecard = ({ course }: { course: SiteCourse }) => {
                 <abbr title="Stroke index">SI</abbr>
               </th>
               {parts.flatMap((p) => [
-                ...p.holes.map((h) => <td key={h.number}>{h.strokeIndex ?? '—'}</td>),
+                ...p.holes.map((h) => <td key={h.number}>{siOf(h) ?? '—'}</td>),
                 <td key={p.total} className="is-total">
                   —
                 </td>,
               ])}
               {parts.length > 1 ? <td className="is-total">—</td> : null}
             </tr>
-            {hasLadiesPar(course.holes) ? (
+            {extraLadiesRows && hasLadiesPar(course.holes) ? (
               <tr>
                 <th scope="row">Ladies’ par</th>
                 {parts.flatMap((p) => [
@@ -142,7 +150,7 @@ export const TeeScorecard = ({ course }: { course: SiteCourse }) => {
                 ) : null}
               </tr>
             ) : null}
-            {hasLadiesSI(course.holes) ? (
+            {extraLadiesRows && hasLadiesSI(course.holes) ? (
               <tr>
                 <th scope="row">
                   <abbr title="Ladies’ stroke index">Ladies’ SI</abbr>

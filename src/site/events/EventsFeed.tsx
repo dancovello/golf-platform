@@ -6,7 +6,15 @@ import { linkTarget, siteHref } from '../components/links'
 import { featuredEvent, upcomingEvents } from '../events'
 import type { ClubSite } from '../loadClub'
 import { NewsCarousel } from '../news/NewsCarousel'
-import { bookingLabel, EventCard, eventDay, eventMeta, eventMonth, eventPrice } from './EventCard'
+import {
+  bookingLabel,
+  EventCard,
+  eventDay,
+  eventMeta,
+  eventMonth,
+  eventPrice,
+  entryStatus,
+} from './EventCard'
 
 // Styles (events.css) are loaded by RenderBlocks after the shared button styles.
 
@@ -67,15 +75,20 @@ export const EventsFeed = async ({
                 <time dateTime={lead.startsAt}>{eventMeta(lead)}</time>
                 {price ? ` · ${price}` : ''}
               </p>
-              {lead.link ? (
+              {lead.link && !entryStatus(lead) ? (
                 <a
                   className="btn btn-accent t-label-button events-featured-button"
                   href={siteHref(base, lead.link)}
                   {...linkTarget(lead.link)}
                 >
-                  {lead.booking === 'enquire' ? 'Enquire' : 'Book tickets'} <ArrowRight />
+                  {lead.booking === 'enquire'
+                    ? 'Enquire'
+                    : lead.booking === 'enter'
+                      ? 'Enter'
+                      : 'Book tickets'}{' '}
+                  <ArrowRight />
                 </a>
-              ) : lead.booking === 'soldOut' ? (
+              ) : lead.booking === 'soldOut' || entryStatus(lead) ? (
                 <p className="t-label-button events-featured-sold-out">{bookingLabel(lead)}</p>
               ) : null}
               {lead.placesLeft != null && lead.capacity && lead.booking !== 'soldOut' ? (
@@ -97,7 +110,12 @@ export const EventsFeed = async ({
     )
   }
 
-  const events = await upcomingEvents(club.tenantID, style === 'agenda' ? 4 : 6, block.category)
+  const events = await upcomingEvents(
+    club.tenantID,
+    style === 'agenda' ? 4 : 6,
+    block.category,
+    block.category === 'competition' ? block.entrant : null,
+  )
   if (events.length === 0) return null
 
   if (style === 'agenda') {

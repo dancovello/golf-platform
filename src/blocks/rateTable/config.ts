@@ -119,8 +119,58 @@ const config: Block = {
               type: 'row',
               admin: blockIs('seasons'),
               fields: [
-                { name: 'startMonth', label: 'Season starts in', type: 'select', options: MONTHS },
-                { name: 'endMonth', label: 'Season ends in', type: 'select', options: MONTHS },
+                {
+                  name: 'startMonth',
+                  label: 'Repeats every year: starts in',
+                  type: 'select',
+                  options: MONTHS,
+                },
+                { name: 'endMonth', label: 'ends in', type: 'select', options: MONTHS },
+              ],
+            },
+            {
+              // G2, 15 Nov 2026: dated lists switch over by themselves, so last year's prices
+              // never stay up. Collapsed and optional: most clubs never open it.
+              type: 'collapsible',
+              label: 'Dates: when do these prices apply? (optional)',
+              admin: {
+                initCollapsed: true,
+                description:
+                  'Add dates and the website switches over by itself: this list appears on its first day and disappears after its last, so old prices never stay up. Leave blank to always show it.',
+              },
+              fields: [
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'validFrom',
+                      label: 'First day',
+                      type: 'date',
+                      admin: {
+                        width: '50%',
+                        date: { pickerAppearance: 'dayOnly', displayFormat: 'd MMM yyyy' },
+                      },
+                    },
+                    {
+                      name: 'validUntil',
+                      label: 'Last day',
+                      type: 'date',
+                      admin: {
+                        width: '50%',
+                        date: { pickerAppearance: 'dayOnly', displayFormat: 'd MMM yyyy' },
+                      },
+                      validate: (
+                        value: unknown,
+                        { siblingData }: { siblingData: { validFrom?: unknown } },
+                      ) =>
+                        !value ||
+                        !siblingData?.validFrom ||
+                        new Date(String(value)) >= new Date(String(siblingData.validFrom))
+                          ? true
+                          : 'The last day can’t be before the first day.',
+                    },
+                  ],
+                },
               ],
             },
             {
@@ -159,6 +209,21 @@ const config: Block = {
           ],
         },
       ],
+    },
+    {
+      name: 'showUpcoming',
+      label: 'Show next year’s prices early',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        // Only matters once a list has a first day, so it stays out of the way until then.
+        condition: (data) =>
+          ((data?.tabs ?? []) as { sections?: { validFrom?: unknown }[] }[]).some((t) =>
+            (t.sections ?? []).some((s) => Boolean(s.validFrom)),
+          ),
+        description:
+          'Tick this if you take bookings a year ahead: next year’s prices then show now, marked “These prices apply from …”. Leave it off and they appear on their first day.',
+      },
     },
     { name: 'footnote', label: 'Footnote (optional)', type: 'textarea', maxLength: 240 },
     {

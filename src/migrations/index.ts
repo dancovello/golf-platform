@@ -82,6 +82,13 @@ import * as migration_20261110_212116_twocolumn_button from './20261110_212116_t
 import * as migration_20261112_220906_course_tour_fields from './20261112_220906_course_tour_fields';
 import * as migration_20261112_222757_course_tour_block from './20261112_222757_course_tour_block';
 import * as migration_20261114_091925_video_file from './20261114_091925_video_file';
+import * as migration_20261115_195844_tee_sets from './20261115_195844_tee_sets';
+import * as migration_20261115_200732_open_competitions from './20261115_200732_open_competitions';
+import * as migration_20261115_201108_dated_price_lists from './20261115_201108_dated_price_lists';
+import * as migration_20261115_201530_course_notices from './20261115_201530_course_notices';
+import * as migration_20261115_204413_handicap_and_membership from './20261115_204413_handicap_and_membership';
+import * as migration_20261115_204705_status_per_course from './20261115_204705_status_per_course';
+import * as migration_20261115_205035_enquiry_extras from './20261115_205035_enquiry_extras';
 
 export const migrations = [
   {
@@ -502,6 +509,41 @@ export const migrations = [
   {
     up: migration_20261114_091925_video_file.up,
     down: migration_20261114_091925_video_file.down,
-    name: '20261114_091925_video_file'
+    name: '20261114_091925_video_file',
+  },
+  {
+    up: migration_20261115_195844_tee_sets.up,
+    down: migration_20261115_195844_tee_sets.down,
+    name: '20261115_195844_tee_sets',
+  },
+  {
+    up: migration_20261115_200732_open_competitions.up,
+    down: migration_20261115_200732_open_competitions.down,
+    name: '20261115_200732_open_competitions',
+  },
+  {
+    up: migration_20261115_201108_dated_price_lists.up,
+    down: migration_20261115_201108_dated_price_lists.down,
+    name: '20261115_201108_dated_price_lists',
+  },
+  {
+    up: migration_20261115_201530_course_notices.up,
+    down: migration_20261115_201530_course_notices.down,
+    name: '20261115_201530_course_notices',
+  },
+  {
+    up: migration_20261115_204413_handicap_and_membership.up,
+    down: migration_20261115_204413_handicap_and_membership.down,
+    name: '20261115_204413_handicap_and_membership',
+  },
+  {
+    up: migration_20261115_204705_status_per_course.up,
+    down: migration_20261115_204705_status_per_course.down,
+    name: '20261115_204705_status_per_course',
+  },
+  {
+    up: migration_20261115_205035_enquiry_extras.up,
+    down: migration_20261115_205035_enquiry_extras.down,
+    name: '20261115_205035_enquiry_extras'
   },
 ];

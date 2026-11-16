@@ -13,6 +13,7 @@ import {
   sum,
   TeeLabel,
 } from './scorecardParts'
+import { HandicapTable } from './HandicapTable'
 import { TeeScorecard } from './TeeScorecard'
 import { NEW_TAB } from '../components/links'
 
@@ -49,7 +50,7 @@ const Classic = ({ course }: { course: SiteCourse }) => (
           </thead>
           <tbody className="t-body-s">
             {course.tees.map((t, i) => (
-              <tr key={t.colour}>
+              <tr key={t.key}>
                 <th scope="row">
                   <TeeLabel tee={t} />
                 </th>
@@ -124,7 +125,7 @@ const Vertical = ({ course, linkToGuide }: { course: SiteCourse; linkToGuide: bo
                   </th>
                 ) : null}
                 {course.tees.map((t) => (
-                  <th key={t.colour} scope="col">
+                  <th key={t.key} scope="col">
                     {t.name}
                   </th>
                 ))}
@@ -141,7 +142,7 @@ const Vertical = ({ course, linkToGuide }: { course: SiteCourse; linkToGuide: bo
                   {ladiesPars ? <td>{ladiesPar(h)}</td> : null}
                   {ladiesSIs ? <td>{h.ladiesStrokeIndex ?? '—'}</td> : null}
                   {course.tees.map((t, i) => (
-                    <td key={t.colour}>{fmt(h.yards[i])}</td>
+                    <td key={t.key}>{fmt(h.yards[i])}</td>
                   ))}
                 </tr>
               ))}
@@ -154,7 +155,7 @@ const Vertical = ({ course, linkToGuide }: { course: SiteCourse; linkToGuide: bo
                 {ladiesPars ? <td>{fmt(sum(p.holes, ladiesPar))}</td> : null}
                 {ladiesSIs ? <td>—</td> : null}
                 {course.tees.map((t, i) => (
-                  <td key={t.colour}>{fmt(sum(p.holes, (h) => h.yards[i]))}</td>
+                  <td key={t.key}>{fmt(sum(p.holes, (h) => h.yards[i]))}</td>
                 ))}
               </tr>
               {parts.length > 1 && n === parts.length - 1 ? (
@@ -165,7 +166,7 @@ const Vertical = ({ course, linkToGuide }: { course: SiteCourse; linkToGuide: bo
                   {ladiesPars ? <td>{fmt(sum(course.holes, ladiesPar))}</td> : null}
                   {ladiesSIs ? <td>—</td> : null}
                   {course.tees.map((t, i) => (
-                    <td key={t.colour}>{fmt(sum(course.holes, (h) => h.yards[i]))}</td>
+                    <td key={t.key}>{fmt(sum(course.holes, (h) => h.yards[i]))}</td>
                   ))}
                 </tr>
               ) : null}
@@ -209,6 +210,9 @@ export const Scorecard = ({ block, ctx }: { block: ScorecardBlock; ctx: BlockCon
         ) : (
           <Classic course={course} />
         )}
+        {block.handicapTable ? (
+          <HandicapTable course={course} allowance={Number(block.allowance ?? 100) || 100} />
+        ) : null}
         {block.note ? <Paragraphs text={block.note} className="t-body-s sc-note" /> : null}
       </div>
     </section>

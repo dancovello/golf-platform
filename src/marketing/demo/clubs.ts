@@ -145,6 +145,7 @@ export const demoCourseStatus = (): SiteCourseStatus => {
     changedBy: 'Greenkeeper',
     updatedAt: today.toISOString(),
     stale: false,
+    notices: [],
   }
 }
 

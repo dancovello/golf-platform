@@ -14,6 +14,7 @@ import { isGAMeasurementID } from '../site/privacy/policy'
 import { checkSameClub } from '../site/sameClub'
 import { BRAND_INPUTS, type Brand, DEFAULT_BRAND, isHex } from '../theme/colour'
 import { DEFAULT_FONT_SET, FONT_SETS } from '../theme/fontSets'
+import { EXTRA_OPTIONS } from './enquiryExtras'
 import { ENQUIRY_PURPOSES } from './enquiryPurposes'
 import { idOf } from '../blocks/types'
 import { publicError } from '../errors'
@@ -895,6 +896,18 @@ export const ClubSettings: CollectionConfig = {
                           admin: { description: 'Blank: the footer email address.' },
                         },
                       ],
+                    },
+                    {
+                      // G5, 15 Nov 2026: a fixed set of extra questions, per topic.
+                      name: 'extraFields',
+                      label: 'Extra questions (optional)',
+                      type: 'select',
+                      hasMany: true,
+                      options: EXTRA_OPTIONS,
+                      admin: {
+                        description:
+                          'Extra questions to ask on this topic, e.g. caddies and trolleys for Visitor golf, or food and dietary needs for Events. They are saved with the message and included in the email.',
+                      },
                     },
                     linkField({
                       name: 'nextLink',

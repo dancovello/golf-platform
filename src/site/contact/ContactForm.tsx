@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from 'react'
 
+import { ENQUIRY_EXTRAS, type ExtraKey } from '@/collections/enquiryExtras'
 import {
   asksForDateAndPeople,
   ENQUIRY_PURPOSES,
@@ -26,6 +27,8 @@ type Props = {
   action: (prev: ContactState, form: FormData) => Promise<ContactState>
   initial: ContactState
   membershipTypes: string[]
+  /** The extra questions the club switched on, per topic (G5). */
+  extras: Partial<Record<EnquiryPurpose, ExtraKey[]>>
   today: string
   offerNewsletter: boolean
   /** The Contact page again, for "Send another message". */
@@ -97,6 +100,7 @@ const FormBody = ({
   formAction,
   pending,
   membershipTypes,
+  extras,
   today,
   offerNewsletter,
 }: Props & { state: ContactState; formAction: (form: FormData) => void; pending: boolean }) => {
@@ -110,7 +114,7 @@ const FormBody = ({
   // would miss it. Sending checks every field anyway.
   const pressingSend = useRef(false)
 
-  const shown = new Set(fieldsFor(purpose))
+  const shown = new Set(fieldsFor(purpose, extras[purpose] ?? []))
   const errors: FieldErrors = {}
   for (const field of FIELD_ORDER) {
     if (!shown.has(field)) continue
@@ -133,7 +137,10 @@ const FormBody = ({
       const value = e.currentTarget.value
       if (!value.trim() && !(field in checked) && !state.errors[field]) return
       const values = { ...state.values, purpose, [field]: value } as ContactValues
-      setChecked((c) => ({ ...c, [field]: fieldError(field, values, { membershipTypes, today }) }))
+      setChecked((c) => ({
+        ...c,
+        [field]: fieldError(field, values, { membershipTypes, today, extras }),
+      }))
     }
 
   const v = state.values
@@ -308,6 +315,36 @@ const FormBody = ({
           </div>
         ) : null}
       </div>
+
+      {(extras[purpose] ?? []).length > 0 ? (
+        <div className="cf-section">
+          <div className="cf-extra">
+            {ENQUIRY_EXTRAS.filter((e) => (extras[purpose] ?? []).includes(e.key)).map((e) => (
+              <div key={e.key}>
+                {field(
+                  e.key,
+                  e.label,
+                  false,
+                  e.kind === 'long'
+                    ? (common) => (
+                        <textarea
+                          className="cf-input cf-textarea t-body-m"
+                          rows={3}
+                          maxLength={e.max}
+                          defaultValue={v[e.key]}
+                          {...common}
+                        />
+                      )
+                    : input(e.key, {
+                        maxLength: e.kind === 'count' ? 3 : e.max,
+                        ...(e.kind === 'count' ? { inputMode: 'numeric' } : {}),
+                      }),
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       <div className="cf-section">
         {field(

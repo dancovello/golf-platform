@@ -1,6 +1,7 @@
 import config from '@payload-config'
 import { getPayload } from 'payload'
 
+import { EXTRA_KEYS, extraFor } from '@/collections/enquiryExtras'
 import { enquiryPurposeLabel } from '@/collections/enquiryPurposes'
 import { allowRequest, CONTACT_CLUB_LIMIT } from '@/security/rateLimit'
 
@@ -123,6 +124,7 @@ export const submitEnquiry = async (
   const errors = validateContact(values, {
     membershipTypes: settings.membershipTypes,
     today: ukToday(now),
+    extras: settings.extras,
   })
   if (Object.keys(errors).length > 0) return keep({ errors })
 
@@ -155,9 +157,17 @@ export const submitEnquiry = async (
   if (lastHour >= HOURLY_LIMIT) return keep({ formError: BUSY })
 
   // Only the fields this topic shows are saved.
-  const shown = new Set(fieldsFor(values.purpose))
+  const shown = new Set(fieldsFor(values.purpose, settings.extras[values.purpose] ?? []))
   const optional = (field: 'phone' | 'membershipType' | 'preferredDate' | 'groupSize') =>
     shown.has(field) && values[field].trim() ? values[field].trim() : null
+  // The extra questions the club switched on for this topic (G5); counts are saved as numbers.
+  const extraData = Object.fromEntries(
+    EXTRA_KEYS.flatMap((key) => {
+      const value = shown.has(key) ? values[key].trim() : ''
+      if (!value) return []
+      return [[key, extraFor(key)?.kind === 'count' ? Number(value) : value]]
+    }),
+  )
   const reference = await unusedReference(club.tenantID, club.name)
   const saved = await payload.create({
     collection: 'enquiries',
@@ -173,6 +183,7 @@ export const submitEnquiry = async (
         ? new Date(`${optional('preferredDate')}T12:00:00Z`).toISOString()
         : null,
       groupSize: optional('groupSize') ? Number(optional('groupSize')) : null,
+      ...extraData,
       message: values.message.trim(),
       newsletter: Boolean(club.privacy.newsletterProvider) && values.newsletter,
       status: 'new',

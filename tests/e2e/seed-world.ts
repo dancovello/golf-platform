@@ -214,8 +214,8 @@ await w.payload.update({
       strokeIndex: i + 1,
       ladiesStrokeIndex: 9 - i,
       ladiesPar: i === 2 ? 5 : undefined,
-      yardsWhite: 400,
-      yardsYellow: 380,
+      yards1: 400,
+      yards2: 380,
     })),
   },
 })
@@ -260,7 +260,7 @@ const tourNine = await w.payload.create({
     name: 'The Nine',
     tenant: tourClub.id,
     tees: [{ colour: 'white' }],
-    holes: Array.from({ length: 9 }, (_, i) => ({ par: 4, strokeIndex: i + 1, yardsWhite: 400 })),
+    holes: Array.from({ length: 9 }, (_, i) => ({ par: 4, strokeIndex: i + 1, yards1: 400 })),
   } as never,
 })
 const tourPhotos: { id: string }[] = []
@@ -296,7 +296,7 @@ const tourCourse = await w.payload.create({
       { colour: 'red', name: 'Forward' },
     ],
     holes: Array.from({ length: 18 }, (_, i) => {
-      const yards = { yardsBlack: 462 - i, yardsWhite: 446 - i, yardsYellow: 425 - i }
+      const yards = { yards1: 462 - i, yards2: 446 - i, yards3: 425 - i }
       if (i === 0) return { par: 4, image: tourPhotos[0].id }
       if (i === 1)
         return {
@@ -306,7 +306,7 @@ const tourCourse = await w.payload.create({
           ladiesPar: 5,
           ladiesStrokeIndex: 3,
           ...yards,
-          yardsRed: 380,
+          yards4: 380,
           image: tourPhotos[0].id,
           morePhotos: [tourPhotos[1].id, tourPhotos[2].id, tourPhotos[3].id],
           plan: tourPlan.id,
@@ -330,7 +330,7 @@ const tourCourse = await w.payload.create({
           ladiesPar: 6,
           ladiesStrokeIndex: 18,
           ...yards,
-          yardsRed: 380,
+          yards4: 380,
           image: tourPhotos[0].id,
           morePhotos: Array.from({ length: 11 }, (_, n) => tourPhotos[(n + 1) % 4].id),
           plan: tourPlan.id,

@@ -20,6 +20,7 @@ import { courseStatus } from './courseStatus/config'
 import { courseRecord } from './courseRecord/config'
 import { newsFeed } from './newsFeed/config'
 import { eventsFeed } from './eventsFeed/config'
+import { visitorTimes } from './visitorTimes/config'
 import { blockPreview } from './previews'
 import type { BlockDefinition, BlockRef } from './types'
 
@@ -30,6 +31,7 @@ export const blockDefinitions: BlockDefinition[] = [
   twoColumn,
   richText,
   rateTable,
+  visitorTimes,
   gallery,
   video,
   documentList,

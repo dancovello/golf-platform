@@ -251,6 +251,8 @@ export const buildDemoClub = async (payload: Payload) => {
       { colour: 'white', rating: 74.1, slope: 138, ratingWomen: 79.6, slopeWomen: 145 },
       { colour: 'yellow', rating: 72.3, slope: 131, ratingWomen: 77.5, slopeWomen: 139 },
       { colour: 'red', rating: 75.2, slope: 134, ratingWomen: 80.1, slopeWomen: 139 },
+      // A women's forward tee, so the demo shows women's tees on the scorecard (G1).
+      { colour: 'green', players: 'women', ratingWomen: 72.4, slopeWomen: 128 },
     ],
     holes: holeCard.map(([name, par, strokeIndex, yardsWhite, yardsYellow, yardsRed], i) => ({
       name,
@@ -259,9 +261,11 @@ export const buildDemoClub = async (payload: Payload) => {
       // The ladies' card: its own stroke index, and one hole that plays a shot longer.
       ladiesStrokeIndex: (strokeIndex % 18) + 1,
       ladiesPar: i === holeCard.findIndex((h) => h[1] === 4) ? 5 : undefined,
-      yardsWhite,
-      yardsYellow,
-      yardsRed,
+      // Yards by tee, in the order above: white, yellow, red, women's green.
+      yards1: yardsWhite,
+      yards2: yardsYellow,
+      yards3: yardsRed,
+      yards4: yardsRed - 25,
       image: photos[i % photos.length].id,
       tip: tips[i % tips.length],
       // Course tour details, filled in to different degrees so the tour shows how it copes:
@@ -281,8 +285,8 @@ export const buildDemoClub = async (payload: Payload) => {
       name,
       par,
       strokeIndex: [5, 1, 9, 3, 7, 8, 2, 4, 6][i],
-      yardsYellow: yardsYellow - 40,
-      yardsRed: yardsRed - 40,
+      yards1: yardsYellow - 40,
+      yards2: yardsRed - 40,
       image: photos[(i + 3) % photos.length].id,
     })),
   })
@@ -566,6 +570,21 @@ export const buildDemoClub = async (payload: Payload) => {
         { label: 'Trolleys', state: 'open', value: 'Permitted' },
         { label: 'Practice ground', state: 'closed', value: 'Opens 10:00' },
         { label: 'Winter greens', state: 'open', value: 'Not in play' },
+      ],
+      // Planned notices (G4): one in force, one coming up, always relative to today.
+      notices: [
+        {
+          message: 'Fairway mats in use on the Heathland course',
+          kind: 'restricted',
+          startsOn: daysFromNow(-10),
+          endsOn: daysFromNow(60),
+        },
+        {
+          message: 'Championship course closed for hollow-tining',
+          kind: 'closed',
+          startsOn: daysFromNow(14),
+          endsOn: daysFromNow(16),
+        },
       ],
     } as never,
   })
@@ -983,6 +1002,8 @@ export const buildDemoClub = async (payload: Payload) => {
       eyebrow: 'The Championship course',
       heading: 'Scorecard',
       course: championship.id,
+      handicapTable: true,
+      allowance: '95',
       note: 'Yardages measured from the back of each tee. Course rating and slope shown for the selected tee.',
     },
     {
@@ -1284,6 +1305,40 @@ export const buildDemoClub = async (payload: Payload) => {
       headline: 'Your morning on the Championship course',
     },
     {
+      // Visitor times (G4): a summer and a winter timetable; this month's opens first.
+      blockType: 'visitorTimes',
+      style: 'table',
+      eyebrow: 'Visitor times',
+      heading: 'When visitors can play',
+      timetables: [
+        {
+          name: 'Summer',
+          startMonth: '4',
+          endMonth: '10',
+          rows: [
+            {
+              days: 'Monday to Wednesday',
+              times: 'From 9:30am',
+              note: 'Two-balls only before 10am',
+            },
+            { days: 'Thursday', times: 'Members only' },
+            { days: 'Friday', times: 'From 9:30am' },
+            { days: 'Saturday and Sunday', times: 'After 1pm' },
+          ],
+        },
+        {
+          name: 'Winter',
+          startMonth: '11',
+          endMonth: '3',
+          rows: [
+            { days: 'Monday to Friday', times: 'From 9am' },
+            { days: 'Saturday and Sunday', times: 'After 12 noon' },
+          ],
+        },
+      ],
+      footnote: 'Times can change on competition days. The tee sheet always has the latest.',
+    },
+    {
       blockType: 'rateTable',
       style: 'seasons',
       eyebrow: 'Green fees',
@@ -1463,6 +1518,9 @@ export const buildDemoClub = async (payload: Payload) => {
       ),
       values: vals('Mon–Fri', '14 days', yes, '3', yes, yes),
       availability: 'Places available',
+      availabilityStatus: 'open',
+      joiningFee: '£500',
+      paymentNote: '12 monthly payments by direct debit',
       link: tierLink,
     },
     {
@@ -1480,6 +1538,9 @@ export const buildDemoClub = async (payload: Payload) => {
       ),
       values: vals('7 days', '21 days', yes, '6', yes, yes),
       availability: 'Waiting list · c. 6 months',
+      availabilityStatus: 'waiting',
+      joiningFee: 'One year’s subscription',
+      paymentNote: 'Payable over three years',
       recommended: true,
       link: tierLink,
     },
@@ -1498,6 +1559,8 @@ export const buildDemoClub = async (payload: Payload) => {
       ),
       values: vals('7 days', '14 days', yes, '2', '', ''),
       availability: 'Places available',
+      availabilityStatus: 'open',
+      joiningFee: 'None',
       link: tierLink,
     },
   ]

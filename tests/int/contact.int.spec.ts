@@ -133,6 +133,91 @@ describe('sending a message from the Contact page', () => {
   })
 })
 
+// Extra questions a club can switch on per topic (G5, 15 Nov 2026).
+describe('extra questions', () => {
+  const setExtras = (extraFields: string[] | null) =>
+    w.payload.update({
+      collection: 'club-settings',
+      id: w.settingsA.id,
+      data: {
+        contact: {
+          replyDays: 1,
+          purposes: [
+            { purpose: 'membership', replier: 'Sarah Cole', inbox: 'membership@club-a.example' },
+            ...(extraFields ? [{ purpose: 'visitor', replier: 'Pro shop', extraFields }] : []),
+          ],
+          membershipTypes: [{ label: 'Five-day' }, { label: 'Seven-day' }],
+        },
+      } as never,
+      overrideAccess: true,
+    })
+
+  it('ignores them until the club switches them on', async () => {
+    await setExtras(null)
+    await send(form({ purpose: 'visitor', caddies: '2', course: 'Dunluce' }))
+    const [saved] = await savedIn(w.clubA.id)
+    expect(saved.purpose).toBe('visitor')
+    expect(saved.caddies).toBeNull()
+    expect(saved.course).toBeNull()
+  })
+
+  it('saves the ones switched on for that topic, and only for that topic', async () => {
+    await setExtras(['course', 'caddies', 'trolleys', 'catering'])
+    await send(
+      form({
+        purpose: 'visitor',
+        course: ' Dunluce ',
+        caddies: '2',
+        trolleys: '1',
+        catering: 'Two vegetarian lunches',
+        buggies: '3',
+      }),
+    )
+    const [saved] = await savedIn(w.clubA.id)
+    expect(saved).toMatchObject({
+      course: 'Dunluce',
+      caddies: 2,
+      trolleys: 1,
+      catering: 'Two vegetarian lunches',
+    })
+    // Buggies were not switched on, and general messages never carry extras.
+    expect(saved.buggies).toBeNull()
+    await send(form({ purpose: 'general', course: 'Dunluce' }))
+    expect((await savedIn(w.clubA.id))[0].course).toBeNull()
+  })
+
+  it('checks them like the other fields, only when asked', async () => {
+    await setExtras(['caddies', 'catering'])
+    const result = await send(
+      form({ purpose: 'visitor', caddies: '-1', catering: 'x'.repeat(301) }),
+    )
+    expect(result?.errors).toEqual({
+      caddies: 'Enter a number from 0 to 50',
+      catering: 'Keep this to 300 characters or fewer',
+    })
+    // A switched-off question is not checked, even with nonsense in it.
+    const off = await send(form({ purpose: 'visitor', trolleys: 'lots' }))
+    expect(off?.errors).toEqual({})
+  })
+
+  it('puts the answers in the email to the club', async () => {
+    await setExtras(['course', 'caddies'])
+    const result = await send(form({ purpose: 'visitor', course: 'Valley', caddies: '4' }))
+    expect(result?.sent).toBeTruthy()
+    const [saved] = await savedIn(w.clubA.id)
+    process.env.RESEND_API_KEY = 'test-only'
+    const sendEmail = vi.spyOn(w.payload, 'sendEmail').mockResolvedValue({})
+    try {
+      expect(await sendEnquiryAlert(String(saved.id))).toBe('sent')
+    } finally {
+      delete process.env.RESEND_API_KEY
+    }
+    const email = sendEmail.mock.calls[0][0] as Record<string, string>
+    expect(email.text).toContain('Which course: Valley')
+    expect(email.text).toContain('Caddies: 4')
+  })
+})
+
 describe('spam checks', () => {
   it('quietly drops a message with the hidden box filled in', async () => {
     const before = (await savedIn(w.clubA.id)).length

@@ -191,3 +191,44 @@ a.status-band-item:hover .t-data-serif {
     font-size: 20px;
   }
 }
+
+/* Planned notices (G4): dated changes such as winter mats, under the status. */
+.status .status-notices {
+  margin-top: var(--space-24);
+}
+.status .status-notices-title {
+  margin: 0 0 var(--space-8);
+  color: var(--color-text-secondary);
+}
+.status .status-notice-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.status .status-notice {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-8);
+  padding: var(--space-8) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.status .status-notice .status-dot {
+  flex: none;
+  transform: translateY(-1px);
+}
+.status .status-notice-text {
+  flex: 1;
+}
+.status .status-notice-when {
+  flex: none;
+  color: var(--color-text-secondary);
+}
+/* Coming up: quieter than notices in force today. */
+.status .status-notice.is-upcoming .status-notice-text {
+  color: var(--color-text-secondary);
+}
+.status-band .status-band-notice {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+}

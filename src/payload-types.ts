@@ -191,6 +191,7 @@ export interface Page {
         | TwoColumnBlock
         | RichTextBlock
         | RateTableBlock
+        | VisitorTimesBlock
         | GalleryBlock
         | VideoBlock
         | DocumentListBlock
@@ -633,6 +634,8 @@ export interface RateTableBlock {
               period?: string | null;
               startMonth?: ('1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12') | null;
               endMonth?: ('1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12') | null;
+              validFrom?: string | null;
+              validUntil?: string | null;
               rows?:
                 | {
                     label: string;
@@ -651,6 +654,10 @@ export interface RateTableBlock {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Tick this if you take bookings a year ahead: next year’s prices then show now, marked “These prices apply from …”. Leave it off and they appear on their first day.
+   */
+  showUpcoming?: boolean | null;
   footnote?: string | null;
   /**
    * Leave empty to use the club’s "Book a tee time" button.
@@ -681,6 +688,51 @@ export interface RateTableBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'rateTable';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "VisitorTimesBlock".
+ */
+export interface VisitorTimesBlock {
+  style: 'table';
+  eyebrow?: string | null;
+  heading: string;
+  intro?: string | null;
+  /**
+   * One is enough if the times never change. Add one per season (e.g. "Summer", "Winter") if they do; the one for this month is shown first.
+   */
+  timetables?:
+    | {
+        /**
+         * e.g. "Summer". Shown as the tab.
+         */
+        name?: string | null;
+        startMonth?: ('1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12') | null;
+        endMonth?: ('1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12') | null;
+        rows?:
+          | {
+              /**
+               * e.g. "Monday to Friday"
+               */
+              days: string;
+              /**
+               * e.g. "9:30am to 1pm" or "Members only"
+               */
+              times: string;
+              /**
+               * e.g. "Two-balls only before 10am"
+               */
+              note?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  footnote?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'visitorTimes';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1072,7 +1124,16 @@ export interface MembershipBlock {
             }[]
           | null;
         /**
-         * e.g. "Places available".
+         * e.g. "£250" or "Equal to the first year’s subscription".
+         */
+        joiningFee?: string | null;
+        /**
+         * e.g. "12 monthly payments by direct debit".
+         */
+        paymentNote?: string | null;
+        availabilityStatus?: ('none' | 'open' | 'waiting' | 'full') | null;
+        /**
+         * Replaces the wording above, e.g. "Two places left".
          */
         availability?: string | null;
         recommended?: boolean | null;
@@ -1173,15 +1234,23 @@ export interface Course {
    */
   name: string;
   /**
-   * Up to four. The first tee is the one shown when only one yardage fits, and the “Length” on course tour pages.
+   * One row per set of tee markers, up to eight. Most clubs need two or three. Add a women’s tee or a winter tee here too. The first one is used for the “Length” on course tour pages. After adding a tee, type its yards on each hole below.
    */
   tees?:
     | {
-        colour: 'white' | 'yellow' | 'red' | 'blue' | 'black';
+        colour: 'white' | 'yellow' | 'red' | 'blue' | 'black' | 'green' | 'gold' | 'orange' | 'purple' | 'silver';
         /**
-         * Only if the club calls this tee something else, e.g. “Championship”. Otherwise the colour is used.
+         * Only if the club calls this tee something else, e.g. “Championship” or “60”. Otherwise it is named from its colour, e.g. “Women’s red” or “Winter yellow”.
          */
         name?: string | null;
+        /**
+         * Choose Women for a tee only women play: it uses the ladies’ par and stroke index.
+         */
+        players?: ('both' | 'men' | 'women') | null;
+        /**
+         * Tick for a tee only used in winter.
+         */
+        winter?: boolean | null;
         rating?: number | null;
         slope?: number | null;
         /**
@@ -1192,6 +1261,7 @@ export interface Course {
          * Optional.
          */
         slopeWomen?: number | null;
+        slot?: number | null;
         id?: string | null;
       }[]
     | null;
@@ -1212,6 +1282,14 @@ export interface Course {
          */
         ladiesPar?: number | null;
         ladiesStrokeIndex?: number | null;
+        yards1?: number | null;
+        yards2?: number | null;
+        yards3?: number | null;
+        yards4?: number | null;
+        yards5?: number | null;
+        yards6?: number | null;
+        yards7?: number | null;
+        yards8?: number | null;
         yardsWhite?: number | null;
         yardsYellow?: number | null;
         yardsRed?: number | null;
@@ -1271,6 +1349,14 @@ export interface ScorecardBlock {
    * Only if this page also has a Hole by hole block in style C.
    */
   linkToGuide?: boolean | null;
+  /**
+   * Worked out for each tee from its course rating, slope and par, men’s and women’s. A tee with no rating or slope is left out. It changes by itself when a rating changes.
+   */
+  handicapTable?: boolean | null;
+  /**
+   * At anything below 100% a Playing handicap column is added.
+   */
+  allowance?: ('100' | '95' | '85') | null;
   /**
    * e.g. "Yardages measured from the back of each tee."
    */
@@ -1397,6 +1483,10 @@ export interface EventsFeedBlock {
    * Leave empty for all events.
    */
   category?: ('social' | 'dining' | 'competition' | 'academy' | 'members') | null;
+  /**
+   * Leave empty for every competition.
+   */
+  entrant?: ('men' | 'women' | 'mixed' | 'juniors' | 'seniors') | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'eventsFeed';
@@ -1460,7 +1550,7 @@ export interface Event {
   title: string;
   status: 'draft' | 'published';
   /**
-   * UK time. The event leaves the website once it has started (or, with no set start time, when its day ends).
+   * UK time. The event leaves the upcoming list once it has started (or, with no set start time, when its day ends). With results added, it then appears under Results.
    */
   startsAt: string;
   category: 'social' | 'dining' | 'competition' | 'academy' | 'members';
@@ -1489,7 +1579,7 @@ export interface Event {
    * e.g. "£38"
    */
   memberPrice?: string | null;
-  booking: 'book' | 'enquire' | 'soldOut';
+  booking: 'book' | 'enter' | 'enquire' | 'soldOut';
   capacity?: number | null;
   /**
    * Shown as "14 of 60 places left" when the event is featured.
@@ -1498,6 +1588,40 @@ export interface Event {
   link?: {
     type?: ('page' | 'builtIn' | 'url') | null;
     page?: (string | null) | Page;
+    builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
+    /**
+     * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
+     */
+    url?: string | null;
+  };
+  /**
+   * Tick everyone it is open to. Used for the Men, Ladies, Juniors and Seniors buttons on the events page.
+   */
+  entrants?: ('men' | 'women' | 'mixed' | 'juniors' | 'seniors')[] | null;
+  /**
+   * e.g. "Handicap index 18.4 or less, aged 55 and over"
+   */
+  eligibility?: string | null;
+  /**
+   * e.g. "Stableford, yellow tees"
+   */
+  format?: string | null;
+  /**
+   * Optional. Until then the button says when entries open.
+   */
+  entriesOpen?: string | null;
+  /**
+   * Optional. After this the button says “Entries closed”.
+   */
+  entriesClose?: string | null;
+  ballot?: boolean | null;
+  results?: {
+    type?: ('page' | 'builtIn' | 'url' | 'document') | null;
+    page?: (string | null) | Page;
+    /**
+     * Opens the file in a new tab. Add files under Documents.
+     */
+    document?: (string | null) | Document;
     builtIn?: ('news' | 'events' | 'contact' | 'privacy') | null;
     /**
      * e.g. https://booking.example.com, mailto:office@club.co.uk or tel:01234 567890
@@ -1523,7 +1647,7 @@ export interface CourseStatus {
    */
   reason?: string | null;
   /**
-   * e.g. Buggies: Restricted, "Paths only". Up to six.
+   * e.g. Buggies: Restricted, "Paths only". For a club with several courses, one line per course, e.g. Heathland course: Open. Up to six.
    */
   facilities?:
     | {
@@ -1540,6 +1664,26 @@ export interface CourseStatus {
    * e.g. "the Course Manager". Shown beside the time.
    */
   changedBy?: string | null;
+  /**
+   * For things you know in advance, such as winter mats from 1 December to 28 February. A notice appears on its first day (and as “coming up” in the month before) and goes by itself after its last day, so there is nothing to remember. The line above is still for how the course is today.
+   */
+  notices?:
+    | {
+        message: string;
+        /**
+         * Only if you have more than one course. e.g. "Heathland course".
+         */
+        appliesTo?: string | null;
+        kind: 'closed' | 'restricted' | 'open';
+        startsOn: string;
+        /**
+         * Blank: until you remove it.
+         */
+        endsOn?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  stateChangedAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1564,6 +1708,14 @@ export interface Enquiry {
   membershipType?: string | null;
   preferredDate?: string | null;
   groupSize?: number | null;
+  course?: string | null;
+  organisation?: string | null;
+  caddies?: number | null;
+  buggies?: number | null;
+  trolleys?: number | null;
+  hireClubs?: number | null;
+  catering?: string | null;
+  heardFrom?: string | null;
   message: string;
   newsletter?: boolean | null;
   /**
@@ -1922,6 +2074,14 @@ export interface ClubSetting {
            * Blank: the footer email address.
            */
           inbox?: string | null;
+          /**
+           * Extra questions to ask on this topic, e.g. caddies and trolleys for Visitor golf, or food and dietary needs for Events. They are saved with the message and included in the email.
+           */
+          extraFields?:
+            | (
+                'course' | 'organisation' | 'caddies' | 'buggies' | 'trolleys' | 'hireClubs' | 'catering' | 'heardFrom'
+              )[]
+            | null;
           nextLink?: {
             label?: string | null;
             type?: ('page' | 'builtIn' | 'url') | null;
@@ -3109,6 +3269,7 @@ export interface PagesSelect<T extends boolean = true> {
         twoColumn?: T | TwoColumnBlockSelect<T>;
         richText?: T | RichTextBlockSelect<T>;
         rateTable?: T | RateTableBlockSelect<T>;
+        visitorTimes?: T | VisitorTimesBlockSelect<T>;
         gallery?: T | GalleryBlockSelect<T>;
         video?: T | VideoBlockSelect<T>;
         documentList?: T | DocumentListBlockSelect<T>;
@@ -3304,6 +3465,8 @@ export interface RateTableBlockSelect<T extends boolean = true> {
               period?: T;
               startMonth?: T;
               endMonth?: T;
+              validFrom?: T;
+              validUntil?: T;
               rows?:
                 | T
                 | {
@@ -3320,6 +3483,7 @@ export interface RateTableBlockSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  showUpcoming?: T;
   footnote?: T;
   button?:
     | T
@@ -3340,6 +3504,35 @@ export interface RateTableBlockSelect<T extends boolean = true> {
         id?: T;
       };
   showPhone?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "VisitorTimesBlock_select".
+ */
+export interface VisitorTimesBlockSelect<T extends boolean = true> {
+  style?: T;
+  eyebrow?: T;
+  heading?: T;
+  intro?: T;
+  timetables?:
+    | T
+    | {
+        name?: T;
+        startMonth?: T;
+        endMonth?: T;
+        rows?:
+          | T
+          | {
+              days?: T;
+              times?: T;
+              note?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  footnote?: T;
   id?: T;
   blockName?: T;
 }
@@ -3591,6 +3784,9 @@ export interface MembershipBlockSelect<T extends boolean = true> {
               value?: T;
               id?: T;
             };
+        joiningFee?: T;
+        paymentNote?: T;
+        availabilityStatus?: T;
         availability?: T;
         recommended?: T;
         link?:
@@ -3659,6 +3855,8 @@ export interface ScorecardBlockSelect<T extends boolean = true> {
   course?: T;
   download?: T;
   linkToGuide?: T;
+  handicapTable?: T;
+  allowance?: T;
   note?: T;
   id?: T;
   blockName?: T;
@@ -3734,6 +3932,7 @@ export interface EventsFeedBlockSelect<T extends boolean = true> {
   heading?: T;
   intro?: T;
   category?: T;
+  entrant?: T;
   id?: T;
   blockName?: T;
 }
@@ -3795,6 +3994,21 @@ export interface EventsSelect<T extends boolean = true> {
         builtIn?: T;
         url?: T;
       };
+  entrants?: T;
+  eligibility?: T;
+  format?: T;
+  entriesOpen?: T;
+  entriesClose?: T;
+  ballot?: T;
+  results?:
+    | T
+    | {
+        type?: T;
+        page?: T;
+        document?: T;
+        builtIn?: T;
+        url?: T;
+      };
   featured?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -3816,6 +4030,17 @@ export interface CourseStatusSelect<T extends boolean = true> {
         id?: T;
       };
   changedBy?: T;
+  notices?:
+    | T
+    | {
+        message?: T;
+        appliesTo?: T;
+        kind?: T;
+        startsOn?: T;
+        endsOn?: T;
+        id?: T;
+      };
+  stateChangedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -3848,10 +4073,13 @@ export interface CoursesSelect<T extends boolean = true> {
     | {
         colour?: T;
         name?: T;
+        players?: T;
+        winter?: T;
         rating?: T;
         slope?: T;
         ratingWomen?: T;
         slopeWomen?: T;
+        slot?: T;
         id?: T;
       };
   tipFrom?: T;
@@ -3863,6 +4091,14 @@ export interface CoursesSelect<T extends boolean = true> {
         strokeIndex?: T;
         ladiesPar?: T;
         ladiesStrokeIndex?: T;
+        yards1?: T;
+        yards2?: T;
+        yards3?: T;
+        yards4?: T;
+        yards5?: T;
+        yards6?: T;
+        yards7?: T;
+        yards8?: T;
         yardsWhite?: T;
         yardsYellow?: T;
         yardsRed?: T;
@@ -4002,6 +4238,14 @@ export interface EnquiriesSelect<T extends boolean = true> {
   membershipType?: T;
   preferredDate?: T;
   groupSize?: T;
+  course?: T;
+  organisation?: T;
+  caddies?: T;
+  buggies?: T;
+  trolleys?: T;
+  hireClubs?: T;
+  catering?: T;
+  heardFrom?: T;
   message?: T;
   newsletter?: T;
   alertSentAt?: T;
@@ -4231,6 +4475,7 @@ export interface ClubSettingsSelect<T extends boolean = true> {
               purpose?: T;
               replier?: T;
               inbox?: T;
+              extraFields?: T;
               nextLink?:
                 | T
                 | {

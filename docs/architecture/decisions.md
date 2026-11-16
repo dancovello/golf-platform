@@ -910,3 +910,88 @@ Dan was away and gave authority to decide what came up (12 Nov); every decision 
 - **Going live is one save (B8).** Untick Public demo and add the web address together. Search engines were never an issue to "remove": demo pages are `noindex` only through the `/demo/` route, and the live address is a different route that is indexable on production. The admin text and `docs/operations/prospect-demos.md` now say so, and the test that covers it already did both in one save.
 - **Branded video player (B6).** The only fully branded route that costs nothing and needs no new outside scripts is the club's own video file in our own player. A Video block row can now choose an uploaded MP4 or WebM (the media library already took them, with the 50MB limit) instead of a YouTube or Vimeo address. It plays with our own controls (play, seek, time, mute, full screen) in the club's accent colour, with nothing loaded from another site, so the content-security-policy is unchanged. R2 does not charge for visitors watching; only storage costs. YouTube and Vimeo addresses still work as before. Storage allowance per club dropped (Dan, 14 Nov). Database change: one new optional column (`file`) on each video row.
 - **Saved marketing pages with old wording (B5).** `pnpm fix-marketing-wording` scans every saved page and the marketing settings for the banned wording (the list now lives in `src/marketing/bannedWording.ts`, shared with the unit test), shows what it found, and on "fix" replaces only the affected published pages with the starter copy (old version stays in history). Pages that are clean, including ones Dan has edited, are untouched. Drafts, pages with unpublished changes and pages with no starter copy are listed for a hand edit. Run on a local database and checked end to end; **not run on staging or production** (needs the database address and, for production, Dan's approval).
+
+## 2026-11-15: Tee sets (feature gap G1, chosen by Dan)
+
+From the 50-club audit (`docs/product/15-feature-gap-register.md`): 21 of 50 clubs have tees our courses could not hold. Dan chose G1, G3, G2 and G4 to build.
+
+- **Up to eight tees per course** (Worplesdon has eight), in ten colours: white, yellow, red, blue, black, plus **green, gold, orange, purple and silver**. The new colours are not yet in Figma's Tee Marker set; their values are in `src/theme/theme.css` for Dan to check. Silver gets the same edge as white so it shows on a white page.
+- **Each tee says who plays it** (everyone, men or women) and can be a **winter tee**. A tee without its own name is named from these: "White", "Winter yellow", "Women's red". The same colour can now be used twice (Radyr's yellow and winter yellow), but two tees may not end up with the same name.
+- **Women's tees use the ladies' card.** On the tee-selector scorecard (style C), choosing a women's tee shows the ladies' par and stroke index in the main rows, and the women's rating and slope. The other styles label the tee "Women's …" and keep showing the ladies' rows as before. This is simpler than the men's/women's switch suggested in the plan; it can be added later if a club asks.
+- **Winter tees are labelled, not hidden by date.** Kept simple; the course notices (G4) can say when winter tees are in use.
+- **How yards are stored:** each tee keeps its own "slot" (1 to 8) and each hole has a yards box per slot, so dragging tees into a new order never mixes up their yards. The admin labels each box with its tee's name. The old colour columns are kept, hidden and unread, so the change deletes nothing; the migration copied every course's yards into the slots (checked on sample data). It contains UPDATEs, so it **needs Dan's `approved-destructive-migration` label** on the pull request. A later approved migration can drop the old columns.
+- Shared scorecard links keep working: `?tee=yellow` still finds the yellow tee, and new links use the tee's name (`?tee=winter-yellow`).
+- The demo club's Championship course gained a women's green tee, so the block pictures need refreshing ("Update block pictures" workflow).
+- Club import files now give yards as `yards1`, `yards2`… in the order of the course's tees.
+
+## 2026-11-15: Open competitions and results (feature gap G3, chosen by Dan)
+
+37 of the 50 audited clubs list open competitions; 21 publish results.
+
+- **Every event gets an optional "Competition details and results" panel** (collapsed): who can enter (Men, Ladies, Mixed, Juniors, Seniors), entry rules as free text (handicap limit, age), format, when entries open and close (UK time), "places decided by ballot", and a results link (one of the club's documents, pages or a web address). It is on every event, not only competitions, because fields hidden by a condition skip their checks; a results link also suits any event.
+- **Entry stays on the club's own system** (IntelligentGolf, BRS, HowDidiDo, Golf Genius): the event's button links there. A new button wording, **"Enter"**, joins Book, Enquire and Sold out.
+- **The button follows the entry window:** before entries open it reads "Entries open Thu 15 Jan, 10:00", after they close "Entries closed", both shown muted with no arrow; in between, "Enter". Cards also show a "Who" line (who can enter and the rules) and a "Format" line ("Stableford · Places by ballot").
+- **Results on the events page:** past published events with a results link, newest first, grouped by year, up to 24. Shown under "All events" and "Competitions", not under the other categories. A results link to a page or file that has since gone is left out. Club B's document or page can never be club A's results (same-club check, tested).
+- **Who can enter filter:** under Competitions, a second row of pills (Everyone, Men, Ladies, Mixed, Juniors, Seniors), kept in the address as `?for=`. The Upcoming events block can be limited the same way (for example a Ladies' section page), when its category is Competitions.
+- "Ladies" is the public word, as clubs use it; the stored value is "women", like the tees.
+- Adds one entry to the access-rule skip allowlist (`clubResultsFresh`, public site, limited to the club), reviewed like the others.
+- Database change: new columns only, plus a small table for "who can enter". Nothing changed or deleted.
+
+## 2026-11-15: Price lists that switch over by date (feature gap G2, chosen by Dan)
+
+21 of 50 audited clubs date their price lists, and many show last year's prices because nobody switched them over (Castlerock, Wrexham, Dunbar, Gleneagles). Dan asked why we would show two years together; we don't by default.
+
+- **Each price list in the Price table block can have "Valid from" and "Valid until" days** (both optional, UK days, inclusive). Month-only seasons (style B's "Season starts in / ends in") still work for clubs whose prices repeat each year.
+- **By default only today's prices show.** A list whose "valid until" day has passed disappears by itself; one whose "valid from" day is still to come stays hidden until that morning. No publish or editor action is needed: club pages are drawn fresh on each visit (only their data is cached), so the change happens on the day.
+- **"Show upcoming prices before they start"** (a tick on the block, off by default) is for clubs that take bookings a year ahead: the coming list shows now, marked "These prices apply from 1 April 2027."
+- **Never an empty table while prices are coming:** if every list is still to start, the next one shows, marked with its start day. If every list has ended, the block shows nothing rather than old prices.
+- Style A (season tabs) applies these rules across its tabs and opens on the tab in force today. Styles B and C apply them within each audience tab. Style B's "Now" badge follows the dates when a list has them, otherwise the months.
+- Database change: three new columns. Nothing changed or deleted.
+
+## 2026-11-15: Course notices and visitor times (feature gap G4, chosen by Dan)
+
+26 of 50 audited clubs publish dated course changes (winter mats, winter closures, holes out of play); 18 publish weekly visitor times.
+
+- **Planned notices live on the club's Course status** (up to ten): a sentence, a type (Closure, Restriction or Information, shown with the red, amber or green status dot) and a first day, with an optional last day. A notice shows from its first day to its last (whole UK days), and as "coming up" in the 30 days before. Past notices drop off by themselves. Nobody needs to remember to change anything on the day.
+- **Where they show:** the status board lists notices in force (soonest-ending first) and then those coming up ("From 14 Dec to 16 Dec"); the widget lists those in force; the band gives one place to the first notice in force. Notices show even when the day's status is out of date, because they are dated facts, not the morning check.
+- **Editing only notices does not count as updating the course.** "Last changed …" and the "not updated today, please call" check now use a separate time that a save sets only when the course's state, words, parts or "changed by" change, or when someone saves without changing anything (confirming it is still right). This keeps the 24-hour honesty rule (doc 05) intact. Existing clubs use their last save time until their next status update. Kept on the one Course status record rather than a new collection, so no new club-owned collection or isolation fixtures were needed.
+- **Not linked to the announcement bar:** the bar already has its own start and end dates, so a club that wants a notice there adds it there.
+- **New block, "Visitor times":** up to three timetables (e.g. Summer, Winter), each a list of days, the visitor times and an optional note ("Two-balls only before 10am"), plus an optional month range. Several timetables become tabs that open on this month's. **One style only, and not yet drawn in Figma:** it borrows the Price table's classic look. Dan to decide whether it needs a design pass. Added to the demo club's Visitors page, with two demo notices on its course status (one in force, one coming up), so the block pictures need refreshing.
+- Not built (plan item G16, not chosen): a status or notice per course for clubs with several courses. A notice can name the course in its sentence.
+- Database change: new columns and tables only. Nothing changed or deleted.
+
+## 2026-11-15: Course handicap tables and membership details (feature gaps G7 and G6, chosen by Dan)
+
+- **Course handicap tables (G7, 21 of 50 clubs).** The Scorecard block has a new tick, "Show a course handicap table", and an allowance choice (100%, 95% singles stroke play, 85% match play and better-ball). The site works the table out for every tee, men's and women's, from the tee's own rating, slope and par, with the World Handicap System formula (index × slope ÷ 113 + rating − par, halves up). Women's tables use the ladies' par. A tee without a rating or slope is left out. One table per tab, index 0.0 to 54.0 in bands, scrolling inside its own box; with an allowance below 100% a Playing handicap column is added. It follows any change to a rating by itself. It says the club's own table is the official one. Tested against the formula's rounding and edge cases (`tests/unit/handicap-table.spec.ts`). Plus handicaps (negative indexes) are not covered.
+- **Membership details (G6, 26 of 50).** Each category gets a **joining fee**, a **how to pay** line, and an **availability** (Not shown, Places available, Waiting list, Full). The badge shows on all three styles (before, only style C). **A "Full" category loses its apply button.** The club's own wording replaces the standard words ("Two places left"). The old free-text availability keeps working as the own wording. Compare style (B) gets a "Joining and payment" row.
+- Database change: new columns only.
+
+## 2026-11-15: Status per course and "Needs attention" (feature gaps G16 and G15, chosen by Dan)
+
+- **Status per course (G16): no new structure.** Course status already has "Status of each part" lines, so a club with several courses adds one line per course ("Heathland course: Open", "Championship course: Restricted · Paths only"), as the demo club does. Building a second status per course would have meant a new club-owned collection, per-course 24-hour checks and more places for a club to forget to update. Instead, **a planned notice can name its course** ("Which course"): "Heathland course: Fairway mats in use". The help text says so. If a club with many courses needs more, it can be revisited.
+- **"Needs attention" on the club home screen (G15).** A list shown only to the club's own editors (never on the public site) of things to look at before a visitor notices: a price list whose dates have ended (the table is hidden), prices that run out within 30 days with nothing after them, nothing coming up in What's on (only for clubs that have used Events), and pages not changed for over a year (named, up to three). Each links to the thing to fix. Price lists with no dates are never flagged. The optional weekly email in the plan was **not built**: the screen covers it, and email is a separate decision.
+- **Bug fixed on the way:** the club home's "not updated today" warning still used the last save time, so editing only a planned notice would have reset it (G4). It now uses the course-checked time, with a test.
+- One allowance-list entry added for the new lookup (`clubAttention`), limited to the club.
+- Database change: one new optional column (the notice's course).
+
+## 2026-11-15: Extra questions on the Contact form (feature gap G5, chosen by Dan)
+
+14 of 50 audited clubs ask visitor, society or event enquirers for more than our form does (caddies and trolleys, which course, food needs, society name).
+
+- **A fixed set, switched on per topic.** In Club Settings → Contact page → "Who replies", each topic gets an optional "Extra questions" list: **Which course, Society or company name, Caddies, Buggies, Trolleys, Sets of hire clubs, Food and dietary needs, How did you hear about us.** Not a form builder (white label: keep it simple). A topic with none switched on is exactly as before, so every existing club's form is unchanged.
+- **All optional for the visitor.** Counts are whole numbers from 0 to 50 or 100; text has a length limit; the same rules run in the browser and (the one that counts) on the server. A question that is switched off is never read or saved, even if someone posts it by hand (tested).
+- **Saved on the enquiry** (read-only like the rest of what the visitor sent, shown in the admin only when answered), **included in the email to the club** as plain lines, and covered by the existing 12-month clean-up after the enquiry is handled. No new privacy wording needed: nothing new is personal.
+- **Left out on purpose:** date of birth and postal address (two clubs ask them). Both are personal data the club doesn't need to reply; they can be added later with privacy wording if a club needs them. Start and finish times, event type and per-product forms (Gleneagles) are not built either.
+- Database change: new columns on enquiries and one small table for the setting. Nothing changed or deleted.
+
+## 2026-11-15: Editing review of the new options (UX pass, Dan's request)
+
+Dan asked for the new editing options to be easy and not overwhelming. Reviewed screen by screen from the editor's side (by reading the screens' configuration, not by clicking through the admin); no database change.
+
+- **Courses → Tees:** tees now start collapsed and each shows its own name ("Women's red", "Winter yellow") instead of "Tee 03", so eight tees don't mean eight open forms. Plainer help: most clubs need two or three; type the yards on each hole after adding a tee.
+- **Events:** the competition panel (who can enter, rules, entry dates, ballot, results) now appears only for events in the Competitions category, so a quiz night or dinner isn't asked about handicaps. An event of another category that already has details keeps them visible, so nothing is hidden or skipped.
+- **Price table:** the two date options are separate and clearer: "Repeats every year: starts in / ends in" (months, style B) and a collapsed "Dates: when do these prices apply? (optional)" with First day and Last day. "Show next year's prices early" only appears once a list has a first day.
+- **Membership:** joining fee, how to pay and availability moved into one collapsed "Joining fee and availability (optional)" group per category, so clubs that don't use them never see them.
+- **Course status:** collapsed notices show their words as the heading; "Which course" help says it is only for clubs with several courses.
+- **Visitor times:** the "Design style" picker is hidden while there is only one style.
+- Not changed: the Contact form's extra questions (already one multi-select inside a topic that clubs add themselves), the Scorecard's handicap tick, and the "Needs attention" list (read-only).

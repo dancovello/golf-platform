@@ -24,6 +24,23 @@
 .tee-dot.is-black {
   background: var(--color-tee-black);
 }
+.tee-dot.is-green {
+  background: var(--color-tee-green);
+}
+.tee-dot.is-gold {
+  background: var(--color-tee-gold);
+}
+.tee-dot.is-orange {
+  background: var(--color-tee-orange);
+}
+.tee-dot.is-purple {
+  background: var(--color-tee-purple);
+}
+/* Silver is pale like white, so it gets the same edge. */
+.tee-dot.is-silver {
+  background: var(--color-tee-silver);
+  border: 1px solid var(--color-border-strong);
+}
 /* On the brand colour a black dot needs an edge to be seen. */
 .on-brand .tee-dot.is-black {
   box-shadow: 0 0 0 1px var(--color-border-on-inverse);

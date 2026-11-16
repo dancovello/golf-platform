@@ -202,3 +202,40 @@
     padding: 0 var(--space-4);
   }
 }
+
+/* Course handicap table (G7, 15 Nov 2026): one tee at a time, scrolling inside its own box. */
+.sc .hc {
+  margin-top: var(--space-48);
+}
+.sc .hc-title {
+  margin: 0 0 var(--space-16);
+}
+.sc .hc-scroll {
+  max-height: 24rem;
+  overflow: auto;
+  margin-top: var(--space-16);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+}
+.sc .hc-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.sc .hc-table th,
+.sc .hc-table td {
+  padding: var(--space-8) var(--space-16);
+  border-bottom: 1px solid var(--color-border-subtle);
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+}
+.sc .hc-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--color-surface-canvas);
+  color: var(--color-text-secondary);
+  font-weight: 400;
+}
+.sc .hc-note {
+  margin: var(--space-16) 0 0;
+  color: var(--color-text-secondary);
+}

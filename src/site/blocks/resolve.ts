@@ -3,8 +3,19 @@ import type { Payload } from 'payload'
 
 import { layoutRefs } from '@/blocks'
 import { idOf } from '@/blocks/types'
-import { STATUS_STALE_HOURS, type StatusState } from '@/collections/courseStatusStates'
-import { type TeeColour, teeName, yardsField } from '@/collections/courseTees'
+import {
+  NOTICE_LEAD_DAYS,
+  STATUS_STALE_HOURS,
+  type StatusState,
+} from '@/collections/courseStatusStates'
+import {
+  type TeeColour,
+  teeKey,
+  teeName,
+  teeSlots,
+  type TeePlayers,
+  yardsSlotField,
+} from '@/collections/courseTees'
 import { builtInLink, isSafeURL } from '@/fields/link'
 
 import { PUBLISHED } from '../published'
@@ -66,7 +77,7 @@ export type SitePerson = {
 }
 
 /** Documents by ID, only the club's own, each with its category's name and place in the list. */
-const loadClubDocuments = async (
+export const loadClubDocuments = async (
   payload: Payload,
   tenantID: string,
   ids: string[],
@@ -159,8 +170,13 @@ const loadClubStaff = async (
 
 export type SiteTee = {
   colour: TeeColour
-  /** The club's own name for the tee, or else its colour: "White", "Yellow"… */
+  /** The club's own name for the tee, or else from its colour: "White", "Women's red"… */
   name: string
+  /** The name as an address part, for "?tee=yellow". Unique on the course. */
+  key: string
+  /** Who plays it: everyone, men or women. A women's tee goes with the ladies' par and SI. */
+  players: TeePlayers
+  winter: boolean
   rating: number | null
   slope: number | null
   /** Women's rating and slope, when the club gives them. */
@@ -240,9 +256,13 @@ const loadClubCourses = async (
   }
   return new Map(
     docs.map((d) => {
+      const slots = teeSlots(d.tees ?? [])
       const tees: SiteTee[] = (d.tees ?? []).map((t) => ({
         colour: t.colour,
         name: teeName(t),
+        key: teeKey(teeName(t)),
+        players: t.players ?? 'both',
+        winter: t.winter ?? false,
         rating: t.rating ?? null,
         slope: t.slope ?? null,
         ratingWomen: t.ratingWomen ?? null,
@@ -257,7 +277,9 @@ const loadClubCourses = async (
           strokeIndex: h.strokeIndex ?? null,
           ladiesPar: h.ladiesPar ?? null,
           ladiesStrokeIndex: h.ladiesStrokeIndex ?? null,
-          yards: tees.map((t) => h[yardsField(t.colour)] ?? null),
+          yards: slots.map(
+            (s) => ((h as Record<string, unknown>)[yardsSlotField(s)] as number | null) ?? null,
+          ),
           image,
           video: quietVideo(parseVideoURL(h.video)?.embedURL),
           tip: h.tip?.trim() || null,
@@ -286,9 +308,60 @@ export type SiteCourseStatus = {
   reason: string | null
   facilities: { label: string; state: StatusState; value: string | null }[]
   changedBy: string | null
+  /** When the course was last checked or changed (planned notices don't count). */
   updatedAt: string
   /** Not changed for 24 hours: the site says so instead of showing an old status. */
   stale: boolean
+  /** Planned notices in force today, then those starting within a month (G4). */
+  notices: SiteNotice[]
+}
+
+export type SiteNotice = {
+  message: string
+  /** The course it applies to, for clubs with several. */
+  appliesTo: string | null
+  kind: StatusState
+  startsOn: string
+  endsOn: string | null
+  /** In force today; otherwise coming up. */
+  now: boolean
+}
+
+/** "2027-04-01": a stored date's UK calendar day, so days compare as plain text. */
+const ukDay = (value: string | Date) =>
+  new Date(value).toLocaleDateString('en-CA', { timeZone: 'Europe/London' })
+
+/** The notices to show today: in force first (soonest-ending first), then coming up. */
+export const currentNotices = (
+  notices: {
+    message: string
+    appliesTo?: string | null
+    kind: StatusState
+    startsOn: string
+    endsOn?: string | null
+  }[],
+  today: Date,
+): SiteNotice[] => {
+  const day = ukDay(today)
+  const horizon = ukDay(new Date(today.getTime() + NOTICE_LEAD_DAYS * 86_400_000))
+  return notices
+    .filter((n) => !n.endsOn || ukDay(n.endsOn) >= day)
+    .filter((n) => ukDay(n.startsOn) <= horizon)
+    .map((n) => ({
+      message: n.message.trim(),
+      appliesTo: n.appliesTo?.trim() || null,
+      kind: n.kind,
+      startsOn: n.startsOn,
+      endsOn: n.endsOn ?? null,
+      now: ukDay(n.startsOn) <= day,
+    }))
+    .sort((a, b) =>
+      a.now !== b.now
+        ? Number(b.now) - Number(a.now)
+        : ukDay(a.now ? (a.endsOn ?? '9999-12-31') : a.startsOn).localeCompare(
+            ukDay(b.now ? (b.endsOn ?? '9999-12-31') : b.startsOn),
+          ),
+    )
 }
 
 /** The club's course status, if a block on the page shows it. */
@@ -305,7 +378,9 @@ const loadClubCourseStatus = async (
   })
   const d = docs[0]
   if (!d) return null
-  const age = siteToday().getTime() - new Date(d.updatedAt).getTime()
+  const today = siteToday()
+  const checked = d.stateChangedAt ?? d.updatedAt
+  const age = today.getTime() - new Date(checked).getTime()
   return {
     state: d.state,
     reason: d.reason?.trim() || null,
@@ -315,8 +390,9 @@ const loadClubCourseStatus = async (
       value: f.value?.trim() || null,
     })),
     changedBy: d.changedBy?.trim() || null,
-    updatedAt: d.updatedAt,
+    updatedAt: checked,
     stale: age > STATUS_STALE_HOURS * 60 * 60 * 1000,
+    notices: currentNotices(d.notices ?? [], today),
   }
 }
 

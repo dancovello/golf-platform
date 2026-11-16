@@ -354,6 +354,6 @@ export const course = (payload: Payload, name: string, tenant: string) =>
       name,
       tenant,
       tees: [{ colour: 'white' }],
-      holes: Array.from({ length: 9 }, (_, i) => ({ par: 4, strokeIndex: i + 1, yardsWhite: 400 })),
+      holes: Array.from({ length: 9 }, (_, i) => ({ par: 4, strokeIndex: i + 1, yards1: 400 })),
     },
   })
