@@ -10,7 +10,7 @@ import {
   deriveTheme,
   mix,
   photoShade,
-  RAISED,
+  pageSurfaces,
   type Brand,
 } from '@/theme/colour'
 
@@ -98,6 +98,24 @@ describe('brand colour contract', () => {
     expect(contrast(theme.brand.text, '#767676')).toBeGreaterThanOrEqual(4.5)
   })
 
+  it('keeps a dark page readable: page text and white-or-lifted cards share one text colour (QA-17)', () => {
+    const brand: Brand = {
+      primary: '#0A0A12',
+      secondary: '#20202C',
+      accent: '#3A3A55',
+      light: '#14141C',
+      dark: '#05050A',
+    }
+    const theme = deriveTheme(brand)
+    const { raised, subtle } = pageSurfaces(brand)
+    for (const bg of [brand.light, raised, subtle]) {
+      expect(contrast(theme.page.text, bg)).toBeGreaterThanOrEqual(4.5)
+      expect(contrast(theme.page.muted, bg)).toBeGreaterThanOrEqual(4.5)
+    }
+    // Cards are not left bright white on a dark page.
+    expect(raised).not.toBe('#ffffff')
+  })
+
   it('makes every text colour readable for any five colours (2,000 random palettes)', () => {
     let seed = 42
     const random = () => ((seed = (seed * 16807) % 2147483647) / 2147483647) * 256
@@ -108,11 +126,12 @@ describe('brand colour contract', () => {
         primary: colour(),
         secondary: colour(),
         accent: colour(),
-        light: mix(colour(), 15, '#ffffff'),
-        dark: mix(colour(), 25, '#000000'),
+        // Half the palettes have a pale Light colour, half any colour at all (dark pages too).
+        light: n % 2 ? mix(colour(), 15, '#ffffff') : colour(),
+        dark: n % 3 ? mix(colour(), 25, '#000000') : colour(),
       }
+      const { raised: RAISED, subtle } = pageSurfaces(brand)
       const theme = deriveTheme(brand)
-      const subtle = deriveSolidRoles(brand)['surface/subtle']
       const reads = (fg: string, bg: string) =>
         expect(
           contrast(fg, bg),
