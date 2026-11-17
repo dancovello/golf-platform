@@ -417,7 +417,8 @@
   color: var(--color-action-on-solid);
 }
 .srch-option.is-empty {
-  opacity: 0.5;
+  /* Softer text colour, not opacity: greyed options must still read at 4.5:1. */
+  color: var(--color-text-secondary);
 }
 @media (hover: hover) {
   .srch-option:hover {
