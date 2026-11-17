@@ -19,8 +19,8 @@
 .club-theme {
   /* Surfaces */
   --color-surface-canvas: var(--brand-light);
-  --color-surface-raised: #ffffff;
-  --color-surface-subtle: color-mix(in srgb, var(--brand-secondary) 12%, var(--brand-light));
+  --color-surface-raised: var(--brand-raised);
+  --color-surface-subtle: var(--brand-subtle);
   --color-surface-brand: var(--brand-primary);
   --color-surface-glass: color-mix(in srgb, var(--brand-light) 10%, transparent);
 
