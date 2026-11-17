@@ -141,7 +141,8 @@
   font-variant-numeric: tabular-nums;
 }
 .carctl-of {
-  opacity: 0.6;
+  /* Lighter weight, not lighter colour: the count must stay at 4.5:1 on every palette. */
+  font-weight: 400;
 }
 .carctl-progress {
   position: relative;
