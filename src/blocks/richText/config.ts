@@ -3,7 +3,7 @@ import type { Block } from 'payload'
 import { linkField } from '../../fields/link'
 import { collectArrayRefs, styleField } from '../shared'
 import type { BlockDefinition } from '../types'
-import { clubRichText, richTextRefs } from './lexical'
+import { clubRichText, dropEmptyPictures, richTextRefs } from './lexical'
 
 const onlyEditorial = {
   condition: (_d: unknown, sibling: { style?: string }) => sibling?.style === 'editorial',
@@ -50,6 +50,7 @@ const config: Block = {
       type: 'richText',
       required: true,
       editor: clubRichText,
+      hooks: { beforeValidate: [({ value }) => dropEmptyPictures(value)] },
       admin: {
         description:
           'Headings, paragraphs, lists, quotes, links and photos. Style B lists every main heading (H2) in "On this page" once there are three or more. Style C shows the first paragraph larger.',
