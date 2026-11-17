@@ -319,6 +319,7 @@ export interface Media {
    * What the photo shows, read aloud to people using screen readers, e.g. "The 7th green at sunset". Optional, but please add one for any photo that matters to the page.
    */
   alt?: string | null;
+  usedOn?: string | null;
   tone?: {
     bright?: string | null;
     average?: string | null;
@@ -4149,6 +4150,7 @@ export interface DocumentsSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   tenant?: T;
   alt?: T;
+  usedOn?: T;
   tone?:
     | T
     | {
