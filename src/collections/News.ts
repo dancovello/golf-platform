@@ -2,7 +2,7 @@ import type { CollectionBeforeValidateHook, CollectionConfig } from 'payload'
 
 import { clubContentCreate, loggedIn } from '../access/roles'
 import { imageField } from '../blocks/shared'
-import { clubRichText } from '../blocks/richText/lexical'
+import { clubRichText, dropEmptyPictures } from '../blocks/richText/lexical'
 import { SLUG, SLUG_MESSAGE, slugify } from '../fields/slug'
 import { newsLivePreview } from '../site/livePreview'
 import { checkNewsSameClub } from '../site/sameClub'
@@ -99,6 +99,7 @@ export const News: CollectionConfig = {
       label: 'Article',
       type: 'richText',
       editor: clubRichText,
+      hooks: { beforeValidate: [({ value }) => dropEmptyPictures(value)] },
     },
     {
       name: 'slug',

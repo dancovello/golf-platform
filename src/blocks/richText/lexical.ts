@@ -105,3 +105,19 @@ export const richTextRefs = (value: unknown, path: string): BlockRef[] => {
   walk((value as { root?: LexicalNode } | null)?.root)
   return refs
 }
+
+/**
+ * Pasting from Word can leave a picture with nothing behind it (an "upload" with no photo
+ * chosen). That blank placeholder is invisible and stopped the page being published with an
+ * unhelpful message (QA-37). Editors upload photos with the photo button, so a picture with no
+ * photo is simply dropped before the page is checked. Real photos are left alone.
+ */
+export const dropEmptyPictures = <T>(value: T): T => {
+  const clean = (nodes: LexicalNode[] | undefined): LexicalNode[] | undefined =>
+    nodes
+      ?.filter((node) => !(node.type === 'upload' && !idOf(node.value)))
+      .map((node) => (node.children ? { ...node, children: clean(node.children) } : node))
+  const root = (value as { root?: LexicalNode } | null)?.root
+  if (!root?.children) return value
+  return { ...(value as object), root: { ...root, children: clean(root.children) } } as T
+}

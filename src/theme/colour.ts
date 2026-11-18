@@ -73,8 +73,37 @@ export const AA_GRAPHIC = 3
 
 const WHITE = '#ffffff'
 const BLACK = '#000000'
-/** color/surface/raised: cards are always white. */
+/** color/surface/raised on a pale page: cards are white. */
 export const RAISED = WHITE
+
+/**
+ * The two card-like surfaces on the page: color/surface/raised (white cards) and
+ * color/surface/subtle (the light tint, Light mixed with Secondary). Normally those as designed.
+ * If a dark or mid-tone Light colour leaves no single text colour that reads on the page and both
+ * surfaces together, the surfaces move towards the page colour (lighter, darker, or the page
+ * colour itself): the first combination that works.
+ */
+export const pageSurfaces = (brand: Brand): { raised: string; subtle: string } => {
+  const designedSubtle = mix(brand.secondary, 12, brand.light)
+  const works = (raised: string, subtle: string) =>
+    [WHITE, BLACK, brand.dark].some((text) =>
+      [brand.light, raised, subtle].every((bg) => contrast(text, bg) >= AA_TEXT),
+    )
+  const raisedOptions = [
+    RAISED,
+    mix(brand.light, 85, WHITE),
+    brand.light,
+    mix(brand.light, 85, BLACK),
+    mix(brand.light, 70, WHITE),
+    mix(brand.light, 70, BLACK),
+  ]
+  const subtleOptions = [designedSubtle, mix(brand.light, 85, WHITE), brand.light]
+  for (const subtle of subtleOptions) {
+    const raised = raisedOptions.find((r) => works(r, subtle))
+    if (raised) return { raised, subtle }
+  }
+  return { raised: brand.light, subtle: brand.light }
+}
 
 /** Whichever of the club's Light or Dark reads better on `background`. */
 export const onColour = (background: string, brand: Brand): string =>
@@ -134,7 +163,8 @@ export type Theme = {
 export const deriveTheme = (brand: Brand): Theme => {
   const designed = deriveSolidRoles(brand)
 
-  const pageBackgrounds = [brand.light, RAISED, designed['surface/subtle']]
+  const { raised, subtle } = pageSurfaces(brand)
+  const pageBackgrounds = [brand.light, raised, subtle]
   const pageText = readable([brand.dark], pageBackgrounds)
 
   const byContrast = (bg: string) =>
@@ -145,7 +175,9 @@ export const deriveTheme = (brand: Brand): Theme => {
   // If the two are too close to tell apart, white on black.
   const [lighter, darker] = [brand.light, brand.dark].sort((a, b) => luminance(b) - luminance(a))
   const [imageText, shade] =
-    contrast(lighter, darker) >= AA_TEXT ? [lighter, darker] : [WHITE, BLACK]
+    contrast(lighter, darker) >= AA_TEXT && contrast(mix(lighter, 80, darker), darker) >= AA_TEXT
+      ? [lighter, darker]
+      : [WHITE, BLACK]
 
   return {
     page: {
@@ -153,7 +185,7 @@ export const deriveTheme = (brand: Brand): Theme => {
       muted: readable([designed['text/secondary'], pageText], pageBackgrounds),
       faint: readable(
         [mix(brand.dark, 60, brand.light), designed['text/secondary'], pageText],
-        [brand.light, RAISED],
+        [brand.light, raised],
       ),
       eyebrow: readable([designed['text/brand'], pageText], pageBackgrounds),
     },
@@ -216,6 +248,8 @@ export const brandCSSVariables = (brand: Brand): Record<string, string> => {
     '--brand-accent': brand.accent,
     '--brand-light': brand.light,
     '--brand-dark': brand.dark,
+    '--brand-raised': pageSurfaces(brand).raised,
+    '--brand-subtle': pageSurfaces(brand).subtle,
     '--ink-page': theme.page.text,
     '--ink-page-muted': theme.page.muted,
     '--ink-page-faint': theme.page.faint,

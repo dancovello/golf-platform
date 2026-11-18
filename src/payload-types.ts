@@ -170,6 +170,7 @@ export interface UserAuthOperations {
 export interface Page {
   id: string;
   tenant?: (string | null) | Tenant;
+  openedAt?: string | null;
   title: string;
   /**
    * The page address, e.g. "membership" for /membership. Use "home" for the home page. Left empty, it is made from the title when you publish.
@@ -3257,6 +3258,7 @@ export interface PayloadMigration {
  */
 export interface PagesSelect<T extends boolean = true> {
   tenant?: T;
+  openedAt?: T;
   title?: T;
   slug?: T;
   parent?: T;
