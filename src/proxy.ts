@@ -8,6 +8,7 @@ import {
   type PolicyKind,
   REPORT_PATH,
 } from './security/csp'
+import { isBotProbe } from './security/botProbes'
 import { isMarketingHost, isPlatformHost, marketingHosts, normaliseHost } from './site/hosts'
 
 /** Headers only this proxy sets (src/site/resolveSite.ts). Any a visitor sends are dropped. */
@@ -107,6 +108,10 @@ const marketing = (
 export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl
   const host = normaliseHost(request.headers.get('host') ?? '')
+
+  // Hacking bots looking for WordPress and PHP weak spots: a plain "not found" before any page
+  // code runs, so they never wake the database or raise a Sentry alert (GOLF-PLATFORM-D).
+  if (isBotProbe(pathname)) return notFound()
 
   const headers = new Headers(request.headers)
   headers.delete(CLUB_HOST)
