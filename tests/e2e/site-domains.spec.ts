@@ -129,3 +129,18 @@ test("the Contact form on club A's domain saves into club A", async ({ page, edi
   ).json()
   expect(saved.totalDocs).toBe(1)
 })
+
+test('club pages describe themselves for search results and sharing', async ({ page }) => {
+  // Written from the page's own text, so clubs have nothing to fill in.
+  await page.goto(clubA('/gallery'))
+  const description = page.locator('meta[name="description"]')
+  await expect(description).toHaveAttribute('content', /Around the club/)
+  await expect(page.locator('meta[property="og:description"]')).toHaveAttribute(
+    'content',
+    /Around the club/,
+  )
+  await page.goto(clubA('/contact'))
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /Get in touch/)
+  await page.goto(clubA())
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /\S{3}/)
+})
