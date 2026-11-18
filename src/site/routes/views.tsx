@@ -285,6 +285,8 @@ export const SearchView = async ({ site, query }: { site: ResolvedSite; query: Q
 /** A missing page: the club's own header, footer and links. */
 export const NotFoundView = ({ site, path }: { site: ResolvedSite; path: string }) => (
   <ClubShell club={site.club} base={site.base} currentPath={path}>
+    {/* The tab names the club, not the platform (QA-23). */}
+    <title>{`Page not found | ${site.club.name}`}</title>
     <PageNotFound club={site.club} base={site.base} />
   </ClubShell>
 )
@@ -292,6 +294,7 @@ export const NotFoundView = ({ site, path }: { site: ResolvedSite; path: string 
 /** What's shown when no club matches: says nothing about which clubs exist. */
 export const PlainNotFound = () => (
   <main style={{ padding: '96px 24px', fontFamily: 'system-ui, sans-serif' }}>
+    <title>Page not found</title>
     <h1>Page not found</h1>
   </main>
 )

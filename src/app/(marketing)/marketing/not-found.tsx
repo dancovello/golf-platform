@@ -1,9 +1,12 @@
+import { BRAND } from '@/brand'
 import { CtaBand, SectionHeader } from '@/marketing/site/MarketingBlocks'
 
 /** Not designed: a Section Header and a CTA Band, in plain words (hand-off §6). */
 export default function MarketingNotFound() {
   return (
     <main id="main">
+      {/* The tab says what happened. */}
+      <title>{`Page not found | ${BRAND.name}`}</title>
       <section className="mk-section">
         <div className="mk-container">
           <SectionHeader
