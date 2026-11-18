@@ -12,6 +12,17 @@ test('"Load more" shows the rest of the photos', async ({ page }) => {
   await expect(photos).toHaveCount(13)
 })
 
+test('after "Load more" with the keyboard, focus lands on the first new photo (QA)', async ({
+  page,
+}) => {
+  await page.goto(url)
+  const more = page.getByRole('button', { name: 'Load more' })
+  await more.focus()
+  await page.keyboard.press('Enter')
+  await expect(page.getByRole('button', { name: /^Open photo:/ })).toHaveCount(13)
+  await expect(page.getByRole('button', { name: /^Open photo:/ }).nth(12)).toBeFocused()
+})
+
 test('the viewer opens at a photo, moves with the arrow keys and closes with Esc', async ({
   page,
 }) => {

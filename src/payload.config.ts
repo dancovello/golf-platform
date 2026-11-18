@@ -76,6 +76,8 @@ export default buildConfig({
       },
       // The club home screen: setup checklist, new messages, everyday jobs, course status.
       beforeDashboard: ['/admin/ClubHome#ClubHome'],
+      // Names for a few of Payload's own unnamed controls (src/admin/AccessibilityFixes.tsx).
+      providers: ['/admin/AccessibilityFixes#AccessibilityFixes'],
       views: {
         inviteEditor: {
           Component: '/admin/InviteEditorView#InviteEditorView',

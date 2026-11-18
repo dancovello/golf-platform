@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { ArrowRight, Expand } from '../components/Icons'
 import { Viewer, type ViewerItem } from './Viewer'
@@ -56,6 +56,15 @@ export const GalleryView = ({
   const [shown, setShown] = useState(PAGE)
   const [open, setOpen] = useState<number | null>(null)
   const [inline, setInline] = useState(0)
+  const list = useRef<HTMLUListElement>(null)
+  // After "Load more" the button goes away if that was the last batch, so keyboard focus would
+  // fall to the top of the page. Move it to the first photo that just appeared instead.
+  const focusFrom = useRef<number | null>(null)
+  useEffect(() => {
+    if (focusFrom.current === null) return
+    list.current?.querySelectorAll<HTMLElement>('button.gl-item')[focusFrom.current]?.focus()
+    focusFrom.current = null
+  }, [shown])
 
   const albums = useMemo(
     () => [...new Set(items.map((i) => i.album).filter((a): a is string => Boolean(a)))],
@@ -85,7 +94,10 @@ export const GalleryView = ({
           ))}
         </div>
       ) : null}
-      <ul className={`gl-${style}${style === 'grid' && visible.length <= 2 ? ' gl-few' : ''}`}>
+      <ul
+        ref={list}
+        className={`gl-${style}${style === 'grid' && visible.length <= 2 ? ' gl-few' : ''}`}
+      >
         {visible.flatMap((item, i) => [
           <li key={`${item.src}-${i}`}>
             <button
@@ -137,7 +149,10 @@ export const GalleryView = ({
             <button
               type="button"
               className="btn btn-outline t-label-button"
-              onClick={() => setShown(shown + PAGE)}
+              onClick={() => {
+                focusFrom.current = visible.length
+                setShown(shown + PAGE)
+              }}
             >
               Load more <ArrowRight />
             </button>
