@@ -143,3 +143,32 @@
   width: auto;
   background-color: #091a13;
 }
+
+/* Accessibility (system test QA-05). Payload's mid greys for hints, column titles and small
+   labels are 2.8:1 and 3.95:1 on white, below the 4.5:1 minimum; this darker grey passes on white
+   and on the light panels. */
+html[data-theme='light'] {
+  --theme-elevation-400: rgb(105, 105, 105);
+  --theme-elevation-500: rgb(105, 105, 105);
+}
+
+/* A visible ring on whatever has keyboard focus (QA D39: 8 of the first 22 tab stops had none). */
+html[data-theme] :is(a, button, [role='button'], [tabindex], summary):focus-visible,
+html[data-theme] :is(input, select, textarea):focus-visible {
+  outline: 2px solid var(--theme-elevation-800);
+  outline-offset: 2px;
+}
+
+/* The account screen's "Last modified / Created" strip wraps instead of pushing the page wider
+   than a phone or tablet screen (QA-04). */
+.doc-controls__meta {
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+.doc-controls__list-item {
+  min-width: 0;
+}
+/* Payload's side menu sits just off-screen on phones and tablets; it must not widen the page. */
+.template-default {
+  overflow-x: clip;
+}
