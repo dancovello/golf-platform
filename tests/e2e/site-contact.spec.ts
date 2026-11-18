@@ -86,3 +86,14 @@ test('shows what to fix, keeps what was typed, then sends', async ({ page, edito
   await page.getByRole('link', { name: 'Send another message' }).click()
   await expect(page.getByLabel('Full name')).toHaveValue('')
 })
+
+test('with JavaScript off the form says it needs JavaScript, and what to do instead', async ({
+  browser,
+  baseURL,
+}) => {
+  const context = await browser.newContext({ javaScriptEnabled: false, baseURL })
+  const page = await context.newPage()
+  await page.goto(contact)
+  await expect(page.getByText('This form needs JavaScript to send your message.')).toBeVisible()
+  await context.close()
+})
