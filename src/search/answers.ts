@@ -443,7 +443,12 @@ export const quickAccess = async (club: ClubSite, base: string): Promise<QuickAc
   if (status) {
     items.push({
       label: 'Course status',
-      detail: `${stateLabel(status.state)} · Updated ${clock(status.updatedAt)}`,
+      // Same 24-hour rule as the answer card: an old status says so rather than looking current.
+      detail:
+        siteToday().getTime() - new Date(status.updatedAt).getTime() >
+        STATUS_STALE_HOURS * 60 * 60 * 1000
+          ? `${stateLabel(status.state)} · May be out of date, last updated ${dayMonth(status.updatedAt)}`
+          : `${stateLabel(status.state)} · Updated ${clock(status.updatedAt)}`,
       href: facts.statusPage ? siteHref(base, facts.statusPage) : null,
     })
   }
