@@ -69,3 +69,14 @@
     transition: none;
   }
 }
+
+/* High-contrast (forced colours) mode drops background colours, so the button's own outline is
+   what shows it is a button. */
+@media (forced-colors: active) {
+  .btn {
+    border-color: ButtonText;
+  }
+  .btn:focus-visible {
+    outline-color: Highlight;
+  }
+}
