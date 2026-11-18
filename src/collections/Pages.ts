@@ -1,3 +1,4 @@
+import { openedAtField, refuseStaleSave } from '../fields/staleSave'
 import type {
   CollectionBeforeValidateHook,
   CollectionConfig,
@@ -89,9 +90,14 @@ export const Pages: CollectionConfig = {
   },
   // A slug only has to be unique within one club, so two clubs can both have /membership.
   indexes: [{ fields: ['tenant', 'slug'], unique: true }],
-  hooks: { beforeValidate: [defaultSlug, checkPageSameClub], ...searchHooks },
+  hooks: {
+    beforeValidate: [defaultSlug, checkPageSameClub],
+    beforeChange: [refuseStaleSave('pages')],
+    ...searchHooks,
+  },
   fields: [
     clubBannerField,
+    openedAtField('pages'),
     // Tells the live preview which block is being edited, so it can scroll to it and outline it.
     {
       name: 'blockHighlighter',

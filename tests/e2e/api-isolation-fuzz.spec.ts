@@ -124,6 +124,10 @@ test("random REST requests as club A's editor never reach club B", async ({
       await superAdminPage.request.get(`/api/club-settings/${world.settingsB.id}?depth=0`)
     ).json(),
   }
+  // `openedAt` is only a clock (when the page was last saved by anyone); another test saving a
+  // club B draft at the same moment would move it, and that is not a change by club A's editor.
+  delete (before.page as { openedAt?: unknown }).openedAt
+  delete (after.page as { openedAt?: unknown }).openedAt
   expect(after, `Club B changed. Seed ${SEED}; replay with ISOLATION_SEED=${SEED}`).toEqual(before)
   const plantedInB = await (
     await superAdminPage.request.get(
