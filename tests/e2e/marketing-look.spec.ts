@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright'
 import type { Page } from '@playwright/test'
 
+import { showFadedSections } from './fade-ins'
 import { expect, test } from './fixtures'
 
 // The marketing site's look (plan phase 1.3): its own tokens and fonts, scoped so they never
@@ -8,12 +9,14 @@ import { expect, test } from './fixtures'
 
 const site = (path = '/') => `http://marketing.localhost:3100${path}`
 
-const violations = async (page: Page) =>
-  (
+const violations = async (page: Page) => {
+  await showFadedSections(page)
+  return (
     await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
       .analyze()
   ).violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`)
+}
 
 const bodyStyle = (page: Page) =>
   page.evaluate(() => {

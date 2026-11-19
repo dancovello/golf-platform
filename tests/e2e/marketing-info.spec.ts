@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright'
 
+import { showFadedSections } from './fade-ins'
 import { expect, test } from './fixtures'
 
 // Trust, Accessibility statement, Changelog and the legal pages (plan phase 6.3), from the
@@ -120,6 +121,7 @@ for (const path of ['/trust', '/accessibility', '/changelog']) {
     }) => {
       await page.setViewportSize({ width, height: 900 })
       await page.goto(site(path))
+      await showFadedSections(page)
       const results = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
         .analyze()
