@@ -26,6 +26,7 @@ test("the super-admin sees every club's setup progress", async ({
 })
 
 test('the Pages list shows club A’s pages', async ({ editorPage: page, world }) => {
-  await openReady(page, '/admin/collections/pages')
+  // Search by title: other specs add pages to club A, which can push it off the list's first page.
+  await openReady(page, `/admin/collections/pages?search=${encodeURIComponent(world.pageA.title)}`)
   await expect(page.getByRole('link', { name: world.pageA.title }).first()).toBeVisible()
 })
