@@ -34,7 +34,7 @@ export const MarketingMedia: CollectionConfig = {
     // The original is re-saved without the camera's hidden details (src/media/cleanOriginal.ts).
     resizeOptions: cleanOriginal,
     // The same widths and quality as club photos (src/collections/Media.ts).
-    imageSizes: [640, 1024, 1600, 2400, 3200].map((width) => ({
+    imageSizes: [640, 1024].map((width) => ({
       name: `w${width}`,
       width,
       withoutEnlargement: true,

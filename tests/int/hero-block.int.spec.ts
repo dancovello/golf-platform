@@ -36,12 +36,12 @@ const hero = (extra: Record<string, unknown> = {}) => ({
 })
 
 describe('photo sizes', () => {
-  it('makes smaller WebP copies, never larger than the original', async () => {
+  it('makes only two WebP copies (640 and 1024 wide) and keeps no larger original', async () => {
     const sizes = photoA.sizes ?? {}
     expect(sizes.w640?.width).toBe(640)
     expect(sizes.w1024?.width).toBe(1024)
-    expect(sizes.w1600?.width).toBe(1600)
-    expect(sizes.w2400?.width).toBe(1800) // the original is only 1800 wide: never enlarged
+    // Nothing bigger than 1024 is made, and the saved original is capped to it as well.
+    expect(Object.keys(sizes).sort()).toEqual(['w1024', 'w640'])
     const res = await fetch(sizes.w640!.url!)
     expect(res.status).toBe(200)
     expect(res.headers.get('content-type')).toBe('image/webp')

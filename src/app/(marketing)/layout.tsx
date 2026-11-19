@@ -27,7 +27,7 @@ import './marketing.css'
 export async function generateMetadata(): Promise<Metadata> {
   const { branding, site } = await marketingSettings()
   const icon = mediaUrl(branding?.icon, 'w640')
-  const shareImage = mediaUrl(site?.shareImage, 'w1600')
+  const shareImage = mediaUrl(site?.shareImage, 'w1024')
   return {
     // Makes every address in the page's tags (canonical, sharing) absolute.
     metadataBase: new URL(marketingOrigin()),
