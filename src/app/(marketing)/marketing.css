@@ -1608,7 +1608,8 @@ button.mk-button {
   padding: 24px;
   border: 1px solid var(--mk-border-hairline);
   border-radius: var(--mk-radius-panel);
-  background: var(--mk-surface-raised);
+  /* A slight fade from the card's green to a deeper green on the right. */
+  background: linear-gradient(to right, var(--mk-surface-raised) 35%, #06130d 100%);
 }
 .mk-founder-photo {
   display: flex;
@@ -1670,6 +1671,36 @@ button.mk-button {
 }
 .mk-founder-actions .mk-button {
   width: 100%;
+}
+/*
+ * Golf-ball dimples on the empty side of the card, echoing the ball on the opening screen. Round
+ * dimples in staggered rows with a flat gap between, like a real ball, tilted slightly, in the card's own greens: a darker shadowed top-left edge and
+ * a lighter lit bottom-right edge. It fades out towards the text and is hidden on phones, where
+ * the card is stacked and has no empty side.
+ */
+.mk-founder {
+  position: relative;
+  overflow: hidden;
+}
+.mk-founder > * {
+  position: relative;
+}
+.mk-founder::before {
+  content: none;
+}
+@media (min-width: 601px) {
+  .mk-founder::before {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    inset-inline-end: 0;
+    width: 52%;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Cdefs%3E%3ClinearGradient id='d' x1='0.3' y1='0' x2='0.7' y2='1' gradientTransform='rotate(20 0.5 0.5)'%3E%3Cstop offset='0' stop-color='%23030c08' stop-opacity='0.62'/%3E%3Cstop offset='0.5' stop-color='%23071410' stop-opacity='0.2'/%3E%3Cstop offset='1' stop-color='%232f6a4b' stop-opacity='0.3'/%3E%3C/linearGradient%3E%3Cpattern id='p' width='30' height='42.4' patternUnits='userSpaceOnUse' patternTransform='rotate(-20)'%3E%3Ccircle cx='15' cy='10.6' r='9.5' fill='url(%23d)'/%3E%3Ccircle cx='0' cy='31.8' r='9.5' fill='url(%23d)'/%3E%3Ccircle cx='30' cy='31.8' r='9.5' fill='url(%23d)'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23p)'/%3E%3C/svg%3E");
+    background-size: 100% 100%;
+    -webkit-mask-image: linear-gradient(to left, #000 0%, rgb(0 0 0 / 0.55) 55%, transparent 100%);
+    mask-image: linear-gradient(to left, #000 0%, rgb(0 0 0 / 0.55) 55%, transparent 100%);
+  }
 }
 @media (min-width: 601px) {
   .mk-founder {
