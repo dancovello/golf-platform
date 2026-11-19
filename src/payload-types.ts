@@ -258,7 +258,7 @@ export interface HeroBlock {
   style: 'heritage' | 'resort' | 'bookingLed';
   mediaType?: ('image' | 'video') | null;
   /**
-   * Landscape, at least 2400 pixels wide. With a video, this is shown while it loads and to visitors who prefer less motion.
+   * Landscape. Photos are saved at up to 1024 pixels wide. With a video, this is shown while it loads and to visitors who prefer less motion.
    */
   image: string | Media;
   /**
@@ -346,30 +346,6 @@ export interface Media {
       filename?: string | null;
     };
     w1024?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    w1600?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    w2400?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    w3200?: {
       url?: string | null;
       width?: number | null;
       height?: number | null;
@@ -2420,30 +2396,6 @@ export interface MarketingMedia {
       filesize?: number | null;
       filename?: string | null;
     };
-    w1600?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    w2400?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    w3200?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
   };
 }
 /**
@@ -4191,36 +4143,6 @@ export interface MediaSelect<T extends boolean = true> {
               filesize?: T;
               filename?: T;
             };
-        w1600?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-        w2400?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-        w3200?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
       };
 }
 /**
@@ -5208,36 +5130,6 @@ export interface MarketingMediaSelect<T extends boolean = true> {
               filename?: T;
             };
         w1024?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-        w1600?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-        w2400?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-        w3200?:
           | T
           | {
               url?: T;

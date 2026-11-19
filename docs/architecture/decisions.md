@@ -995,3 +995,11 @@ Dan asked for the new editing options to be easy and not overwhelming. Reviewed 
 - **Course status:** collapsed notices show their words as the heading; "Which course" help says it is only for clubs with several courses.
 - **Visitor times:** the "Design style" picker is hidden while there is only one style.
 - Not changed: the Contact form's extra questions (already one multi-select inside a topic that clubs add themselves), the Scorecard's handicap tick, and the "Needs attention" list (read-only).
+
+## 2026-11-19: Photos are never stored larger than 1024 wide (Dan)
+
+Larger copies "just take up valuable space". Uploaded photos are now saved as WebP at 1024 pixels wide at most, with a 640 and a 1024 copy: the full-size original is not kept, and the 1600, 2400 and 3200 copies are no longer made (club and company website photos alike). A big full-width photo is therefore a little soft on very large screens; accepted.
+
+- **Mockup photos:** the marketing site's demo pictures are Dan's free-to-use Unsplash photos only (`docs/marketing-site/unsplash-photos/`), so a demo never shows a picture with an unclear licence.
+- **Existing photos:** `pnpm shrink-photos` points each older photo at its own 1024 copy and lists the old original and the large copies; they are removed from storage an hour later with `--remove-old` (cannot be undone). Run it on staging first; production needs Dan's go.
+- **Order matters:** the migration that drops the old size columns is a separate, later change. The tool reads those columns to find the large copies, so it must run before the migration is released.

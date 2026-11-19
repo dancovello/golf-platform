@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = page.meta?.title || page.title
   const settings = await marketingSettings()
   const description = page.meta?.description || settings.site?.description || undefined
-  const shareImage = mediaUrl(settings.site?.shareImage, 'w1600')
+  const shareImage = mediaUrl(settings.site?.shareImage, 'w1024')
   const path = pagePath(page.slug)
   return {
     // The home page's title is the company name alone.

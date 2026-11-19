@@ -11,7 +11,7 @@ test('the home page shows the hero with sized photo copies and its buttons', asy
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('A round worth travelling for')
   const photo = page.getByRole('img', { name: 'Heathland fairway at dawn' })
   await expect(photo).toBeVisible()
-  expect(await photo.getAttribute('srcset')).toMatch(/640w.*1024w.*1600w.*2400w/)
+  expect(await photo.getAttribute('srcset')).toMatch(/640w.*1024w/)
   // Only the hero's links: the menu and footer have their own "Membership".
   const hero = page.getByRole('main')
   await expect(hero.getByRole('link', { name: 'Visitors' })).toHaveAttribute(

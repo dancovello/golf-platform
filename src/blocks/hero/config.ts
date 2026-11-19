@@ -46,7 +46,7 @@ const config: Block = {
       filterOptions: { mimeType: { in: IMAGE_TYPES } },
       admin: {
         description:
-          'Landscape, at least 2400 pixels wide. With a video, this is shown while it loads and to visitors who prefer less motion.',
+          'Landscape. Photos are saved at up to 1024 pixels wide. With a video, this is shown while it loads and to visitors who prefer less motion.',
       },
     },
     {
