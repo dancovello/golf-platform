@@ -17,6 +17,7 @@ import { MarketingIcon } from './MarketingIcon'
 import { Faq, Filled, Pricing } from './pricing/PricingBlocks'
 import { MarketingRichText } from './MarketingRichText'
 import { AvailabilityBadge, BrowserChrome, MarketingButton, marketingPhoto } from './parts'
+import { Reveal } from './Reveal'
 import { RoleTabs } from './selling/RoleTabs'
 import { Assurance, CompareRows, Objections, Steps } from './selling/SellingBlocks'
 import { DemoExample, Migration, RequestHero } from './switching/SwitchingBlocks'
@@ -281,13 +282,13 @@ export const MarketingBlocks = ({ blocks }: { blocks: Block[] }) => {
           className={`mk-section${section[0].blockType === 'mkCtaBand' ? ' mk-section--cta' : ''}`}
           data-kind={kindOf(section)}
         >
-          <div className="mk-container mk-stack">
+          <Reveal className="mk-container mk-stack">
             {section.map((block, j) => (
               <Fragment key={block.id ?? j}>
                 {drawBlock(block, block === firstHeader, { onBookingPage, readMinutes: minutes })}
               </Fragment>
             ))}
-          </div>
+          </Reveal>
         </section>
       ))}
     </>

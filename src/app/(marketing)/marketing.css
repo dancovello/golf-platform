@@ -3673,11 +3673,6 @@ button.mk-button {
   font-weight: 500;
   color: var(--mk-text-primary);
 }
-.mk-flipper-variant {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
 .mk-flipper-label {
   display: flex;
   flex-direction: column;
@@ -5174,6 +5169,26 @@ button.mk-button {
     opacity 500ms var(--mk-ease-enter),
     filter 500ms var(--mk-ease-enter);
 }
+/* Sections fade in and rise a little as they scroll into view (Reveal). */
+[data-reveal] {
+  transition:
+    opacity 700ms var(--mk-ease-enter),
+    transform 700ms var(--mk-ease-enter);
+}
+[data-reveal='hidden'] {
+  opacity: 0;
+  transform: translateY(24px);
+}
+[data-reveal='shown'] {
+  opacity: 1;
+  transform: none;
+}
+@media print {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+}
 html[data-mk-spotlight='on'] .mk-section:not(:has(.mk-showcase)) {
   opacity: 0.3;
   filter: blur(6px);
@@ -6050,42 +6065,26 @@ html[data-intro='reveal'] .mk-footer {
   }
 }
 
-/* Block Flipper controls: arrows on desktop; on phones the description sits above full-width
- * pills (like the Block Switcher's), and the swipe hint goes. */
-.mk-flipper-pills {
-  display: none;
-}
+/* Block Flipper controls: the description, then the A, B and C pills; on phones they stack and
+ * the pills run the full width. */
 @media (max-width: 767px) {
   .mk-flipper-controls {
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
   }
-  .mk-flipper-variant {
-    display: contents;
-  }
-  .mk-flipper-arrows,
-  .mk-flipper-hint {
-    display: none;
-  }
-  .mk-flipper-label {
-    order: 1;
-  }
-  .mk-flipper-pills {
-    display: block;
-    order: 2;
-  }
-  .mk-flipper-pills .mk-segmented {
+  .mk-flipper-controls .mk-segmented {
     display: flex;
     width: 100%;
   }
-  .mk-flipper-pills .mk-segment {
-    flex: 1;
-    padding: 10px 8px;
+  .mk-flipper-controls .mk-segment {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 10px 4px;
+    font-size: 13px;
     white-space: nowrap;
   }
   .mk-flipper-screens {
-    order: 3;
     max-width: none;
   }
 }

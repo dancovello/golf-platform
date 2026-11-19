@@ -48,7 +48,7 @@ Use the Figma MCP (`get_design_context`, `get_variable_defs`, `get_screenshot`) 
 - **No demo sandbox / hands-on editor** for prospects.
 - **No Clubhouse page and no "browse every block" page.** Show a few blocks in real depth, Linear-style.
 - **No money-back or exit guarantee** at this stage.
-- **Don't name Dan's past companies.** Use "more than 8 years delivering and scaling sports platforms".
+- **Don't name Dan's past companies.** Use "more than 9 years designing, delivering and scaling sports platforms" (Dan, 19 Nov).
 - **Copy is plain and professional, not clever.** Doc 19 rules apply to every string, including errors, meta descriptions and alt text.
 - **Primary CTA everywhere: "Book a demo".** No "Get your free homepage" button anywhere (removed 21 Oct). A CTA band may keep a plain secondary such as "See pricing". Book a demo page is itself the CTA, so it has no CTA band.
 - **Example homepage, shown in the demo** (21 Oct). Built by an AI agent from the club's current site, then checked by Dan. It's an example of what the club gets if it signs, **not a deliverable**: it isn't sent to the club, and it isn't theirs until they sign up. Nothing else is built before signing. Never call it "free".
