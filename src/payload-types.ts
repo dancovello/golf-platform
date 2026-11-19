@@ -5392,6 +5392,10 @@ export interface MarketingSetting {
     registeredName?: string | null;
     companyNumber?: string | null;
     vatNumber?: string | null;
+    /**
+     * The registration reference on your ICO certificate. Shown in the footer. Never type the ICO security number here: it is shown on the site.
+     */
+    icoNumber?: string | null;
     registeredAddress?: string | null;
   };
   /**
@@ -5497,6 +5501,7 @@ export interface MarketingSettingsSelect<T extends boolean = true> {
         registeredName?: T;
         companyNumber?: T;
         vatNumber?: T;
+        icoNumber?: T;
         registeredAddress?: T;
       };
   social?:

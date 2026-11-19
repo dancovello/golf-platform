@@ -110,6 +110,16 @@ export const MarketingSettings: GlobalConfig = {
           ],
         },
         {
+          name: 'icoNumber',
+          label: 'ICO registration number',
+          type: 'text',
+          maxLength: 30,
+          admin: {
+            description:
+              'The registration reference on your ICO certificate. Shown in the footer. Never type the ICO security number here: it is shown on the site.',
+          },
+        },
+        {
           name: 'registeredAddress',
           label: 'Registered address',
           type: 'textarea',
