@@ -1,3 +1,4 @@
+import { openedAtField, refuseStaleSave } from '../fields/staleSave'
 import type {
   CollectionBeforeValidateHook,
   CollectionConfig,
@@ -39,10 +40,16 @@ const validParent: Validate = async (value, { id, req }) => {
  * always wins. */
 const RESERVED = new Set<string>([...BUILT_IN_PAGES.map((p) => p.value), 'search'])
 
+/** Addresses the website itself uses on every club's domain, so a page there could never open. */
+const SYSTEM_ADDRESSES = new Set(['admin', 'api', 'preview'])
+
 const validSlug: TextFieldSingleValidation = (value, args) => {
   const basics = textRules(value, args) // required, length
   if (basics !== true || !value) return basics
   if (!SLUG.test(value)) return `${SLUG_MESSAGE} e.g. "green-fees".`
+  if (SYSTEM_ADDRESSES.has(value)) {
+    return `"${value}" is used by the website itself, so a page here could never be opened. Choose another address.`
+  }
   if (RESERVED.has(value)) {
     return `"${value}" is already used by your site's own ${value} page. Choose another address.`
   }
@@ -89,9 +96,14 @@ export const Pages: CollectionConfig = {
   },
   // A slug only has to be unique within one club, so two clubs can both have /membership.
   indexes: [{ fields: ['tenant', 'slug'], unique: true }],
-  hooks: { beforeValidate: [defaultSlug, checkPageSameClub], ...searchHooks },
+  hooks: {
+    beforeValidate: [defaultSlug, checkPageSameClub],
+    beforeChange: [refuseStaleSave('pages')],
+    ...searchHooks,
+  },
   fields: [
     clubBannerField,
+    openedAtField('pages'),
     // Tells the live preview which block is being edited, so it can scroll to it and outline it.
     {
       name: 'blockHighlighter',

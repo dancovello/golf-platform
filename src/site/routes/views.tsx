@@ -3,7 +3,9 @@ import { headers } from 'next/headers'
 import { notFound, permanentRedirect, redirect } from 'next/navigation'
 import { cache } from 'react'
 
+import { pageBlocks } from '@/blocks'
 import { holeFromSegment, holeSegment } from '@/blocks/courseTour/config'
+import { blockWords, opening, tidy } from '@/search/text'
 import type { CourseTourBlock } from '@/payload-types'
 import { CourseTour } from '@/site/blocks/CourseTour'
 import { heroIsFullBleed, heroShading } from '@/site/blocks/Hero'
@@ -283,6 +285,8 @@ export const SearchView = async ({ site, query }: { site: ResolvedSite; query: Q
 /** A missing page: the club's own header, footer and links. */
 export const NotFoundView = ({ site, path }: { site: ResolvedSite; path: string }) => (
   <ClubShell club={site.club} base={site.base} currentPath={path}>
+    {/* The tab names the club, not the platform (QA-23). */}
+    <title>{`Page not found | ${site.club.name}`}</title>
     <PageNotFound club={site.club} base={site.base} />
   </ClubShell>
 )
@@ -290,6 +294,7 @@ export const NotFoundView = ({ site, path }: { site: ResolvedSite; path: string 
 /** What's shown when no club matches: says nothing about which clubs exist. */
 export const PlainNotFound = () => (
   <main style={{ padding: '96px 24px', fontFamily: 'system-ui, sans-serif' }}>
+    <title>Page not found</title>
     <h1>Page not found</h1>
   </main>
 )
@@ -301,9 +306,14 @@ export const PlainNotFound = () => (
  */
 const describe = (
   site: ResolvedSite,
-  { title, path, image }: { title: string; path: string; image?: string | null },
+  {
+    title,
+    path,
+    image,
+    description,
+  }: { title: string; path: string; image?: string | null; description?: string | null },
 ): Metadata => {
-  const meta: Metadata = { title, ...clubIcon(site) }
+  const meta: Metadata = { title, ...(description ? { description } : {}), ...clubIcon(site) }
   if (!site.origin) return meta
   const url = `${site.origin}${path === '/' ? '' : path}` || site.origin
   return {
@@ -314,12 +324,20 @@ const describe = (
       locale: 'en_GB',
       siteName: site.club.name,
       title,
+      ...(description ? { description } : {}),
       url,
       ...(image ? { images: [{ url: image }] } : {}),
     },
     ...(site.indexable ? { robots: { index: true, follow: true } } : {}),
   }
 }
+
+/**
+ * The description for search results and sharing, written from the page's own first text (the
+ * same words the site search reads), so clubs have nothing to fill in. Empty when a page has no text.
+ */
+const textDescription = (layout: unknown): string | null =>
+  opening(tidy(blockWords(pageBlocks, layout))) || null
 
 /** Titles and sharing details for the home page. */
 export const homeMetadata = async (site: ResolvedSite): Promise<Metadata> => {
@@ -331,6 +349,7 @@ export const homeMetadata = async (site: ResolvedSite): Promise<Metadata> => {
     title: site.club.name,
     path: '/',
     image: image ?? site.club.logoOnLight?.url,
+    description: textDescription(home?.layout),
   })
 }
 
@@ -341,14 +360,23 @@ export const pathMetadata = async (site: ResolvedSite, path: string[]): Promise<
   const named = (title: string) => `${title} | ${club.name}`
   const at = `/${path.join('/')}`
   const logo = club.logoOnLight?.url ?? null
-  const fixed: Record<string, string> = {
-    privacy: privacyPolicyTitle(club),
-    contact: named('Contact'),
-    events: named('Events'),
-    news: named('News'),
+  const fixed: Record<string, { title: string; description: string }> = {
+    privacy: {
+      title: privacyPolicyTitle(club),
+      description: `How ${club.name} looks after your personal information.`,
+    },
+    contact: {
+      title: named('Contact'),
+      description: `Get in touch with ${club.name}: contact details and how to find us.`,
+    },
+    events: {
+      title: named('Events'),
+      description: `Upcoming events and results at ${club.name}.`,
+    },
+    news: { title: named('News'), description: `The latest news from ${club.name}.` },
   }
   if (path.length === 1 && fixed[path[0]]) {
-    return describe(site, { title: fixed[path[0]], path: at, image: logo })
+    return describe(site, { ...fixed[path[0]], path: at, image: logo })
   }
   if (path[0] === 'news' && path.length === 2) {
     const post = await newsPost(club.tenantID, path[1])
@@ -379,7 +407,12 @@ export const pathMetadata = async (site: ResolvedSite, path: string[]): Promise<
   const first = found.layout[0]
   const image =
     first?.blockType === 'hero' ? found.ctx.media((first as { image?: unknown }).image)?.url : null
-  return describe(site, { title: named(found.title), path: at, image: image ?? logo })
+  return describe(site, {
+    title: named(found.title),
+    path: at,
+    image: image ?? logo,
+    description: textDescription(found.layout),
+  })
 }
 
 /** Results pages are never worth indexing (they change and can be made up endlessly). */

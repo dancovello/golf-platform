@@ -25,6 +25,9 @@ Seeded 2026-10-21 from the hand-off's list. **Doc 18's rows are still to add** (
 | Tee-time booking is coming next | Home, nav | Bookings is out of scope for v1; shown with the Coming next clock | ✅ | Nav test checks the clock | Claude | Each release |
 | AI-assisted migration: AI copies your pages, news, photos and PDFs | Home, Switching | Switching service decided (hand-off §3). Worded as how *we* move a club across, never as an AI feature clubs get (Dan, 26 Oct) | ✅ (service, not software) | — | Dan | If the switching process changes |
 | Week moments: course status, news, green fees, hole guide are live blocks | Home | `courseStatus`, `newsFeed`, `rateTable`, `holeGrid` blocks exist and are tested | ✅ | Block integration tests | Claude | — |
+| In 1744, before golf had a governing body, a group of club golfers wrote the rules down: thirteen of them (nearly three hundred years ago) | Instagram reel 4 v3 | The Gentlemen Golfers of Leith drew up the 13 "Articles & Laws in Playing at Golf" in 1744; the National Library of Scotland calls them the earliest known written rules (https://digital.nls.uk/golf-in-scotland/rules). No body governed the rules until much later. 1744 to 2026 is 282 years | ✅ (history) | — | Dan | — |
+| Founder: an experienced product designer with more than 9 years designing, delivering and scaling sports platforms | Home, Book a demo (Founder card) | Dan's own career; his wording of 19 Nov 2026, replacing "more than eight years". Held in Marketing settings → Founder card | ✅ | — | Dan | Each January |
+| Registered with the Information Commissioner's Office, with the registration number in the footer | Footer | ICO registration reference from Dan's ICO certificate (19 Nov 2026), held in Marketing settings → Contact. The ICO security number is never published | ❓ until the number is entered in the admin and checked on the ICO register | — | Dan | Each year at renewal |
 
 ## Researched proof stats
 

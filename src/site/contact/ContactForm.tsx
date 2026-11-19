@@ -104,6 +104,8 @@ const FormBody = ({
   today,
   offerNewsletter,
 }: Props & { state: ContactState; formAction: (form: FormData) => void; pending: boolean }) => {
+  const [scriptsRan, setScriptsRan] = useState(false)
+  useEffect(() => setScriptsRan(true), [])
   const [purpose, setPurpose] = useState<EnquiryPurpose>(state.values.purpose)
   const [messageLength, setMessageLength] = useState(state.values.message.length)
   // Checked when you leave a field that has something in it; a fixed field clears its error.
@@ -216,6 +218,19 @@ const FormBody = ({
 
   return (
     <form id={FORM_ID} className="cf" action={formAction} noValidate>
+      {/* Sending needs JavaScript (the spam check runs in the browser), so say so up front
+          rather than letting a visitor without it fail with "press Send again". It is in the
+          page itself (React does not render <noscript> contents) and goes away once the page
+          has loaded its scripts. */}
+      {!scriptsRan ? (
+        <div className="cf-alert">
+          <Info size={20} />
+          <p className="t-body-s cf-alert-body">
+            This form needs JavaScript to send your message. Please switch it on, or phone or email
+            the club using the contact details on this page.
+          </p>
+        </div>
+      ) : null}
       {hasProblems ? (
         <div className="cf-alert" role="alert" tabIndex={-1} ref={summaryRef}>
           <Info size={20} />

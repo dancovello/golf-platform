@@ -29,6 +29,12 @@ describe('database pool guard (Sentry GOLF-PLATFORM-3)', () => {
     expect(guardPool(undefined)).toBe(false)
   })
 
+  it('waits long enough for a slow database wake-up (Sentry GOLF-PLATFORM-7, -D)', () => {
+    // The slowest wake-up seen was 11.6 s; leave headroom.
+    expect(POOL_SETTINGS.connectionTimeoutMillis).toBeGreaterThanOrEqual(15_000)
+    expect(POOL_SETTINGS.connectionTimeoutMillis).toBeLessThanOrEqual(30_000)
+  })
+
   it('lets go of idle connections before Neon would', () => {
     expect(POOL_SETTINGS.idleTimeoutMillis).toBeLessThan(60_000)
   })

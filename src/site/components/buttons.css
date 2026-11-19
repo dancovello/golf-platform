@@ -51,7 +51,14 @@
 .btn-link.is-on-dark {
   color: var(--color-text-on-inverse);
 }
+/* On a phone a long label (up to 40 characters) wraps inside the button instead of running off
+   the screen (QA-20). */
 @media (max-width: 767px) {
+  .btn {
+    max-width: 100%;
+    white-space: normal;
+    text-align: center;
+  }
   .btn:not(.btn-link) {
     min-height: 48px;
     padding: var(--space-12) var(--space-24);
@@ -60,5 +67,16 @@
 @media (prefers-reduced-motion: reduce) {
   .btn {
     transition: none;
+  }
+}
+
+/* High-contrast (forced colours) mode drops background colours, so the button's own outline is
+   what shows it is a button. */
+@media (forced-colors: active) {
+  .btn {
+    border-color: ButtonText;
+  }
+  .btn:focus-visible {
+    outline-color: Highlight;
   }
 }
