@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright'
 
+import { showFadedSections } from './fade-ins'
 import { expect, test } from './fixtures'
 
 // The Pricing page (plan phase 5.1), from the Figma copy (src/marketing/starter/pages.ts),
@@ -120,6 +121,7 @@ for (const width of [1440, 390]) {
   test(`no accessibility problems at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 })
     await page.goto(site())
+    await showFadedSections(page)
     const results = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
       .analyze()

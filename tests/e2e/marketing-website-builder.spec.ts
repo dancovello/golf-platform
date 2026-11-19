@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright'
 
+import { showFadedSections } from './fade-ins'
 import { expect, test } from './fixtures'
 
 // The Website builder page (plan phase 6.1), from the Figma copy (src/marketing/starter/pages.ts),
@@ -49,16 +50,20 @@ test('Block Flipper: a laptop and a phone flip together, at their real widths', 
   await expect(laptop).toHaveAttribute('src', '/frame/hero/heritage')
   await expect(phone).toHaveAttribute('src', '/frame/hero/heritage')
   await expect(flipper.locator('.mk-flipper-label')).toContainText('Variant 1 of 3')
-  await flipper.getByRole('button', { name: 'Next variant' }).click()
+  // The A, B and C pills (Dan, 19 Nov) replaced the old arrows: one pill per variant.
+  const pills = flipper.getByRole('radiogroup', { name: 'Hero variant' }).getByRole('radio')
+  await expect(pills).toHaveText(['A · Heritage', 'B · Resort', 'C · Booking-led'])
+  await expect(pills.nth(0)).toBeChecked()
+  await pills.nth(1).click()
   await expect(laptop).toHaveAttribute('src', '/frame/hero/resort')
   await expect(phone).toHaveAttribute('src', '/frame/hero/resort')
   await expect(flipper.locator('.mk-flipper-name')).toHaveText('Hero · Resort')
   await page.keyboard.press('ArrowRight')
   await expect(laptop).toHaveAttribute('src', '/frame/hero/bookingLed')
-  await flipper.getByRole('button', { name: 'Previous variant' }).click()
+  await pills.nth(1).click()
   await expect(flipper.locator('.mk-flipper-count')).toContainText('Variant 2 of 3')
-  // No device tabs any more (Dan, 26 Oct): both screens show at once, at their real widths.
-  await expect(flipper.getByRole('radio')).toHaveCount(0)
+  // No device tabs (Dan, 26 Oct): both screens show at once, at their real widths.
+  await expect(flipper.getByRole('radio', { name: /laptop|phone|desktop|mobile/i })).toHaveCount(0)
   expect(await laptop.evaluate((el) => (el as HTMLIFrameElement).style.width)).toBe('1366px')
   expect(await phone.evaluate((el) => (el as HTMLIFrameElement).style.width)).toBe('390px')
   await expect(phone.contentFrame().locator('.hero')).toBeVisible()
@@ -163,6 +168,7 @@ for (const width of [1440, 390]) {
   test(`no accessibility problems at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 })
     await page.goto(site())
+    await showFadedSections(page)
     const results = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
       .analyze()

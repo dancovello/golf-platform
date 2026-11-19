@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright'
 import type { Page } from '@playwright/test'
 
+import { showFadedSections } from './fade-ins'
 import { expect, test } from './fixtures'
 
 // Phase 9 quality pass (docs/plans/phase-9-quality-pass.md): every published marketing page gets
@@ -30,10 +31,12 @@ const PAGES = [
 
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']
 
-const violations = async (page: Page) =>
-  (await new AxeBuilder({ page }).withTags(TAGS).analyze()).violations.map(
+const violations = async (page: Page) => {
+  await showFadedSections(page)
+  return (await new AxeBuilder({ page }).withTags(TAGS).analyze()).violations.map(
     (v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`,
   )
+}
 
 const overflowsSideways = (page: Page) =>
   page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
