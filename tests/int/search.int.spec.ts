@@ -1,7 +1,7 @@
-import { beforeAll, describe, expect, it } from 'vitest'
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { buildDemoClub, DEMO_SLUG } from '@/demo/demoClub'
-import { findAnswer } from '@/search/answers'
+import { findAnswer, quickAccess } from '@/search/answers'
 import { ensureFreshIndex } from '@/search/fresh'
 import { loadClubBySlug } from '@/site/loadClub'
 import { searchClub, searchGrouped } from '@/search/query'
@@ -10,6 +10,10 @@ import { rt } from '../shared/richText'
 import { seedWorld, type World } from './helpers/seed'
 
 let w: World
+
+afterEach(() => {
+  vi.useRealTimers()
+})
 
 const daysFromNow = (n: number) => new Date(Date.now() + n * 86_400_000).toISOString()
 
@@ -277,6 +281,19 @@ describe('on a full club site (the demo club)', () => {
     // Two people fit "pro": a list, not an answer. Two kinds of question: no answer.
     expect(await ask('pro')).toBeNull()
     expect(await ask('course open hours')).toBeNull()
+  }, 120_000)
+
+  it('the panel’s course status says when it may be out of date (QA-35)', async () => {
+    const club = await loadClubBySlug(DEMO_SLUG)
+    if (!club) throw new Error('demo club missing')
+    const status = async () =>
+      (await quickAccess(club, `/preview/${DEMO_SLUG}`)).items.find(
+        (i) => i.label === 'Course status',
+      )
+    expect((await status())?.detail).toMatch(/Updated /)
+    // Two days later, with nobody having checked the course since.
+    vi.useFakeTimers({ toFake: ['Date'], now: Date.now() + 2 * 86_400_000 })
+    expect((await status())?.detail).toMatch(/May be out of date, last updated /)
   }, 120_000)
 
   it('never answers with another club’s facts', async () => {

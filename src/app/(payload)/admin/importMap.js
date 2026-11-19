@@ -40,6 +40,7 @@ import { AdminLogo as AdminLogo_6c456d9958cb55f21b11937064189d83 } from '../../.
 import { GlobalViewRedirect as GlobalViewRedirect_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
 import { ClubHome as ClubHome_d5994150e51c48090be4b9072de8e30f } from '../../../admin/ClubHome'
 import { TenantSelector as TenantSelector_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
+import { AccessibilityFixes as AccessibilityFixes_2ce5566061359cb7e9b649d2d230fe37 } from '../../../admin/AccessibilityFixes'
 import { TenantSelectionAfterTwoFactor as TenantSelectionAfterTwoFactor_81c53e0ef025a5e59bab11a3e58579bd } from '../../../admin/TenantSelectionAfterTwoFactor'
 import { S3ClientUploadHandler as S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24 } from '@payloadcms/storage-s3/client'
 import { SuperAdminTwoFactorProvider as SuperAdminTwoFactorProvider_2552afe2d4ec8dc58deb5f0f61b6a22b } from '../../../admin/SuperAdminTwoFactorProvider'
@@ -92,6 +93,7 @@ export const importMap = {
   "@payloadcms/plugin-multi-tenant/rsc#GlobalViewRedirect": GlobalViewRedirect_d6d5f193a167989e2ee7d14202901e62,
   "/admin/ClubHome#ClubHome": ClubHome_d5994150e51c48090be4b9072de8e30f,
   "@payloadcms/plugin-multi-tenant/rsc#TenantSelector": TenantSelector_d6d5f193a167989e2ee7d14202901e62,
+  "/admin/AccessibilityFixes#AccessibilityFixes": AccessibilityFixes_2ce5566061359cb7e9b649d2d230fe37,
   "/admin/TenantSelectionAfterTwoFactor#TenantSelectionAfterTwoFactor": TenantSelectionAfterTwoFactor_81c53e0ef025a5e59bab11a3e58579bd,
   "@payloadcms/storage-s3/client#S3ClientUploadHandler": S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24,
   "/admin/SuperAdminTwoFactorProvider#SuperAdminTwoFactorProvider": SuperAdminTwoFactorProvider_2552afe2d4ec8dc58deb5f0f61b6a22b,

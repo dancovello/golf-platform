@@ -15,8 +15,10 @@ type PoolLike = {
 export const POOL_SETTINGS = {
   // Let go of idle connections well before Neon does, so a dead one is never handed out.
   idleTimeoutMillis: 10_000,
-  // Give up on a connection attempt instead of hanging the visitor's page.
-  connectionTimeoutMillis: 10_000,
+  // Give up on a connection attempt instead of hanging the visitor's page. Long enough for a
+  // slow Neon wake-up from sleep: 8.6 s and 11.6 s were seen on 18 Nov 2026 (Sentry
+  // GOLF-PLATFORM-7 and -D), and 10 s turned those into error pages.
+  connectionTimeoutMillis: 20_000,
   // Notice a silently dropped connection sooner.
   keepAlive: true,
   // Each site instance only needs a few. Many instances share one database.

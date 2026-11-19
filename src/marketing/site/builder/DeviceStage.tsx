@@ -2,8 +2,8 @@
 
 import {
   type CSSProperties,
-  type PointerEvent,
   type ReactNode,
+  type TouchEvent,
   useLayoutEffect,
   useRef,
   useState,
@@ -68,7 +68,7 @@ export const DeviceStage = ({
 }) => {
   const [size, setSize] = useState<Size>({ laptop: MAX_LAPTOP, phone: 250 })
   const stack = useRef<HTMLDivElement>(null)
-  const swipe = useRef<number | null>(null)
+  const swipe = useRef<{ x: number; y: number } | null>(null)
 
   useLayoutEffect(() => {
     const box = stack.current
@@ -91,14 +91,23 @@ export const DeviceStage = ({
   const phoneScale = phoneScreen / PHONE.width
   const phoneHeight = Math.round(PHONE_HEIGHT * phoneScale) + 12
 
-  const onPointerDown = (event: PointerEvent) => {
-    if (event.pointerType !== 'mouse') swipe.current = event.clientX
+  // A swipe is read from where the finger lands and where it lifts (touch events, not pointer
+  // events: a browser that starts scrolling the page cancels the pointer ones, and a real swipe
+  // always drifts a little up or down). It counts when it is mostly sideways and 40px or more.
+  const onTouchStart = (event: TouchEvent) => {
+    const touch = event.touches[0]
+    swipe.current = event.touches.length === 1 ? { x: touch.clientX, y: touch.clientY } : null
   }
-  const onPointerUp = (event: PointerEvent) => {
-    if (swipe.current === null) return
-    const moved = event.clientX - swipe.current
+  const onTouchEnd = (event: TouchEvent) => {
+    const start = swipe.current
     swipe.current = null
-    if (Math.abs(moved) > 40) onSwipe?.(moved < 0 ? 1 : -1)
+    const touch = event.changedTouches[0]
+    if (!start || !touch) return
+    const across = touch.clientX - start.x
+    const down = touch.clientY - start.y
+    if (Math.abs(across) >= 40 && Math.abs(across) > Math.abs(down) * 1.2) {
+      onSwipe?.(across < 0 ? 1 : -1)
+    }
   }
 
   return (
@@ -113,9 +122,9 @@ export const DeviceStage = ({
             '--phone': `${size.phone}px`,
           } as CSSProperties
         }
-        onPointerDown={onPointerDown}
-        onPointerUp={onPointerUp}
-        onPointerCancel={() => (swipe.current = null)}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+        onTouchCancel={() => (swipe.current = null)}
       >
         <div
           className="mk-devices"

@@ -7,6 +7,7 @@ import { measureUpload } from '../media/measure'
 import { randomServerUploadName } from '../media/uploadGuards'
 import { uploadFolder } from '../media/folders'
 import { clubBannerField } from '../tenancy'
+import { refuseDeleteInUse, usedOnField } from '../media/usage'
 import { searchHooks } from '../search/hooks'
 
 /** Photos and videos a club can use in its blocks. Images are checked by their actual
@@ -43,6 +44,7 @@ export const Media: CollectionConfig = {
   hooks: {
     beforeOperation: [folder.assignFolder, randomServerUploadName],
     beforeChange: [checkSvgUpload, measureUpload],
+    beforeDelete: [refuseDeleteInUse],
     ...searchHooks,
   },
   upload: {
@@ -62,11 +64,12 @@ export const Media: CollectionConfig = {
       format: 'webp' as const,
       options: { quality: 88, smartSubsample: true, alphaQuality: 100 },
     },
-    // Copies of every photo at set widths, so phones don't download the full-size file and big
-    // high-resolution screens get a sharp one (3200 covers a full-width photo on a 1600px-wide
-    // retina screen). WebP, never larger than the original. Quality 88 with sharp colour edges:
-    // 80 showed blocks and bands in smooth skies. Videos are stored as uploaded.
-    imageSizes: [640, 1024, 1600, 2400, 3200].map((width) => ({
+    // Two copies of every photo, so phones don't download the larger file. 1024 is the biggest
+    // size ever made, and the saved original is capped to it too (src/media/cleanOriginal.ts):
+    // Dan, 19 Nov 2026, larger copies "just take up valuable space". WebP, never larger than
+    // the original. Quality 88 with sharp colour edges: 80 showed blocks and bands in smooth
+    // skies. Videos are stored as uploaded.
+    imageSizes: [640, 1024].map((width) => ({
       name: `w${width}`,
       width,
       withoutEnlargement: true,
@@ -106,6 +109,7 @@ export const Media: CollectionConfig = {
         components: { Cell: '/admin/DescriptionCell#DescriptionCell' },
       },
     },
+    usedOnField,
     folder.prefixField,
     {
       // Set from the file on upload (src/media/measure.ts): how bright the photo is, and

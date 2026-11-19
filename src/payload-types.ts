@@ -170,6 +170,7 @@ export interface UserAuthOperations {
 export interface Page {
   id: string;
   tenant?: (string | null) | Tenant;
+  openedAt?: string | null;
   title: string;
   /**
    * The page address, e.g. "membership" for /membership. Use "home" for the home page. Left empty, it is made from the title when you publish.
@@ -258,7 +259,7 @@ export interface HeroBlock {
   style: 'heritage' | 'resort' | 'bookingLed';
   mediaType?: ('image' | 'video') | null;
   /**
-   * Landscape, at least 2400 pixels wide. With a video, this is shown while it loads and to visitors who prefer less motion.
+   * Landscape. Photos are saved at up to 1024 pixels wide. With a video, this is shown while it loads and to visitors who prefer less motion.
    */
   image: string | Media;
   /**
@@ -319,6 +320,7 @@ export interface Media {
    * What the photo shows, read aloud to people using screen readers, e.g. "The 7th green at sunset". Optional, but please add one for any photo that matters to the page.
    */
   alt?: string | null;
+  usedOn?: string | null;
   tone?: {
     bright?: string | null;
     average?: string | null;
@@ -346,30 +348,6 @@ export interface Media {
       filename?: string | null;
     };
     w1024?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    w1600?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    w2400?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    w3200?: {
       url?: string | null;
       width?: number | null;
       height?: number | null;
@@ -2420,30 +2398,6 @@ export interface MarketingMedia {
       filesize?: number | null;
       filename?: string | null;
     };
-    w1600?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    w2400?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    w3200?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
   };
 }
 /**
@@ -3256,6 +3210,7 @@ export interface PayloadMigration {
  */
 export interface PagesSelect<T extends boolean = true> {
   tenant?: T;
+  openedAt?: T;
   title?: T;
   slug?: T;
   parent?: T;
@@ -4149,6 +4104,7 @@ export interface DocumentsSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   tenant?: T;
   alt?: T;
+  usedOn?: T;
   tone?:
     | T
     | {
@@ -4182,36 +4138,6 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T;
             };
         w1024?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-        w1600?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-        w2400?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-        w3200?:
           | T
           | {
               url?: T;
@@ -5217,36 +5143,6 @@ export interface MarketingMediaSelect<T extends boolean = true> {
               filesize?: T;
               filename?: T;
             };
-        w1600?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-        w2400?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-        w3200?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
       };
 }
 /**
@@ -5388,6 +5284,10 @@ export interface MarketingSetting {
     registeredName?: string | null;
     companyNumber?: string | null;
     vatNumber?: string | null;
+    /**
+     * The registration reference on your ICO certificate. Shown in the footer. Never type the ICO security number here: it is shown on the site.
+     */
+    icoNumber?: string | null;
     registeredAddress?: string | null;
   };
   /**
@@ -5493,6 +5393,7 @@ export interface MarketingSettingsSelect<T extends boolean = true> {
         registeredName?: T;
         companyNumber?: T;
         vatNumber?: T;
+        icoNumber?: T;
         registeredAddress?: T;
       };
   social?:

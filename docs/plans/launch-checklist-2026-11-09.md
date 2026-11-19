@@ -40,21 +40,25 @@ Legend: ✅ done · 🔨 build (Claude) · 👤 Dan · ❓ undecided
 
 | # | Job | Status |
 |---|---|---|
-| D1 | **ICO registration** and the yearly data protection fee (small-business tier). Needed before the first club | ❓ not yet raised |
+| D1 | **ICO registration** and the yearly data protection fee (small-business tier). Needed before the first club | ✅ registered (Dan, 19 Nov). Number goes in Marketing settings → Contact (`pnpm update-founder-and-ico`); the security number is never published |
 | D2 | ✅ Data processing agreement approved by Dan; details filled in 9 Nov (PR #301, merged). Dan is a sole trader, not a registered company. One thing to glance at: Resend's row says "as set out in Resend's data processing agreement" because I could not confirm its transfer safeguard | ✅ |
-| D3 | Marketing site terms of use and cookie policy wording final | Cookie notice: see B1. Terms: ❓ |
-| D4 | GitHub: move production keys into GitHub environments, delete the repo-wide copies (the High finding from the security audit), required checks | 👤 |
-| D5 | Production admin → Settings → Requests: inbox daniel@a1engine.co | 👤 |
-| D6 | Cloudflare Turnstile: add `a1engine.co` to the widget | 👤 |
-| D7 | Vercel Production: `MARKETING_GA_ID`. Google Analytics: retention 14 months, Google signals off | 👤. Only after B1 is true |
+| D3 | Marketing site terms of use and cookie policy wording final | ✅ Terms and cookie policy are live on the production marketing site (Dan, 19 Nov). Cookie notice: see B1 |
+| D4 | GitHub: move production keys into GitHub environments, delete the repo-wide copies (the High finding from the security audit), required checks | ✅ Production keys are in the `release-production` and `release-staging` environments; only the two non-secret Vercel IDs remain repo-wide; required checks set on `main` and `production` (checked in GitHub, 19 Nov) |
+| D5 | Production admin → Settings → Requests: inbox daniel@a1engine.co | ✅ Done (Dan, 19 Nov); contact forms tested and fine |
+| D6 | Cloudflare Turnstile: add `a1engine.co` to the widget | ✅ Done (Dan, 19 Nov): Turnstile shows challenges from `a1engine.co`; contact forms tested and fine |
+| D7 | Vercel Production: `MARKETING_GA_ID`. Google Analytics: retention 14 months, Google signals off | ✅ Done (Dan, 19 Nov): `MARKETING_GA_ID` set, analytics seen working, retention and Google signals done |
 | D8 | Neon Launch plan (7-day history) | 👤 Deferred (Dan, 9 Nov): upgrade once there are 2 paying clubs, together with Resend's paid plan |
 | D9 | **First restore drill** with the devops friend (`docs/operations/restore-runbook.md`, record in `restore-drills.md`) | 👤 never done |
 | D10 | Penetration test budget, booked before the first paying clubs | 👤 |
-| D11 | Image licences for the marketing photos, founder photo and short bio, share image | 👤 |
+| D11 | Image licences for the marketing photos, founder photo and short bio, share image | ✅ Done (Dan, 19 Nov): licensed photos handled in a separate chat |
 | D12 | Editor help guide for clubs; delete the old merged GitHub branches | 👤 |
-| D13 | Confirm the service promises (homepage in two working days, access requests answered in two working days, and so on) | 👤 |
-| D14 | Photo storage wording: "UK and Western Europe", or move R2 | ❓ |
+| D13 | Confirm the service promises (homepage in two working days, access requests answered in two working days, and so on) | Homepage promise: none on the site (retired 28 Oct; Dan, 19 Nov: keep it removed). Still to confirm: access requests answered in two working days (Accessibility page) |
+| D14 | Photo storage wording: "UK and Western Europe", or move R2 | ✅ "UK and Western Europe" is right (Dan, 19 Nov) |
 | D15 | ISO 27001 is not needed for launch. If clubs ask for a certificate, Cyber Essentials is the cheap UK option | Info only |
+
+## Update, 19 Nov
+
+Checked against GitHub, Neon and the repo, and Dan's answers. Real-device checks are done (Dan). Still open: D9 restore drill (no row in `restore-drills.md`), D10 penetration test, D12 editor help guide and old branches, the ICO number on the site, and the D13 access-request promise. The audit fix plan's steps 1 to 5 and 7 to 14 are done; the feature gaps G1 to G7, G15 and G16 and the 16 Nov system-test fixes are merged to main.
 
 ## Testing before launch
 

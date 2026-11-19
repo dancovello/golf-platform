@@ -141,7 +141,8 @@
   font-variant-numeric: tabular-nums;
 }
 .carctl-of {
-  opacity: 0.6;
+  /* Lighter weight, not lighter colour: the count must stay at 4.5:1 on every palette. */
+  font-weight: 400;
 }
 .carctl-progress {
   position: relative;
@@ -219,4 +220,11 @@
   :is(.cg-grid, .mb-tiers, .dl-cards).cards-5.cols-3 > :nth-child(-n + 2) {
     grid-column: span 3;
   }
+}
+
+/* A very long word or web address (a heading, an answer, a button label) breaks instead of
+   making its block wider than a phone screen (QA-21, 17 Nov 2026). "anywhere", not "break-word":
+   it also lets the block shrink around the word. Table cells are left alone. */
+main :is(h1, h2, h3, h4, h5, h6, p, li, summary, dt, dd, figcaption, blockquote, .btn) {
+  overflow-wrap: anywhere;
 }

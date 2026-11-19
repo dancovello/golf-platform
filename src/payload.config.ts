@@ -16,6 +16,7 @@ import { guardTenantSelection } from './admin/guardTenantSelection'
 import { superAdminTwoFactor } from './auth/superAdminTwoFactor'
 import { encryptTotpSecrets } from './auth/totpSecretEncryption'
 import { guardPool, POOL_SETTINGS, unpooledWarning } from './db/poolGuard'
+import { keepFieldMessages } from './errors'
 import { emailAdapter } from './email/adapter'
 import { sentryEnabled } from './monitoring/sentry'
 import { collections } from './collections'
@@ -75,6 +76,8 @@ export default buildConfig({
       },
       // The club home screen: setup checklist, new messages, everyday jobs, course status.
       beforeDashboard: ['/admin/ClubHome#ClubHome'],
+      // Names for a few of Payload's own unnamed controls (src/admin/AccessibilityFixes.tsx).
+      providers: ['/admin/AccessibilityFixes#AccessibilityFixes'],
       views: {
         inviteEditor: {
           Component: '/admin/InviteEditorView#InviteEditorView',
@@ -90,6 +93,8 @@ export default buildConfig({
   // Each club's cached site data is cleared when its content changes (src/site/cacheHooks.ts).
   collections: withCacheClearing([...collections]),
   globals: [...globals],
+  // Failed saves say which field and why (src/errors.ts).
+  hooks: { afterError: [keepFieldMessages] },
   editor: lexicalEditor(),
   // Background jobs (decided stack: Payload Jobs Queue). Only the nightly clean-up so far.
   jobs,

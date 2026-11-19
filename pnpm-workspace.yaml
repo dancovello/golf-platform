@@ -33,3 +33,9 @@ auditConfig:
     # tooling (sass -> chokidar, vite) with patterns from our own code, never user input.
     # Mirrored in osv-scanner.toml with an expiry date. Review by 2026-11-10.
     - GHSA-vfj7-8cjw-p6xm
+    # picomatch 2.3.2 and 4.0.7 ReDoS through repeated extglob patterns (high). No fixed
+    # release exists (4.0.7 is the latest, rechecked 17 Nov). Only used at build time and on
+    # developer machines (sass watcher, Sentry bundler plugin, micromatch, fdir, tinyglobby),
+    # always with patterns from our own code and config, never from visitors or editors.
+    # Mirrored in osv-scanner.toml, which expires it on 2026-12-01. Review by then.
+    - GHSA-fc5q-39xc-vjpf

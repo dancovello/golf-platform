@@ -5,17 +5,13 @@
 id = "GHSA-67mh-4wv8-2f99"
 ignoreUntil = 2026-12-10
 reason = "esbuild 0.18 dev-server issue. Only pulled in by drizzle-kit (migration generator, developer machines only), which never starts esbuild's dev server. Rechecked 10 Nov: drizzle-kit comes with Payload 3.93.0, which is still the latest release, so there is nothing newer to move to. Review again on expiry."
+
 [[IgnoredVulns]]
 id = "GHSA-gcqx-w48m-w2h4"
 ignoreUntil = 2026-12-10
 reason = "deepmerge 4.3.1 prototype poisoning in mergeObject(): no fixed release (rechecked 10 Nov). Pulled in by Payload core, which only merges its own configuration built from our code, never user input. Review again on expiry."
 
 [[IgnoredVulns]]
-id = "GHSA-3g3m-2fjr-6pw4"
-ignoreUntil = 2026-11-16
-reason = "glob 13.0.6 AbortSignal bypass (medium). Fix is glob 14, a new major. Only used at build time by the Sentry bundler plugin with paths from our own code, never user input. Review again on expiry."
-
-[[IgnoredVulns]]
-id = "GHSA-g3hv-75wg-m249"
-ignoreUntil = 2026-11-16
-reason = "minimatch 3.1.5 and 10.2.6 denial of service via crafted patterns (medium). Fix is minimatch 11, a new major. Only used by ESLint and typescript-eslint on developer machines and CI, with patterns from our own config, never user input. Review again on expiry."
+id = "GHSA-fc5q-39xc-vjpf"
+ignoreUntil = 2026-12-01
+reason = "picomatch 2.3.2 and 4.0.7 ReDoS through repeated extglob patterns like +(*) (high). No fixed release exists yet (rechecked 17 Nov; 4.0.7 is the latest). Only used at build time and on developer machines, by sass's file watcher, the Sentry bundler plugin's rollup, micromatch and fdir, always with patterns from our own code and config, never from visitors or editors. Review again on expiry."

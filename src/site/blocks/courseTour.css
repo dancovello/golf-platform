@@ -1053,14 +1053,16 @@ a.tour-arrow:hover {
   min-width: 96px;
   color: var(--color-text-on-inverse);
   text-decoration: none;
+}
+.tour-film-hole:not([aria-current='page']) .tour-film-photo {
+  /* Dim the photo, not the names: the names must stay at 4.5:1. */
   opacity: 0.6;
 }
 .tour-film-strip.is-all .tour-film-hole {
   flex: none;
   width: 122px;
 }
-.tour-film-hole:hover,
-.tour-film-hole[aria-current='page'] {
+.tour-film-hole:hover .tour-film-photo {
   opacity: 1;
 }
 .tour-film-photo {

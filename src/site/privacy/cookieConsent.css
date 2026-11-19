@@ -50,6 +50,31 @@
   outline-offset: 2px;
 }
 
+/* The smallest phones (320 wide): a tighter banner, with Accept and Reject side by side, so it
+   covers less of the page (QA-06). It never takes more than 40% of the screen height. */
+@media (max-width: 480px) {
+  .cc {
+    left: var(--space-8);
+    right: var(--space-8);
+    bottom: var(--space-8);
+    padding: var(--space-16);
+    gap: var(--space-8);
+    max-height: 40vh;
+    overflow-y: auto;
+  }
+  .cc-heading {
+    font-size: 1.125rem;
+  }
+  .cc-buttons {
+    flex-wrap: nowrap;
+    gap: var(--space-8);
+  }
+  .cc-button {
+    flex: 1;
+    padding: 0 var(--space-12);
+  }
+}
+
 /* The footer's "Cookie settings" button looks like the links beside it. */
 .sf-cookie-settings {
   background: none;
