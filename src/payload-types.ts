@@ -170,6 +170,7 @@ export interface UserAuthOperations {
 export interface Page {
   id: string;
   tenant?: (string | null) | Tenant;
+  openedAt?: string | null;
   title: string;
   /**
    * The page address, e.g. "membership" for /membership. Use "home" for the home page. Left empty, it is made from the title when you publish.
@@ -319,6 +320,7 @@ export interface Media {
    * What the photo shows, read aloud to people using screen readers, e.g. "The 7th green at sunset". Optional, but please add one for any photo that matters to the page.
    */
   alt?: string | null;
+  usedOn?: string | null;
   tone?: {
     bright?: string | null;
     average?: string | null;
@@ -3208,6 +3210,7 @@ export interface PayloadMigration {
  */
 export interface PagesSelect<T extends boolean = true> {
   tenant?: T;
+  openedAt?: T;
   title?: T;
   slug?: T;
   parent?: T;
@@ -4101,6 +4104,7 @@ export interface DocumentsSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   tenant?: T;
   alt?: T;
+  usedOn?: T;
   tone?:
     | T
     | {
@@ -5280,6 +5284,10 @@ export interface MarketingSetting {
     registeredName?: string | null;
     companyNumber?: string | null;
     vatNumber?: string | null;
+    /**
+     * The registration reference on your ICO certificate. Shown in the footer. Never type the ICO security number here: it is shown on the site.
+     */
+    icoNumber?: string | null;
     registeredAddress?: string | null;
   };
   /**
@@ -5385,6 +5393,7 @@ export interface MarketingSettingsSelect<T extends boolean = true> {
         registeredName?: T;
         companyNumber?: T;
         vatNumber?: T;
+        icoNumber?: T;
         registeredAddress?: T;
       };
   social?:

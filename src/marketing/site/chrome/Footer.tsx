@@ -26,6 +26,7 @@ export const Footer = async () => {
   const companyLine = [
     contact?.registeredName,
     contact?.companyNumber ? `Company number ${contact.companyNumber}` : null,
+    contact?.icoNumber ? `ICO registration ${contact.icoNumber}` : null,
     contact?.vatNumber ? `VAT number ${contact.vatNumber}` : null,
     contact?.registeredAddress?.replace(/\s*\n\s*/g, ', '),
   ]

@@ -15,10 +15,21 @@ export const dynamic = 'force-dynamic'
 
 type Props = { params: Promise<{ path?: string[] }> }
 
+/** The first block's headline on one line, if it has one. */
+const firstHeadline = (layout: unknown): string | null => {
+  const first = (Array.isArray(layout) ? layout[0] : null) as { title?: unknown } | null
+  return typeof first?.title === 'string' ? first.title.replace(/\s*\n\s*/g, ' ').trim() : null
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const page = await publishedMarketingPage((await params).path ?? [])
   if (!page) return {}
-  const title = page.meta?.title || page.title
+  // The home page is called "Home" in the admin, which makes a poor browser tab: unless it has
+  // its own title, it is the company name and the opening headline.
+  const headline = firstHeadline(page.layout)
+  const title =
+    page.meta?.title ||
+    (page.slug === 'home' && headline ? `${BRAND.name} | ${headline}` : page.title)
   const settings = await marketingSettings()
   const description = page.meta?.description || settings.site?.description || undefined
   const shareImage = mediaUrl(settings.site?.shareImage, 'w1024')

@@ -7,6 +7,7 @@ import { measureUpload } from '../media/measure'
 import { randomServerUploadName } from '../media/uploadGuards'
 import { uploadFolder } from '../media/folders'
 import { clubBannerField } from '../tenancy'
+import { refuseDeleteInUse, usedOnField } from '../media/usage'
 import { searchHooks } from '../search/hooks'
 
 /** Photos and videos a club can use in its blocks. Images are checked by their actual
@@ -43,6 +44,7 @@ export const Media: CollectionConfig = {
   hooks: {
     beforeOperation: [folder.assignFolder, randomServerUploadName],
     beforeChange: [checkSvgUpload, measureUpload],
+    beforeDelete: [refuseDeleteInUse],
     ...searchHooks,
   },
   upload: {
@@ -107,6 +109,7 @@ export const Media: CollectionConfig = {
         components: { Cell: '/admin/DescriptionCell#DescriptionCell' },
       },
     },
+    usedOnField,
     folder.prefixField,
     {
       // Set from the file on upload (src/media/measure.ts): how bright the photo is, and

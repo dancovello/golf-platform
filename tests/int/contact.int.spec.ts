@@ -131,6 +131,11 @@ describe('sending a message from the Contact page', () => {
       groupSize: 'Enter a number of people between 1 and 500',
     })
   })
+
+  it('refuses a made-up date years ahead (QA-07)', async () => {
+    const result = await send(form({ purpose: 'visitor', preferredDate: '2099-12-31' }))
+    expect(result?.errors).toEqual({ preferredDate: 'Choose a date within the next two years' })
+  })
 })
 
 // Extra questions a club can switch on per topic (G5, 15 Nov 2026).
