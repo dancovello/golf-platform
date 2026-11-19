@@ -38,6 +38,13 @@ const ICON_FILES = /^\/(favicon\.ico|apple-touch-icon(-precomposed)?\.png)$/
 const INTERNAL_ONLY = /^\/(sites|marketing)(\/|$)/
 /** Marketing review pages (super-admin only): on the platform's own address, never the company's. */
 const REVIEW = /^\/dev(\/|$)/
+/**
+ * The small demo pages the marketing site embeds (/frame/…). The review pages above embed them
+ * too, so on the platform's own address they must be served here: forwarding them to the
+ * company's domain makes a different address, which the security policy blocks as a frame
+ * (Sentry GOLF-PLATFORM-4).
+ */
+const FRAME = /^\/frame(\/|$)/
 
 /** Search engines may index the marketing site only on the company's domain, on production. */
 const NOINDEX = 'noindex'
@@ -161,7 +168,9 @@ export function proxy(request: NextRequest) {
   // forwarded to the company's domain once it exists, otherwise shown here (staging and
   // previews), never indexed.
   // The marketing review pages (/dev/…, super-admin only) stay here, where the admin's login is.
-  if (REVIEW.test(pathname)) return marketing(request, headers, pathname, search, false)
+  if (REVIEW.test(pathname) || FRAME.test(pathname)) {
+    return marketing(request, headers, pathname, search, false)
+  }
 
   // Browsers ask for these by themselves when a page names no icon. Forwarding them to the
   // company's domain would cross addresses, which the security policy reports as a blocked
