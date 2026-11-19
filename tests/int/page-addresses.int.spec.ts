@@ -41,6 +41,14 @@ describe('page addresses', () => {
     }
   })
 
+  it('refuses the addresses the website itself uses (QA-10)', async () => {
+    for (const slug of ['admin', 'api', 'preview']) {
+      expect(await messageOf(() => publish({ title: 'Clash', slug })), slug).toContain(
+        'used by the website itself',
+      )
+    }
+  })
+
   it('accepts a normal address, and "home"', async () => {
     expect((await publish({ title: 'Green fees', slug: 'green-fees-2026' })).slug).toBe(
       'green-fees-2026',
