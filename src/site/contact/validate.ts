@@ -11,6 +11,9 @@ import {
  * server (checks everything on send, and is the one that counts). Messages say what to do,
  * not just that something is wrong (Figma "Form Field").
  */
+/** The furthest date a visitor can ask for: two years from today. */
+const latestDate = (today: string) => `${Number(today.slice(0, 4)) + 2}${today.slice(4)}`
+
 export const MESSAGE_MAX = 1000
 
 export type ContactValues = {
@@ -119,7 +122,9 @@ export const fieldError = (
       if (!DATE.test(value) || Number.isNaN(new Date(`${value}T12:00:00Z`).getTime())) {
         return 'Enter a date like 21/06/2027'
       }
-      return value < rules.today ? 'Choose a date from today onwards' : null
+      if (value < rules.today) return 'Choose a date from today onwards'
+      // Nobody plans a round or an event further ahead than this; it stops made-up dates.
+      return value > latestDate(rules.today) ? 'Choose a date within the next two years' : null
     case 'groupSize': {
       if (!value) return null
       const n = Number(value)
