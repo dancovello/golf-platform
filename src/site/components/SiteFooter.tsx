@@ -142,24 +142,32 @@ export const SiteFooter = ({ club, base }: { club: ClubSite; base: string }) => 
             {f.style === 'lightColumns' ? contact(true) : null}
           </div>
         )}
-        <div className="sf-legal t-label-s">
-          <ul className="sf-legal-links">
-            <li>
-              <a className="sf-link" href={`${base}/privacy`}>
-                Privacy policy
-              </a>
-            </li>
-            {club.privacy.gaMeasurementId ? (
+        <div className="sf-bottom">
+          <div className="sf-legal t-label-s">
+            <ul className="sf-legal-links">
               <li>
-                <CookieSettingsButton className="sf-link sf-cookie-settings" />
+                <a className="sf-link" href={`${base}/privacy`}>
+                  Privacy policy
+                </a>
               </li>
-            ) : null}
-            {f.legalLinks.map((l, i) => (
-              <li key={i}>{a(l, 'sf-link')}</li>
-            ))}
-          </ul>
-          <p>
-            © {year} {club.name}
+              {club.privacy.gaMeasurementId ? (
+                <li>
+                  <CookieSettingsButton className="sf-link sf-cookie-settings" />
+                </li>
+              ) : null}
+              {f.legalLinks.map((l, i) => (
+                <li key={i}>{a(l, 'sf-link')}</li>
+              ))}
+            </ul>
+            <p>
+              © {year} {club.name}
+            </p>
+          </div>
+          {/* The platform credit: on every club's footer, not editable by clubs. */}
+          <p className="t-label-s sf-credit">
+            <a className="sf-link" href="https://a1engine.co" {...NEW_TAB}>
+              Website by A1 Engine
+            </a>
           </p>
         </div>
       </div>

@@ -158,6 +158,19 @@
 .sf-legal p {
   margin: 0;
 }
+/* Legal row plus the "Website by A1 Engine" credit underneath it. */
+.sf-bottom {
+  display: grid;
+  gap: var(--space-16);
+}
+.sf-credit {
+  margin: 0;
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+.sf.is-dark .sf-credit {
+  color: var(--color-text-on-inverse-muted);
+}
 .sf-legal-links {
   display: flex;
   flex-wrap: wrap;
