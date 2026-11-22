@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright'
 
+import { showFadedSections } from './fade-ins'
 import { expect, test } from './fixtures'
 
 // The Switching page (plan phase 5.2), from the Figma copy (src/marketing/starter/pages.ts),
@@ -83,10 +84,12 @@ for (const width of [1440, 390]) {
   test(`no accessibility problems at ${width}px, before and after a mistake`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 })
     await page.goto(site())
-    const scan = () =>
-      new AxeBuilder({ page })
+    const scan = async () => {
+      await showFadedSections(page)
+      return new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
         .analyze()
+    }
     expect((await scan()).violations).toEqual([])
     await page.locator('.mk-request').getByRole('button', { name: 'Send me my homepage' }).click()
     await expect(page.locator('.mk-request').getByRole('alert')).toBeVisible()

@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright'
 
+import { showFadedSections } from './fade-ins'
 import { expect, test } from './fixtures'
 
 // The marketing home page (plan phase 4), from the Figma copy (src/marketing/starter/pages.ts),
@@ -80,6 +81,7 @@ test('the home page passes axe on phone and desktop', async ({ page }) => {
   for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: 900 })
     await page.goto(site())
+    await showFadedSections(page)
     const result = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
       .analyze()

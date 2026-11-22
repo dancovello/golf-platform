@@ -82,3 +82,18 @@ test("the platform's own address forwards marketing pages to the company domain"
   expect((await request.get('/health')).status()).toBe(200)
   expect((await request.get('/admin/login', { maxRedirects: 0 })).status()).toBe(200)
 })
+
+test("the demo frames are served on the platform's own address, not forwarded away", async ({
+  request,
+}) => {
+  // The admin's live preview embeds them. Forwarding them to the company's domain made a
+  // different address, which the security policy blocked as a frame (Sentry GOLF-PLATFORM-4).
+  for (const path of ['/frame/hero/heritage']) {
+    const here = await request.get(path, { maxRedirects: 0 })
+    expect(here.status(), path).toBe(200)
+    expect(here.headers()['content-security-policy'], path).toContain("'strict-dynamic'")
+    expect(here.headers()['x-robots-tag'], path).toBe('noindex')
+    // The company's domain still serves them as before.
+    expect((await request.get(site(path), { maxRedirects: 0 })).status(), path).toBe(200)
+  }
+})
