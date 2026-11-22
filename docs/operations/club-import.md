@@ -181,3 +181,20 @@ Still open:
 - Button text on a pale accent colour can have poor contrast. We bring the club's colours over as they are and flag the problem in the review (Bearwood's green `#68be50` with white text is about 2.3 to 1); the colour is changed only if the club agrees after seeing the difference
 - No redirects from a club's old addresses to the new ones (not found in the page settings; to check before the first go-live)
 - No "photos with no description" to-do view per club (the Description column exists in the media list)
+
+## Building a permanent test club (not a demo)
+
+A test club such as **A1 Demo Club** (Dan's own, on production at `demo-club.a1engine.co`) is an ordinary club, not a 30-day prospect demo: it has an editor login, a working contact form and no expiry. Build it with the same command **without** the word `demo`:
+
+```bash
+pnpm import-club-production club-imports/a1-demo-club
+```
+
+Four extra, optional parts of the content file (`site.ts`) are for this:
+
+- `enquiries`: messages as if sent from the Contact page, so the admin's inbox has something in it.
+- `club: { domains, hideFromSearch }`: the club's web addresses and the super-admin's **Keep out of search engines** switch. A test club should always have `hideFromSearch: true`.
+- `editor: { email }`: makes the club's editor account. The password is made by the import and **printed once at the end** (it is never stored in the content file). Give it to the person straight away.
+- A page can have `hideFromMenu: true` to stay out of the menus.
+
+Afterwards the web address still needs adding in Vercel and in Cloudflare (`docs/operations/connect-club-domain.md`). The import ignores `club` and `editor` for a `demo` build, because a demo can have neither.
