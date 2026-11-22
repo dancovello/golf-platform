@@ -476,19 +476,19 @@ const switching: StarterPage = {
         { label: 'News' },
         { label: 'Documents' },
       ],
-      chip: 'Copied across with AI',
+      chip: 'Copied across for you',
       steps: [
         {
-          title: 'AI reads your whole site',
-          body: 'It copies your pages, news posts, photos and PDFs across, so nobody has to retype a thing.',
+          title: 'We copy your whole site',
+          body: 'Your pages, news posts, photos and PDFs come across, so nobody has to retype a thing.',
         },
         {
           title: 'We rebuild it in blocks',
           body: 'Your content goes into the same blocks as our demo club, in your colours.',
         },
         {
-          title: 'You shape it with us',
-          body: 'We go through it together and change anything you want before it goes live.',
+          title: 'You review it with us',
+          body: 'You get a suggestions document and a note of what we changed and any mismatches we found. We go through both with you before it goes live.',
         },
       ],
     },

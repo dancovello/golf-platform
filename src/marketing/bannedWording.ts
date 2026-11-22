@@ -20,4 +20,6 @@ export const BANNED = [
   // Not VAT registered (9 Nov 2026): no VAT wording, no set setup fee, no course selector.
   /\+ VAT|plus VAT|exclude VAT/i,
   /one more course|second course/i,
+  // Clubs must not be told the copy-across is done with AI (Dan, 22 Nov 2026).
+  /copied across with AI|AI reads your/i,
 ]

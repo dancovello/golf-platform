@@ -90,6 +90,7 @@ import * as migration_20261115_204413_handicap_and_membership from './20261115_2
 import * as migration_20261115_204705_status_per_course from './20261115_204705_status_per_course';
 import * as migration_20261115_205035_enquiry_extras from './20261115_205035_enquiry_extras';
 import * as migration_20261119_203407_ico_number from './20261119_203407_ico_number';
+import * as migration_20261122_214139_chip_default_wording from './20261122_214139_chip_default_wording';
 
 export const migrations = [
   {
@@ -550,6 +551,11 @@ export const migrations = [
   {
     up: migration_20261119_203407_ico_number.up,
     down: migration_20261119_203407_ico_number.down,
-    name: '20261119_203407_ico_number'
+    name: '20261119_203407_ico_number',
+  },
+  {
+    up: migration_20261122_214139_chip_default_wording.up,
+    down: migration_20261122_214139_chip_default_wording.down,
+    name: '20261122_214139_chip_default_wording'
   },
 ];

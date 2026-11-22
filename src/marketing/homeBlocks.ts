@@ -277,7 +277,7 @@ const contentMoves: Block = {
       label: 'Label between them',
       type: 'text',
       maxLength: 40,
-      defaultValue: 'Copied across with AI',
+      defaultValue: 'Copied across for you',
     },
     {
       name: 'steps',
