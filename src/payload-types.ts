@@ -237,6 +237,10 @@ export interface Tenant {
       }[]
     | null;
   /**
+   * Tells search engines not to list this club’s website, even on its own web address. For test clubs. A change can take up to 5 minutes to show.
+   */
+  hideFromSearch?: boolean | null;
+  /**
    * Shows this club at a public link anyone can open, for 30 days, hidden from search engines. To take the club live, untick this AND add its web address in the same save: the demo link stops, and the site is open to search engines on its own address.
    */
   demoEnabled?: boolean | null;
@@ -4497,6 +4501,7 @@ export interface TenantsSelect<T extends boolean = true> {
         hostname?: T;
         id?: T;
       };
+  hideFromSearch?: T;
   demoEnabled?: T;
   demoToken?: T;
   demoExpiresAt?: T;

@@ -257,6 +257,22 @@ export const Tenants: CollectionConfig = {
       },
     },
     {
+      // For permanent test clubs (such as A1 Demo Club) that have a web address but must never
+      // appear in search engines. Only a super-admin can change it.
+      name: 'hideFromSearch',
+      label: 'Keep out of search engines',
+      type: 'checkbox',
+      defaultValue: false,
+      access: {
+        create: ({ req: { user } }) => isSuperAdmin(user),
+        update: ({ req: { user } }) => isSuperAdmin(user),
+      },
+      admin: {
+        description:
+          'Tells search engines not to list this club’s website, even on its own web address. For test clubs. A change can take up to 5 minutes to show.',
+      },
+    },
+    {
       // Prospect demos (docs/operations/prospect-demos.md). Only a super-admin can change these.
       name: 'demoEnabled',
       label: 'Public demo',

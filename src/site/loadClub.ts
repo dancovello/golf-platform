@@ -74,6 +74,8 @@ export type ClubSite = {
   tenantID: string
   slug: string
   name: string
+  /** Set by the super-admin: search engines are told to leave the club out (Tenants). */
+  hideFromSearch: boolean
   brand: Brand
   fontSet: FontSetID
   strapline: string | null
@@ -180,7 +182,7 @@ const loadClubSiteFresh = async (tenantID: string): Promise<ClubSite | null> => 
   const { docs: tenants } = await payload.find({
     collection: 'tenants',
     where: { id: { equals: tenantID } },
-    select: { name: true, slug: true },
+    select: { name: true, slug: true, hideFromSearch: true },
     limit: 1,
     depth: 0,
     overrideAccess: true,
@@ -282,6 +284,7 @@ const loadClubSiteFresh = async (tenantID: string): Promise<ClubSite | null> => 
   return {
     tenantID,
     slug: String(tenant.slug),
+    hideFromSearch: Boolean(tenant.hideFromSearch),
     name: s.clubName || String(tenant.name),
     brand: Object.fromEntries(
       BRAND_INPUTS.map((key) => [key, isHex(b[key]) ? b[key] : DEFAULT_BRAND[key]]),

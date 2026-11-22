@@ -1003,3 +1003,7 @@ Larger copies "just take up valuable space". Uploaded photos are now saved as We
 - **Mockup photos:** the marketing site's demo pictures are Dan's free-to-use Unsplash photos only (`docs/marketing-site/unsplash-photos/`), so a demo never shows a picture with an unclear licence.
 - **Existing photos:** `pnpm shrink-photos` points each older photo at its own 1024 copy and lists the old original and the large copies; they are removed from storage an hour later with `--remove-old` (cannot be undone). Run it on staging first; production needs Dan's go.
 - **Order matters:** the migration that drops the old size columns is a separate, later change. The tool reads those columns to find the large copies, so it must run before the migration is released.
+
+## 2026-11-22: A1 Demo Club, and "Keep out of search engines"
+
+Dan's permanent test club, **A1 Demo Club**, lives on production at `demo-club.a1engine.co`. It is an ordinary club (not a 30-day prospect demo), because it needs an editor login, a working contact form and no expiry. A ticked **Keep out of search engines** box on the club (super-admin only) stops it being indexed: pages stay `noindex`, `robots.txt` disallows everything and the sitemap returns 404. A change can take up to 5 minutes to show (the club's shared data is cached for at most 5 minutes).

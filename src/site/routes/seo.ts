@@ -64,7 +64,7 @@ const tourHolePages = async (
 
 /** The club's sitemap: its published pages and articles, plus the built-in pages. */
 export const sitemapResponse = async (site: ResolvedSite | null) => {
-  if (!site?.origin) return new Response('Not found', { status: 404 })
+  if (!site?.origin || site.club.hideFromSearch) return new Response('Not found', { status: 404 })
   const { origin, club } = site
   const payload = await getPayload({ config })
   const { docs: pages } = await payload.find({
