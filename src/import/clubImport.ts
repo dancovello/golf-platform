@@ -5,6 +5,9 @@ import type { Payload } from 'payload'
 import { categoryIds } from '../collections/categoryIds'
 import { LEGACY_DOCUMENT_CATEGORY_SLUGS } from '../collections/defaultCategories'
 import { rt } from '../demo/richText'
+import { randomBytes } from 'node:crypto'
+
+import { allowAccountCreation } from '../access/accountCreation'
 import { demoBase } from '../site/demo'
 
 /**
@@ -37,11 +40,23 @@ export type ClubContent = {
   staff?: Record<string, Record<string, unknown>>
   courses?: Record<string, Record<string, unknown>>
   /** In menu order. A page with a parent appears in its parent's drop-down. */
-  pages: { slug: string; title: string; parent?: string; layout: unknown[] }[]
+  pages: {
+    slug: string
+    title: string
+    parent?: string
+    hideFromMenu?: boolean
+    layout: unknown[]
+  }[]
   settings: Record<string, unknown>
   courseStatus?: Record<string, unknown>
   news?: Record<string, unknown>[]
   events?: Record<string, unknown>[]
+  /** Messages as if sent from the Contact page (for a test club's inbox). */
+  enquiries?: Record<string, unknown>[]
+  /** Set on the club itself once everything is in: web addresses and "keep out of search engines". */
+  club?: { domains?: string[]; hideFromSearch?: boolean }
+  /** An editor account for the club. The password is made here and returned once, never stored in the content file. */
+  editor?: { email: string }
 }
 
 const CLUB_OWNED = [
@@ -236,6 +251,7 @@ export const importClub = async (
   const position: Record<string, number> = {}
   for (const page of content.pages) {
     const data: Record<string, unknown> = {}
+    if (page.hideFromMenu) data.hideFromMenu = true
     if (page.parent) {
       position[page.parent] = (position[page.parent] ?? 0) + 1
       data.parent = ids.get(`@page:${page.parent}`)
@@ -292,6 +308,37 @@ export const importClub = async (
   }
   for (const event of content.events ?? []) await create('events', event)
   log(`${content.news?.length ?? 0} news stories, ${content.events?.length ?? 0} events`)
+  for (const enquiry of content.enquiries ?? []) await create('enquiries', enquiry)
+  if (content.enquiries?.length) log(`${content.enquiries.length} enquiries`)
+
+  // The club's own settings, then its editor account (never a demo: demos have neither).
+  if (content.club && !options.demo) {
+    await payload.update({
+      collection: 'tenants',
+      id: tenant,
+      data: {
+        ...(content.club.hideFromSearch !== undefined
+          ? { hideFromSearch: content.club.hideFromSearch }
+          : {}),
+        ...(content.club.domains
+          ? { domains: content.club.domains.map((hostname) => ({ hostname })) }
+          : {}),
+      },
+      overrideAccess: true,
+    })
+  }
+  let editor: { email: string; password: string } | null = null
+  if (content.editor && !options.demo) {
+    const password = randomBytes(18).toString('base64url')
+    await payload.create({
+      collection: 'users',
+      data: { email: content.editor.email, password, role: 'editor', tenant },
+      context: allowAccountCreation,
+      overrideAccess: true,
+    })
+    editor = { email: content.editor.email, password }
+    log('editor account')
+  }
 
   let demo: { address: string; expiresAt: string } | null = null
   if (options.demo) {
@@ -308,5 +355,5 @@ export const importClub = async (
     }
   }
 
-  return { slug: content.slug, pages: content.pages.length, demo }
+  return { slug: content.slug, pages: content.pages.length, demo, editor }
 }
