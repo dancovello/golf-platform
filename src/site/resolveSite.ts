@@ -32,7 +32,8 @@ export type ResolvedSite = {
   /** The club's main address with scheme, e.g. "https://www.yourclub.co.uk", on its own domain
    * only (canonical links, sitemap). Null on the preview. */
   origin: string | null
-  /** Search engines may index it: the club's own domain on production only. */
+  /** Search engines may index it: the club's own domain on production only, unless the
+   * super-admin has switched on "Keep out of search engines" for the club. */
   indexable: boolean
   /** Set only on a prospect demo (/demo/…, src/site/demo.ts): when the demo stops working. */
   demo: { expiresAt: string } | null
@@ -90,7 +91,7 @@ export const siteFromDomain = cache(
       club,
       base: '',
       origin,
-      indexable: process.env.VERCEL_ENV === 'production',
+      indexable: process.env.VERCEL_ENV === 'production' && !club.hideFromSearch,
       demo: null,
       redirect: found.mainHost === host ? null : origin,
     }

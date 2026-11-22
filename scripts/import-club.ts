@@ -130,6 +130,10 @@ const main = async () => {
       demo,
     })
     console.log(`\nDone: ${result.pages} pages.`)
+    if (result.editor) {
+      console.log(`\nEditor account: ${result.editor.email}`)
+      console.log(`Password (shown once, save it now): ${result.editor.password}`)
+    }
     if (result.demo) {
       console.log(`Demo link: <the company's domain>${result.demo.address}`)
       console.log(`It stops working on ${new Date(result.demo.expiresAt).toDateString()}.`)

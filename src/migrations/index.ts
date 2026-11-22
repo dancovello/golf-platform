@@ -91,6 +91,7 @@ import * as migration_20261115_204705_status_per_course from './20261115_204705_
 import * as migration_20261115_205035_enquiry_extras from './20261115_205035_enquiry_extras';
 import * as migration_20261119_203407_ico_number from './20261119_203407_ico_number';
 import * as migration_20261122_214139_chip_default_wording from './20261122_214139_chip_default_wording';
+import * as migration_20261122_230105_keep_club_out_of_search from './20261122_230105_keep_club_out_of_search';
 
 export const migrations = [
   {
@@ -556,6 +557,11 @@ export const migrations = [
   {
     up: migration_20261122_214139_chip_default_wording.up,
     down: migration_20261122_214139_chip_default_wording.down,
-    name: '20261122_214139_chip_default_wording'
+    name: '20261122_214139_chip_default_wording',
+  },
+  {
+    up: migration_20261122_230105_keep_club_out_of_search.up,
+    down: migration_20261122_230105_keep_club_out_of_search.down,
+    name: '20261122_230105_keep_club_out_of_search'
   },
 ];
