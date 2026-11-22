@@ -32,7 +32,7 @@ Legend: ✅ done · 🔨 build (Claude) · 👤 Dan · ❓ undecided
 | B3 | ✅ built 9 Nov: prices: monthly cost only, no VAT label, no setup fee beside any price | Reverses the 28 Oct "setup fee beside every price" rule. Update `priceVatLabel`, `tests/unit/marketing-wording.spec.ts` and the Pricing FAQ |
 | B4 | ✅ built 9 Nov (FAQ now "What happens if we cancel?"): leaving wording: "no export, you lose the site if you stop paying" | Pricing FAQ, Switching page, Trust page, claims register. Do not promise Markdown, CSV or original files (N10) |
 | B5 | ✅ script built 14 Nov: `pnpm fix-marketing-wording` finds banned wording in saved pages and replaces only those pages with the starter copy (dry run first). **Not yet run on staging or production**: Dan to run it (it asks for the database address, hidden) |
-| B6 | Bearwood leftovers | Branded video player ✅ built 14 Nov (a video file a club uploads plays in our own player, in the club's colours). Storage allowance per club dropped (Dan, 14 Nov). Still open: Gary Player repeated photos on the live demo (Dan's go), WebP for existing Bearwood photos (Dan's go) |
+| B6 | Bearwood leftovers | Branded video player ✅ built 14 Nov. Storage allowance per club dropped (Dan, 14 Nov). **Dan, 22 Nov: forget the Bearwood demo content; the Gary Player repeated photos and the WebP conversion are dropped** |
 | B7 | Test club on production (Dan, 5 Nov) | Plan first, Dan approves. Own subdomain, kept out of search engines, clearly labelled |
 | B8 | ✅ 14 Nov: going live is one save (untick Public demo and add the web address together). Demo pages are `noindex` only because of the `/demo/` route, so nothing needs removing; the live site is indexable on production. Tested in `tests/int/prospect-demo.int.spec.ts` | `docs/operations/prospect-demos.md` |
 
@@ -40,7 +40,7 @@ Legend: ✅ done · 🔨 build (Claude) · 👤 Dan · ❓ undecided
 
 | # | Job | Status |
 |---|---|---|
-| D1 | **ICO registration** and the yearly data protection fee (small-business tier). Needed before the first club | ✅ registered (Dan, 19 Nov). Number goes in Marketing settings → Contact (`pnpm update-founder-and-ico`); the security number is never published |
+| D1 | **ICO registration** and the yearly data protection fee (small-business tier). Needed before the first club | ✅ registered (Dan, 19 Nov). ICO number ZC307933 is now saved in production Marketing settings → Contact and shows in the footer (written directly into the database, 22 Nov, because the script timed out; checked on the live site). The security number is never published |
 | D2 | ✅ Data processing agreement approved by Dan; details filled in 9 Nov (PR #301, merged). Dan is a sole trader, not a registered company. One thing to glance at: Resend's row says "as set out in Resend's data processing agreement" because I could not confirm its transfer safeguard | ✅ |
 | D3 | Marketing site terms of use and cookie policy wording final | ✅ Terms and cookie policy are live on the production marketing site (Dan, 19 Nov). Cookie notice: see B1 |
 | D4 | GitHub: move production keys into GitHub environments, delete the repo-wide copies (the High finding from the security audit), required checks | ✅ Production keys are in the `release-production` and `release-staging` environments; only the two non-secret Vercel IDs remain repo-wide; required checks set on `main` and `production` (checked in GitHub, 19 Nov) |
@@ -52,7 +52,7 @@ Legend: ✅ done · 🔨 build (Claude) · 👤 Dan · ❓ undecided
 | D10 | Penetration test budget, booked before the first paying clubs | 👤 |
 | D11 | Image licences for the marketing photos, founder photo and short bio, share image | ✅ Done (Dan, 19 Nov): licensed photos handled in a separate chat |
 | D12 | Editor help guide for clubs; delete the old merged GitHub branches | 👤 |
-| D13 | Confirm the service promises (homepage in two working days, access requests answered in two working days, and so on) | Homepage promise: none on the site (retired 28 Oct; Dan, 19 Nov: keep it removed). Still to confirm: access requests answered in two working days (Accessibility page) |
+| D13 | Confirm the service promises | ✅ Done and fine (Dan, 22 Nov). Homepage promise stays removed |
 | D14 | Photo storage wording: "UK and Western Europe", or move R2 | ✅ "UK and Western Europe" is right (Dan, 19 Nov) |
 | D15 | ISO 27001 is not needed for launch. If clubs ask for a certificate, Cyber Essentials is the cheap UK option | Info only |
 
@@ -66,6 +66,10 @@ Checked against GitHub, Neon and the repo, and Dan's answers. Real-device checks
 - A screen-reader pass and a real mid-range phone (automatic checks cover only part of this).
 - The separate-chat security check (`docs/operations/security-checks.md`).
 - Dan's own walkthrough on the production test club (B7).
+
+## Update, 22 Nov
+
+Dan: D13 done, the screen-reader and phone check done, Bearwood demo leftovers dropped. ICO number is live. Still open: D9 restore drill, D10 penetration test, D12 editor help guide and old branches, B5 (`pnpm fix-marketing-wording` on staging and production), B7 production test club, and the separate-chat security check.
 
 ## How later chats use this
 
