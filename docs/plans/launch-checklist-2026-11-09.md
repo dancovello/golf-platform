@@ -32,7 +32,7 @@ Legend: ✅ done · 🔨 build (Claude) · 👤 Dan · ❓ undecided
 | B3 | ✅ built 9 Nov: prices: monthly cost only, no VAT label, no setup fee beside any price | Reverses the 28 Oct "setup fee beside every price" rule. Update `priceVatLabel`, `tests/unit/marketing-wording.spec.ts` and the Pricing FAQ |
 | B4 | ✅ built 9 Nov (FAQ now "What happens if we cancel?"): leaving wording: "no export, you lose the site if you stop paying" | Pricing FAQ, Switching page, Trust page, claims register. Do not promise Markdown, CSV or original files (N10) |
 | B5 | ✅ script built 14 Nov: `pnpm fix-marketing-wording` finds banned wording in saved pages and replaces only those pages with the starter copy (dry run first). **Not yet run on staging or production**: Dan to run it (it asks for the database address, hidden) |
-| B6 | Bearwood leftovers | Branded video player ✅ built 14 Nov. Storage allowance per club dropped (Dan, 14 Nov). **Dan, 22 Nov: forget the Bearwood demo content; the Gary Player repeated photos and the WebP conversion are dropped** |
+| B6 | ✅ Bearwood Lakes is a demo only. Its leftovers are not tracked here until the club goes live (Dan, 22 Nov). Built: branded video player (14 Nov); storage allowance per club dropped | Nothing to do |
 | B7 | Test club on production (Dan, 5 Nov) | Plan first, Dan approves. Own subdomain, kept out of search engines, clearly labelled |
 | B8 | ✅ 14 Nov: going live is one save (untick Public demo and add the web address together). Demo pages are `noindex` only because of the `/demo/` route, so nothing needs removing; the live site is indexable on production. Tested in `tests/int/prospect-demo.int.spec.ts` | `docs/operations/prospect-demos.md` |
 
@@ -69,7 +69,7 @@ Checked against GitHub, Neon and the repo, and Dan's answers. Real-device checks
 
 ## Update, 22 Nov
 
-Dan: D13 done, the screen-reader and phone check done, Bearwood demo leftovers dropped. ICO number is live. Still open: D9 restore drill, D10 penetration test, D12 editor help guide and old branches, B5 (`pnpm fix-marketing-wording` on staging and production), B7 production test club, and the separate-chat security check.
+Dan: D13 done, the screen-reader and phone check done, Bearwood Lakes is a demo: its leftovers stay off this list until it goes live. ICO number is live. Still open: D9 restore drill, D10 penetration test, D12 editor help guide and old branches, B5 (`pnpm fix-marketing-wording` on staging and production), B7 production test club, and the separate-chat security check.
 
 ## How later chats use this
 
