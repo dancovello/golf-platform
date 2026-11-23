@@ -67,7 +67,7 @@ export const ClubShell = ({
       </main>
       <SiteFooter club={club} base={base} />
       {/* The banner shows on previews and demos too, so a club (and Dan) can see exactly what
-          visitors will get. Google's script loads only on the club's own web address (base ""):
+          visitors will get, but not inside the editor's live preview panel (CookieConsent). Google's script loads only on the club's own web address (base ""):
           previews share the admin's address, so an outside script there would run with the
           viewer's admin access (headers audit, finding 1), and demo visits aren't real visits. */}
       {club.privacy.gaMeasurementId ? (
