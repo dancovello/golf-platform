@@ -52,3 +52,11 @@ Sentry's free plan has one uptime monitor, and that one watches the production a
 
 - **Sentry email:** open it. The report shows the error and the page. If it's new or keeps happening, paste the link into a Claude Code chat in this project and ask for a fix (plan first, as usual).
 - **Uptime email:** check the production address in a browser. If it's down, check Vercel's status page and the latest release in GitHub Actions. `docs/operations/restore-runbook.md` covers rolling back.
+
+## If a release doesn't start (added 23 Nov 2026)
+
+Merging a release PR should start the "Release" run in GitHub Actions within a minute. On 22 Nov 2026 GitHub returned an error while merging #379: the merge went through but the release never started, so production stayed on the previous version (nothing broke).
+
+- **Check:** GitHub Actions, the "Release" workflow, filtered to the `production` branch. If there's no run for your merge after 5 minutes, it didn't start.
+- **Don't** re-run an older release: it would deploy that older version.
+- **Fix:** merge any small change into `main`, then open and merge a new release PR (`main` → `production`). That merge starts the release, which includes everything not yet released.
