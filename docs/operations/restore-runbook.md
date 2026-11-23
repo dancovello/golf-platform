@@ -15,15 +15,16 @@
 - Access needed: Neon (`golf-production` project), Vercel, GitHub, and the password manager entries "Golf production: …" and "Golf backups: …".
 - Decide **what moment to restore to**. For a bad release, that's just before the release (the release workflow creates a backup point named `before-release-<date>`). For accidental deletion, it's just before the deletion.
 - **For a real incident:** tell Dan before touching production.
+- **How far back each method reaches (checked 2026-11-23, free Neon plan):** point-in-time restore **6 hours**; Neon snapshots **only ones made by hand** (no daily schedule yet); the off-site copy **7 days**. The 7-day history and 14-day daily snapshots below need the Neon Launch upgrade. Recheck the real limits in Neon (Backup & Restore) before relying on them, and update this line when they change.
 
-## 1. Point-in-time restore (fastest: any second in the last 7 days)
+## 1. Point-in-time restore (fastest: any second in the last 6 hours now; 7 days after the Neon upgrade)
 1. Neon → `golf-production` → **Backup & Restore** → **Restore from history**.
 2. **First, make a copy:** choose **Create branch from a point in time** (not "Restore"). Name it `restore-check-<date>` and pick the moment.
 3. Check the copy (section 4).
 4. **Drill:** delete the `restore-check-…` branch, then go to section 5.
 5. **Real incident, copy checked:** back on **Restore from history**, restore the **production branch itself** to the same moment. Neon keeps the pre-restore state automatically as `production_old_<timestamp>`; don't delete it until Dan says so. The app reconnects by itself, with no settings to change.
 
-## 2. Restore from a Neon snapshot (named daily restore points, 14 days)
+## 2. Restore from a Neon snapshot (named restore points: by hand now; daily for 14 days after the Neon upgrade)
 1. Neon → `golf-production` → **Backup & Restore** → **Snapshots**.
 2. Pick the snapshot → **Restore to new branch**, named `restore-check-<date>`.
 3. Check it (section 4).
@@ -36,7 +37,7 @@ Backups are made nightly at 02:30 UTC, and before every release (named `…-pre-
 
 **One-time setup on that computer:** `brew install age libpq`, then add the Postgres tools to the PATH with `echo 'export PATH="$(brew --prefix libpq)/bin:$PATH"' >> ~/.zshrc` and open a new Terminal.
 
-1. **Download the backup.** Cloudflare dashboard → **R2** → `golf-platform-backups` → `production/` → pick the file (e.g. `2026-11-02T0230Z-nightly.dump.age`) → **Download**. Also download its `.sha256` file.
+1. **Download the backup.** Cloudflare dashboard → **R2** → `golf-platform-backups` → `production/` → pick the file (e.g. `2026-11-02T0230Z-nightly.dump.age`) → **Download**. Also download its `.sha256` file. **The list shows the oldest file first**, so scroll to the bottom for the newest. Save both files into a new, empty folder (for example `~/restore-drill`).
 2. **Check it isn't damaged.** In Terminal, in the download folder:
    ```bash
    shasum -a 256 2026-11-02T0230Z-nightly.dump.age
@@ -46,11 +47,16 @@ Backups are made nightly at 02:30 UTC, and before every release (named `…-pre-
    ```bash
    pbpaste > golf-key.txt
    ```
+   The file must hold one unbroken line starting `AGE-SECRET-KEY-1` (74 characters). A line break inside that line makes the key invalid. Check it without showing it (this prints a public key, which must equal the contents of `ops/backup-recipient.txt`):
+   ```bash
+   age-keygen -y golf-key.txt
+   ```
+   If it says "malformed secret key", the copy is wrong: copy again. Clear the clipboard afterwards by copying something else.
 4. **Decrypt:**
    ```bash
    age --decrypt -i golf-key.txt -o restore.dump 2026-11-02T0230Z-nightly.dump.age
    ```
-5. **Load it into an empty, temporary database inside Neon.** Neon → `golf-production` → **Databases** → **New database** named `restore_check` (owner `neondb_owner`) → **Connect** → choose database `restore_check`, **untick Connection pooling**, copy the string, then run:
+5. **Load it into an empty, temporary database inside Neon, on its own branch** (so a big load can't slow the live sites; proven on 2026-11-23). Neon → `golf-production` → **Branches** → **New branch** from `production`, named `restore-offsite-<date>`. On that branch, go to **Databases** → **New database** named `restore_check` (owner `neondb_owner`) → **Connect** → choose that branch and database `restore_check`, **untick Connection pooling**, copy the string, then run:
    ```bash
    pg_restore --no-owner --no-privileges --dbname "PASTE-CONNECTION-STRING" restore.dump
    ```
@@ -59,7 +65,7 @@ Backups are made nightly at 02:30 UTC, and before every release (named `…-pre-
    ```bash
    rm -f golf-key.txt restore.dump *.dump.age *.sha256
    ```
-   Also delete the `restore_check` database in Neon (Databases → ⋯ → Delete), and empty the computer's Trash.
+   Also delete the whole `restore-offsite-<date>` branch in Neon (it holds `restore_check` and a copy of production), and empty the computer's Trash.
 
 ## 4. Checking a restored copy
 Do all of these against the **copy**, not production:
@@ -76,7 +82,7 @@ Do all of these against the **copy**, not production:
    INSERT INTO users (email, role) VALUES ('rule-check@example.com', 'editor');   -- editor with no club
    INSERT INTO pages (title, slug) VALUES ('rule-check', 'rule-check');            -- page with no club
    ```
-3. **The app works against it:** ask Claude to run the tenant-isolation suite against the copy's connection string (it uses its own two test clubs and removes them afterwards). It must pass. *How Claude runs this safely against a copy is set up in step 3.4.*
+3. **Do NOT run `pnpm test:isolation` (or any test suite) against a copy, and never against production.** It wipes every record in the database it is pointed at, refuses any database not named `golf_test`, and cannot read production's encrypted data (found in the 2026-11-23 drill). Until a read-only check for restored copies is built, checks 1 and 2 are the proof; also look at the copy's club names and dates and confirm they are what you expect for the restore point. *A read-only restored-copy check is still to be planned and built.*
 4. **Real incident only: re-apply account changes made after the restore point.** A restore puts every account back exactly as it was at that moment. Anyone removed since then can sign in again, and passwords or two-factor codes that were reset since then work again. Before reopening the admin:
    - list every editor removed, and every password or two-factor reset, between the restore point and now (from your notes, the "password changed" emails, and Sentry or Vercel logs);
    - remove those accounts again, and send fresh password links (and reset two-factor) for the reset ones;
