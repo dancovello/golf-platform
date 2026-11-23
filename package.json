@@ -28,6 +28,7 @@
     "shrink-photos": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/shrink-photos.ts",
     "clean-photo-details": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/clean-photo-details.ts",
     "create-canary-clubs": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/create-canary-clubs.ts",
+    "check-restored-copy": "cross-env NODE_ENV=production NODE_OPTIONS=--no-deprecation payload run scripts/check-restored-copy.ts",
     "update-v2-pages": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/update-v2-pages.ts",
     "fix-marketing-wording": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/fix-marketing-wording.ts",
     "update-founder-and-ico": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/update-founder-and-ico.ts",
