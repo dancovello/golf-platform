@@ -6,15 +6,40 @@ import { chooseLogo } from '@/site/components/Logo'
 import type { SiteImage } from '@/site/loadClub'
 import { DEFAULT_BRAND, luminance } from '@/theme/colour'
 
-const logo = (url: string, colour: string | null): SiteImage => ({
+const logo = (url: string, colour: string | null, opaque: boolean | null = false): SiteImage => ({
   url,
   alt: '',
   width: 200,
   height: 60,
   colour,
+  opaque,
 })
 const black = logo('/black.png', '#111111')
 const white = logo('/white.png', '#f5f5f5')
+
+describe('a logo saved on a solid white background', () => {
+  const boxed = logo('/boxed.png', '#e8e8e8', true)
+
+  it('goes on a white plate over a dark photo or band, never turned into a white box', () => {
+    const logos = { onLight: boxed, onDark: boxed }
+    expect(chooseLogo(DEFAULT_BRAND, logos, 'image')).toEqual({
+      kind: 'image',
+      image: boxed,
+      recolour: 'none',
+      plated: true,
+    })
+    expect(chooseLogo(DEFAULT_BRAND, logos, 'brand')).toMatchObject({ plated: true })
+  })
+
+  it('is shown as it is on the page background', () => {
+    const logos = { onLight: boxed, onDark: boxed }
+    expect(chooseLogo(DEFAULT_BRAND, logos, 'page')).toEqual({
+      kind: 'image',
+      image: boxed,
+      recolour: 'none',
+    })
+  })
+})
 
 describe('choosing the logo by its background', () => {
   it('uses each logo where it was meant to go', () => {
@@ -83,6 +108,22 @@ describe('measuring an uploaded image', () => {
       </svg>`,
     )
     expect(luminance((await measureImage(mark))!.average)).toBeLessThan(0.02)
+  })
+
+  it('knows a logo saved on a solid background from one with a see-through background', async () => {
+    const boxed = await png(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="60">
+        <rect width="200" height="60" fill="#ffffff"/>
+        <rect x="20" y="10" width="160" height="40" fill="#101010"/>
+      </svg>`,
+    )
+    const mark = await png(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="60">
+        <rect x="20" y="10" width="160" height="40" fill="#101010"/>
+      </svg>`,
+    )
+    expect((await measureImage(boxed))!.opaque).toBe(true)
+    expect((await measureImage(mark))!.opaque).toBe(false)
   })
 
   it('returns nothing for a file that is not an image', async () => {

@@ -5,6 +5,7 @@ import type { SiteHole } from './resolve'
 import { hasAbout, holeTees, holeTitle, type Tour } from './tour'
 import { TourPicker } from './TourPicker'
 import { TourExpand } from './TourExpand'
+import { TourMedia } from './TourMedia'
 import { TourStickyBar } from './TourStickyBar'
 import {
   TourFacts,
@@ -211,16 +212,19 @@ export const TourStory = ({ tour }: { tour: Tour }) => {
         </div>
       ) : null}
 
-      {more.length ? (
+      {more.length || hole.video ? (
         <div className="tour-wrap tour-more">
           <h2 className="t-eyebrow tour-eyebrow">More from this hole</h2>
-          <ul className={`tour-more-grid is-count-${Math.min(more.length, 3)}`}>
-            {more.map((photo, i) => (
-              <li key={i}>
-                <Photo image={photo} sizes="(max-width: 767px) 100vw, 400px" />
-              </li>
-            ))}
-          </ul>
+          <div className="tour-gallery on-brand">
+            <TourMedia
+              photos={hole.photos}
+              plan={hole.plan}
+              video={hole.video}
+              title={holeTitle(hole)}
+              number={pad2(hole.number)}
+              sizes="(max-width: 1023px) 100vw, 1200px"
+            />
+          </div>
         </div>
       ) : null}
 

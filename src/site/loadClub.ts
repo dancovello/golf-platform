@@ -54,6 +54,8 @@ export type SiteImage = {
   height: number | null
   /** The average colour of its visible pixels, measured on upload (null for older uploads). */
   colour: string | null
+  /** No see-through background (null for older uploads, until measured). */
+  opaque: boolean | null
 }
 export type HeaderStyle = 'classic' | 'transparent' | 'appBar'
 export type FooterStyle = 'brandColumns' | 'lightColumns' | 'editorial'
@@ -552,6 +554,7 @@ const clubImages = async (payload: Payload, tenantID: string, ids: (string | nul
           width: d.width ?? null,
           height: d.height ?? null,
           colour: isHex(d.tone?.average) ? d.tone.average : null,
+          opaque: typeof d.tone?.opaque === 'boolean' ? d.tone.opaque : null,
         },
       ]),
   )

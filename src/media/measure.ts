@@ -10,6 +10,8 @@ export type ImageTone = {
   bright: string
   /** The average colour of its visible pixels: whether a logo is light or dark. */
   average: string
+  /** True when the picture has no see-through background (a logo saved on white, say). */
+  opaque: boolean
 }
 
 const hex = (rgb: number[]) =>
@@ -28,16 +30,20 @@ export const measureImage = async (file: Buffer): Promise<ImageTone | null> => {
       .raw()
       .toBuffer({ resolveWithObject: true })
     const samples: number[][] = []
+    let solid = 0
     for (let i = 0; i < data.length; i += info.channels) {
       if (data[i + 3] >= 128) samples.push([data[i], data[i + 1], data[i + 2]])
+      if (data[i + 3] >= 250) solid += 1
     }
+    // Nearly every area is solid: there is no see-through background to show the page through.
+    const opaque = solid >= (data.length / info.channels) * 0.98
     if (samples.length === 0) return null
     const ranked = samples
       .map((rgb) => ({ rgb, lum: luminance(hex(rgb)) }))
       .sort((a, b) => a.lum - b.lum)
     const bright = ranked[Math.min(ranked.length - 1, Math.floor(ranked.length * 0.9))].rgb
     const average = [0, 1, 2].map((c) => samples.reduce((sum, s) => sum + s[c], 0) / samples.length)
-    return { bright: hex(bright), average: hex(average) }
+    return { bright: hex(bright), average: hex(average), opaque }
   } catch {
     return null
   }
@@ -49,7 +55,7 @@ export const measureImage = async (file: Buffer): Promise<ImageTone | null> => {
  */
 export const measureUpload: CollectionBeforeChangeHook = async ({ data, originalDoc, req }) => {
   const file = req.file
-  const unmeasured = { bright: null, average: null }
+  const unmeasured = { bright: null, average: null, opaque: null }
   if (file?.data && String(file.mimetype).startsWith('image/')) {
     data.tone = (await measureImage(file.data)) ?? unmeasured
   } else {
@@ -62,7 +68,7 @@ type Unmeasured = {
   id: string | number
   url?: string | null
   mimeType?: string | null
-  tone?: { bright?: string | null; average?: string | null } | null
+  tone?: { bright?: string | null; average?: string | null; opaque?: boolean | null } | null
   sizes?: Record<string, { url?: string | null } | undefined> | null
 }
 
@@ -74,7 +80,10 @@ type Unmeasured = {
  */
 export const measureMissing = (payload: Payload, docs: Unmeasured[]) => {
   const missing = docs
-    .filter((d) => !d.tone?.bright && String(d.mimeType ?? '').startsWith('image/'))
+    .filter(
+      (d) =>
+        (!d.tone?.bright || d.tone.opaque == null) && String(d.mimeType ?? '').startsWith('image/'),
+    )
     .slice(0, 12)
   if (missing.length === 0) return
   try {
