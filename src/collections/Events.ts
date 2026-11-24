@@ -9,6 +9,10 @@ import { EVENT_CATEGORIES, EVENT_ENTRANTS } from './eventCategories'
 import { clubBannerField } from '../tenancy'
 import { searchHooks } from '../search/hooks'
 import { ukStartOfDay } from '../site/ukTime'
+import { clubRichText, dropEmptyPictures } from '../blocks/richText/lexical'
+import { SLUG, SLUG_MESSAGE } from '../fields/slug'
+import { eventSlug } from './eventSlug'
+import { eventResultsFields, fillResults } from './eventResultsFields'
 
 /**
  * "No set start time": only the date counts, so it is stored as the start of that UK day.
@@ -23,7 +27,8 @@ const dateOnlyEvents: CollectionBeforeValidateHook = ({ data, originalDoc }) => 
 }
 
 // Club-owned (src/tenancy.ts): the club is required and editors only see their own events.
-// The website shows published events until they start, at /events and in Events blocks.
+// The website shows published events until they start, at /events and in Events blocks, and
+// each has its own page at /events/<address> (24 Nov 2026), which stays up after the day.
 export const Events: CollectionConfig = {
   slug: 'events',
   labels: { singular: 'Event', plural: 'Events' },
@@ -36,7 +41,12 @@ export const Events: CollectionConfig = {
     livePreview: eventLivePreview,
   },
   access: { create: clubContentCreate, read: loggedIn, update: loggedIn, delete: loggedIn },
-  hooks: { beforeValidate: [checkEventSameClub, dateOnlyEvents], ...searchHooks },
+  // An address only has to be unique within one club.
+  indexes: [{ fields: ['tenant', 'slug'], unique: true }],
+  hooks: {
+    beforeValidate: [fillResults, checkEventSameClub, dateOnlyEvents, eventSlug],
+    ...searchHooks,
+  },
   defaultSort: 'startsAt',
   fields: [
     clubBannerField,
@@ -113,9 +123,22 @@ export const Events: CollectionConfig = {
       label: 'Summary (optional)',
       type: 'textarea',
       maxLength: 200,
-      admin: { description: 'One or two sentences, shown when the event is featured.' },
+      admin: {
+        description: 'One or two sentences, shown under the title and when the event is featured.',
+      },
     },
     imageField('image', 'Photo (optional)', false),
+    {
+      name: 'body',
+      label: 'About this event (optional)',
+      type: 'richText',
+      editor: clubRichText,
+      hooks: { beforeValidate: [({ value }) => dropEmptyPictures(value)] },
+      admin: {
+        description:
+          'Shown on the event’s own page: what to expect, the menu, the format, how to get there.',
+      },
+    },
     {
       type: 'row',
       fields: [
@@ -175,12 +198,13 @@ export const Events: CollectionConfig = {
       required: false,
     }),
     {
-      // Open competitions (G3, 15 Nov 2026): the rules golfers look for, when entries open and
-      // close, and the results. Entry itself stays on the club's own system (the link above).
-      // Only for competitions (the category above), so a quiz night or dinner isn't asked about
+      // Open competitions (G3, 15 Nov 2026): the rules golfers look for and when entries open
+      // and close. Entry itself stays on the club's own system (the link above). Only for
+      // competitions (the category above), so a quiz night or dinner isn't asked about
       // handicaps. If an event of another category already has details, they stay visible.
+      // The results moved to their own panel below (24 Nov 2026).
       type: 'collapsible',
-      label: 'Competition details and results (optional)',
+      label: 'Competition details (optional)',
       admin: {
         initCollapsed: true,
         condition: (data) =>
@@ -191,11 +215,7 @@ export const Events: CollectionConfig = {
             data?.format ||
             data?.entriesOpen ||
             data?.entriesClose ||
-            data?.ballot ||
-            data?.results?.page ||
-            data?.results?.document ||
-            data?.results?.url ||
-            data?.results?.builtIn,
+            data?.ballot,
           ),
       },
       fields: [
@@ -272,19 +292,27 @@ export const Events: CollectionConfig = {
           type: 'checkbox',
           defaultValue: false,
         },
-        linkField({
-          name: 'results',
-          label: 'Results (optional)',
-          withLabel: false,
-          required: false,
-          allowDocument: true,
-        }),
       ],
     },
+    ...eventResultsFields,
     {
       name: 'featured',
       label: 'Feature this event (Events block style C)',
       type: 'checkbox',
+    },
+    {
+      name: 'slug',
+      label: 'Web address',
+      type: 'text',
+      index: true,
+      maxLength: 80,
+      admin: {
+        position: 'sidebar',
+        description:
+          'Filled in from the title and year. e.g. "spring-open-2027" for /events/spring-open-2027.',
+      },
+      validate: (value: unknown) =>
+        !value || (typeof value === 'string' && SLUG.test(value)) ? true : SLUG_MESSAGE,
     },
   ],
 }

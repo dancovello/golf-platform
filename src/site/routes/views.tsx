@@ -5,6 +5,7 @@ import { cache } from 'react'
 
 import { pageBlocks } from '@/blocks'
 import { holeFromSegment, holeSegment } from '@/blocks/courseTour/config'
+import { SLUG } from '@/fields/slug'
 import { blockWords, opening, tidy } from '@/search/text'
 import type { CourseTourBlock } from '@/payload-types'
 import { CourseTour } from '@/site/blocks/CourseTour'
@@ -17,7 +18,8 @@ import { LiveRefresh } from '@/site/components/LiveRefresh'
 import { PageNotFound } from '@/site/components/PageNotFound'
 import { ContactPage } from '@/site/contact/ContactPage'
 import { loadContactSettings } from '@/site/contact/load'
-import { clubResults, eventsArchive } from '@/site/events'
+import { clubResults, eventsArchive, loadEventPage } from '@/site/events'
+import { EventPage } from '@/site/events/EventPage'
 import { EventsArchive } from '@/site/events/EventsArchive'
 import { canSeeDrafts } from '@/site/livePreviewAccess'
 import { loadClubPage } from '@/site/loadClub'
@@ -48,6 +50,9 @@ const page = cache((tenantID: string, slug: string, draft: boolean) =>
 )
 const newsPost = cache((tenantID: string, slug: string, unpublished = false) =>
   loadNewsPost(tenantID, slug, { unpublished }),
+)
+const eventPage = cache((tenantID: string, slug: string, unpublished = false) =>
+  loadEventPage(tenantID, slug, { unpublished }),
 )
 
 /** On another of the club's addresses: the same page on its main address. */
@@ -100,12 +105,13 @@ export const HomeView = async ({ site, query }: { site: ResolvedSite; query: Que
 }
 
 /**
- * Paths the site can have: one segment, /news/<address>, or a Course tour hole: a page's own
- * address plus /hole-N (decisions.md, 12 Nov 2026).
+ * Paths the site can have: one segment, /news/<address>, /events/<address> (24 Nov 2026), or a
+ * Course tour hole: a page's own address plus /hole-N (decisions.md, 12 Nov 2026).
  */
 const validPath = (path: string[]) =>
   path.length === 1 ||
-  (path.length === 2 && (path[0] === 'news' || holeFromSegment(path[1]) !== null))
+  (path.length === 2 &&
+    (path[0] === 'news' || path[0] === 'events' || holeFromSegment(path[1]) !== null))
 
 type FoundPage = NonNullable<Awaited<ReturnType<typeof page>>>
 
@@ -147,8 +153,12 @@ export const PathView = async ({
     )
   }
 
-  // Contact is a template too: the enquiry form (src/site/contact).
+  // Contact is a template too: the enquiry form (src/site/contact). From an event's Enquire
+  // button (?event=<address>), the form starts with that event, if it's one of this club's
+  // published, upcoming events.
   if (path[0] === 'contact' && path.length === 1) {
+    const asked = one(query.event)
+    const event = asked && SLUG.test(asked) ? await eventPage(club.tenantID, asked) : null
     return (
       <ClubShell club={club} base={base} currentPath={`${base}/contact`}>
         <ContactPage
@@ -156,8 +166,24 @@ export const PathView = async ({
           base={base}
           settings={await loadContactSettings(club.tenantID)}
           about={one(query.about)}
+          event={event && !event.past ? { title: event.title, startsAt: event.startsAt } : null}
           demo={site.demo !== null}
         />
+      </ClubShell>
+    )
+  }
+
+  // An event's own page: /events/<address>. In the admin's live preview the club's own editors
+  // also see drafts.
+  if (path[0] === 'events' && path.length === 2) {
+    const live = query.live === '1'
+    const unpublished = live && (await canSeeDrafts(club.tenantID, '1'))
+    const event = await eventPage(club.tenantID, path[1], unpublished)
+    if (!event) notFound()
+    return (
+      <ClubShell club={club} base={base} currentPath={`${base}/events`}>
+        {live ? <LiveRefresh /> : null}
+        <EventPage event={event} base={base} />
       </ClubShell>
     )
   }
@@ -384,6 +410,14 @@ export const pathMetadata = async (site: ResolvedSite, path: string[]): Promise<
     return {
       ...describe(site, { title: named(post.title), path: at, image: post.image?.url ?? logo }),
       ...(post.excerpt ? { description: post.excerpt } : {}),
+    }
+  }
+  if (path[0] === 'events' && path.length === 2) {
+    const event = await eventPage(club.tenantID, path[1])
+    if (!event) return {}
+    return {
+      ...describe(site, { title: named(event.title), path: at, image: event.image?.url ?? logo }),
+      ...(event.summary ? { description: event.summary } : {}),
     }
   }
   const found = await page(club.tenantID, path[0], false)

@@ -7,7 +7,7 @@ import {
 
 import { type eventsArchive, EVENTS_STEP, type SiteEvent } from '../events'
 import { linkTarget, siteHref } from '../components/links'
-import { EventCard, eventDay, eventMonth } from './EventCard'
+import { EventCard, eventDay, eventMonth, eventPageLink } from './EventCard'
 
 import '../blocks/blocks.css'
 import '../components/buttons.css'
@@ -86,10 +86,16 @@ const Results = ({ results, base }: { results: SiteEvent[]; base: string }) => (
               <span className="t-data-label events-result-date">
                 {Number(eventDay(e.startsAt))} {eventMonth(e.startsAt)}
               </span>
+              {/* Results built in are on the event's own page (24 Nov 2026); otherwise the
+                  club's results file or link. */}
               <a
                 className="t-body-m events-result-link"
-                href={siteHref(base, e.results!)}
-                {...linkTarget(e.results!)}
+                href={
+                  e.hasResults
+                    ? `${siteHref(base, eventPageLink(e))}#results`
+                    : siteHref(base, e.results!)
+                }
+                {...(e.hasResults ? {} : linkTarget(e.results!))}
               >
                 {e.title}
                 <span className="visually-hidden">: results</span>

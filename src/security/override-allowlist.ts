@@ -173,6 +173,14 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
     club: 'The one category the document is being saved with (its ID); only its address is read, and a category from another club is refused first by the same-club check on the same save',
     why: 'Validation runs inside the save and also for trusted scripts that have no signed-in user (club import, the demo club), where the normal rules would hide the category and silently skip the rule',
   },
+  // Event pages (24 Nov 2026): checks the event's web address is free within its club.
+  {
+    file: 'src/collections/eventSlug.ts',
+    fn: 'eventSlug',
+    uses: 2,
+    club: 'The club the event is saved with (its tenant), in the where clause; only addresses are read, and nothing is returned to the editor except "already used"',
+    why: 'Runs inside the save and also for trusted scripts with no signed-in user (club import, the demo club); it must see every event of the club, drafts included, or two events could share an address',
+  },
   {
     file: 'src/collections/categoryIds.ts',
     fn: 'categoryIds',

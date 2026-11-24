@@ -1,12 +1,19 @@
 import { Photo } from '../blocks/parts'
 import { ArrowRight, ChevronRight, Clock, Pin } from '../components/Icons'
-import { linkTarget, siteHref } from '../components/links'
+import { siteHref } from '../components/links'
 import { eventEntrantLabel } from '@/collections/eventCategories'
 
 import type { SiteEvent } from '../events'
+import type { SiteLink } from '../loadClub'
 import { siteToday } from '../today'
 
 const LONDON = { timeZone: 'Europe/London' } as const
+
+/** The address of an event's own page (24 Nov 2026), or the events page before it has one. */
+export const eventPageLink = (e: Pick<SiteEvent, 'slug'>): SiteLink => ({
+  kind: 'page',
+  slug: e.slug ? `events/${e.slug}` : 'events',
+})
 
 export const eventDay = (iso: string) =>
   new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', ...LONDON })
@@ -34,6 +41,9 @@ export const eventMeta = (e: SiteEvent) => {
   const { day, time } = dayAndTime(e)
   return [day, time, e.venue].filter(Boolean).join(' · ')
 }
+
+/** "19:00" (with a time note: "08:00 shotgun"), or null with no set time and no note. */
+export const eventTime = (e: SiteEvent) => dayAndTime(e).time
 
 /** "Thu 22 Oct · 19:00" (with a time note: "08:00 shotgun"), without the place. */
 export const eventWhen = (e: SiteEvent) => {
@@ -69,7 +79,12 @@ export const entryStatus = (e: SiteEvent, now = siteToday()) => {
   return null
 }
 
-const BOOKING_LABELS = { book: 'Book', enter: 'Enter', enquire: 'Enquire', soldOut: 'Sold out' }
+export const BOOKING_LABELS = {
+  book: 'Book',
+  enter: 'Enter',
+  enquire: 'Enquire',
+  soldOut: 'Sold out',
+}
 
 /** The card's action: the entry window's state first, then Book / Enter / Enquire / Sold out. */
 export const bookingLabel = (e: SiteEvent) => entryStatus(e)?.label ?? BOOKING_LABELS[e.booking]
@@ -90,7 +105,7 @@ export const DateBadge = ({ iso, className = '' }: { iso: string; className?: st
   </span>
 )
 
-/** The title, linking to the booking page when there is one. */
+/** The title, linking to the event's own page (24 Nov 2026), which has the booking button. */
 const Title = ({
   event,
   base,
@@ -99,23 +114,16 @@ const Title = ({
   event: SiteEvent
   base: string
   className: string
-}) =>
-  event.link ? (
-    <a
-      className={`event-link ${className}`}
-      href={siteHref(base, event.link)}
-      {...linkTarget(event.link)}
-    >
-      {event.title}
-    </a>
-  ) : (
-    <span className={className}>{event.title}</span>
-  )
+}) => (
+  <a className={`event-link ${className}`} href={siteHref(base, eventPageLink(event))}>
+    {event.title}
+  </a>
+)
 
 /**
  * Figma "Event Card". Stacked (grids and carousels): photo with the date badge, category tag,
  * title, date and place, price and Book / Enquire / Sold out. Row (lists): date box, category,
- * title, date and place, and an arrow. The whole card follows the button's link.
+ * title, date and place, and an arrow. The whole card opens the event's own page.
  */
 export const EventCard = ({
   event,
@@ -129,7 +137,7 @@ export const EventCard = ({
   const price = eventPrice(event)
   if (layout === 'row') {
     return (
-      <article className={`event-card is-row${event.link ? ' has-link' : ''}`}>
+      <article className="event-card is-row has-link">
         <DateBadge iso={event.startsAt} />
         <div className="event-row-body">
           <p className="t-eyebrow event-category">{event.categoryLabel}</p>
@@ -142,11 +150,9 @@ export const EventCard = ({
             {entryStatus(event) ? ` · ${entryStatus(event)!.label}` : ''}
           </p>
         </div>
-        {event.link ? (
-          <span className="event-chevron" aria-hidden="true">
-            <ChevronRight />
-          </span>
-        ) : null}
+        <span className="event-chevron" aria-hidden="true">
+          <ChevronRight />
+        </span>
       </article>
     )
   }
@@ -155,7 +161,7 @@ export const EventCard = ({
   const who = eventWho(event)
   const format = eventFormat(event)
   return (
-    <article className={`event-card is-stacked${event.link ? ' has-link' : ''}`}>
+    <article className="event-card is-stacked has-link">
       <div className="event-image">
         {event.image ? (
           <Photo
@@ -213,7 +219,7 @@ export const EventCard = ({
           aria-hidden="true"
         >
           {bookingLabel(event)}
-          {event.link && !muted ? <ArrowRight /> : null}
+          {muted ? null : <ArrowRight />}
         </span>
       </div>
     </article>

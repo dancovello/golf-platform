@@ -4,6 +4,7 @@ import { getPayload, type Payload } from 'payload'
 import { holeSegment } from '@/blocks/courseTour/config'
 import { idOf } from '@/blocks/types'
 import { newsForSitemap } from '@/site/news'
+import { eventsForSitemap } from '@/site/events'
 import { PUBLISHED } from '@/site/published'
 import type { ResolvedSite } from '@/site/resolveSite'
 
@@ -75,7 +76,10 @@ export const sitemapResponse = async (site: ResolvedSite | null) => {
     depth: 0,
     overrideAccess: true,
   })
-  const news = await newsForSitemap(club.tenantID)
+  const [news, events] = await Promise.all([
+    newsForSitemap(club.tenantID),
+    eventsForSitemap(club.tenantID),
+  ])
   const holes = await tourHolePages(payload, club.tenantID, pages)
   const entries: { path: string; updatedAt?: string | null }[] = [
     ...pages.map((p) => ({ path: p.slug === 'home' ? '/' : `/${p.slug}`, updatedAt: p.updatedAt })),
@@ -84,6 +88,7 @@ export const sitemapResponse = async (site: ResolvedSite | null) => {
     { path: '/news' },
     ...news.map((n) => ({ path: `/news/${n.slug}`, updatedAt: n.updatedAt })),
     { path: '/events' },
+    ...events.map((e) => ({ path: `/events/${e.slug}`, updatedAt: e.updatedAt })),
     { path: '/contact' },
     { path: '/privacy' },
   ]
