@@ -275,12 +275,42 @@
 .cg-carousel-track > * > .cg-card {
   flex: 1;
 }
-/* Large screens: four cards across the page column. Four cards then fit without scrolling
-   (the controls hide themselves); five or more still scroll, with the next card peeking in
-   past the column towards the window edge. */
-@media (min-width: 1280px) {
-  .cg-carousel-track > * {
-    flex-basis: calc((100% - 3 * var(--space-24)) / 4);
+/* Wide screens: the cards keep their carousel size (a third of the page column, 384px), and
+   when the window has room for every one of them side by side (4, 5 or 6 cards) they show
+   that way, centred, with no carousel. Otherwise it stays a carousel. The block is the
+   container, so 100cqw is the window less the block's side padding. The widths below are
+   n × 384 + (n − 1) × 24 (--space-24). */
+.cg-immersive-grid {
+  container: cg / inline-size;
+}
+@container cg (min-width: 1608px) {
+  .cg-carousel.n-4 .cg-carousel-track {
+    margin-inline: calc((var(--size-container) - 100cqw) / 2);
+    padding-inline: 0;
+    justify-content: center;
+  }
+  .cg-carousel.n-4 .cg-carousel-track > * {
+    flex-basis: calc((var(--size-container) - 2 * var(--space-24)) / 3);
+  }
+}
+@container cg (min-width: 2016px) {
+  .cg-carousel.n-5 .cg-carousel-track {
+    margin-inline: calc((var(--size-container) - 100cqw) / 2);
+    padding-inline: 0;
+    justify-content: center;
+  }
+  .cg-carousel.n-5 .cg-carousel-track > * {
+    flex-basis: calc((var(--size-container) - 2 * var(--space-24)) / 3);
+  }
+}
+@container cg (min-width: 2424px) {
+  .cg-carousel.n-6 .cg-carousel-track {
+    margin-inline: calc((var(--size-container) - 100cqw) / 2);
+    padding-inline: 0;
+    justify-content: center;
+  }
+  .cg-carousel.n-6 .cg-carousel-track > * {
+    flex-basis: calc((var(--size-container) - 2 * var(--space-24)) / 3);
   }
 }
 @media (max-width: 1023px) {

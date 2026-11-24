@@ -17,27 +17,21 @@ const logo = (url: string, colour: string | null, opaque: boolean | null = false
 const black = logo('/black.png', '#111111')
 const white = logo('/white.png', '#f5f5f5')
 
-describe('a logo saved on a solid white background', () => {
-  const boxed = logo('/boxed.png', '#e8e8e8', true)
+describe('a logo saved on a solid tile', () => {
+  const tile = logo('/tile.png', '#8e1b22', true)
+  const white = logo('/white-box.png', '#e8e8e8', true)
 
-  it('goes on a white plate over a dark photo or band, never turned into a white box', () => {
-    const logos = { onLight: boxed, onDark: boxed }
-    expect(chooseLogo(DEFAULT_BRAND, logos, 'image')).toEqual({
-      kind: 'image',
-      image: boxed,
-      recolour: 'none',
-      plated: true,
-    })
-    expect(chooseLogo(DEFAULT_BRAND, logos, 'brand')).toMatchObject({ plated: true })
-  })
-
-  it('is shown as it is on the page background', () => {
-    const logos = { onLight: boxed, onDark: boxed }
-    expect(chooseLogo(DEFAULT_BRAND, logos, 'page')).toEqual({
-      kind: 'image',
-      image: boxed,
-      recolour: 'none',
-    })
+  it('is shown as it is over a dark photo or band, never turned into a white box', () => {
+    for (const l of [tile, white]) {
+      const logos = { onLight: l, onDark: l }
+      expect(chooseLogo(DEFAULT_BRAND, logos, 'image')).toEqual({
+        kind: 'image',
+        image: l,
+        recolour: 'none',
+      })
+      expect(chooseLogo(DEFAULT_BRAND, logos, 'brand')).toMatchObject({ recolour: 'none' })
+      expect(chooseLogo(DEFAULT_BRAND, logos, 'page')).toMatchObject({ recolour: 'none' })
+    }
   })
 })
 

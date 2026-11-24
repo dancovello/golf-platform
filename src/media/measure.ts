@@ -2,6 +2,7 @@ import { after } from 'next/server'
 import type { CollectionBeforeChangeHook, Payload } from 'payload'
 import sharp from 'sharp'
 
+import { clearCache, clubTag } from '../site/cache'
 import { luminance } from '../theme/colour'
 
 /** What the site needs to know about an image's colours to keep text and logos legible. */
@@ -68,6 +69,7 @@ type Unmeasured = {
   id: string | number
   url?: string | null
   mimeType?: string | null
+  tenant?: unknown
   tone?: { bright?: string | null; average?: string | null; opaque?: boolean | null } | null
   sizes?: Record<string, { url?: string | null } | undefined> | null
 }
@@ -97,6 +99,13 @@ export const measureMissing = (payload: Payload, docs: Unmeasured[]) => {
           const tone = await measureImage(Buffer.from(await response.arrayBuffer()))
           if (tone) {
             await payload.db.updateOne({ collection: 'media', id: doc.id, data: { tone } })
+            // The club's cached pages still hold the unmeasured image: let the next visit
+            // use the measurement now rather than up to an hour later.
+            const tenant =
+              typeof doc.tenant === 'object' && doc.tenant !== null && 'id' in doc.tenant
+                ? doc.tenant.id
+                : doc.tenant
+            if (typeof tenant === 'string') clearCache(clubTag(tenant))
           }
         } catch (error) {
           payload.logger.warn({ err: error, id: doc.id }, 'Could not measure an older image')

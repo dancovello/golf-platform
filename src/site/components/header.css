@@ -88,13 +88,6 @@
 .sh-logo-img.is-recoloured-black {
   filter: brightness(0);
 }
-/* A logo saved with a solid background, on a dark surface: a white plate, not a white box. */
-.sh-logo-img.is-plated {
-  box-sizing: content-box;
-  padding: 6px 10px;
-  border-radius: var(--radius-sm);
-  background: #fff;
-}
 /* Style B shows the photo logo over the hero and the page logo once the header is solid. */
 .sh:not([data-scrolled='true']) .sh-logo-solid,
 .sh[data-scrolled='true'] .sh-logo-over {
