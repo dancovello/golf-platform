@@ -9,12 +9,14 @@ import { CarouselControls, useCarousel } from './CarouselControls'
  * and one and a bit on a phone so the next card peeks in. The cards run to the edge of the
  * window; the controls (CarouselControls) sit below, in the page column. The cards stay
  * ordinary links, so the row still scrolls (by touch, trackpad or keyboard) without JavaScript.
+ * On a window wide enough to show every card at full size, they all show, centred, and the
+ * controls hide themselves (ctaCardGrid.css).
  * Styles are in ctaCardGrid.css.
  */
 export const CardCarousel = ({ label, children }: { label: string; children: ReactNode[] }) => {
   const { track, state, go } = useCarousel<HTMLDivElement>(children.length)
   return (
-    <div className="cg-carousel">
+    <div className={`cg-carousel n-${children.length}`}>
       <div ref={track} className="cg-carousel-track" role="list" aria-label={label}>
         {children.map((child, i) => (
           <div key={i} role="listitem">
