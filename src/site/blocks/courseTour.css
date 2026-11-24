@@ -175,14 +175,25 @@ a.tour-arrow:hover {
   height: 100%;
   object-fit: cover;
 }
+/* The shade is for the words, which sit at the bottom: clear across the top of the photo, then
+   easing in (more stops than two, so there is no visible band) to the full shade behind the
+   hole name and facts. */
+.tour-hero.on-image {
+  --hero-shade: max(78%, var(--photo-shade, 0%));
+}
 .tour-hero.on-image::after {
   content: '';
   position: absolute;
   inset: 0;
   background: linear-gradient(
     to bottom,
-    var(--color-overlay-clear),
-    color-mix(in srgb, var(--image-shade) 85%, transparent)
+    transparent 0%,
+    transparent 30%,
+    color-mix(in srgb, var(--image-shade) calc(var(--hero-shade) * 0.1), transparent) 42%,
+    color-mix(in srgb, var(--image-shade) calc(var(--hero-shade) * 0.28), transparent) 54%,
+    color-mix(in srgb, var(--image-shade) calc(var(--hero-shade) * 0.52), transparent) 66%,
+    color-mix(in srgb, var(--image-shade) calc(var(--hero-shade) * 0.78), transparent) 80%,
+    color-mix(in srgb, var(--image-shade) var(--hero-shade), transparent) 100%
   );
 }
 .tour-hero-row {
@@ -413,28 +424,9 @@ a.tour-arrow:hover {
 .tour-picker-bar + .tour-more {
   padding-top: 0;
 }
-.tour-more-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-24);
-}
-.tour-more-grid img {
-  width: 100%;
-  height: 280px;
-  object-fit: cover;
-}
-/* One or two photos are drawn big, so they never look lost under the page (Dan, 13 Nov). */
-.tour-more-grid.is-count-1 {
-  grid-template-columns: 1fr;
-}
-.tour-more-grid.is-count-1 img {
-  height: 520px;
-}
-.tour-more-grid.is-count-2 {
-  grid-template-columns: 1fr 1fr;
-}
-.tour-more-grid.is-count-2 img {
-  height: 420px;
+/* The gallery card: the same viewer as style C (photos, hole plan, video; expands full size). */
+.tour-gallery {
+  height: 560px;
 }
 
 .tour-neighbours {
@@ -540,8 +532,8 @@ a.tour-arrow:hover {
   .tour-neighbours {
     padding-bottom: var(--space-64);
   }
-  .tour-more-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .tour-gallery {
+    height: 440px;
   }
 }
 
@@ -638,15 +630,10 @@ a.tour-arrow:hover {
   .tour-more {
     padding-bottom: var(--space-48);
   }
-  .tour-more-grid,
-  .tour-more-grid.is-count-2 {
-    grid-template-columns: 1fr;
-    gap: var(--space-16);
-  }
-  .tour-more-grid img,
-  .tour-more-grid.is-count-1 img,
-  .tour-more-grid.is-count-2 img {
-    height: 240px;
+  .tour-gallery {
+    --tour-media-height: 260px;
+    height: auto;
+    background: var(--color-surface-raised);
   }
   .tour-neighbours {
     grid-template-columns: 1fr;
@@ -1027,9 +1014,30 @@ a.tour-arrow:hover {
 /* ---------- C · Course journey ---------- */
 
 .tour-film {
+  position: sticky;
+  top: 0;
+  z-index: 20;
   padding: var(--space-40) 0 var(--space-32);
   background: var(--color-surface-brand);
   color: var(--color-text-on-inverse);
+  transition: padding 300ms ease-out;
+}
+/* Pinned under the header: the photos fold away (a smooth squeeze, not a jump) and the
+   heading, nine switch, names, pars and progress line stay. */
+.tour-film[data-stuck='true'] {
+  padding: var(--space-12) 0;
+}
+.tour-film[data-stuck='true'] .tour-film-head,
+.tour-film[data-stuck='true'] .tour-film-strip {
+  margin-bottom: var(--space-12);
+}
+.tour-film.tour-film[data-stuck='true'] .tour-film-strip .tour-film-hole {
+  gap: 0;
+}
+.tour-film.tour-film[data-stuck='true'] .tour-film-hole .tour-film-photo {
+  height: 0;
+  border-width: 0;
+  opacity: 0;
 }
 .tour-film-head {
   display: flex;
@@ -1037,11 +1045,13 @@ a.tour-arrow:hover {
   justify-content: space-between;
   gap: var(--space-24);
   margin-bottom: var(--space-24);
+  transition: margin 300ms ease-out;
 }
 .tour-film-strip {
   display: flex;
   gap: var(--space-12);
   margin-bottom: var(--space-24);
+  transition: margin 300ms ease-out;
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -1053,6 +1063,7 @@ a.tour-arrow:hover {
   min-width: 96px;
   color: var(--color-text-on-inverse);
   text-decoration: none;
+  transition: gap 300ms ease-out;
 }
 .tour-film-hole:not([aria-current='page']) .tour-film-photo {
   /* Dim the photo, not the names: the names must stay at 4.5:1. */
@@ -1068,8 +1079,13 @@ a.tour-arrow:hover {
 .tour-film-photo {
   display: block;
   height: 76px;
+  overflow: hidden;
   border: 3px solid transparent;
   background: var(--color-surface-glass);
+  transition:
+    height 300ms ease-out,
+    border-width 300ms ease-out,
+    opacity 200ms ease-out;
 }
 .tour-film-hole[aria-current='page'] .tour-film-photo {
   border-color: var(--color-action-accent);

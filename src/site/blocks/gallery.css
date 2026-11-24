@@ -158,25 +158,43 @@
   margin: 0;
   font-variant-numeric: tabular-nums;
 }
-.vw-close,
-.vw-arrow {
+.vw-close {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 44px;
   height: 44px;
-  border: 1px solid var(--color-border-on-inverse);
+  border: 0;
   border-radius: var(--radius-full);
-  background: var(--color-surface-glass);
+  background: none;
   cursor: pointer;
 }
-.vw-close {
-  border: 0;
+/* The same round arrows as every other carousel on the site (.carctl-buttons, blocks.css):
+   an outline in the text colour (white on the brand colour, the club's dark colour on a plain
+   background), filling with the accent on hover. */
+.vw-arrow {
+  display: inline-grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, currentColor 40%, transparent);
+  border-radius: var(--radius-full);
   background: none;
+  cursor: pointer;
+  transition:
+    background-color 200ms ease-out,
+    border-color 200ms ease-out,
+    color 200ms ease-out;
+}
+.vw-arrow:hover {
+  border-color: var(--color-action-accent);
+  background: var(--color-action-accent);
+  color: var(--color-action-on-accent);
 }
 .vw-stage {
   display: grid;
-  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  grid-template-columns: 48px minmax(0, 1fr) 48px;
   align-items: center;
   gap: var(--space-24);
   min-height: 0;
@@ -303,9 +321,7 @@
 .gl-plain .vw {
   color: var(--color-text-primary);
 }
-.gl-plain .vw-close,
-.gl-plain .vw-arrow {
-  border-color: var(--color-border-strong);
+.gl-plain .vw-close {
   background: var(--color-surface-raised);
 }
 .gl-plain .vw-caption {

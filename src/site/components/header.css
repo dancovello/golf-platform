@@ -11,7 +11,8 @@
   transition:
     background-color 200ms ease-out,
     color 200ms ease-out,
-    box-shadow 200ms ease-out;
+    box-shadow 200ms ease-out,
+    transform 300ms ease-out;
 }
 .sh *,
 .sh *::before,
@@ -87,6 +88,13 @@
 .sh-logo-img.is-recoloured-black {
   filter: brightness(0);
 }
+/* A logo saved with a solid background, on a dark surface: a white plate, not a white box. */
+.sh-logo-img.is-plated {
+  box-sizing: content-box;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  background: #fff;
+}
 /* Style B shows the photo logo over the hero and the page logo once the header is solid. */
 .sh:not([data-scrolled='true']) .sh-logo-solid,
 .sh[data-scrolled='true'] .sh-logo-over {
@@ -150,6 +158,10 @@
 }
 .sh[data-hidden-utility='true'] .sh-utility {
   max-height: 0;
+}
+.sh[data-hidden='true']:not(:focus-within):not(:has([aria-expanded='true'])) {
+  transform: translateY(-100%);
+  box-shadow: none;
 }
 .sh[data-scrolled='true'] {
   box-shadow: 0 4px 16px color-mix(in srgb, var(--brand-dark) 8%, transparent);

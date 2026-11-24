@@ -120,6 +120,7 @@ export const Media: CollectionConfig = {
       fields: [
         { name: 'bright', type: 'text' },
         { name: 'average', type: 'text' },
+        { name: 'opaque', type: 'checkbox' },
       ],
     },
   ],

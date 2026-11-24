@@ -328,6 +328,7 @@ export interface Media {
   tone?: {
     bright?: string | null;
     average?: string | null;
+    opaque?: boolean | null;
   };
   prefix?: string | null;
   _objectKey?: string | null;
@@ -4114,6 +4115,7 @@ export interface MediaSelect<T extends boolean = true> {
     | {
         bright?: T;
         average?: T;
+        opaque?: T;
       };
   prefix?: T;
   _objectKey?: T;

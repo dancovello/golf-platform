@@ -37,6 +37,14 @@ const clearGACookies = () => {
   }
 }
 
+const inFrame = () => {
+  try {
+    return window.self !== window.top
+  } catch {
+    return true // a frame from another address: reading window.top is blocked
+  }
+}
+
 /**
  * The company site's golf ball intro marks <html data-intro>. The banner waits until the intro
  * has finished (or given up) so it never sits on top of the animation. Club sites have no such
@@ -99,6 +107,10 @@ export const CookieConsent = ({
   const heading = useRef<HTMLHeadingElement>(null)
 
   useEffect(() => {
+    // Inside the editor's live preview panel (a frame within the admin): no banner, so it
+    // never covers the page being edited. Club sites can only be framed by the admin itself
+    // (frame-ancestors 'self' in src/security/csp.ts).
+    if (inFrame()) return
     const choice = read(storageKey)
     let stopWaiting = () => {}
     if (choice === 'accepted') {

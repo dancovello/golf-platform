@@ -92,3 +92,17 @@ test('a club with every optional part: its own details and an extra section', as
   await expect(main).toContainText('We use CCTV in the car park.')
   await expect(page.getByRole('heading', { level: 2, name: '13. Contact us' })).toBeVisible()
 })
+
+test("no cookie banner inside the editor's live preview panel", async ({ page }) => {
+  // The live preview shows the club page in a frame on the admin's own address. Same here:
+  // the club's page, framed by a page on the same address.
+  await page.goto(`${cookies}/privacy`)
+  await expect(page.getByTestId('cookie-banner')).toBeVisible()
+  await page.evaluate(() => {
+    document.body.innerHTML = '<iframe id="panel" src="/privacy" style="width:900px;height:700px">'
+  })
+  const panel = page.frameLocator('#panel')
+  await expect(panel.getByRole('heading', { level: 1 })).toHaveText('Privacy policy')
+  await page.waitForTimeout(500)
+  await expect(panel.getByTestId('cookie-banner')).toHaveCount(0)
+})
