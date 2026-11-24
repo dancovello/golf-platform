@@ -10,7 +10,7 @@ import { publicError } from '../errors'
  */
 /**
  * When the page was last saved by anyone. A draft save does not change the published row's own
- * time, so with drafts on, the newest version's time is the one that counts.
+ * time, so with drafts on, the newest version's time counts too.
  */
 const lastSavedAt = async (
   req: PayloadRequest,
@@ -32,7 +32,13 @@ const lastSavedAt = async (
       // and a failed lookup inside that same database transaction would undo the delete.
       user: req.user,
     })
-    times.push((latest.docs[0] as { updatedAt?: unknown } | undefined)?.updatedAt)
+    // The time stored inside the version, not the history row's own time. They match for a
+    // draft save, but publishing stamps the history row a few milliseconds after the page, so
+    // the row's time never matches what the save handed back to the editor's screen, and the
+    // next save from that screen was refused.
+    times.push(
+      (latest.docs[0] as { version?: { updatedAt?: unknown } } | undefined)?.version?.updatedAt,
+    )
   } catch {
     // Collections without versions: the document's own time is all there is.
   }

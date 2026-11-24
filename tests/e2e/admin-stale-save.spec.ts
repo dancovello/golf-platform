@@ -30,6 +30,9 @@ test('a page changed by someone else is not overwritten, but own autosaves are f
     await title.fill('Four')
     await editorPage.getByRole('button', { name: 'Publish changes' }).click()
     await expect(editorPage.getByText('Updated successfully')).toBeVisible()
+    // ...and carrying on editing after publishing, with autosaves, is fine too.
+    await title.fill('Five')
+    await editorPage.waitForTimeout(2500)
     await expect(editorPage.getByText('Someone else has changed this')).toHaveCount(0)
 
     // Let the screen settle after publishing, then someone else saves the same page.
