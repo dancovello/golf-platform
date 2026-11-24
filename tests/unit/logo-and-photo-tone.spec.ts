@@ -24,13 +24,9 @@ describe('a logo saved on a solid tile', () => {
   it('is shown as it is over a dark photo or band, never turned into a white box', () => {
     for (const l of [tile, white]) {
       const logos = { onLight: l, onDark: l }
-      expect(chooseLogo(DEFAULT_BRAND, logos, 'image')).toEqual({
-        kind: 'image',
-        image: l,
-        recolour: 'none',
-      })
-      expect(chooseLogo(DEFAULT_BRAND, logos, 'brand')).toMatchObject({ recolour: 'none' })
-      expect(chooseLogo(DEFAULT_BRAND, logos, 'page')).toMatchObject({ recolour: 'none' })
+      for (const surface of ['image', 'brand', 'page'] as const) {
+        expect(chooseLogo(DEFAULT_BRAND, logos, surface)).toEqual({ kind: 'image', image: l })
+      }
     }
   })
 })
@@ -49,22 +45,22 @@ describe('choosing the logo by its background', () => {
     expect(chooseLogo(DEFAULT_BRAND, logos, 'image')).toMatchObject({ image: white })
   })
 
-  it('shows a dark-only logo in white over a dark photo or band (the Foxhills case)', () => {
-    const logos = { onLight: black, onDark: black }
-    expect(chooseLogo(DEFAULT_BRAND, logos, 'image')).toEqual({
-      kind: 'image',
-      image: black,
-      recolour: 'white',
-    })
-    expect(chooseLogo(DEFAULT_BRAND, logos, 'brand')).toMatchObject({ recolour: 'white' })
-    expect(chooseLogo(DEFAULT_BRAND, logos, 'page')).toMatchObject({ recolour: 'none' })
+  it('never recolours a logo: with only one, that one is shown as uploaded everywhere', () => {
+    for (const logos of [
+      { onLight: black, onDark: null },
+      { onLight: null, onDark: black },
+      { onLight: black, onDark: black },
+    ]) {
+      for (const surface of ['image', 'brand', 'page'] as const) {
+        expect(chooseLogo(DEFAULT_BRAND, logos, surface)).toEqual({ kind: 'image', image: black })
+      }
+    }
   })
 
   it('follows a light brand colour: the dark logo on a light footer band', () => {
     const brand = { ...DEFAULT_BRAND, primary: '#e8d9a8' }
     expect(chooseLogo(brand, { onLight: black, onDark: white }, 'brand')).toMatchObject({
       image: black,
-      recolour: 'none',
     })
   })
 
@@ -72,7 +68,6 @@ describe('choosing the logo by its background', () => {
     const old = logo('/old.png', null)
     expect(chooseLogo(DEFAULT_BRAND, { onLight: null, onDark: old }, 'image')).toMatchObject({
       image: old,
-      recolour: 'none',
     })
     expect(chooseLogo(DEFAULT_BRAND, { onLight: null, onDark: null }, 'page')).toEqual({
       kind: 'wordmark',

@@ -4,14 +4,14 @@ import { type Brand, AA_GRAPHIC, contrast, deriveTheme, luminance } from '@/them
 /** What the logo sits on: the page (and white bars), the brand colour, or a shaded photo. */
 export type LogoSurface = 'page' | 'brand' | 'image'
 
-export type LogoChoice =
-  { kind: 'image'; image: SiteImage; recolour: 'none' | 'white' | 'black' } | { kind: 'wordmark' }
+export type LogoChoice = { kind: 'image'; image: SiteImage } | { kind: 'wordmark' }
 
 /**
- * Picks the logo by its measured colour against the actual background, at 3:1 (WCAG AA for
- * graphics): the one uploaded for this kind of background first, then the other. If neither
- * reads, the logo is shown in white or black (fine for a one-colour logo, legible for any).
- * An older upload with no measurement is trusted to suit the background it was uploaded for.
+ * Picks which uploaded logo to show; it is always shown exactly as uploaded, never recoloured.
+ * The one uploaded for this kind of background comes first, unless its measured colour fails
+ * 3:1 against the background (WCAG AA for graphics) and the other logo passes. An older upload
+ * with no measurement is trusted to suit the background it was uploaded for. A club with only
+ * one logo gets that logo everywhere; a club wanting a white version on dark uploads one.
  * No logo at all: the club name, in the surface's text colour.
  */
 export const chooseLogo = (
@@ -34,15 +34,11 @@ export const chooseLogo = (
   const reads = (logo: SiteImage | null, trusted: boolean): logo is SiteImage =>
     logo !== null && (logo.colour ? contrast(logo.colour, background) >= AA_GRAPHIC : trusted)
 
-  if (reads(intended, true)) return { kind: 'image', image: intended, recolour: 'none' }
-  if (reads(other, false)) return { kind: 'image', image: other, recolour: 'none' }
+  if (reads(intended, true)) return { kind: 'image', image: intended }
+  if (reads(other, false)) return { kind: 'image', image: other }
   // Read from `logos`: the checks above have narrowed `intended` and `other` away.
   const any = lightBackground ? (logos.onLight ?? logos.onDark) : (logos.onDark ?? logos.onLight)
-  if (!any) return { kind: 'wordmark' }
-  // A logo saved on a solid tile (a crest on a red square, a mark on white) carries its own
-  // background, so it reads anywhere as it is. Turning it white would leave a solid white box.
-  if (any.opaque === true) return { kind: 'image', image: any, recolour: 'none' }
-  return { kind: 'image', image: any, recolour: lightBackground ? 'black' : 'white' }
+  return any ? { kind: 'image', image: any } : { kind: 'wordmark' }
 }
 
 /**
@@ -71,10 +67,9 @@ export const Logo = ({
   )
   const extra = `${compact ? ' is-compact' : ''}${className ? ` ${className}` : ''}`
   if (choice.kind === 'image') {
-    const recolour = choice.recolour === 'none' ? '' : ` is-recoloured-${choice.recolour}`
     return (
       // eslint-disable-next-line @next/next/no-img-element -- R2 files, sized by CSS
-      <img className={`sh-logo-img${extra}${recolour}`} src={choice.image.url} alt={club.name} />
+      <img className={`sh-logo-img${extra}`} src={choice.image.url} alt={club.name} />
     )
   }
   return (
