@@ -123,6 +123,10 @@ export async function up() { await db.execute(sql\`DROP TABLE "pages";\`) }`
     // hole's yards are copied from the old colour columns into the slots (the UPDATEs). Nothing
     // is dropped; the old columns stay. Needs Dan's approval label on the PR.
     '20261115_195844_tee_sets.ts': Array(2).fill('UPDATE … SET'),
+    // Event pages (24 Nov 2026): each existing event's new web address is filled in from its
+    // title and year (the UPDATE), before the "unique within a club" rule is added. It only
+    // writes the new, empty column; nothing is changed or dropped. Needs Dan's approval label.
+    '20261124_104632_event_pages.ts': ['UPDATE … SET'],
   }
 
   it('every merged migration only adds things, apart from the ones Dan approved', () => {

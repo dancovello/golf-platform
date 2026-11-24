@@ -71,9 +71,11 @@ describe('links to the built-in pages (News, Events, Contact, Privacy policy)', 
       data: { booking: 'enquire', link: { type: 'builtIn', builtIn: 'contact' } } as never,
     })
     const events = await upcomingEvents(w.clubA.id, 10)
-    expect(events.find((e) => e.title === 'Open evening')?.link).toEqual({
+    // Enquire to the contact page opens it about this event (event pages, 24 Nov 2026).
+    const open = events.find((e) => e.title === 'Open evening')
+    expect(open?.link).toEqual({
       kind: 'page',
-      slug: 'contact',
+      slug: `contact?about=events&event=${open?.slug}`,
     })
   })
 })

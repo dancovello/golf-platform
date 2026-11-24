@@ -14,6 +14,7 @@ import {
   eventMonth,
   eventPrice,
   entryStatus,
+  eventPageLink,
 } from './EventCard'
 
 // Styles (events.css) are loaded by RenderBlocks after the shared button styles.
@@ -67,7 +68,11 @@ export const EventsFeed = async ({
               <p className="t-data-label events-featured-tag">
                 {lead.categoryLabel} · {Number(eventDay(lead.startsAt))} {eventMonth(lead.startsAt)}
               </p>
-              <h3 className="t-heading-l">{lead.title}</h3>
+              <h3 className="t-heading-l">
+                <a className="events-featured-title" href={siteHref(base, eventPageLink(lead))}>
+                  {lead.title}
+                </a>
+              </h3>
               {lead.summary ? (
                 <p className="t-body-m events-featured-summary">{lead.summary}</p>
               ) : null}
