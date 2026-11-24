@@ -93,6 +93,7 @@ import * as migration_20261119_203407_ico_number from './20261119_203407_ico_num
 import * as migration_20261122_214139_chip_default_wording from './20261122_214139_chip_default_wording';
 import * as migration_20261122_230105_keep_club_out_of_search from './20261122_230105_keep_club_out_of_search';
 import * as migration_20261123_235318_logo_opaque_flag from './20261123_235318_logo_opaque_flag';
+import * as migration_20261124_104632_event_pages from './20261124_104632_event_pages';
 
 export const migrations = [
   {
@@ -568,6 +569,11 @@ export const migrations = [
   {
     up: migration_20261123_235318_logo_opaque_flag.up,
     down: migration_20261123_235318_logo_opaque_flag.down,
-    name: '20261123_235318_logo_opaque_flag'
+    name: '20261123_235318_logo_opaque_flag',
+  },
+  {
+    up: migration_20261124_104632_event_pages.up,
+    down: migration_20261124_104632_event_pages.down,
+    name: '20261124_104632_event_pages'
   },
 ];

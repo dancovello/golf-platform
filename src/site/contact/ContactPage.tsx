@@ -1,5 +1,3 @@
-import { isEnquiryPurpose } from '@/collections/enquiryPurposes'
-
 import { Button } from '../components/Button'
 import { Clock, Mail, Phone, Pin } from '../components/Icons'
 import type { ClubSite } from '../loadClub'
@@ -9,7 +7,7 @@ import { issueFormToken } from './formToken'
 import { turnstileSiteKey } from './turnstile'
 import type { ContactSettings } from './load'
 import { ukToday } from './replyBy'
-import { EMPTY_VALUES } from './validate'
+import { type EnquiryEvent, startingValues } from './startingValues'
 
 import './contact.css'
 
@@ -25,12 +23,15 @@ export const ContactPage = ({
   base,
   settings,
   about,
+  event = null,
   demo = false,
 }: {
   club: ClubSite
   base: string
   settings: ContactSettings
   about: string | null
+  /** The upcoming event an Enquire button came from, if any. */
+  event?: EnquiryEvent | null
   /** A prospect demo (src/site/demo.ts): the form is replaced by a note and sends nothing. */
   demo?: boolean
 }) => {
@@ -87,7 +88,7 @@ export const ContactPage = ({
               initial={{
                 attempt: 0,
                 token: issueFormToken(club.tenantID),
-                values: { ...EMPTY_VALUES, purpose: isEnquiryPurpose(about) ? about : 'general' },
+                values: startingValues(about, event),
                 errors: {},
                 formError: null,
                 sent: null,

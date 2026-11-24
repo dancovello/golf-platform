@@ -90,12 +90,14 @@ export const newsLivePreview: LivePreviewConfig = {
       : null,
 }
 
-/** Events (plan part E): events have no page of their own, so the Events page, with this
- * event shown even before it's published. Reloads on save. Only once it has been saved. */
+/** Events: the event's own page (24 Nov 2026), drafts included for the club's own editors.
+ * Reloads on save. Only once it has been saved, which gives it its address. */
 export const eventLivePreview: LivePreviewConfig = {
   breakpoints,
   url: ({ data, req }) =>
-    data?.id
-      ? previewURL(req, data?.tenant, `/events?event=${encodeURIComponent(String(data.id))}`)
-      : null,
+    typeof data?.slug === 'string' && data.slug
+      ? previewURL(req, data?.tenant, `/events/${encodeURIComponent(data.slug)}`)
+      : data?.id
+        ? previewURL(req, data?.tenant, `/events?event=${encodeURIComponent(String(data.id))}`)
+        : null,
 }

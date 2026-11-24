@@ -61,7 +61,7 @@ Write `REVIEW.md` covering:
 - **Platform gaps:** things their content needed that we can't hold yet
 - What we're leaving out, and why
 
-Then send `REVIEW.md`, `ASK-THE-CLUB.md` and `SUGGESTIONS.md` to Dan in chat (step 9).
+Then deliver the review, the ask-the-club list and the suggestions to Dan as branded PDFs (step 9).
 
 ### 4. Write the content file
 
@@ -72,6 +72,7 @@ Create `club-imports/<club>/site.ts` (see Cottrell's or Bearwood's as examples).
 - `settings` (branding, menu, footer, contact and its topics), `courseStatus`, `news`, `events`
 - References: `@media:key`, `@doc:key`, `@staff:key`, `@course:key`, `@page:slug`, `@category:slug` (every club starts with course, competitions, clubhouse, membership, academy and club). The import fills them in. A news story's `category` can be just the slug; a Latest news block's must be `@category:slug`
 - Rich text: `{ $rt: [['h2', '…'], ['p', '…'], ['ul', '…', '…'], ['img', '@media:key']] }`
+- Events (24 Nov 2026): an event can have a `body` write-up (rich text, as above), shown on its own page. Its web address is made from the title and year unless a `slug` is given
 
 Rules the first runs found:
 - **Reserved addresses.** A page can't have the address `contact`, `news`, `events`, `privacy` or `search`: every club already has a built-in page there, and a custom page would never be shown because the built-in one always wins. The built-in **Contact page at `/contact` is the club's contact page**: it has the enquiry form with topic routing, reply time, office hours, an editable introduction, and the address and phone from the footer. Link to it with the built-in link (the menu label can say anything, such as "Get in touch"), and turn the club's department emails into the form's topics (membership, events, lessons, general), each with its own inbox. Nothing changes at go-live: the address stays `/contact`.
@@ -182,19 +183,12 @@ Still open:
 - No redirects from a club's old addresses to the new ones (not found in the page settings; to check before the first go-live)
 - No "photos with no description" to-do view per club (the Description column exists in the media list)
 
-## Building a permanent test club (not a demo)
+**Format (Dan's decision, 22 Nov 2026): every club gets the same three documents as branded PDFs, not Markdown.** Write each as Markdown (with `title`, `client`, `date` and `kind` at the top) in `docs/club-docs/<club>/`: `site-review.md`, `questions-for-the-club.md`, `suggestions.md`. Then build each one:
 
-A test club such as **A1 Demo Club** (Dan's own, on production at `demo-club.a1engine.co`) is an ordinary club, not a 30-day prospect demo: it has an editor login, a working contact form and no expiry. Build it with the same command **without** the word `demo`:
-
-```bash
-pnpm import-club-production club-imports/a1-demo-club
+```
+node scripts/club-docs/build.mjs docs/club-docs/<club>/<name>.md "<output>.pdf"
 ```
 
-Four extra, optional parts of the content file (`site.ts`) are for this:
+The PDF is in A1 Engine branding: a dark green cover (document name, client, date), the green logo (no dot) at the top left of every page, Silka, sections kept whole across pages, and an ending page. Do not change the design without Dan's say.
 
-- `enquiries`: messages as if sent from the Contact page, so the admin's inbox has something in it.
-- `club: { domains, hideFromSearch }`: the club's web addresses and the super-admin's **Keep out of search engines** switch. A test club should always have `hideFromSearch: true`.
-- `editor: { email }`: makes the club's editor account. The password is made by the import and **printed once at the end** (it is never stored in the content file). Give it to the person straight away.
-- A page can have `hideFromMenu: true` to stay out of the menus.
-
-Afterwards the web address still needs adding in Vercel and in Cloudflare (`docs/operations/connect-club-domain.md`). The import ignores `club` and `editor` for a `demo` build, because a demo can have neither.
+Save the PDFs in `~/Documents/A1 Engine/Clubs Documents/<Club>/Documents/`, named `<Club> - site-review.pdf` and so on, and send them to Dan in chat. Use the Bearwood Lakes set as the model for structure and tone. Note: the Silka licence says "web use"; confirm with Hopp Studio before sending PDFs with the font embedded to a club.

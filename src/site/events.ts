@@ -5,17 +5,19 @@ import { EVENT_CATEGORIES, EVENT_ENTRANTS, eventCategoryLabel } from '@/collecti
 import { builtInLink, isSafeURL, linksToPage } from '@/fields/link'
 
 import { loadClubMedia, type SiteMedia } from './blocks/media'
-import { loadClubDocuments } from './blocks/resolve'
+import { type BlockContext, loadBlockContext, loadClubDocuments } from './blocks/resolve'
 import { PUBLISHED } from './published'
 import type { SiteLink } from './loadClub'
 import { siteToday } from './today'
-import { ukStartOfDay } from './ukTime'
+import { ukEndOfDay, ukStartOfDay } from './ukTime'
 import { clubCached } from './cache'
 import { idOf } from '@/blocks/types'
 
 /** An event as cards, rows and the featured panel show it. */
 export type SiteEvent = {
   id: string
+  /** The event's own page is /events/<slug> (24 Nov 2026). Null only before its first save. */
+  slug: string | null
   title: string
   category: string
   categoryLabel: string
@@ -50,6 +52,7 @@ export const EVENTS_STEP = 6
 
 type EventDoc = {
   id: string | number
+  slug?: string | null
   title: string
   category: string
   startsAt: string
@@ -157,9 +160,11 @@ const toEvents = async (tenantID: string, docs: EventDoc[]): Promise<SiteEvent[]
   }
   return docs.map((d) => {
     const image = photos.get(idOf(d.image) ?? '') ?? null
-    const link = d.booking !== 'soldOut' ? toLink(d.link) : null
+    const slug = d.slug?.trim() || null
+    const link = d.booking !== 'soldOut' ? bookingLink(d.booking, toLink(d.link), slug) : null
     return {
       id: String(d.id),
+      slug,
       title: d.title,
       category: d.category,
       categoryLabel: eventCategoryLabel(d.category),
@@ -187,6 +192,21 @@ const toEvents = async (tenantID: string, docs: EventDoc[]): Promise<SiteEvent[]
   })
 }
 
+/**
+ * Enquire goes to the club's contact form with the topic set to Events and the message started
+ * with the event's name and date (24 Nov 2026), unless the club pointed it somewhere else. Only
+ * the event's address goes in the link, never anything about the visitor.
+ */
+export const bookingLink = (
+  booking: SiteEvent['booking'],
+  link: SiteLink | null,
+  slug: string | null,
+): SiteLink | null => {
+  const toContact = !link || (link.kind === 'page' && link.slug === 'contact')
+  if (booking !== 'enquire' || !toContact || !slug) return link
+  return { kind: 'page', slug: `contact?about=events&event=${encodeURIComponent(slug)}` }
+}
+
 /** One club's events. The club is always added to the query here, so no caller can forget it. */
 const find = async (tenantID: string, where: Where, limit: number) => {
   const payload = await getPayload({ config })
@@ -200,8 +220,8 @@ const find = async (tenantID: string, where: Where, limit: number) => {
   })
 }
 
-/** Every upcoming event, soonest first (site search: src/search/build.ts). */
-export const clubEvents = async (tenantID: string): Promise<SiteEvent[]> => {
+/** Every upcoming event, soonest first, with its write-up (site search: src/search/build.ts). */
+export const clubEvents = async (tenantID: string): Promise<(SiteEvent & { body: unknown })[]> => {
   const payload = await getPayload({ config })
   const { docs } = await payload.find({
     collection: 'events',
@@ -211,7 +231,8 @@ export const clubEvents = async (tenantID: string): Promise<SiteEvent[]> => {
     depth: 0,
     overrideAccess: true,
   })
-  return toEvents(tenantID, docs as unknown as EventDoc[])
+  const events = await toEvents(tenantID, docs as unknown as EventDoc[])
+  return events.map((e, i) => ({ ...e, body: (docs[i] as { body?: unknown }).body ?? null }))
 }
 
 /** The next events, soonest first, optionally in one category (Events blocks). */
@@ -333,3 +354,80 @@ const clubResultsFresh = async (tenantID: string): Promise<SiteEvent[]> => {
   return events.filter((e) => e.results !== null)
 }
 export const clubResults = clubCached('clubResults', clubResultsFresh, { today: true })
+
+/** An event's own page (24 Nov 2026): the event, its write-up, and what's on next. */
+export type SiteEventPage = SiteEvent & {
+  body: unknown
+  ctx: BlockContext
+  /** The event has started (or, with no set time, its day has ended). */
+  past: boolean
+  /** Up to three other upcoming events. */
+  more: SiteEvent[]
+}
+
+/** When an event drops off the upcoming lists: its start, or with no set time, its day's end. */
+export const eventEnds = (e: Pick<SiteEvent, 'startsAt' | 'noStartTime'>) =>
+  e.noStartTime ? ukEndOfDay(new Date(e.startsAt)) : new Date(e.startsAt)
+
+/**
+ * One event by its address. Published events keep their page after the day, so links shared
+ * before it still work. `unpublished`: the admin's live preview for the club's own editors (the
+ * caller checks who may see it: src/site/livePreviewAccess.ts).
+ */
+const loadEventPageFresh = async (
+  tenantID: string,
+  slug: string,
+  { unpublished = false }: { unpublished?: boolean } = {},
+): Promise<SiteEventPage | null> => {
+  const { docs } = await find(
+    tenantID,
+    {
+      and: [
+        { slug: { equals: slug } },
+        ...(unpublished ? [] : [{ status: { equals: 'published' } } as Where]),
+      ],
+    },
+    1,
+  )
+  const doc = docs[0] as (EventDoc & { body?: unknown }) | undefined
+  if (!doc) return null
+  const payload = await getPayload({ config })
+  const [[event], ctx, upcoming] = await Promise.all([
+    toEvents(tenantID, [doc]),
+    // The write-up is drawn like a Text block, so its photos and links are checked the same way.
+    loadBlockContext(payload, tenantID, [{ blockType: 'richText', content: doc.body }]),
+    upcomingEvents(tenantID, 4),
+  ])
+  return {
+    ...event,
+    body: doc.body ?? null,
+    ctx,
+    past: eventEnds(event) <= siteToday(),
+    more: upcoming.filter((e) => e.id !== event.id).slice(0, 3),
+  }
+}
+
+const publishedEventPage = clubCached(
+  'eventPage',
+  (tenantID: string, slug: string) => loadEventPageFresh(tenantID, slug),
+  { today: true },
+)
+/** One event's page. Unpublished ones (the live preview) never go through the cache. */
+export const loadEventPage = (
+  tenantID: string,
+  slug: string,
+  { unpublished = false }: { unpublished?: boolean } = {},
+) =>
+  unpublished
+    ? loadEventPageFresh(tenantID, slug, { unpublished })
+    : publishedEventPage(tenantID, slug)
+
+/** Every published event's address and when it last changed (the club's sitemap). */
+export const eventsForSitemap = async (tenantID: string) => {
+  const { docs } = await find(
+    tenantID,
+    { and: [{ status: { equals: 'published' } }, { slug: { exists: true } }] },
+    1000,
+  )
+  return docs.map((d) => ({ slug: String(d.slug), updatedAt: d.updatedAt ?? null }))
+}

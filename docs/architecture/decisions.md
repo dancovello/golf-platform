@@ -1007,3 +1007,17 @@ Larger copies "just take up valuable space". Uploaded photos are now saved as We
 ## 2026-11-22: A1 Demo Club, and "Keep out of search engines"
 
 Dan's permanent test club, **A1 Demo Club**, lives on production at `demo-club.a1engine.co`. It is an ordinary club (not a 30-day prospect demo), because it needs an editor login, a working contact form and no expiry. A ticked **Keep out of search engines** box on the club (super-admin only) stops it being indexed: pages stay `noindex`, `robots.txt` disallows everything and the sitemap returns 404. A change can take up to 5 minutes to show (the club's shared data is cached for at most 5 minutes).
+
+## 2026-11-24: Event pages, like news articles (Dan)
+
+Dan: an event should work like a news post, with a page where the club can write about it and, later, add the results, so golfers find everything in one place. Plan: `docs/plans/event-pages-and-results-plan-2026-11-24.md`. This is part 1; built-in results are part 2.
+
+- **Every published event has its own page at `/events/<address>`.** The address comes from the title and the year ("Spring Open" in 2027 → `spring-open-2027`), because clubs run the same competition every year. It is unique within a club: a repeat gets "-2". An editor can change it; one another of the club's events already uses is refused with a plain message. Existing events got theirs in the migration the same way.
+- **An optional write-up** ("About this event", the same editor as news articles). Its photos and links must be the club's own (same-club check).
+- **The page** borrows the news article layout (no Figma frame yet; Dan to decide whether it needs a design pass): breadcrumb, title, summary, a details panel (when, where, who can enter, format, price, places left) with the Book / Enter / Enquire button and Share, the photo, the write-up, then "More events".
+- **Cards, rows and the featured event's title now open the event's page**, not the booking link. The page carries the button. A card's action label (Book, Enquire …) stays, as it says what can be done there.
+- **After the day the page stays up** (links shared on social media keep working). The button gives way to "See the results" when the club has added a results link, or to "This event has taken place." Past events are still listed only under Results, as before.
+- **Enquire is filled in.** When an event's button is Enquire and it goes to the Contact page (or nowhere), it opens `/contact?about=events&event=<address>`: the Events topic, the event's day as the preferred date, and the message started "About: Spring Open, Mon 12 Apr 2027". Only the event's address is in the link. The form only does this for one of the club's own published, upcoming events. Enquire pointed at another page or website still goes there.
+- Event pages are in site search (with the write-up's words), the sitemap and the link previews. The admin's live preview now shows the event's own page.
+- One allowance-list entry added (`eventSlug`, checking the address is free within the club) and one cached loader (`eventPage`) in the isolation manifest, both limited to the club.
+- Database change: two new columns (address and write-up) and a "unique within a club" index. The migration fills in existing events' addresses (one `UPDATE` of the new column only), so the PR needs Dan's `approved-destructive-migration` label, as for the tee sets.

@@ -522,3 +522,63 @@
     align-self: flex-start;
   }
 }
+
+/* The featured event's title opens its page. */
+.events-featured-title {
+  color: inherit;
+  text-decoration: none;
+}
+.events-featured-title:hover {
+  text-decoration: underline;
+}
+
+/* ---------- An event's own page (24 Nov 2026) ----------
+   No Figma frame yet: it borrows the news article (news.css). The details sit in a panel under
+   the title, with the button and Share beneath them. */
+.event-post-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+  padding-top: var(--space-24);
+  border-top: 1px solid var(--color-border-subtle);
+}
+.event-post-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-16) var(--space-32);
+  margin: 0;
+}
+.event-post-detail dt {
+  margin-bottom: var(--space-4);
+  color: var(--color-text-secondary);
+}
+.event-post-detail dd {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  margin: 0;
+  color: var(--color-text-primary);
+}
+.event-post-detail dd svg {
+  flex: none;
+  color: var(--color-text-brand);
+}
+.event-post-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-16) var(--space-24);
+}
+.event-post-actions .event-action {
+  min-width: 200px;
+  margin: 0;
+  padding: 0 var(--space-24);
+}
+.event-post-note {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+.event-post .news-post-footer {
+  padding-top: var(--space-32);
+}

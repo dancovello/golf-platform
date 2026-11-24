@@ -485,4 +485,12 @@ export const CACHED: Manifest = {
     },
     ...cacheCovers,
   ],
+  // Event pages (24 Nov 2026): one event by its address.
+  eventPage: [
+    {
+      file: 'tests/int/event-pages.int.spec.ts',
+      test: 'is never shown for another club’s event, or for a draft',
+    },
+    ...cacheCovers,
+  ],
 }

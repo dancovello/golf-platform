@@ -253,19 +253,30 @@ export const buildClubEntries = async (
   }
 
   for (const event of events) {
+    const text = tidy(richTextWords(event.body))
     add({
       kind: 'event',
       sourceID: event.id,
       title: event.title,
       eyebrow: event.categoryLabel,
-      excerpt: event.summary,
-      body: [event.venue, event.timeNote].filter(Boolean).join('\n') || null,
-      link: { kind: 'page', slug: 'events' },
+      excerpt: event.summary || opening(text) || null,
+      body:
+        [event.venue, event.timeNote, text].filter(Boolean).join('\n').slice(0, MAX_BODY) || null,
+      // The event's own page (24 Nov 2026).
+      link: { kind: 'page', slug: event.slug ? `events/${event.slug}` : 'events' },
       details: {
         image: event.image,
         action:
           event.link && event.booking !== 'soldOut'
-            ? { label: event.booking === 'book' ? 'Book' : 'Enquire', link: event.link }
+            ? {
+                label:
+                  event.booking === 'book'
+                    ? 'Book'
+                    : event.booking === 'enter'
+                      ? 'Enter'
+                      : 'Enquire',
+                link: event.link,
+              }
             : null,
       },
       date: event.startsAt,

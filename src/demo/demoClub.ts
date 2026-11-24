@@ -781,12 +781,37 @@ export const buildDemoClub = async (payload: Payload) => {
     ],
   ]
   const eventPictures = [dusk, morning, ...photos]
+  // Write-ups for the events' own pages (24 Nov 2026): a competition and the featured dinner.
+  const writeUps: Record<number, unknown> = {
+    1: rt.doc(
+      rt.p(
+        'Our autumn foursomes is the last board competition of the year, played from the yellow tees with a shotgun start at 7:30.',
+      ),
+      rt.h2('On the day'),
+      rt.ul(
+        'Bacon rolls and coffee in the clubhouse from 6:45',
+        'Shotgun start at 7:30; please be on your tee by 7:20',
+        'Two-course lunch and prize-giving from 13:00',
+      ),
+      rt.h2('Prizes'),
+      rt.p(
+        'Prizes for the top three pairs, nearest the pin on the 7th and 16th, and a twos sweep.',
+      ),
+    ),
+    2: rt.doc(
+      rt.p(
+        'Five courses from our head chef Ed Lyle, each matched with a wine chosen by Berry Bros. & Rudd’s head of fine wine, who will talk us through them.',
+      ),
+      rt.p('Drinks on the terrace from 18:30, dinner at 19:15. Black tie optional.'),
+    ),
+  }
   for (const [
     i,
     [title, category, days, hour, venue, price, memberPrice, bookingType, link],
   ] of diary.entries()) {
     const featured = i === 2
     await create('events', {
+      ...(writeUps[i] ? { body: writeUps[i] } : {}),
       title,
       category,
       startsAt: daysFromNow(days, hour),

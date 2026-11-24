@@ -172,9 +172,9 @@ export const checkNewsSameClub = sameClubCheck((data) => {
   ]
 })
 
-/** Events: the photo, and the page the button goes to. */
+/** Events: the photo, the write-up's photos and links, and the pages the buttons go to. */
 export const checkEventSameClub = sameClubCheck((data) => {
-  const refs: Ref[] = []
+  const refs: Ref[] = [...richTextRefs(data.body, 'body')]
   const image = idOf(data.image)
   if (image) refs.push({ collection: 'media', id: image, path: 'image' })
   const link = (data.link ?? {}) as { type?: string; page?: unknown }

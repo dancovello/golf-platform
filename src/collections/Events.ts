@@ -9,6 +9,9 @@ import { EVENT_CATEGORIES, EVENT_ENTRANTS } from './eventCategories'
 import { clubBannerField } from '../tenancy'
 import { searchHooks } from '../search/hooks'
 import { ukStartOfDay } from '../site/ukTime'
+import { clubRichText, dropEmptyPictures } from '../blocks/richText/lexical'
+import { SLUG, SLUG_MESSAGE } from '../fields/slug'
+import { eventSlug } from './eventSlug'
 
 /**
  * "No set start time": only the date counts, so it is stored as the start of that UK day.
@@ -23,7 +26,8 @@ const dateOnlyEvents: CollectionBeforeValidateHook = ({ data, originalDoc }) => 
 }
 
 // Club-owned (src/tenancy.ts): the club is required and editors only see their own events.
-// The website shows published events until they start, at /events and in Events blocks.
+// The website shows published events until they start, at /events and in Events blocks, and
+// each has its own page at /events/<address> (24 Nov 2026), which stays up after the day.
 export const Events: CollectionConfig = {
   slug: 'events',
   labels: { singular: 'Event', plural: 'Events' },
@@ -36,7 +40,9 @@ export const Events: CollectionConfig = {
     livePreview: eventLivePreview,
   },
   access: { create: clubContentCreate, read: loggedIn, update: loggedIn, delete: loggedIn },
-  hooks: { beforeValidate: [checkEventSameClub, dateOnlyEvents], ...searchHooks },
+  // An address only has to be unique within one club.
+  indexes: [{ fields: ['tenant', 'slug'], unique: true }],
+  hooks: { beforeValidate: [checkEventSameClub, dateOnlyEvents, eventSlug], ...searchHooks },
   defaultSort: 'startsAt',
   fields: [
     clubBannerField,
@@ -113,9 +119,22 @@ export const Events: CollectionConfig = {
       label: 'Summary (optional)',
       type: 'textarea',
       maxLength: 200,
-      admin: { description: 'One or two sentences, shown when the event is featured.' },
+      admin: {
+        description: 'One or two sentences, shown under the title and when the event is featured.',
+      },
     },
     imageField('image', 'Photo (optional)', false),
+    {
+      name: 'body',
+      label: 'About this event (optional)',
+      type: 'richText',
+      editor: clubRichText,
+      hooks: { beforeValidate: [({ value }) => dropEmptyPictures(value)] },
+      admin: {
+        description:
+          'Shown on the event’s own page: what to expect, the menu, the format, how to get there.',
+      },
+    },
     {
       type: 'row',
       fields: [
@@ -285,6 +304,20 @@ export const Events: CollectionConfig = {
       name: 'featured',
       label: 'Feature this event (Events block style C)',
       type: 'checkbox',
+    },
+    {
+      name: 'slug',
+      label: 'Web address',
+      type: 'text',
+      index: true,
+      maxLength: 80,
+      admin: {
+        position: 'sidebar',
+        description:
+          'Filled in from the title and year. e.g. "spring-open-2027" for /events/spring-open-2027.',
+      },
+      validate: (value: unknown) =>
+        !value || (typeof value === 'string' && SLUG.test(value)) ? true : SLUG_MESSAGE,
     },
   ],
 }

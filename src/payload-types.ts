@@ -1550,10 +1550,28 @@ export interface Event {
    */
   timeNote?: string | null;
   /**
-   * One or two sentences, shown when the event is featured.
+   * One or two sentences, shown under the title and when the event is featured.
    */
   summary?: string | null;
   image?: (string | null) | Media;
+  /**
+   * Shown on the event’s own page: what to expect, the menu, the format, how to get there.
+   */
+  body?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   /**
    * e.g. "£45" or "£20 entry"
    */
@@ -1612,6 +1630,10 @@ export interface Event {
     url?: string | null;
   };
   featured?: boolean | null;
+  /**
+   * Filled in from the title and year. e.g. "spring-open-2027" for /events/spring-open-2027.
+   */
+  slug?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -3941,6 +3963,7 @@ export interface EventsSelect<T extends boolean = true> {
   timeNote?: T;
   summary?: T;
   image?: T;
+  body?: T;
   price?: T;
   memberPrice?: T;
   booking?: T;
@@ -3970,6 +3993,7 @@ export interface EventsSelect<T extends boolean = true> {
         url?: T;
       };
   featured?: T;
+  slug?: T;
   updatedAt?: T;
   createdAt?: T;
 }
