@@ -415,14 +415,11 @@ a.tour-arrow:hover {
 }
 
 .tour-more {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-24);
-  padding-bottom: var(--space-96);
+  padding-top: var(--space-64);
 }
-.tour-about + .tour-more,
-.tour-picker-bar + .tour-more {
-  padding-top: 0;
+/* The gallery sits between the picker and "About the hole", so About needs less space above. */
+.tour-more + .tour-about {
+  padding-top: var(--space-64);
 }
 /* The gallery card: the same viewer as style C (photos, hole plan, video; expands full size). */
 .tour-gallery {
@@ -528,9 +525,11 @@ a.tour-arrow:hover {
   .tour-plan {
     width: 320px;
   }
-  .tour-more,
   .tour-neighbours {
     padding-bottom: var(--space-64);
+  }
+  .tour-more {
+    padding-top: var(--space-48);
   }
   .tour-gallery {
     height: 440px;
@@ -628,7 +627,10 @@ a.tour-arrow:hover {
     width: 100%;
   }
   .tour-more {
-    padding-bottom: var(--space-48);
+    padding-top: var(--space-24);
+  }
+  .tour-more + .tour-about {
+    padding-top: var(--space-32);
   }
   .tour-gallery {
     --tour-media-height: 260px;
@@ -1020,11 +1022,19 @@ a.tour-arrow:hover {
   padding: var(--space-40) 0 var(--space-32);
   background: var(--color-surface-brand);
   color: var(--color-text-on-inverse);
-  transition: padding 300ms ease-out;
+  transition:
+    padding 300ms ease-out,
+    margin 300ms ease-out;
 }
 /* Pinned under the header: the photos fold away (a smooth squeeze, not a jump) and the
-   heading, nine switch, names, pars and progress line stay. */
+   heading, nine switch, names, pars and progress line stay. The space it gives up is added
+   back as margin below it, so the page doesn't get shorter: otherwise the browser shifts the
+   scroll position, which unpins the strip again (a flicker) and brings the header back.
+   --film-fold is everything that folds: photo 76 + two gaps of 8 (photo, name, par) +
+   padding 28 + 20 + margins 12 + 12. */
 .tour-film[data-stuck='true'] {
+  --film-fold: 164px;
+  margin-bottom: var(--film-fold);
   padding: var(--space-12) 0;
 }
 .tour-film[data-stuck='true'] .tour-film-head,
@@ -1490,6 +1500,10 @@ a.tour-arrow:hover {
 
   .tour-film {
     padding: 20px 0 var(--space-16);
+  }
+  /* Phones: photo 64 + one gap of 6 (no par) + padding 8 + 4 (the margins don't change). */
+  .tour-film[data-stuck='true'] {
+    --film-fold: 82px;
   }
   .tour-film-head {
     margin-bottom: var(--space-12);

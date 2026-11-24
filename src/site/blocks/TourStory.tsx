@@ -88,8 +88,9 @@ const NeighbourCard = ({
 /**
  * Course tour A · Hole story (Figma 415:2962; mobile 417:3972…). A full-width photo with a huge
  * hole number, name and facts; the video and plan as buttons on it. Then a sticky numbered hole
- * picker, "About the hole" beside the tee card, "How to play it", the plan beside the pro's
- * tip, the hole's other photos, and large cards to the holes either side.
+ * picker; the hole's photos, plan and video in the same viewer as style C (pictures before
+ * words); "About the hole" beside the tee card; "How to play it"; the plan beside the pro's
+ * tip; and large cards to the holes either side.
  */
 export const TourStory = ({ tour }: { tour: Tour }) => {
   const { hole, course } = tour
@@ -158,6 +159,23 @@ export const TourStory = ({ tour }: { tour: Tour }) => {
         </TourPicker>
       </TourStickyBar>
 
+      {/* The hole's photos, plan and video straight under the picker, as in style C: the
+          pictures come before the words. */}
+      {more.length || hole.video ? (
+        <div className="tour-wrap tour-more">
+          <div className="tour-gallery on-brand">
+            <TourMedia
+              photos={hole.photos}
+              plan={hole.plan}
+              video={hole.video}
+              title={holeTitle(hole)}
+              number={pad2(hole.number)}
+              sizes="(max-width: 1023px) 100vw, 1200px"
+            />
+          </div>
+        </div>
+      ) : null}
+
       {hasAbout(tour) ? (
         <div className="tour-wrap tour-about">
           {hole.description || hole.hazards.length ? (
@@ -209,22 +227,6 @@ export const TourStory = ({ tour }: { tour: Tour }) => {
             </div>
           ) : null}
           <TourTip tour={tour} size="l" />
-        </div>
-      ) : null}
-
-      {more.length || hole.video ? (
-        <div className="tour-wrap tour-more">
-          <h2 className="t-eyebrow tour-eyebrow">More from this hole</h2>
-          <div className="tour-gallery on-brand">
-            <TourMedia
-              photos={hole.photos}
-              plan={hole.plan}
-              video={hole.video}
-              title={holeTitle(hole)}
-              number={pad2(hole.number)}
-              sizes="(max-width: 1023px) 100vw, 1200px"
-            />
-          </div>
         </div>
       ) : null}
 
