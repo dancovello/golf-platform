@@ -2,6 +2,12 @@ import config from '@payload-config'
 import { getPayload, type Where } from 'payload'
 
 import { EVENT_CATEGORIES, EVENT_ENTRANTS, eventCategoryLabel } from '@/collections/eventCategories'
+import {
+  columnHeading,
+  resultColumns,
+  type ResultRow,
+  richTextHasText,
+} from '@/collections/eventResultOptions'
 import { builtInLink, isSafeURL, linksToPage } from '@/fields/link'
 
 import { loadClubMedia, type SiteMedia } from './blocks/media'
@@ -45,6 +51,8 @@ export type SiteEvent = {
   ballot: boolean
   /** The results: a document, page or web address, once the club adds them. */
   results: SiteLink | null
+  /** Results built into the event's own page (24 Nov 2026). */
+  hasResults: boolean
 }
 
 /** The archive shows this many at first, and this many more each time. */
@@ -75,6 +83,7 @@ type EventDoc = {
   entriesClose?: string | null
   ballot?: boolean | null
   results?: LinkDoc | null
+  hasResults?: boolean | null
 }
 
 type LinkDoc = {
@@ -188,6 +197,7 @@ const toEvents = async (tenantID: string, docs: EventDoc[]): Promise<SiteEvent[]
       entriesClose: d.entriesClose ?? null,
       ballot: Boolean(d.ballot),
       results: toLink(d.results),
+      hasResults: Boolean(d.hasResults),
     }
   })
 }
@@ -321,8 +331,8 @@ export const eventsArchive = (
 export const RESULTS_LIMIT = 24
 
 /**
- * Past events with results, newest first (G3): published events that have started and have a
- * results document, page or web address.
+ * Past events with results, newest first (G3): published events that have started and have
+ * results built in (24 Nov 2026) or a results document, page or web address.
  */
 const clubResultsFresh = async (tenantID: string): Promise<SiteEvent[]> => {
   const { docs } = await getPayload({ config }).then((payload) =>
@@ -335,6 +345,7 @@ const clubResultsFresh = async (tenantID: string): Promise<SiteEvent[]> => {
           { startsAt: { less_than_equal: siteToday().toISOString() } },
           {
             or: [
+              { hasResults: { equals: true } },
               { 'results.page': { exists: true } },
               { 'results.document': { exists: true } },
               { 'results.url': { exists: true } },
@@ -351,13 +362,113 @@ const clubResultsFresh = async (tenantID: string): Promise<SiteEvent[]> => {
   )
   const events = await toEvents(tenantID, docs as unknown as EventDoc[])
   // A results link to a page or file that has since gone is left out.
-  return events.filter((e) => e.results !== null)
+  return events.filter((e) => e.hasResults || e.results !== null)
 }
 export const clubResults = clubCached('clubResults', clubResultsFresh, { today: true })
+
+/** One results table as the page draws it: headings and rows in the club's own order. */
+export type SiteResultTable = {
+  title: string
+  note: string | null
+  who: string
+  score: string
+  keys: (keyof ResultRow)[]
+  headings: string[]
+  rows: Record<keyof ResultRow, string>[]
+}
+
+export type SiteMatch = {
+  round: string | null
+  sideA: string
+  sideB: string
+  result: string | null
+  winner: 'a' | 'b' | 'halved' | null
+}
+
+export type SitePrize = { prize: string; winner: string; detail: string | null }
+
+/** Results built into an event (24 Nov 2026). Null when the club has added none. */
+export type SiteResults = {
+  report: unknown
+  tables: SiteResultTable[]
+  matches: SiteMatch[]
+  prizes: SitePrize[]
+}
+
+type ResultsDoc = {
+  resultsReport?: unknown
+  resultTables?:
+    | {
+        title?: string | null
+        note?: string | null
+        who?: string | null
+        score?: string | null
+        columns?: string[] | null
+        rounds?: string | null
+        rows?: ResultRow[] | null
+      }[]
+    | null
+  matches?:
+    | {
+        round?: string | null
+        sideA?: string | null
+        sideB?: string | null
+        result?: string | null
+        winner?: string | null
+      }[]
+    | null
+  prizes?: { prize?: string | null; winner?: string | null; detail?: string | null }[] | null
+}
+
+const text = (v: string | null | undefined) => v?.trim() || ''
+
+/** The results as the page shows them: empty tables, matches and prizes are left out. */
+export const toResults = (doc: ResultsDoc): SiteResults | null => {
+  const tables = (doc.resultTables ?? [])
+    .filter((t) => (t.rows?.length ?? 0) > 0)
+    .map((t) => {
+      const keys = resultColumns(t)
+      return {
+        title: text(t.title) || 'Results',
+        note: text(t.note) || null,
+        who: t.who ?? 'individuals',
+        score: t.score ?? 'score',
+        keys,
+        headings: keys.map((k) => columnHeading(k, t)),
+        rows: (t.rows ?? []).map((r, i) => {
+          const row = Object.fromEntries(keys.map((k) => [k, text(r[k])])) as Record<
+            keyof ResultRow,
+            string
+          >
+          // Positions fill themselves in (1, 2, 3 …) unless the club typed its own ("=2").
+          row.position = row.position || String(i + 1)
+          return row
+        }),
+      }
+    })
+  const matches = (doc.matches ?? [])
+    .filter((m) => text(m.sideA) && text(m.sideB))
+    .map((m): SiteMatch => ({
+      round: text(m.round) || null,
+      sideA: text(m.sideA),
+      sideB: text(m.sideB),
+      result: text(m.result) || null,
+      winner: m.winner === 'a' || m.winner === 'b' || m.winner === 'halved' ? m.winner : null,
+    }))
+  const prizes = (doc.prizes ?? [])
+    .filter((p) => text(p.prize) && text(p.winner))
+    .map((p) => ({ prize: text(p.prize), winner: text(p.winner), detail: text(p.detail) || null }))
+  const report = richTextHasText(doc.resultsReport) ? doc.resultsReport : null
+  return tables.length || matches.length || prizes.length || report
+    ? { report, tables, matches, prizes }
+    : null
+}
 
 /** An event's own page (24 Nov 2026): the event, its write-up, and what's on next. */
 export type SiteEventPage = SiteEvent & {
   body: unknown
+  /** Results built in; shown once the event has taken place. */
+  builtInResults: SiteResults | null
   ctx: BlockContext
   /** The event has started (or, with no set time, its day has ended). */
   past: boolean
@@ -389,18 +500,23 @@ const loadEventPageFresh = async (
     },
     1,
   )
-  const doc = docs[0] as (EventDoc & { body?: unknown }) | undefined
+  const doc = docs[0] as (EventDoc & ResultsDoc & { body?: unknown }) | undefined
   if (!doc) return null
   const payload = await getPayload({ config })
   const [[event], ctx, upcoming] = await Promise.all([
     toEvents(tenantID, [doc]),
-    // The write-up is drawn like a Text block, so its photos and links are checked the same way.
-    loadBlockContext(payload, tenantID, [{ blockType: 'richText', content: doc.body }]),
+    // The write-up and the results report are drawn like Text blocks, so their photos and links
+    // are checked the same way.
+    loadBlockContext(payload, tenantID, [
+      { blockType: 'richText', content: doc.body },
+      { blockType: 'richText', content: doc.resultsReport },
+    ]),
     upcomingEvents(tenantID, 4),
   ])
   return {
     ...event,
     body: doc.body ?? null,
+    builtInResults: toResults(doc),
     ctx,
     past: eventEnds(event) <= siteToday(),
     more: upcoming.filter((e) => e.id !== event.id).slice(0, 3),
