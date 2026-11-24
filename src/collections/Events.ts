@@ -12,6 +12,7 @@ import { ukStartOfDay } from '../site/ukTime'
 import { clubRichText, dropEmptyPictures } from '../blocks/richText/lexical'
 import { SLUG, SLUG_MESSAGE } from '../fields/slug'
 import { eventSlug } from './eventSlug'
+import { eventResultsFields, fillResults } from './eventResultsFields'
 
 /**
  * "No set start time": only the date counts, so it is stored as the start of that UK day.
@@ -42,7 +43,10 @@ export const Events: CollectionConfig = {
   access: { create: clubContentCreate, read: loggedIn, update: loggedIn, delete: loggedIn },
   // An address only has to be unique within one club.
   indexes: [{ fields: ['tenant', 'slug'], unique: true }],
-  hooks: { beforeValidate: [checkEventSameClub, dateOnlyEvents, eventSlug], ...searchHooks },
+  hooks: {
+    beforeValidate: [fillResults, checkEventSameClub, dateOnlyEvents, eventSlug],
+    ...searchHooks,
+  },
   defaultSort: 'startsAt',
   fields: [
     clubBannerField,
@@ -194,12 +198,13 @@ export const Events: CollectionConfig = {
       required: false,
     }),
     {
-      // Open competitions (G3, 15 Nov 2026): the rules golfers look for, when entries open and
-      // close, and the results. Entry itself stays on the club's own system (the link above).
-      // Only for competitions (the category above), so a quiz night or dinner isn't asked about
+      // Open competitions (G3, 15 Nov 2026): the rules golfers look for and when entries open
+      // and close. Entry itself stays on the club's own system (the link above). Only for
+      // competitions (the category above), so a quiz night or dinner isn't asked about
       // handicaps. If an event of another category already has details, they stay visible.
+      // The results moved to their own panel below (24 Nov 2026).
       type: 'collapsible',
-      label: 'Competition details and results (optional)',
+      label: 'Competition details (optional)',
       admin: {
         initCollapsed: true,
         condition: (data) =>
@@ -210,11 +215,7 @@ export const Events: CollectionConfig = {
             data?.format ||
             data?.entriesOpen ||
             data?.entriesClose ||
-            data?.ballot ||
-            data?.results?.page ||
-            data?.results?.document ||
-            data?.results?.url ||
-            data?.results?.builtIn,
+            data?.ballot,
           ),
       },
       fields: [
@@ -291,15 +292,9 @@ export const Events: CollectionConfig = {
           type: 'checkbox',
           defaultValue: false,
         },
-        linkField({
-          name: 'results',
-          label: 'Results (optional)',
-          withLabel: false,
-          required: false,
-          allowDocument: true,
-        }),
       ],
     },
+    ...eventResultsFields,
     {
       name: 'featured',
       label: 'Feature this event (Events block style C)',

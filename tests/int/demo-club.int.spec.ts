@@ -97,7 +97,8 @@ describe('the demo club', () => {
       collection: 'news' | 'events' | 'staff' | 'courses' | 'documents' | 'enquiries',
     ) => (await w.payload.count({ collection, where: own, overrideAccess: true })).totalDocs
     expect(await count('news')).toBe(12)
-    expect(await count('events')).toBe(8)
+    // Eight coming up, plus two past ones with results (24 Nov 2026).
+    expect(await count('events')).toBe(10)
     expect(await count('staff')).toBe(10)
     expect(await count('courses')).toBe(2)
     expect(await count('documents')).toBe(10)

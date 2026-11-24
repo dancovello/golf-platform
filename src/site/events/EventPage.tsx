@@ -6,6 +6,7 @@ import { ArrowRight, Clock, Pin } from '../components/Icons'
 import { linkTarget, siteHref } from '../components/links'
 import type { SiteEventPage } from '../events'
 import { NewsCarousel } from '../news/NewsCarousel'
+import { EventResults } from './EventResults'
 import { ShareLink } from '../news/ShareLink'
 import {
   BOOKING_LABELS,
@@ -39,10 +40,13 @@ const longDate = (iso: string) =>
  * the news article's layout. Breadcrumb, title, summary; the details (when, where, who can
  * enter, format, price, places left) with the Book / Enter / Enquire button; the photo; the
  * club's write-up; then more of what's on. After the day the button gives way to the results,
- * when the club has added them, or a short "this has taken place" line.
+ * when the club has added them, or a short "this has taken place" line. Results built into the
+ * event (EventResults) show below the write-up.
  */
 export const EventPage = ({ event, base }: { event: SiteEventPage; base: string }) => {
   const status = entryStatus(event)
+  // Results built in show once the event has taken place (24 Nov 2026, plan part 2).
+  const shownResults = event.past ? event.builtInResults : null
   const who = eventWho(event)
   const format = eventFormat(event)
   const price = eventPrice(event)
@@ -101,7 +105,11 @@ export const EventPage = ({ event, base }: { event: SiteEventPage; base: string 
               </dl>
               <div className="event-post-actions">
                 {event.past ? (
-                  event.results ? (
+                  shownResults ? (
+                    <a className="btn btn-solid t-label-button" href="#results">
+                      See the results <ArrowRight />
+                    </a>
+                  ) : event.results ? (
                     <a
                       className="btn btn-solid t-label-button"
                       href={siteHref(base, event.results)}
@@ -145,6 +153,9 @@ export const EventPage = ({ event, base }: { event: SiteEventPage; base: string 
               </div>
             </div>
           </div>
+        ) : null}
+        {shownResults ? (
+          <EventResults results={shownResults} file={event.results} ctx={event.ctx} base={base} />
         ) : null}
         <footer className="news-page news-post-footer">
           <a className="btn btn-outline t-label-button" href={`${base}/events`}>

@@ -1616,6 +1616,100 @@ export interface Event {
    */
   entriesClose?: string | null;
   ballot?: boolean | null;
+  /**
+   * e.g. "Glorious sunshine for the Spring Open, and 84 players…"
+   */
+  resultsReport?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * One table for each list you publish: Overall, Division 1, Best gross, Ladies, Seniors… Several tables show as tabs.
+   */
+  resultTables?:
+    | {
+        /**
+         * e.g. "Division 1" or "Best gross"
+         */
+        title: string;
+        who: 'individuals' | 'pairs' | 'teams';
+        score: 'points' | 'nett' | 'gross' | 'toPar' | 'score';
+        /**
+         * e.g. "Handicap index 0 to 18.0" or "Playing handicap 95%"
+         */
+        note?: string | null;
+        columns?: ('club' | 'handicap' | 'rounds' | 'gross' | 'note')[] | null;
+        rounds?: ('2' | '3' | '4') | null;
+        /**
+         * Copy the rows from HowDidiDo, IntelligentGolf or Excel and paste them here. When you save, they replace the rows below. Columns in this order: position, name, then any extra columns you ticked (club, handicap, rounds, gross), the score, then the note.
+         */
+        paste?: string | null;
+        rows?:
+          | {
+              /**
+               * Optional: filled in 1, 2, 3… Type "=2" for a tie.
+               */
+              position?: string | null;
+              /**
+               * Pairs and teams: separate the names with “/”.
+               */
+              name?: string | null;
+              club?: string | null;
+              handicap?: string | null;
+              r1?: string | null;
+              r2?: string | null;
+              r3?: string | null;
+              r4?: string | null;
+              gross?: string | null;
+              score?: string | null;
+              note?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * For knockouts and match play: one row per match, grouped by round on the page. Add the final first.
+   */
+  matches?:
+    | {
+        round?: string | null;
+        sideA: string;
+        sideB: string;
+        /**
+         * e.g. "3 & 2" or "at 19th"
+         */
+        result?: string | null;
+        winner?: ('a' | 'b' | 'halved') | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * e.g. nearest the pin, longest drive, twos sweep.
+   */
+  prizes?:
+    | {
+        prize: string;
+        winner: string;
+        /**
+         * e.g. "7th hole, 2 ft 3 in"
+         */
+        detail?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   results?: {
     type?: ('page' | 'builtIn' | 'url' | 'document') | null;
     page?: (string | null) | Page;
@@ -1629,6 +1723,7 @@ export interface Event {
      */
     url?: string | null;
   };
+  hasResults?: boolean | null;
   featured?: boolean | null;
   /**
    * Filled in from the title and year. e.g. "spring-open-2027" for /events/spring-open-2027.
@@ -3983,6 +4078,53 @@ export interface EventsSelect<T extends boolean = true> {
   entriesOpen?: T;
   entriesClose?: T;
   ballot?: T;
+  resultsReport?: T;
+  resultTables?:
+    | T
+    | {
+        title?: T;
+        who?: T;
+        score?: T;
+        note?: T;
+        columns?: T;
+        rounds?: T;
+        paste?: T;
+        rows?:
+          | T
+          | {
+              position?: T;
+              name?: T;
+              club?: T;
+              handicap?: T;
+              r1?: T;
+              r2?: T;
+              r3?: T;
+              r4?: T;
+              gross?: T;
+              score?: T;
+              note?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  matches?:
+    | T
+    | {
+        round?: T;
+        sideA?: T;
+        sideB?: T;
+        result?: T;
+        winner?: T;
+        id?: T;
+      };
+  prizes?:
+    | T
+    | {
+        prize?: T;
+        winner?: T;
+        detail?: T;
+        id?: T;
+      };
   results?:
     | T
     | {
@@ -3992,6 +4134,7 @@ export interface EventsSelect<T extends boolean = true> {
         builtIn?: T;
         url?: T;
       };
+  hasResults?: T;
   featured?: T;
   slug?: T;
   updatedAt?: T;

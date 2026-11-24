@@ -1,6 +1,6 @@
 # Plan: event pages and built-in results
 
-Written 24 Nov 2026. **Approved by Dan (24 Nov), with the recommended answers to the four questions. Part 1 built; part 2 next.** Dan's idea: an event works like a news article. It has its own page where the club can write about it, and after a competition the club adds the results to that same page. Golfers then find everything in one place.
+Written 24 Nov 2026. **Approved by Dan (24 Nov), with the recommended answers to the four questions. Part 1 built (#389); part 2 built (results).** Dan's idea: an event works like a news article. It has its own page where the club can write about it, and after a competition the club adds the results to that same page. Golfers then find everything in one place.
 
 ## Where we are today
 

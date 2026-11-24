@@ -835,6 +835,115 @@ export const buildDemoClub = async (payload: Payload) => {
     })
   }
 
+  // ---------- Results built into past events (24 Nov 2026, event pages part 2) ----------
+  // A stableford with two divisions, best gross and side prizes, and a match play knockout,
+  // so the results on an event's page can be seen and pictured. Made-up names.
+  await create('events', {
+    title: 'Captain’s Prize Stableford',
+    category: 'competition',
+    startsAt: daysFromNow(-6, 7),
+    venue: 'Championship course',
+    timeNote: 'shotgun',
+    status: 'published',
+    entrants: ['men'],
+    format: 'Stableford, yellow tees',
+    eligibility: 'Members with a handicap index',
+    image: morning.id,
+    summary: 'Our captain’s day: 18 holes of stableford, then lunch and prize-giving.',
+    resultsReport: rt.doc(
+      rt.p(
+        'Sunshine and a light breeze for 64 players. Tom Hardacre took the Captain’s Prize with 42 points, two clear of the field, and Ravi Patel won Division 2 on countback.',
+      ),
+    ),
+    resultTables: [
+      {
+        title: 'Division 1',
+        note: 'Handicap index 0 to 18.0 · playing handicap 95%',
+        who: 'individuals',
+        score: 'points',
+        columns: ['handicap', 'note'],
+        rows: [
+          { name: 'Tom Hardacre', handicap: '12', score: '42' },
+          { name: 'Gareth Pryce', handicap: '8', score: '40', note: 'Countback: last 9' },
+          { name: 'Simon Okafor', handicap: '15', score: '40' },
+          { position: '4', name: 'Neil Bramley', handicap: '4', score: '38' },
+          { name: 'Chris Dunmore', handicap: '17', score: '37' },
+          { name: 'Alan Fairweather', handicap: '11', score: 'NR' },
+        ],
+      },
+      {
+        title: 'Division 2',
+        note: 'Handicap index 18.1 to 54.0',
+        who: 'individuals',
+        score: 'points',
+        columns: ['handicap', 'note'],
+        rows: [
+          { name: 'Ravi Patel', handicap: '24', score: '39', note: 'Countback: last 6' },
+          { name: 'Martin Lowe', handicap: '21', score: '39' },
+          { name: 'Derek Ashby', handicap: '28', score: '36' },
+        ],
+      },
+      {
+        title: 'Best gross',
+        who: 'individuals',
+        score: 'gross',
+        columns: ['handicap'],
+        rows: [
+          { name: 'Neil Bramley', handicap: '4', score: '74' },
+          { name: 'Gareth Pryce', handicap: '8', score: '79' },
+        ],
+      },
+      {
+        title: 'Pairs sweep',
+        who: 'pairs',
+        score: 'points',
+        columns: ['club'],
+        rows: [
+          { name: 'Tom Hardacre / Ravi Patel', club: 'Heathcote', score: '81' },
+          { name: 'Neil Bramley / Martin Lowe', club: 'Heathcote', score: '77' },
+        ],
+      },
+    ],
+    prizes: [
+      { prize: 'Nearest the pin', winner: 'Simon Okafor', detail: '7th hole, 2 ft 3 in' },
+      { prize: 'Longest drive', winner: 'Chris Dunmore', detail: '18th hole' },
+      { prize: 'Twos sweep', winner: 'Five twos', detail: '£12 each' },
+    ],
+  })
+  await create('events', {
+    title: 'Club Matchplay Championship',
+    category: 'competition',
+    startsAt: daysFromNow(-12, 9),
+    venue: 'Championship course',
+    status: 'published',
+    entrants: ['men', 'women'],
+    format: 'Scratch match play knockout',
+    image: dusk.id,
+    matches: [
+      {
+        round: 'Final',
+        sideA: 'Neil Bramley',
+        sideB: 'Hannah Cole',
+        result: 'at 19th',
+        winner: 'b',
+      },
+      {
+        round: 'Semi-finals',
+        sideA: 'Neil Bramley',
+        sideB: 'Gareth Pryce',
+        result: '3 & 2',
+        winner: 'a',
+      },
+      {
+        round: 'Semi-finals',
+        sideA: 'Hannah Cole',
+        sideB: 'Tom Hardacre',
+        result: '1 up',
+        winner: 'a',
+      },
+    ],
+  })
+
   // ---------- Enquiries (as if sent from the Contact page) ----------
   const enquiries: [string, string, string, string, Record<string, unknown>][] = [
     [

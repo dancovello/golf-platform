@@ -582,3 +582,143 @@
 .event-post .news-post-footer {
   padding-top: var(--space-32);
 }
+
+/* ---------- Results on an event's page (24 Nov 2026, plan part 2) ----------
+   No Figma frame yet: the tables borrow the price table's rules and type; the column of the
+   article text (792) for the report, the full container for wide tables. */
+.er {
+  /* Keeps the block's side gutter (40, phones 20). */
+  padding: var(--space-48) var(--blk-gutter) var(--space-16);
+}
+.er-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-40);
+  max-width: 960px;
+}
+.er-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  padding-top: var(--space-32);
+  border-top: 1px solid var(--color-border-strong);
+}
+.er-head h2,
+.er-winner {
+  margin: 0;
+}
+.er-winner-label {
+  margin-right: var(--space-8);
+  color: var(--color-text-brand);
+}
+.er-report {
+  max-width: 792px;
+}
+.er-subtitle {
+  margin: 0 0 var(--space-16);
+}
+.er-tables .tabs {
+  margin-bottom: var(--space-16);
+}
+.er-note {
+  margin: 0 0 var(--space-12);
+  color: var(--color-text-secondary);
+}
+.er-scroll {
+  overflow-x: auto;
+}
+.er-scroll:focus-visible {
+  outline: 2px solid var(--color-action-accent);
+  outline-offset: 2px;
+}
+.er-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.er-table th,
+.er-table td {
+  padding: var(--space-12) var(--space-16) var(--space-12) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+  text-align: left;
+  vertical-align: top;
+  white-space: nowrap;
+}
+.er-table thead th {
+  border-bottom-color: var(--color-border-strong);
+  color: var(--color-text-secondary);
+}
+.er-table tbody th {
+  font-weight: 400;
+  white-space: normal;
+  min-width: 160px;
+}
+.er-table .er-col-position {
+  width: 48px;
+  color: var(--color-text-secondary);
+}
+.er-table .er-col-score {
+  font-weight: 600;
+}
+.er-table .er-col-note {
+  white-space: normal;
+  color: var(--color-text-secondary);
+}
+.er-table tbody tr:first-child th,
+.er-table tbody tr:first-child .er-col-score {
+  font-weight: 600;
+}
+.er-name {
+  display: block;
+}
+.er-round + .er-round {
+  margin-top: var(--space-24);
+}
+.er-round-title {
+  margin: 0 0 var(--space-8);
+  color: var(--color-text-secondary);
+}
+.er-match-list,
+.er-prize-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.er-match {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-4) var(--space-8);
+  padding: var(--space-12) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.er-vs,
+.er-prize-detail {
+  color: var(--color-text-secondary);
+}
+.er-side.is-winner {
+  font-weight: 600;
+}
+.er-result {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+.er-prize {
+  display: grid;
+  grid-template-columns: minmax(140px, 1fr) 2fr;
+  gap: var(--space-16);
+  padding: var(--space-12) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.er-prize dt {
+  color: var(--color-text-secondary);
+}
+.er-prize dd {
+  margin: 0;
+}
+@media (max-width: 767px) {
+  .er-prize {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+}
