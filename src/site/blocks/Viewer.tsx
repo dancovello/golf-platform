@@ -2,7 +2,7 @@
 
 import { type TouchEvent, useCallback, useEffect, useRef } from 'react'
 
-import { ChevronLeft, ChevronRight, Close } from '../components/Icons'
+import { ArrowLeft, ArrowRight, Close } from '../components/Icons'
 
 export type ViewerItem = {
   src: string
@@ -129,7 +129,7 @@ export const Viewer = ({
             aria-label="Previous photo"
             onClick={() => go(-1)}
           >
-            <ChevronLeft />
+            <ArrowLeft size={18} />
           </button>
         ) : null}
         <figure className="vw-figure">
@@ -153,7 +153,7 @@ export const Viewer = ({
             aria-label="Next photo"
             onClick={() => go(1)}
           >
-            <ChevronRight />
+            <ArrowRight size={18} />
           </button>
         ) : null}
       </div>

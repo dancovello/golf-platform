@@ -173,10 +173,32 @@
     align-items: flex-start;
     gap: var(--space-12);
   }
+  /* B on phones: the pill and the pager share the first row, and the notice gets a row of
+     its own so the words can use the full width of the bar. */
+  .ab-rotator .ab-inner {
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4) var(--space-12);
+  }
   .ab-rotator .ab-notice {
-    flex-direction: column;
-    align-items: flex-start;
+    display: contents;
+  }
+  .ab-rotator .ab-tag {
+    order: 1;
+  }
+  .ab-rotator .ab-controls {
+    order: 2;
+    margin-left: auto;
     gap: var(--space-8);
+  }
+  .ab-rotator .ab-text {
+    order: 3;
+    flex: 1 0 100%;
+  }
+  .ab .ab-tag {
+    padding: 2px var(--space-8);
+    font-size: 11px;
+    line-height: 16px;
   }
   /* C on phones: the utilities shrink to the status dot and a phone icon. */
   .ab-utility-text {

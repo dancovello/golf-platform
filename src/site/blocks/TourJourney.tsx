@@ -8,6 +8,7 @@ import { Tabs } from './Tabs'
 import { holeTitle, type Tour } from './tour'
 import { TourFilmstrip } from './TourFilmstrip'
 import { TourMedia } from './TourMedia'
+import { TourStickyBar } from './TourStickyBar'
 import {
   TourFacts,
   TourHazards,
@@ -87,7 +88,7 @@ export const TourJourney = ({ tour }: { tour: Tour }) => {
   ]
   return (
     <section className="tour tour-journey">
-      <div className="tour-film on-brand">
+      <TourStickyBar className="tour-film on-brand">
         <div className="tour-wrap">
           <TourFilmstrip
             heading={tour.heading}
@@ -102,7 +103,7 @@ export const TourJourney = ({ tour }: { tour: Tour }) => {
             }))}
           />
         </div>
-      </div>
+      </TourStickyBar>
 
       <div className="tour-wrap tour-journey-head">
         <div className="tour-journey-media on-brand">

@@ -92,6 +92,7 @@ import * as migration_20261115_205035_enquiry_extras from './20261115_205035_enq
 import * as migration_20261119_203407_ico_number from './20261119_203407_ico_number';
 import * as migration_20261122_214139_chip_default_wording from './20261122_214139_chip_default_wording';
 import * as migration_20261122_230105_keep_club_out_of_search from './20261122_230105_keep_club_out_of_search';
+import * as migration_20261123_235318_logo_opaque_flag from './20261123_235318_logo_opaque_flag';
 
 export const migrations = [
   {
@@ -562,6 +563,11 @@ export const migrations = [
   {
     up: migration_20261122_230105_keep_club_out_of_search.up,
     down: migration_20261122_230105_keep_club_out_of_search.down,
-    name: '20261122_230105_keep_club_out_of_search'
+    name: '20261122_230105_keep_club_out_of_search',
+  },
+  {
+    up: migration_20261123_235318_logo_opaque_flag.up,
+    down: migration_20261123_235318_logo_opaque_flag.down,
+    name: '20261123_235318_logo_opaque_flag'
   },
 ];
