@@ -1,6 +1,7 @@
 import type { CollectionBeforeDeleteHook, Field, PayloadRequest } from 'payload'
 
 import { publicError } from '../errors'
+import { DELETING_CLUB } from '../tenancy'
 
 /**
  * Where a photo or video is used (QA-27, 17 Nov 2026). Deleting one that a published page uses
@@ -51,6 +52,8 @@ export const describeUses = (uses: string[]) =>
 export const refuseDeleteInUse: CollectionBeforeDeleteHook = async ({ id, req }) => {
   // Only an editor's own deleting is checked: trusted scripts (clean-ups, tests) have no sign-in.
   if (!req.user) return
+  // The whole club is being deleted, with everything that uses this file.
+  if (req.context[DELETING_CLUB]) return
   const uses = await findUses(req, id)
   if (uses.length === 0) return
   throw publicError(
