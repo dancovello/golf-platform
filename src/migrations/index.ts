@@ -95,6 +95,7 @@ import * as migration_20261122_230105_keep_club_out_of_search from './20261122_2
 import * as migration_20261123_235318_logo_opaque_flag from './20261123_235318_logo_opaque_flag';
 import * as migration_20261124_104632_event_pages from './20261124_104632_event_pages';
 import * as migration_20261124_111003_event_results from './20261124_111003_event_results';
+import * as migration_20261125_164738_demo_visits from './20261125_164738_demo_visits';
 
 export const migrations = [
   {
@@ -580,6 +581,11 @@ export const migrations = [
   {
     up: migration_20261124_111003_event_results.up,
     down: migration_20261124_111003_event_results.down,
-    name: '20261124_111003_event_results'
+    name: '20261124_111003_event_results',
+  },
+  {
+    up: migration_20261125_164738_demo_visits.up,
+    down: migration_20261125_164738_demo_visits.down,
+    name: '20261125_164738_demo_visits'
   },
 ];

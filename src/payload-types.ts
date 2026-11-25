@@ -82,6 +82,7 @@ export interface Config {
     'agreement-acceptances': AgreementAcceptance;
     tenants: Tenant;
     'audit-log': AuditLog;
+    'demo-visits': DemoVisit;
     'marketing-pages': MarketingPage;
     'marketing-media': MarketingMedia;
     'homepage-requests': HomepageRequest;
@@ -109,6 +110,7 @@ export interface Config {
     'agreement-acceptances': AgreementAcceptancesSelect<false> | AgreementAcceptancesSelect<true>;
     tenants: TenantsSelect<false> | TenantsSelect<true>;
     'audit-log': AuditLogSelect<false> | AuditLogSelect<true>;
+    'demo-visits': DemoVisitsSelect<false> | DemoVisitsSelect<true>;
     'marketing-pages': MarketingPagesSelect<false> | MarketingPagesSelect<true>;
     'marketing-media': MarketingMediaSelect<false> | MarketingMediaSelect<true>;
     'homepage-requests': HomepageRequestsSelect<false> | HomepageRequestsSelect<true>;
@@ -2355,6 +2357,20 @@ export interface AuditLog {
   clubId?: string | null;
   target?: string | null;
   detail?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Each time a page of a prospect demo was opened: the time and the page only. Shown on each club’s page under its demo link. Deleted 120 days after the visit.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "demo-visits".
+ */
+export interface DemoVisit {
+  id: string;
+  clubId: string;
+  visitedAt: string;
+  page: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -4690,6 +4706,17 @@ export interface AuditLogSelect<T extends boolean = true> {
   clubId?: T;
   target?: T;
   detail?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "demo-visits_select".
+ */
+export interface DemoVisitsSelect<T extends boolean = true> {
+  clubId?: T;
+  visitedAt?: T;
+  page?: T;
   updatedAt?: T;
   createdAt?: T;
 }

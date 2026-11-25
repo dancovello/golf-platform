@@ -33,6 +33,7 @@ import { TOTPField as TOTPField_4eaf6cb33cfb75be01716613e3c9a512 } from 'payload
 import { InviteEditorButton as InviteEditorButton_ed6924b166afdc0cc951a5635a759e32 } from '../../../admin/InviteEditorButton'
 import { AgreementText as AgreementText_ccfb96bd008288f196e6336a2e0a5cfe } from '../../../admin/AgreementText'
 import { DemoLinkField as DemoLinkField_c223d40374028e7b937f2aefc2cd954b } from '../../../admin/DemoLinkField'
+import { DemoVisitsField as DemoVisitsField_3e6b1508cbcd52730a64f9e3cdb27fc1 } from '../../../admin/DemoVisitsField'
 import { WatchTenantCollection as WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
 import { DemoClubPanel as DemoClubPanel_d501804340c10bdbd462804989163cd4 } from '../../../admin/DemoClubPanel'
 import { FounderNote as FounderNote_e706a6810c986a3f9100476d0cd6244f } from '../../../marketing/admin/FounderNote'
@@ -88,6 +89,7 @@ export const importMap = {
   "/admin/InviteEditorButton#InviteEditorButton": InviteEditorButton_ed6924b166afdc0cc951a5635a759e32,
   "/admin/AgreementText#AgreementText": AgreementText_ccfb96bd008288f196e6336a2e0a5cfe,
   "/admin/DemoLinkField#DemoLinkField": DemoLinkField_c223d40374028e7b937f2aefc2cd954b,
+  "/admin/DemoVisitsField#DemoVisitsField": DemoVisitsField_3e6b1508cbcd52730a64f9e3cdb27fc1,
   "@payloadcms/plugin-multi-tenant/client#WatchTenantCollection": WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a,
   "/admin/DemoClubPanel#DemoClubPanel": DemoClubPanel_d501804340c10bdbd462804989163cd4,
   "/marketing/admin/FounderNote#FounderNote": FounderNote_e706a6810c986a3f9100476d0cd6244f,

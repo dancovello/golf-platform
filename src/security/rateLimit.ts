@@ -118,6 +118,13 @@ export const TWO_FACTOR_CODE_LIMIT: Limit = {
   max: 30,
   windowSeconds: 24 * 60 * 60,
 }
+/** Visits saved per prospect demo per day (src/site/demoVisits.ts): far more than a club looking
+ * at its demo, few enough that nobody can fill the table. Past this, visits aren't counted. */
+export const DEMO_VISITS_PER_DAY: Limit = {
+  name: 'demo-visit',
+  max: 300,
+  windowSeconds: 24 * 60 * 60,
+}
 /** Security policy reports, from all visitors together: they only go to the log. */
 export const CSP_REPORT_LIMIT: Limit = { name: 'csp-report', max: 60, windowSeconds: 60 }
 
