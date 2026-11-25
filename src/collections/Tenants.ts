@@ -10,7 +10,7 @@ import { editorTenantID, isSuperAdmin, superAdminOnly } from '../access/roles'
 import { auditClubChange, auditClubDeleted } from '../audit/hooks'
 import { publicError } from '../errors'
 import { SLUG, slugify } from '../fields/slug'
-import { clubOwnedCollections, type ClubOwnedSlug } from '../tenancy'
+import { clubOwnedCollections, DELETING_CLUB, type ClubOwnedSlug } from '../tenancy'
 import { demoExpiry, newDemoToken } from '../site/demo'
 import { hostProblem, normaliseHost } from '../site/hosts'
 import { DEFAULT_BRAND } from '../theme/colour'
@@ -110,7 +110,15 @@ const manageDemo: CollectionBeforeChangeHook = ({ data, originalDoc }) => {
  * either is refused (remove them first, deliberately). The database itself refuses to delete
  * a club that still owns anything, so without this the Delete button just fails. The club's
  * collections come from src/tenancy.ts, the list the isolation suite also uses, so a new one
- * can't be forgotten. Runs in the same transaction: if any step fails, nothing is removed. */
+ * can't be forgotten. Runs in the same transaction: if any step fails, nothing is removed.
+ *
+ * Documents, then categories (a document can't be left without one), then photos go last:
+ * deleting a photo or document also deletes its files from storage, which a failed
+ * transaction can't bring back, so every other step must have worked first. The "photo still
+ * in use" guard is skipped while a whole club is deleted: whatever uses its photos is being
+ * deleted too (DELETING_CLUB). */
+const LAST: ClubOwnedSlug[] = ['documents', 'categories', 'media']
+
 const deleteClubWithContent: CollectionBeforeDeleteHook = async ({ id, req }) => {
   const { payload } = req
   const own = { tenant: { equals: id } }
@@ -125,9 +133,22 @@ const deleteClubWithContent: CollectionBeforeDeleteHook = async ({ id, req }) =>
       )
     }
   }
-  const owned = Object.keys(clubOwnedCollections).filter((c) => c !== 'agreement-acceptances')
-  for (const collection of owned as ClubOwnedSlug[]) {
-    await payload.delete({ collection, where: own, overrideAccess: true, req })
+  req.context[DELETING_CLUB] = String(id)
+  const owned = (Object.keys(clubOwnedCollections) as ClubOwnedSlug[]).filter(
+    (c) => c !== 'agreement-acceptances' && !LAST.includes(c),
+  )
+  for (const collection of [...owned, ...LAST]) {
+    // Deleting many at once collects each refusal instead of stopping, which left the club
+    // half-cleared and the real reason hidden behind a database error. Stop on the first one.
+    const { errors } = await payload.delete({ collection, where: own, overrideAccess: true, req })
+    if (errors.length > 0) {
+      throw publicError(
+        `This club couldn’t be deleted: ${errors[0].message} Nothing was removed.`,
+        400,
+        undefined,
+        true,
+      )
+    }
   }
 }
 

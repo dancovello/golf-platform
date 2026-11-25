@@ -39,6 +39,10 @@ export const platformCollections = [
 
 export type ClubOwnedSlug = keyof typeof clubOwnedCollections
 
+/** Set in a request's context (server-side only) while a whole club is being deleted
+ * (src/collections/Tenants.ts), so the "photo still in use" guard lets its photos go. */
+export const DELETING_CLUB = 'deletingClub'
+
 /** Shown first in a club-owned item's form, to the super-admin only (src/admin/ClubBanner). */
 export const clubBannerField = {
   name: 'clubBanner',
