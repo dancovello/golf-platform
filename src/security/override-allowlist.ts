@@ -367,6 +367,20 @@ export const OVERRIDE_ALLOWLIST: OverrideUse[] = [
   },
   {
     file: 'src/privacy/cleanUp.ts',
+    fn: 'deleteOldDemoVisits',
+    uses: 1,
+    club: 'Every club’s demo visits past their retention period (times and page addresses only)',
+    why: 'Background job with no user. Runs from the cron route, which checks CRON_SECRET',
+  },
+  {
+    file: 'src/site/demoVisits.ts',
+    fn: 'recordDemoVisit',
+    uses: 2,
+    club: 'The one club whose short name AND random ending both match the demo link, only while it is switched on as a demo and has not expired; saves a visit for that club only',
+    why: `${PUBLIC_SITE}. Nobody may create a demo visit any other way (create is refused to everyone)`,
+  },
+  {
+    file: 'src/privacy/cleanUp.ts',
     fn: 'deleteOldDemoBookings',
     uses: 1,
     club: 'No club data: company-website demo bookings past their retention period',

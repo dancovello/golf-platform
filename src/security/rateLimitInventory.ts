@@ -95,6 +95,12 @@ export const RATE_LIMITS: Record<string, Protection> = {
     where:
       'App, shared database (CONTACT_VISITOR_LIMIT, CONTACT_CLUB_LIMIT, CONTACT_ALERTS_PER_CLUB, WEBSITE_FORM_EMAILS, src/security/rateLimit.ts); Vercel Firewall rule 3',
   },
+  'src/site/demoVisitActions.ts': {
+    who: 'anyone',
+    limit:
+      '300 visits saved per demo a day; past that, visits are not counted. Only for a demo link that is switched on and not expired',
+    where: 'App, shared database (DEMO_VISITS_PER_DAY, src/security/rateLimit.ts)',
+  },
   // ---------- Platform services ----------
   'src/app/(frontend)/csp-report/route.ts': {
     who: 'anyone',
