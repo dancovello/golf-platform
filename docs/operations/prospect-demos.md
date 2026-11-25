@@ -32,6 +32,18 @@ How we show a club its new website before it has signed up: a public link anyone
 
 > A demo only exists where the club was built. To make one on production, build the club there with `pnpm import-club-production club-imports/<club> demo` (`docs/operations/club-import.md`, step 5b). That needs Dan's explicit approval each time. There is no staging-to-production copy tool: the content file is the master copy.
 
+## Has the club opened it?
+
+The club's page in the admin shows **Demo visits** under the demo link: how many times a page of the demo was opened, and the latest 20 with their time (UK) and page.
+
+- Only the time and the page are kept. No IP address, location, device, cookie or anything stored in the visitor's browser (Dan, 25 Nov 2026). So there's no cookie banner, but the company privacy policy should say it (wording below).
+- A visit counts once the page has opened in a browser. Email link checkers and chat link previews don't run the page, so they aren't counted.
+- Your own visits count too: the site can't tell who opened it. Each page opened is one entry.
+- At most 300 visits a day are saved per demo. Visits are deleted 120 days after they happen.
+- Counting started with this feature: visits before it was released aren't known.
+
+Privacy policy wording: *"When someone opens a demo website we've sent, we record the time and the page opened. We don't record who opened it, their IP address, location or device, and we delete these records 120 days later."*
+
 ## Going live: checklist
 
 **Do these in order when a club signs up.** Step 1 is the only one that changes search-engine visibility, and it is automatic.

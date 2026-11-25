@@ -6,6 +6,7 @@ import { ClubSettings } from './ClubSettings'
 import { AuditLog } from './AuditLog'
 import { Courses } from './Courses'
 import { CourseStatus } from './CourseStatus'
+import { DemoVisits } from './DemoVisits'
 import { Documents } from './Documents'
 import { Enquiries } from './Enquiries'
 import { Events } from './Events'
@@ -41,6 +42,7 @@ export const collections: CollectionConfig[] = [
   AgreementAcceptances,
   Tenants,
   AuditLog,
+  DemoVisits,
   // The company website (super-admin only).
   MarketingPages,
   MarketingMedia,

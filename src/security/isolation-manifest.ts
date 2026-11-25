@@ -86,6 +86,12 @@ export const COLLECTIONS: Manifest = {
       test: 'club editors can’t read, create, change or delete entries; nobody changes or deletes one',
     },
   ],
+  'demo-visits': [
+    {
+      file: 'tests/int/demo-visits.int.spec.ts',
+      test: 'club editors can’t read, change or delete them, and nobody creates them by hand',
+    },
+  ],
   'demo-bookings': [
     {
       file: 'tests/int/demo-bookings.int.spec.ts',
@@ -416,6 +422,12 @@ export const SERVER_ACTIONS: Manifest = {
     {
       file: 'tests/int/demo-bookings.int.spec.ts',
       test: 'only books a time the settings offer, and each time once',
+    },
+  ],
+  'src/site/demoVisitActions.ts': [
+    {
+      file: 'tests/int/demo-visits.int.spec.ts',
+      test: 'saves a visit only for the demo whose link matches, while it is on and not expired',
     },
   ],
   'src/site/contact/actions.ts': [

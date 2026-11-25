@@ -326,5 +326,14 @@ export const Tenants: CollectionConfig = {
         description: '30 days after the demo was switched on. Change it to extend or end it early.',
       },
     },
+    {
+      // How often the demo link has been opened (a display only: src/site/demoVisits.ts).
+      name: 'demoVisits',
+      type: 'ui',
+      admin: {
+        condition: (data, _sibling, { user }) => Boolean(data?.demoEnabled) && isSuperAdmin(user),
+        components: { Field: '/admin/DemoVisitsField#DemoVisitsField' },
+      },
+    },
   ],
 }

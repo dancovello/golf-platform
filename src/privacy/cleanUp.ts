@@ -18,6 +18,7 @@ import { mediaStorageSettings } from '../media/storage'
  *    contact (decision F).
  * 3. **Demo bookings** are deleted 12 months after their last change.
  *    Audit log entries (src/audit/record.ts) are deleted 12 months after they're made.
+ *    Demo visits (src/site/demoVisits.ts) are deleted 120 days after the visit.
  * 4. **Uploads that never became a photo or document** (the browser uploaded the file, then
  *    Payload's content check refused the record) are removed from storage after a day.
  *
@@ -118,6 +119,24 @@ export const deleteOldAuditEntries = async (payload: Payload, now = new Date()) 
     payload.logger.error(
       { errors: result.errors },
       'Clean-up: some audit log entries could not be deleted',
+    )
+  }
+  return result.docs.length
+}
+/** Demo visits (src/site/demoVisits.ts) are kept 120 days: a 30-day demo plus about 90 days. */
+export const DEMO_VISIT_DAYS = 120
+export const deleteOldDemoVisits = async (payload: Payload, now = new Date()) => {
+  const cutoff = new Date(now.getTime() - DEMO_VISIT_DAYS * 24 * 60 * 60 * 1000).toISOString()
+  const result = await payload.delete({
+    collection: 'demo-visits',
+    where: { visitedAt: { less_than: cutoff } },
+    overrideAccess: true,
+    depth: 0,
+  })
+  if (result.errors.length) {
+    payload.logger.error(
+      { errors: result.errors },
+      'Clean-up: some demo visits could not be deleted',
     )
   }
   return result.docs.length
@@ -260,11 +279,12 @@ export const runCleanUp = async (
   const homepageRequests = await deleteOldHomepageRequests(payload, now)
   const demoBookings = await deleteOldDemoBookings(payload, now)
   const auditEntries = await deleteOldAuditEntries(payload, now)
+  const demoVisits = await deleteOldDemoVisits(payload, now)
   const uploads = files ? await deleteOrphanUploads(payload, now) : null
   const db = (payload.db as unknown as { drizzle: Parameters<typeof deleteOldCounts>[0] }).drizzle
   const counts = await deleteOldCounts(db, now)
   payload.logger.info(
-    `Clean-up: deleted ${enquiries} enquiries, ${homepageRequests} homepage requests, ${demoBookings} demo bookings, ${auditEntries} audit log entries and ${counts} old rate-limit counts${uploads ? `, removed ${uploads.removed} unused files` : ''}`,
+    `Clean-up: deleted ${enquiries} enquiries, ${homepageRequests} homepage requests, ${demoBookings} demo bookings, ${auditEntries} audit log entries, ${demoVisits} demo visits and ${counts} old rate-limit counts${uploads ? `, removed ${uploads.removed} unused files` : ''}`,
   )
-  return { enquiries, homepageRequests, demoBookings, auditEntries, uploads, counts }
+  return { enquiries, homepageRequests, demoBookings, auditEntries, demoVisits, uploads, counts }
 }
