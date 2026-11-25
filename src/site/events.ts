@@ -11,7 +11,13 @@ import {
 import { builtInLink, isSafeURL, linksToPage } from '@/fields/link'
 
 import { loadClubMedia, type SiteMedia } from './blocks/media'
-import { type BlockContext, loadBlockContext, loadClubDocuments } from './blocks/resolve'
+import {
+  type BlockContext,
+  type BlockData,
+  blockContextFrom,
+  loadBlockData,
+  loadClubDocuments,
+} from './blocks/resolve'
 import { PUBLISHED } from './published'
 import type { SiteLink } from './loadClub'
 import { siteToday } from './today'
@@ -476,6 +482,13 @@ export type SiteEventPage = SiteEvent & {
   more: SiteEvent[]
 }
 
+/**
+ * What's cached for an event's page: plain data only. The cache stores JSON, so the photo and
+ * link lookups (`ctx`) are made from `data` after it's read, never cached themselves (Sentry
+ * GOLF-PLATFORM-H, 25 Nov 2026).
+ */
+type EventPageData = Omit<SiteEventPage, 'ctx'> & { data: BlockData }
+
 /** When an event drops off the upcoming lists: its start, or with no set time, its day's end. */
 export const eventEnds = (e: Pick<SiteEvent, 'startsAt' | 'noStartTime'>) =>
   e.noStartTime ? ukEndOfDay(new Date(e.startsAt)) : new Date(e.startsAt)
@@ -489,7 +502,7 @@ const loadEventPageFresh = async (
   tenantID: string,
   slug: string,
   { unpublished = false }: { unpublished?: boolean } = {},
-): Promise<SiteEventPage | null> => {
+): Promise<EventPageData | null> => {
   const { docs } = await find(
     tenantID,
     {
@@ -503,11 +516,11 @@ const loadEventPageFresh = async (
   const doc = docs[0] as (EventDoc & ResultsDoc & { body?: unknown }) | undefined
   if (!doc) return null
   const payload = await getPayload({ config })
-  const [[event], ctx, upcoming] = await Promise.all([
+  const [[event], data, upcoming] = await Promise.all([
     toEvents(tenantID, [doc]),
     // The write-up and the results report are drawn like Text blocks, so their photos and links
     // are checked the same way.
-    loadBlockContext(payload, tenantID, [
+    loadBlockData(payload, tenantID, [
       { blockType: 'richText', content: doc.body },
       { blockType: 'richText', content: doc.resultsReport },
     ]),
@@ -517,7 +530,7 @@ const loadEventPageFresh = async (
     ...event,
     body: doc.body ?? null,
     builtInResults: toResults(doc),
-    ctx,
+    data,
     past: eventEnds(event) <= siteToday(),
     more: upcoming.filter((e) => e.id !== event.id).slice(0, 3),
   }
@@ -529,14 +542,18 @@ const publishedEventPage = clubCached(
   { today: true },
 )
 /** One event's page. Unpublished ones (the live preview) never go through the cache. */
-export const loadEventPage = (
+export const loadEventPage = async (
   tenantID: string,
   slug: string,
   { unpublished = false }: { unpublished?: boolean } = {},
-) =>
-  unpublished
-    ? loadEventPageFresh(tenantID, slug, { unpublished })
-    : publishedEventPage(tenantID, slug)
+): Promise<SiteEventPage | null> => {
+  const page = unpublished
+    ? await loadEventPageFresh(tenantID, slug, { unpublished })
+    : await publishedEventPage(tenantID, slug)
+  if (!page) return null
+  const { data, ...rest } = page
+  return { ...rest, ctx: blockContextFrom(data) }
+}
 
 /** Every published event's address and when it last changed (the club's sitemap). */
 export const eventsForSitemap = async (tenantID: string) => {

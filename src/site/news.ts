@@ -1,7 +1,12 @@
 import config from '@payload-config'
 import { getPayload, type Where } from 'payload'
 
-import { type BlockContext, loadBlockContext } from './blocks/resolve'
+import {
+  type BlockContext,
+  type BlockData,
+  blockContextFrom,
+  loadBlockData,
+} from './blocks/resolve'
 import { loadClubMedia, type SiteMedia } from './blocks/media'
 import { siteToday } from './today'
 import { clubCached } from './cache'
@@ -45,6 +50,13 @@ export type SiteNewsPost = SiteNewsCard & {
   next: SiteNewsCard | null
   more: SiteNewsCard[]
 }
+
+/**
+ * What's cached for an article: plain data only. The cache stores JSON, so the photo and link
+ * lookups (`ctx`) are made from `data` after it's read, never cached themselves (Sentry
+ * GOLF-PLATFORM-H, 25 Nov 2026: a cached article lost them and crashed on its first page link).
+ */
+type NewsPostData = Omit<SiteNewsPost, 'ctx'> & { data: BlockData }
 
 /** The lead story plus a grid of six (Figma "News archive"). */
 export const NEWS_PER_PAGE = 7
@@ -204,7 +216,7 @@ const loadNewsPostFresh = async (
   tenantID: string,
   slug: string,
   { unpublished = false }: { unpublished?: boolean } = {},
-): Promise<SiteNewsPost | null> => {
+): Promise<NewsPostData | null> => {
   const payload = await getPayload({ config })
   const { docs } = await payload.find({
     collection: 'news',
@@ -243,12 +255,12 @@ const loadNewsPostFresh = async (
     return (await toCards(tenantID, found as NewsDoc[]))[0] ?? null
   }
 
-  const [previous, next, latest, ctx] = await Promise.all([
+  const [previous, next, latest, data] = await Promise.all([
     neighbour('older'),
     neighbour('newer'),
     latestNews(tenantID, 7),
     // The article is drawn like a Text block, so its photos and links are checked the same way.
-    loadBlockContext(payload, tenantID, [{ blockType: 'richText', content: doc.body }]),
+    loadBlockData(payload, tenantID, [{ blockType: 'richText', content: doc.body }]),
   ])
 
   return {
@@ -257,7 +269,7 @@ const loadNewsPostFresh = async (
     author: doc.author?.trim() || null,
     body: doc.body ?? null,
     readingMinutes: Math.max(1, Math.round(wordCount(doc.body) / 200)),
-    ctx,
+    data,
     previous,
     next,
     more: latest.filter((p) => p.slug !== slug).slice(0, 6),
@@ -278,11 +290,15 @@ const publishedNewsPost = clubCached(
   { today: true },
 )
 /** One article. Unpublished ones (the live preview) never go through the cache. */
-export const loadNewsPost = (
+export const loadNewsPost = async (
   tenantID: string,
   slug: string,
   { unpublished = false }: { unpublished?: boolean } = {},
-) =>
-  unpublished
-    ? loadNewsPostFresh(tenantID, slug, { unpublished })
-    : publishedNewsPost(tenantID, slug)
+): Promise<SiteNewsPost | null> => {
+  const post = unpublished
+    ? await loadNewsPostFresh(tenantID, slug, { unpublished })
+    : await publishedNewsPost(tenantID, slug)
+  if (!post) return null
+  const { data, ...rest } = post
+  return { ...rest, ctx: blockContextFrom(data) }
+}
